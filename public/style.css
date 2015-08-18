@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#code {
+  width: 50%;
+  height: 20em;
+  border-right: 3px solid #777;
+  position: relative;
+}
+
+#code #editor { 
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+
+#plot {
+  position: absolute;
+  left: 50%;
+  width: 50%;
+  height: 20em;
+}
+
+#data {
+  border-top: 3px solid #777;
+}
+
+#data table {
+  border-collapse: collapse;
+}
+
+#data th {
+  background: #ddd;
+}
+
+#data th, td {
+  border: 1px solid #ccc;
+  padding: 4pt 6pt;
+}
+
