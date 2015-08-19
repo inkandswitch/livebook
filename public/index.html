@@ -1,114 +1,68 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+<head>
+  <link href="style.css" rel="stylesheet" type="text/css" />
 
-body {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.dot {
-  stroke: #000;
-}
-
-</style>
+  <script src="/ace-editor/ace.js"></script>
+  <script src="/d3/d3.min.js"></script>
+  <script src="/app.js"></script>
+</head>
 <body>
-<script src="/bower_components/d3/d3.min.js"></script>
-<script>
+  <div id="code">
+  <div id="editor">
+    LoadData(function(data) {
+        plot(data, "L", "CapsPerHour" )
+    })
+  </div>
+  </div>
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+  <div id="plot"></div>
 
-var x = d3.scale.linear().range([0, width]);
+  <div id="data"></div>
 
-var y = d3.scale.linear().range([height, 0]);
+  <script>
+    // initialize ace editor
+    var editor = ace.edit("editor");
+    editor.getSession().setMode("ace/mode/javascript");
+    editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+    editor.on("change",function() { eval(editor.getValue()); })
 
-var color = d3.scale.category10();
+    // load data from CSV
+    function LoadData(handler) {
+      d3.csv("fallout.csv", function(error, data) {
+        if (error) throw error;
+        data.forEach(function(d) {
+          var durations = d.Duration.split(":").reverse()
+          d.Minutes = +durations[0]
+          if (durations[1] > 0) d.Minutes += durations[1] * 60
+          if (durations[2] > 0) d.Minutes += durations[2] * 60 * 24
+          var dmg = d.Damage.split("-")
+          d.MedianDamage = ((+dmg[0]) + (+dmg[1]))/2
+          d.CapsPerHour = round2((+d.Caps) * 60 / d.Minutes)
+          d.L = +d.L
+        });
+        handler(data)
+      });
+    }
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
+    LoadData(function(data) {
+        tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
+    })
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    d3.tsv("data.tsv", function(error, data) {
+      if (error) throw error;
+      data.forEach(function(d) {
+        d.sepalWidth  = +d.sepalWidth
+        d.sepalLength = +d.sepalLength
+        d.petalLength = +d.petalLength
+        d.petalWidth  = +d.petalWidth
+      })
+      //plot(data, "sepalLength", "sepalWidth" )
+    })
 
-d3.tsv("data.tsv", function(error, data) {
-  if (error) throw error;
+    eval(editor.getValue())
 
-  data.forEach(function(d) {
-    console.log(d)
-    d.sepalLength = +d.sepalLength;
-    d.sepalWidth = +d.sepalWidth;
-  });
+  </script>
 
-  x.domain(d3.extent(data, function(d) { return d.sepalWidth; })).nice();
-  y.domain(d3.extent(data, function(d) { return d.sepalLength; })).nice();
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("x", width)
-      .attr("y", -6)
-      .style("text-anchor", "end")
-      .text("Sepal Width (cm)");
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Sepal Length (cm)")
-
-  svg.selectAll(".dot")
-      .data(data)
-    .enter().append("circle")
-      .attr("class", "dot")
-      .attr("r", 3.5)
-      .attr("cx", function(d) { return x(d.sepalWidth); })
-      .attr("cy", function(d) { return y(d.sepalLength); })
-      .style("fill", function(d) { return color(d.species); });
-
-  var legend = svg.selectAll(".legend")
-      .data(color.domain())
-    .enter().append("g")
-      .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-  legend.append("rect")
-      .attr("x", width - 18)
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", color);
-
-  legend.append("text")
-      .attr("x", width - 24)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-      .text(function(d) { return d; });
-
-});
-
-</script>
-hello
+</body>
+</html>

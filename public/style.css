@@ -4,8 +4,8 @@ body {
 }
 
 #code {
-  width: 50%;
-  height: 20em;
+  width: 35%;
+  height: 30em;
   border-right: 3px solid #777;
   position: relative;
 }
@@ -21,9 +21,10 @@ body {
 
 #plot {
   position: absolute;
-  left: 50%;
-  width: 50%;
-  height: 20em;
+  top: 0;
+  left: 35%;
+  width: 65%;
+  height: 30em;
 }
 
 #data {
