@@ -59,17 +59,6 @@
         tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
     })
 
-    d3.tsv("data.tsv", function(error, data) {
-      if (error) throw error;
-      data.forEach(function(d) {
-        d.sepalWidth  = +d.sepalWidth
-        d.sepalLength = +d.sepalLength
-        d.petalLength = +d.petalLength
-        d.petalWidth  = +d.petalWidth
-      })
-      //plot(data, "sepalLength", "sepalWidth" )
-    })
-
     eval(editor.getValue())
 
   </script>
