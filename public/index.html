@@ -10,8 +10,17 @@
   <div id="code">
   <div id="editor">
 LoadData("activity.csv", function(data) {
-    nonzero = data.filter(function(x) { return x.steps > 0 })
-    plot(nonzero, "steps", "interval" )
+    // sum of steps across the same 5-minute time interval each day
+    intervals = d3.nest()
+      .key(function(d) { return d.interval })
+      .rollup(function(d) {
+        return d3.sum(d, function(g) { return g.steps })
+      }).entries(data);
+
+    // convert key to a number
+    intervals = intervals.map(function(x) { x.key = +x.key; return x })
+
+    plot(intervals, "values", "key" )
 })
   </div>
   </div>
