@@ -9,9 +9,10 @@
 <body>
   <div id="code">
   <div id="editor">
-    LoadData("fallout.csv", function(data) {
-        plot(data, "L", "CapsPerHour" )
-    })
+LoadData("activity.csv", function(data) {
+    nonzero = data.filter(function(x) { return x.steps > 0 })
+    plot(nonzero, "steps", "interval" )
+})
   </div>
   </div>
 
@@ -33,27 +34,11 @@
       d3.csv(name, function(error, data) {
         if (error) throw error;
         data.forEach(function(d) {
-          var durations = d.Duration.split(":").reverse()
-          d.Minutes = +durations[0]
-          if (durations[1] > 0) d.Minutes += durations[1] * 60
-          if (durations[2] > 0) d.Minutes += durations[2] * 60 * 24
-          var dmg = d.Damage.split("-")
-          d.MedianDamage = ((+dmg[0]) + (+dmg[1]))/2
-          d.CapsPerHour = round2((+d.Caps) * 60 / d.Minutes)
-          d.Level = +d.Level
-          d.Caps = +d.Caps
-          d.S = +d.S
-          d.P = +d.P
-          d.E = +d.E
-          d.C = +d.C
-          d.I = +d.I
-          d.A = +d.A
-          d.L = +d.L
-          d["Level Gains"] = +d["Level Gains"]
-          d.Happyness = +d.Happyness
+          d.steps = +d.steps
+          d.interval = +d.interval
         });
         cache[name] = data
-        tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
+        tabulate(data, ['steps','date','interval'])
         handler(data)
       });
     }
