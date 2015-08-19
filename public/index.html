@@ -9,7 +9,7 @@
 <body>
   <div id="code">
   <div id="editor">
-    LoadData(function(data) {
+    LoadData("fallout.csv", function(data) {
         plot(data, "L", "CapsPerHour" )
     })
   </div>
@@ -27,8 +27,10 @@
     editor.on("change",function() { eval(editor.getValue()); })
 
     // load data from CSV
-    function LoadData(handler) {
-      d3.csv("fallout.csv", function(error, data) {
+    var cache = {}
+    function LoadData(name, handler) {
+      if (cache[name]) handler(cache[name])
+      d3.csv(name, function(error, data) {
         if (error) throw error;
         data.forEach(function(d) {
           var durations = d.Duration.split(":").reverse()
@@ -50,14 +52,11 @@
           d["Level Gains"] = +d["Level Gains"]
           d.Happyness = +d.Happyness
         });
+        cache[name] = data
+        tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
         handler(data)
       });
     }
-
-
-    LoadData(function(data) {
-        tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
-    })
 
     eval(editor.getValue())
 
