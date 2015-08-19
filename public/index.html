@@ -3,14 +3,18 @@
   <link href="style.css" rel="stylesheet" type="text/css" />
 
   <script src="/ace-editor/ace.js"></script>
-  <script src="/d3/d3.min.js"></script>
+  <script src="/d3/d3.js"></script>
   <script src="/app.js"></script>
 </head>
 <body>
   <div id="code">
   <div id="editor">
-    data = load("fallout.csv")
-    plot(data, "L", "CapsPerHour" )
+    var data = load("fallout.csv")
+    for (var d of data) {
+        d.Minutes = dur2mins(d.Duration)
+        d.CapsPerHour = round2(d.Caps * 60 / d.Minutes)
+    }
+    plot(data, "E", "Minutes" )
   </div>
   </div>
 
@@ -23,54 +27,9 @@
     var editor = ace.edit("editor");
     editor.getSession().setMode("ace/mode/javascript");
     editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-    editor.on("change",function() { EvalP(editor.getValue()); })
+    editor.on("change",function() { _magic_eval(editor.getValue()); })
 
-    // load data from CSV
-    var cache = {}
-    function load(name) {
-      if (cache[name]) return cache[name]
-      var p = new Promise(function(resolve,reject) { 
-        d3.csv(name, function(error, data) {
-          if (error) reject(error);
-          data.forEach(function(d) {
-            var durations = d.Duration.split(":").reverse()
-            d.Minutes = +durations[0]
-            if (durations[1] > 0) d.Minutes += durations[1] * 60
-            if (durations[2] > 0) d.Minutes += durations[2] * 60 * 24
-            var dmg = d.Damage.split("-")
-            d.MedianDamage = ((+dmg[0]) + (+dmg[1]))/2
-            d.CapsPerHour = round2((+d.Caps) * 60 / d.Minutes)
-            d.Level = +d.Level
-            d.Caps = +d.Caps
-            d.S = +d.S
-            d.P = +d.P
-            d.E = +d.E
-            d.C = +d.C
-            d.I = +d.I
-            d.A = +d.A
-            d.L = +d.L
-            d["Level Gains"] = +d["Level Gains"]
-            d.Happyness = +d.Happyness
-          });
-          cache[name] = data
-          tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
-          resolve(data)
-        });
-      })
-      throw p
-    }
-
-    function EvalP(code) {
-      try {
-        eval(code)
-      } catch (e) {
-        if (e instanceof Promise) {
-          e.then(function() {EvalP(code)}, function(err) { console.log("error readind data") } )
-        }
-      }
-    }
-
-    EvalP(editor.getValue())
+    _magic_eval(editor.getValue())
 
   </script>
 

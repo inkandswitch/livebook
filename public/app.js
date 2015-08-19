@@ -1,3 +1,10 @@
+"use strict";
+
+function dur2mins(dur) {
+ var mins = [1,60,60*24]
+ return dur.split(":").reverse().reduce(function(sum,val,index) { return sum + (+val) * mins[index] },0)
+}
+
 function tabulate(data, columns) {
     var table = d3.select("#data").append("table"),
         thead = table.append("thead"),
@@ -125,3 +132,51 @@ function round2(x) {
   return Math.round((+x)*100)/100
 }
 
+var cache = {}
+function load(name) {
+  if (cache[name]) return cache[name]
+  var promise = new Promise(function(resolve,reject) {
+    var result = d3.csv(name, function(d) {
+      // if it looks like a number - convert it
+      for (var key in d) {
+        if (!isNaN(+d[key])) {
+          d[key] = +d[key]
+        }
+      }
+      return d
+    },
+    function(error, data) {
+      if (error) reject(error);
+      cache[name] = data
+//      var last_headers = d3.csv._get_last_headers()
+ //     console.log("last_headers",last_headers)
+      tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
+      resolve(data)
+    });
+  })
+  throw promise
+}
+
+function _magic_eval(code) {
+  try {
+    eval(code)
+  } catch (e) {
+    console.log(e)
+    if (e instanceof Promise) {
+      e.then(function() {_magic_eval(code)}, function(err) { console.log("error readind data") } )
+    }
+  }
+}
+
+// monkey patch d3
+
+/*
+d3.csv._parseRows = d3.csv.parseRows
+d3.csv.parseRows = function(text,f) {
+  var headers = null;
+  return d3.csv._parseRows(text,function(a,b) {
+    headers = headers || a
+    return f(a,b);
+  })
+}
+*/
