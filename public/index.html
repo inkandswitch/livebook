@@ -38,7 +38,16 @@
           var dmg = d.Damage.split("-")
           d.MedianDamage = ((+dmg[0]) + (+dmg[1]))/2
           d.CapsPerHour = round2((+d.Caps) * 60 / d.Minutes)
+          d.Level = +d.Level
+          d.Caps = +d.Caps
+          d.S = +d.S
+          d.P = +d.P
+          d.E = +d.E
+          d.C = +d.C
+          d.I = +d.I
+          d.A = +d.A
           d.L = +d.L
+          d.Happyness = +d.Happyness
         });
         handler(data)
       });
