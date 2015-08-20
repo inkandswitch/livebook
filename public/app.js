@@ -1,11 +1,30 @@
 "use strict";
 
+var uid = 0;
+
+function guid() {
+  uid = uid + 1
+  return uid;
+}
+
 function dur2mins(dur) {
  var mins = [1,60,60*24]
  return dur.split(":").reverse().reduce(function(sum,val,index) { return sum + (+val) * mins[index] },0)
 }
 
-function tabulate(data, columns) {
+function uniq(array) {
+  var n = []
+  for (var v of array) {
+    if (n.indexOf(v) < 0 && v[0] != "_") {
+      n.push(v)
+    }
+  }
+  return n
+}
+
+function tabulate(data) {
+    var columns = uniq(data._headers.concat(Object.keys(data[0])))
+
     var table = d3.select("#data").append("table"),
         thead = table.append("thead"),
         tbody = table.append("tbody");
@@ -24,7 +43,15 @@ function tabulate(data, columns) {
     var rows = tbody.selectAll("tr")
         .data(data)
         .enter()
-        .append("tr");
+        .append("tr")
+        .attr("id", function(d) { return "d_" + d._id })
+        .on("click", function(d) {
+          var point = d3.select("#p_" + d._id)
+          var row = d3.select("#d_" + d._id)
+          var select = !row.classed("selected")
+          point.classed("selected",select)
+          row.classed("selected",select)
+        })
 
     // Create a cell in each row for each column
     var cells = rows.selectAll("td")
@@ -44,6 +71,9 @@ function tabulate(data, columns) {
 }
 
 function plot(data, input, output) {
+  console.log("plot")
+  tabulate(data)
+
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 920 - margin.left - margin.right,
       height = 470 - margin.top - margin.bottom;
@@ -99,13 +129,18 @@ function plot(data, input, output) {
       .enter().append("circle")
         .attr("class", "dot")
         .attr("r", 3.5)
+        .attr("id", function(d) { return "p_" + d._id; })
         .attr("cx", function(d) { return x(d[output]); })
         .attr("cy", function(d) { return y(d[input]); })
 //        .style("fill", function(d) { return color(d.species); });
-        .style("fill", function(d) { return color("derka"); })
-        .on("click", function(d) {
-          console.log(d)
-          alert(d.Name)
+//        .style("fill", function(d) { return color("derka"); })
+        .on("click", function(d,x) {
+          console.log(d,x)
+          var point = d3.select("#p_" + d._id)
+          var row = d3.select("#d_" + d._id)
+          var select = !point.classed("selected")
+          point.classed("selected",select)
+          row.classed("selected",select)
         })
 
     var legend = svg.selectAll(".legend")
@@ -143,14 +178,14 @@ function load(name) {
           d[key] = +d[key]
         }
       }
+      d._id = guid()
       return d
     },
     function(error, data) {
       if (error) reject(error);
       cache[name] = data
 //      var last_headers = d3.csv._get_last_headers()
- //     console.log("last_headers",last_headers)
-      tabulate(data, ['Name','Level', 'Level Gains', 'S','P','E','C','I','A','L', 'Happyness', 'Damage', 'MedianDamage', 'Caps', 'CapsPerHour', 'Duration', 'Minutes']);
+//      console.log("last_headers",data._headers)
       resolve(data)
     });
   })
@@ -161,22 +196,23 @@ function _magic_eval(code) {
   try {
     eval(code)
   } catch (e) {
-    console.log(e)
     if (e instanceof Promise) {
       e.then(function() {_magic_eval(code)}, function(err) { console.log("error readind data") } )
+    } else {
+      console.log(e)
     }
   }
 }
 
 // monkey patch d3
 
-/*
 d3.csv._parseRows = d3.csv.parseRows
 d3.csv.parseRows = function(text,f) {
   var headers = null;
-  return d3.csv._parseRows(text,function(a,b) {
+  var rows = d3.csv._parseRows(text,function(a,b) {
     headers = headers || a
     return f(a,b);
   })
+  rows._headers = headers
+  return rows
 }
-*/

@@ -18,6 +18,18 @@ body {
   left: 0;
 }
 
+circle {
+  fill: green;
+}
+
+circle.selected {
+  fill: lightblue;
+}
+
+tr.selected {
+  background-color: lightblue;
+}
+
 
 #plot {
   position: absolute;
