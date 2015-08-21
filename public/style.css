@@ -1,21 +1,35 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
+  background: #888;
+}
+
+#notebook {
+  margin: 0 auto;
+  width: 60em;
+  border-left: 1px solid #222;
+  border-right: 1px solid #222;
+  background: #fff;
+}
+
+div.cell {
+  padding-left: 64pt;
+  padding-right: 64pt;
+  border-bottom: 1px dashed #eee;
 }
 
 #code {
-  width: 35%;
-  height: 30em;
-  border-right: 3px solid #777;
+  height: 10em;
   position: relative;
 }
 
 #code #editor { 
   position: absolute;
   top: 0;
-  right: 0;
+  right: 64pt;
   bottom: 0;
-  left: 0;
+  left: 64pt;
 }
 
 circle {
@@ -32,15 +46,12 @@ tr.selected {
 
 
 #plot {
-  position: absolute;
-  top: 0;
-  left: 35%;
-  width: 65%;
-  height: 30em;
+  height: 300px;
 }
 
 #data {
-  border-top: 3px solid #777;
+  overflow: scroll;
+  height: 20em;
 }
 
 #data table {
@@ -53,6 +64,7 @@ tr.selected {
 
 #data th, td {
   border: 1px solid #ccc;
-  padding: 4pt 6pt;
+  padding: 2pt 4pt;
+  font-size: 75%;
 }
 

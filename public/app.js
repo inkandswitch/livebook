@@ -79,8 +79,8 @@ function plot(opal_data, input, output) {
   console.log(data[0])
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = 920 - margin.left - margin.right,
-      height = 470 - margin.top - margin.bottom;
+      width = 500 - margin.left - margin.right,
+      height = 300 - margin.top - margin.bottom;
 
   var x = d3.scale.linear().range([0, width]);
 

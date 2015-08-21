@@ -8,20 +8,27 @@
   <script src="/app.js"></script>
 </head>
 <body>
-  <div id="code">
-  <div id="editor">
-data = load("fallout.csv")
+<div id="notebook">
+
+  <div class="cell prose">
+    <h1>Fallout character progress analysis</h1>
+    <p>by Orion Henry, Aug 2015</p>
+  </div>
+
+  <div class="cell" id="code">
+  <div class="cell" id="editor">data = load("fallout.csv")
 data.each do |d|
-  d["Minutes"] = d["Duration"].split(":").reverse.zip([1,60,60*24]).inject(0) { |sum,n| sum + n[0].to_i * n[1] }
+  d["Minutes"] = d["Duration"].split(":").reverse.zip([1,60,60*24]).inject(0) {
+    |sum,n| sum + n[0].to_i * n[1]
+  }
   d["CapsPerHour"] = (d["Caps"] * 60 / d["Minutes"]).round(2)
 end
-plot(data,"L","CapsPerHour")
-  </div>
+plot(data,"L","CapsPerHour")</div>
   </div>
 
-  <div id="plot"></div>
+  <div class="cell" id="plot"></div>
 
-  <div id="data"></div>
+  <div class="cell" id="data"></div>
 
   <script>
     // initialize ace editor
@@ -34,5 +41,6 @@ plot(data,"L","CapsPerHour")
 
   </script>
 
+</div>
 </body>
 </html>
