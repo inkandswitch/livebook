@@ -10,11 +10,13 @@
 <body>
 <div id="notebook">
 
+  <div class="gutter">[1]</div>
   <div class="cell prose">
     <h1>Fallout character progress analysis</h1>
     <p>by Orion Henry, Aug 2015</p>
   </div>
 
+  <div class="gutter">[2]</div>
   <div class="cell" id="code">
   <div class="cell" id="editor">data = load("fallout.csv")
 data.each do |d|
@@ -26,9 +28,11 @@ end
 plot(data,"L","CapsPerHour")</div>
   </div>
 
+  <div class="gutter">[3]</div>
   <div class="cell" id="plot"></div>
 
-  <div class="cell" id="data"></div>
+  <div class="gutter">[4]</div>
+  <div class="cell"><div id="data"></div></div>
 
   <script>
     // initialize ace editor
