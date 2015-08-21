@@ -1,7 +1,8 @@
 <html>
 <head>
   <link href="style.css" rel="stylesheet" type="text/css" />
-
+  <script src="//cdn.opalrb.org/opal/master/opal.min.js"></script>
+  <script src="//cdn.opalrb.org/opal/master/opal-parser.min.js"></script>
   <script src="/ace-editor/ace.js"></script>
   <script src="/d3/d3.js"></script>
   <script src="/app.js"></script>
@@ -9,12 +10,12 @@
 <body>
   <div id="code">
   <div id="editor">
-    var data = load("fallout.csv")
-    for (var d of data) {
-        d.Minutes = dur2mins(d.Duration)
-        d.CapsPerHour = round2(d.Caps * 60 / d.Minutes)
-    }
-    plot(data, "E", "Minutes" )
+data = load("fallout.csv")
+data.each do |d|
+  d["Minutes"] = d["Duration"].split(":").reverse.zip([1,60,60*24]).inject(0) { |sum,n| sum + n[0].to_i * n[1] }
+  d["CapsPerHour"] = (d["Caps"] * 60 / d["Minutes"]).round(2)
+end
+plot(data,"L","CapsPerHour")
   </div>
   </div>
 
@@ -25,7 +26,7 @@
   <script>
     // initialize ace editor
     var editor = ace.edit("editor");
-    editor.getSession().setMode("ace/mode/javascript");
+    editor.getSession().setMode("ace/mode/ruby");
     editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
     editor.on("change",function() { _magic_eval(editor.getValue()); })
 

@@ -1,5 +1,7 @@
 "use strict";
 
+Opal.modules["opal-parser"](Opal)
+
 var uid = 0;
 
 function guid() {
@@ -70,9 +72,11 @@ function tabulate(data) {
     return table;
 }
 
-function plot(data, input, output) {
-  console.log("plot")
+function plot(opal_data, input, output) {
+  var data = opal_data.map(function(d) { return d.smap })
+  data._headers = qqq // hack for now
   tabulate(data)
+  console.log(data[0])
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 920 - margin.left - margin.right,
@@ -169,7 +173,7 @@ function round2(x) {
 
 var cache = {}
 function load(name) {
-  if (cache[name]) return cache[name]
+  if (cache[name]) return cache[name].map(function(d) { return Opal.hash(d) })
   var promise = new Promise(function(resolve,reject) {
     var result = d3.csv(name, function(d) {
       // if it looks like a number - convert it
@@ -194,7 +198,7 @@ function load(name) {
 
 function _magic_eval(code) {
   try {
-    eval(code)
+    Opal.eval(code)
   } catch (e) {
     if (e instanceof Promise) {
       e.then(function() {_magic_eval(code)}, function(err) { console.log("error readind data") } )
@@ -206,6 +210,7 @@ function _magic_eval(code) {
 
 // monkey patch d3
 
+var qqq
 d3.csv._parseRows = d3.csv.parseRows
 d3.csv.parseRows = function(text,f) {
   var headers = null;
@@ -213,6 +218,20 @@ d3.csv.parseRows = function(text,f) {
     headers = headers || a
     return f(a,b);
   })
+  qqq = headers // hack
   rows._headers = headers
   return rows
 }
+
+window.bridge = {
+  load: load,
+  plot: plot
+}
+
+Opal.eval(""+
+"  def load name\n"+
+"    `window.bridge.load`.call(name)\n"+
+"  end\n"+
+"  def plot data, a, b\n"+
+"    `window.bridge.plot`.call(data,a,b)\n"+
+"  end\n")
