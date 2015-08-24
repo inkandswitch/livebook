@@ -1,6 +1,6 @@
 "use strict";
 
-
+var LANG = "python"
 var uid = 0;
 
 function guid() {
@@ -203,8 +203,6 @@ function load(name) {
     function(error, data) {
       if (error) reject(error);
       cache[name] = data
-//      var last_headers = d3.csv._get_last_headers()
-//      console.log("last_headers",data._headers)
       resolve(data)
     });
   })
@@ -219,8 +217,10 @@ function _magic_eval(language, code) {
   try {
     if (language == "python") {
       var module = Sk.importMainWithBody("<stdin>", false, code)
+      localStorage.setItem(language,editor.getValue())
     } else if (language == "ruby") {
       Opal.eval(code)
+      localStorage.setItem(language,editor.getValue())
     } else if (language == "js" ) {
       if (typeof code == 'function') {
         code()
@@ -255,26 +255,24 @@ d3.csv.parseRows = function(text,f) {
 }
 
 var editor = ace.edit("editor");
+//editor.$blockScrolling = Infinity
 editor.getSession().setMode("ace/mode/python");
 editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-editor.on("change",function() { _magic_eval(current_lang,editor.getValue()); })
+editor.on("change",function() { _magic_eval(LANG,editor.getValue()); })
 
-var python_code
-var init_python
+var init_code = {}
+
 function setup_python() {
   Sk.builtins["load"] = python_load
   Sk.builtins["plot"] = python_plot
   Sk.configure({output: output})
   _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
   jQuery.get("/init.py",function(code) {
-    init_python = code
-    python_code = code
-    setup_editor()
+    init_code.python = code
+    if (LANG == "python") setup_editor()
   })
 }
 
-var init_ruby
-var ruby_code
 function setup_ruby() {
   Opal.modules["opal-parser"](Opal)
   window.ruby_bridge = {
@@ -289,47 +287,34 @@ function setup_ruby() {
   "    `window.ruby_bridge.plot`.call(data,a,b)\n"+
   "  end\n")
   jQuery.get("/init.rb",function(code) {
-    init_ruby = code
-    ruby_code = code
-    setup_editor()
+    init_code.ruby = code
+    if (LANG == "ruby") setup_editor()
   })
 }
 
-function _code() {
-  if (current_lang == "ruby") {
-    return ruby_code;
-  } else {
-    return python_code;
-  }
-}
-
 function setup_editor() {
-  console.log("SETUP EDITOR",current_lang)
-  editor.getSession().setMode("ace/mode/"+current_lang);
-  editor.setValue(_code())
+  if (localStorage.getItem(LANG) == null) localStorage.setItem(LANG, init_code[LANG])
+  editor.getSession().setMode("ace/mode/"+LANG);
+  editor.setValue(localStorage.getItem(LANG))
   editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+  _magic_eval(LANG, editor.getValue())
 }
 
-var current_lang = "python"
 setup_ruby()
 setup_python()
-
-_magic_eval("python",editor.getValue())
 
 $("body").keypress(function(event) {
   if (event.ctrlKey) {
     if (event.charCode == 24) { // Ctrl-X
-      if (current_lang == "python") {
-        python_code = editor.getValue()
-        current_lang = "ruby"
+      if (LANG == "python") {
+        LANG = "ruby"
       } else {
-        ruby_code = editor.getValue()
-        current_lang = "python"
+        LANG = "python"
       }
       setup_editor()
-    } else if (event.charCode == 26) {
-      ruby_code = init_ruby
-      python_code = init_python
+    } else if (event.charCode == 26) { // Ctrl-Z
+      localStorage.removeItem('ruby')
+      localStorage.removeItem('python')
       setup_editor()
     } else {
       console.log("unknown ctrl key",event)
