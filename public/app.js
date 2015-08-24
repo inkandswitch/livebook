@@ -318,8 +318,10 @@ _magic_eval("python",editor.getValue())
 $("body").keypress(function(event) {
   if (event.charCode == 24 && event.ctrlKey) {
     if (current_lang == "python") {
+      python_code = editor.getValue()
       current_lang = "ruby"
     } else {
+      ruby_code = editor.getValue()
       current_lang = "python"
     }
     setup_editor()
