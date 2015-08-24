@@ -77,14 +77,12 @@ function ruby_plot(opal_data, input, output) {
 }
 
 function python_plot(data, input, output) {
-  console.log("python_data",data)
   return plot(data, input.v, output.v)
 }
 
 function plot(data, input, output) {
   data._headers = qqq // hack for now
   tabulate(data)
-  console.log(data[0])
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 500 - margin.left - margin.right,
@@ -181,7 +179,6 @@ function round2(x) {
 
 var cache = {}
 function python_load(name) {
-  console.log("py.load",name)
   return load(name.v)
 }
 
@@ -263,17 +260,20 @@ editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at
 editor.on("change",function() { _magic_eval(current_lang,editor.getValue()); })
 
 var python_code
+var init_python
 function setup_python() {
   Sk.builtins["load"] = python_load
   Sk.builtins["plot"] = python_plot
   Sk.configure({output: output})
   _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
   jQuery.get("/init.py",function(code) {
+    init_python = code
     python_code = code
     setup_editor()
   })
 }
 
+var init_ruby
 var ruby_code
 function setup_ruby() {
   Opal.modules["opal-parser"](Opal)
@@ -289,6 +289,7 @@ function setup_ruby() {
   "    `window.ruby_bridge.plot`.call(data,a,b)\n"+
   "  end\n")
   jQuery.get("/init.rb",function(code) {
+    init_ruby = code
     ruby_code = code
     setup_editor()
   })
@@ -316,14 +317,22 @@ setup_python()
 _magic_eval("python",editor.getValue())
 
 $("body").keypress(function(event) {
-  if (event.charCode == 24 && event.ctrlKey) {
-    if (current_lang == "python") {
-      python_code = editor.getValue()
-      current_lang = "ruby"
+  if (event.ctrlKey) {
+    if (event.charCode == 24) { // Ctrl-X
+      if (current_lang == "python") {
+        python_code = editor.getValue()
+        current_lang = "ruby"
+      } else {
+        ruby_code = editor.getValue()
+        current_lang = "python"
+      }
+      setup_editor()
+    } else if (event.charCode == 26) {
+      ruby_code = init_ruby
+      python_code = init_python
+      setup_editor()
     } else {
-      ruby_code = editor.getValue()
-      current_lang = "python"
+      console.log("unknown ctrl key",event)
     }
-    setup_editor()
   }
 })
