@@ -1,11 +1,13 @@
 <html>
 <head>
   <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="//cdn.opalrb.org/opal/master/opal.min.js"></script>
   <script src="//cdn.opalrb.org/opal/master/opal-parser.min.js"></script>
+  <script src="/skulpt/skulpt.js"></script>
+  <script src="/skulpt/skulpt-stdlib.js"></script>
   <script src="/ace-editor/ace.js"></script>
   <script src="/d3/d3.js"></script>
-  <script src="/app.js"></script>
 </head>
 <body>
 <div id="notebook">
@@ -18,14 +20,8 @@
 
   <div class="gutter">[2]</div>
   <div class="cell" id="code">
-  <div class="cell" id="editor">data = load("fallout.csv")
-data.each do |d|
-  d["Minutes"] = d["Duration"].split(":").reverse.zip([1,60,60*24]).inject(0) {
-    |sum,n| sum + n[0].to_i * n[1]
-  }
-  d["CapsPerHour"] = (d["Caps"] * 60 / d["Minutes"]).round(2)
-end
-plot(data,"L","CapsPerHour")</div>
+  <div class="cell" id="editor">
+  </div>
   </div>
 
   <div class="gutter">[3]</div>
@@ -34,17 +30,7 @@ plot(data,"L","CapsPerHour")</div>
   <div class="gutter">[4]</div>
   <div class="cell"><div id="data"></div></div>
 
-  <script>
-    // initialize ace editor
-    var editor = ace.edit("editor");
-    editor.getSession().setMode("ace/mode/ruby");
-    editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-    editor.on("change",function() { _magic_eval(editor.getValue()); })
-
-    _magic_eval(editor.getValue())
-
-  </script>
-
+  <script src="/app.js"></script>
 </div>
 </body>
 </html>

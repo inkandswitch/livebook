@@ -1,6 +1,5 @@
 "use strict";
 
-Opal.modules["opal-parser"](Opal)
 
 var uid = 0;
 
@@ -72,8 +71,17 @@ function tabulate(data) {
     return table;
 }
 
-function plot(opal_data, input, output) {
+function ruby_plot(opal_data, input, output) {
   var data = opal_data.map(function(d) { return d.smap })
+  return plot(data,input,output)
+}
+
+function python_plot(data, input, output) {
+  console.log("python_data",data)
+  return plot(data, input.v, output.v)
+}
+
+function plot(data, input, output) {
   data._headers = qqq // hack for now
   tabulate(data)
   console.log(data[0])
@@ -172,8 +180,18 @@ function round2(x) {
 }
 
 var cache = {}
-function load(name) {
+function python_load(name) {
+  console.log("py.load",name)
+  return load(name.v)
+}
+
+function ruby_load(name) {
   if (cache[name]) return cache[name].map(function(d) { return Opal.hash(d) })
+  return load(name)
+}
+
+function load(name) {
+  if (cache[name]) return cache[name]
   var promise = new Promise(function(resolve,reject) {
     var result = d3.csv(name, function(d) {
       // if it looks like a number - convert it
@@ -196,12 +214,28 @@ function load(name) {
   throw promise
 }
 
-function _magic_eval(code) {
+function output(text) {
+  console.log("output::",text)
+}
+
+function _magic_eval(language, code) {
   try {
-    Opal.eval(code)
+    if (language == "python") {
+      var module = Sk.importMainWithBody("<stdin>", false, code)
+    } else if (language == "ruby") {
+      Opal.eval(code)
+    } else if (language == "js" ) {
+      if (typeof code == 'function') {
+        code()
+      } else {
+        eval(code)
+      }
+    } else {
+      console.log("bad language in eval",language)
+    }
   } catch (e) {
     if (e instanceof Promise) {
-      e.then(function() {_magic_eval(code)}, function(err) { console.log("error readind data") } )
+      e.then(function() {_magic_eval(language, code)}, function(err) { console.log("error readind data") } )
     } else {
       console.log(e)
     }
@@ -223,15 +257,71 @@ d3.csv.parseRows = function(text,f) {
   return rows
 }
 
-window.bridge = {
-  load: load,
-  plot: plot
+var editor = ace.edit("editor");
+editor.getSession().setMode("ace/mode/python");
+editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+editor.on("change",function() { _magic_eval(current_lang,editor.getValue()); })
+
+var python_code
+function setup_python() {
+  Sk.builtins["load"] = python_load
+  Sk.builtins["plot"] = python_plot
+  Sk.configure({output: output})
+  _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
+  jQuery.get("/init.py",function(code) {
+    python_code = code
+    setup_editor()
+  })
 }
 
-Opal.eval(""+
-"  def load name\n"+
-"    `window.bridge.load`.call(name)\n"+
-"  end\n"+
-"  def plot data, a, b\n"+
-"    `window.bridge.plot`.call(data,a,b)\n"+
-"  end\n")
+var ruby_code
+function setup_ruby() {
+  Opal.modules["opal-parser"](Opal)
+  window.ruby_bridge = {
+    load: ruby_load,
+    plot: ruby_plot
+  }
+  Opal.eval(""+
+  "  def load name\n"+
+  "    `window.ruby_bridge.load`.call(name)\n"+
+  "  end\n"+
+  "  def plot data, a, b\n"+
+  "    `window.ruby_bridge.plot`.call(data,a,b)\n"+
+  "  end\n")
+  jQuery.get("/init.rb",function(code) {
+    ruby_code = code
+    setup_editor()
+  })
+}
+
+function _code() {
+  if (current_lang == "ruby") {
+    return ruby_code;
+  } else {
+    return python_code;
+  }
+}
+
+function setup_editor() {
+  console.log("SETUP EDITOR",current_lang)
+  editor.getSession().setMode("ace/mode/"+current_lang);
+  editor.setValue(_code())
+  editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+}
+
+var current_lang = "python"
+setup_ruby()
+setup_python()
+
+_magic_eval("python",editor.getValue())
+
+$("body").keypress(function(event) {
+  if (event.charCode == 24 && event.ctrlKey) {
+    if (current_lang == "python") {
+      current_lang = "ruby"
+    } else {
+      current_lang = "python"
+    }
+    setup_editor()
+  }
+})
