@@ -255,7 +255,7 @@ d3.csv.parseRows = function(text,f) {
 }
 
 var editor = ace.edit("editor");
-//editor.$blockScrolling = Infinity
+editor.$blockScrolling = Infinity
 editor.getSession().setMode("ace/mode/python");
 editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
 editor.on("change",function() { _magic_eval(LANG,editor.getValue()); })
@@ -286,9 +286,12 @@ function setup_ruby() {
   "  def plot data, a, b\n"+
   "    `window.ruby_bridge.plot`.call(data,a,b)\n"+
   "  end\n")
-  jQuery.get("/init.rb",function(code) {
-    init_code.ruby = code
-    if (LANG == "ruby") setup_editor()
+  jQuery.get("/boilerplate.rb",function(boilerplate) {
+    Opal.eval(boilerplate)
+    jQuery.get("/init.rb",function(code) {
+      init_code.ruby = code
+      if (LANG == "ruby") setup_editor()
+    })
   })
 }
 
