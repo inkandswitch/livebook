@@ -24,7 +24,7 @@ function uniq(array) {
 }
 
 function tabulate(data) {
-    var columns = uniq(data._headers.concat(Object.keys(data[0])))
+    var columns = Object.keys(data[0]) //uniq(data._headers.concat(Object.keys(data[0])))
 
     var table = d3.select("#data").append("table"),
         thead = table.append("thead"),
@@ -77,11 +77,12 @@ function ruby_plot(opal_data, input, output) {
 }
 
 function python_plot(data, input, output) {
-  return plot(data, input.v, output.v)
+  var $data = Sk.ffi.remapToJs(data)
+  return plot($data, input.v, output.v)
 }
 
 function plot(data, input, output) {
-  data._headers = qqq // hack for now
+//  data._headers = qqq // hack for now
   tabulate(data)
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
@@ -179,7 +180,9 @@ function round2(x) {
 
 var cache = {}
 function python_load(name) {
-  return load(name.v)
+  var $result = load(name.v)
+  var $mapped = Sk.ffi.remapToPy($result)
+  return $mapped
 }
 
 function ruby_load(name) {
@@ -216,7 +219,9 @@ function output(text) {
 function _magic_eval(language, code) {
   try {
     if (language == "python") {
-      var module = Sk.importMainWithBody("<stdin>", false, code)
+//      var module = Sk.importMainWithBody("<stdin>", false, code)
+//      console.log(module)
+      eval(Sk.importMainWithBody("<stdin>", false, code))
       localStorage.setItem(language,editor.getValue())
     } else if (language == "ruby") {
       Opal.eval(code)
@@ -241,16 +246,16 @@ function _magic_eval(language, code) {
 
 // monkey patch d3
 
-var qqq
+//var qqq
 d3.csv._parseRows = d3.csv.parseRows
 d3.csv.parseRows = function(text,f) {
-  var headers = null;
+//  var headers = null;
   var rows = d3.csv._parseRows(text,function(a,b) {
-    headers = headers || a
+//    headers = headers || a
     return f(a,b);
   })
-  qqq = headers // hack
-  rows._headers = headers
+//  qqq = headers // hack
+//  rows._headers = headers
   return rows
 }
 
