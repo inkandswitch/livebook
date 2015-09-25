@@ -1,10 +1,8 @@
 "use strict";
 
 $(function() {
-// get plot() working again
-// handle load-callback issue
-
-// eval + x = lastline ; __display__(x)
+// delete a segment?
+// show proper error on external error?
 
 var Range = ace.require('ace/range').Range
 
@@ -90,26 +88,38 @@ function python_render(block, result) {
   var $block = Sk.ffi.remapToJs(block)
   var $result = Sk.ffi.remapToJs(result)
   var b = Blocks[$block]
+  var data_element = "#data" + b.id
   if ($result instanceof Array && $result[0] instanceof Object) {
-    b.find("#data" + b.id).html("") // clear out old data
-    b.find("#data" + b.id).show()
-    tabulate("#data" + b.id, $result)
+    b.find(data_element).html("") // clear out old data
+    b.find(data_element).show()
+    tabulate(data_element, $result)
+    b.find(".output").html("")
+  } else if ($result instanceof Object && $result.display == "plot") {
+    b.find(data_element).html("") // clear out old data
+    b.find(data_element).show()
+    plot(data_element, $result.data, $result.input, $result.output)
     b.find(".output").html("")
   } else {
-    b.find("#data" + b.id).hide()
+    b.find(data_element).hide()
     b.find(".output").html($result)
   }
 }
 
+// TODO - this could be done better in python - no need to go back to js
 function python_plot(data, input, output) {
+  console.log("python_plot 1")
   var $data = Sk.ffi.remapToJs(data)
-  return plot($data, input.v, output.v)
+  console.log("python_plot 2")
+  var $input = Sk.ffi.remapToJs(input)
+  console.log("python_plot 3")
+  var $output = Sk.ffi.remapToJs(output)
+  console.log("python_plot 4")
+  var result = Sk.ffi.remapToPy({display:"plot", data:$data, input:$input, output:$output })
+  console.log("/python_plot",result)
+  return result
 }
 
-function plot(data, input, output) {
-//  data._headers = qqq // hack for now
-//  tabulate(data)
-
+function plot(selector, data, input, output) {
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 500 - margin.left - margin.right,
       height = 300 - margin.top - margin.bottom;
@@ -129,7 +139,7 @@ function plot(data, input, output) {
       .orient("left");
 
   var svg = d3.select("svg").remove()
-  var svg = d3.select("div#plot").append("svg")
+  var svg = d3.select(selector).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -371,6 +381,12 @@ $("#newpy").click(function(event) {
   }
 
   block.editor.setup()
+})
+
+jQuery.get("/init.py",function(data) {
+  console.log(data)
+  $("#newpy").click()
+  Blocks[1].editor.setValue(data)
 })
 
 }) // $(function() {
