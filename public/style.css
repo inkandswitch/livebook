@@ -30,7 +30,11 @@ div.gutter {
 }
 
 .code {
-  height: 10em;
+  position: relative;
+}
+
+.code .data {
+  display: none;
   position: relative;
 }
 
@@ -59,29 +63,29 @@ tr.selected {
   height: 300px;
 }
 
-#data {
+.data {
   overflow: scroll;
   height: 20em;
   padding-top: 12pt;
 }
 
-#data table {
+.data table {
   border-collapse: collapse;
 }
 
-#data th {
+.data th {
   background: #ddd;
 }
 
-#data th, td {
+.data th, td {
   border: 1px solid #ccc;
   padding: 2pt 4pt;
   text-align: left;
 }
-#data th {
+.data th {
   font-size: 50%;
 }
-#data td {
+.data td {
   font-size: 75%;
 }
 

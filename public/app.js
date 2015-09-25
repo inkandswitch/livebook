@@ -34,10 +34,12 @@ function uniq(array) {
   return n
 }
 
-function tabulate(data) {
+function tabulate(data_id, data) {
+    console.log("#data=",data_id)
     var columns = Object.keys(data[0]) //uniq(data._headers.concat(Object.keys(data[0])))
 
-    var table = d3.select("#data").append("table"),
+//    var table = d3.select("#data").append("table"),
+    var table = d3.select(data_id).append("table"),
         thead = table.append("thead"),
         tbody = table.append("tbody");
 
@@ -90,11 +92,19 @@ function ruby_plot(opal_data, input, output) {
 function python_render(block, result) {
   var $block = Sk.ffi.remapToJs(block)
   var $result = Sk.ffi.remapToJs(result)
-  console.log("block",$block,"result",$result)
+//  console.log("block",$block,"result",$result)
   var b = Blocks[$block]
-  console.log("Block=",Blocks)
-  console.log("b=",b)
-  b.find(".output").html($result)
+//  console.log("Block=",Blocks)
+//  console.log("b=",b)
+  if ($result instanceof Array && $result[0] instanceof Object) {
+    b.find("#data" + b.id).html("") // clear out old data
+    b.find("#data" + b.id).show()
+    tabulate("#data" + b.id, $result)
+    b.find(".output").html("")
+  } else {
+    b.find("#data" + b.id).hide()
+    b.find(".output").html($result)
+  }
   console.log("RENDER",block,result)
 }
 
@@ -105,7 +115,7 @@ function python_plot(data, input, output) {
 
 function plot(data, input, output) {
 //  data._headers = qqq // hack for now
-  tabulate(data)
+//  tabulate(data)
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 500 - margin.left - margin.right,
@@ -386,6 +396,8 @@ var python_eval = function() {
       if (i > last) {
         if (!assignment.test(lines[i]) && !defre.test(lines[i]) && !importre.test(lines[i])) {
           lines[i] = "render(" + b.id + ",(" + lines[i] + "))"
+        } else {
+          lines[i] = "render(" + b.id + ",None)"
         }
         last = i
       }
@@ -406,6 +418,7 @@ var python_eval = function() {
         var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
         var block = Blocks[err_at.block]
         block.find(".output").html("Error at line: " + err_at.line)
+        block.find("#data" + block.id).hide()
         block.editor.getSession().setAnnotations([{
           row: err_at.line,
           text: e.tp$name,
@@ -431,6 +444,7 @@ $("#newpy").click(function(event) {
   block.attr("id","block" + Block)
   block.find("div.gutter").html("["+Block+"]")
   block.find("div.editor").attr("id","editor" + Block)
+  block.find("div.data").attr("id","data" + Block)
 
   $("#blocks").append(block)
 
