@@ -395,14 +395,15 @@ var python_eval = function() {
     try {
     var code = lines.join("\n")
     var module = Sk.importMainWithBody("<stdin>", false, code)
-    console.log("to_eval:",module)
+//    console.log("to_eval:",module)
     eval(module)
-//    eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
-      if (e instanceof Promise) {
-        e.then(python_eval, function(err) { console.log("error reading data") } )
+      if (e.nativeError instanceof Promise) {
+        console.log("native promise!",e.nativeError)
+        e.nativeError.then(python_eval, function(err) { console.log("error reading data") } )
       } else {
-        var err_at = lineno_map[e.traceback[0].lineno]
+        console.log(e)
+        var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
         var block = Blocks[err_at.block]
         block.find(".output").html("Error at line: " + err_at.line)
         block.editor.getSession().setAnnotations([{
