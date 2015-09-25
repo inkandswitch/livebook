@@ -1,17 +1,19 @@
 "use strict";
 
 $(function() {
-// python - get magic eval working
-// python - figure our how to handle load
-// python - take return value and render it
-// python setup
+// get plot() working again
 // handle load-callback issue
 
 // eval + x = lastline ; __display__(x)
 
 var Range = ace.require('ace/range').Range
 
-var LANG = "python"
+// python setup
+Sk.builtins["load"] = python_load
+Sk.builtins["plot"] = python_plot
+Sk.builtins["render"] = python_render
+Sk.configure({output: output})
+
 var uid = 0;
 
 function guid() {
@@ -84,18 +86,10 @@ function tabulate(data_id, data) {
     return table;
 }
 
-function ruby_plot(opal_data, input, output) {
-  var data = opal_data.map(function(d) { return d.smap })
-  return plot(data,input,output)
-}
-
 function python_render(block, result) {
   var $block = Sk.ffi.remapToJs(block)
   var $result = Sk.ffi.remapToJs(result)
-//  console.log("block",$block,"result",$result)
   var b = Blocks[$block]
-//  console.log("Block=",Blocks)
-//  console.log("b=",b)
   if ($result instanceof Array && $result[0] instanceof Object) {
     b.find("#data" + b.id).html("") // clear out old data
     b.find("#data" + b.id).show()
@@ -105,7 +99,6 @@ function python_render(block, result) {
     b.find("#data" + b.id).hide()
     b.find(".output").html($result)
   }
-  console.log("RENDER",block,result)
 }
 
 function python_plot(data, input, output) {
@@ -217,13 +210,6 @@ function python_load(name) {
   return $mapped
 }
 
-/*
-function ruby_load(name) {
-  if (cache[name]) return cache[name].map(function(d) { return Opal.hash(d) })
-  return load(name)
-}
-*/
-
 function load(name) {
   if (cache[name]) return cache[name]
   var promise = new Promise(function(resolve,reject) {
@@ -250,34 +236,6 @@ function output(text) {
   console.log("output::",text)
 }
 
-function _magic_eval(language, code) {
-  try {
-    if (language == "python") {
-//      var module = Sk.importMainWithBody("<stdin>", false, code)
-//      console.log(module)
-      eval(Sk.importMainWithBody("<stdin>", false, code))
-//      localStorage.setItem(language,editor.getValue())
-    } else if (language == "ruby") {
-//      Opal.eval(code)
-//      localStorage.setItem(language,editor.getValue())
-    } else if (language == "js" ) {
-      if (typeof code == 'function') {
-        code()
-      } else {
-        eval(code)
-      }
-    } else {
-      console.log("bad language in eval",language)
-    }
-  } catch (e) {
-    if (e instanceof Promise) {
-      e.then(function() {_magic_eval(language, code)}, function(err) { console.log("error readind data") } )
-    } else {
-      console.log(e)
-    }
-  }
-}
-
 // monkey patch d3
 
 //var qqq
@@ -296,68 +254,11 @@ d3.csv.parseRows = function(text,f) {
 
 var init_code = {}
 
-function setup_python() {
-  Sk.builtins["load"] = python_load
-  Sk.builtins["plot"] = python_plot
-  Sk.builtins["render"] = python_render
-  Sk.configure({output: output})
-//  _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
-/*
-  jQuery.get("/init.py",function(code) {
-    init_code.python = code
-    if (LANG == "python") setup_editor()
-  })
-*/
-}
-
-/*
-function setup_ruby() {
-  Opal.modules["opal-parser"](Opal)
-  window.ruby_bridge = {
-    load: ruby_load,
-    plot: ruby_plot
-  }
-  Opal.eval(""+
-  "  def load name\n"+
-  "    `window.ruby_bridge.load`.call(name)\n"+
-  "  end\n"+
-  "  def plot data, a, b\n"+
-  "    `window.ruby_bridge.plot`.call(data,a,b)\n"+
-  "  end\n")
-  jQuery.get("/boilerplate.rb",function(boilerplate) {
-    Opal.eval(boilerplate)
-    jQuery.get("/init.rb",function(code) {
-      init_code.ruby = code
-      if (LANG == "ruby") setup_editor()
-    })
-  })
-}
-*/
-
-function setup_editor() {
-//  if (localStorage.getItem(LANG) == null) localStorage.setItem(LANG, init_code[LANG])
-  editor.getSession().setMode("ace/mode/"+LANG);
-//  editor.setValue(localStorage.getItem(LANG))
-  editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-  _magic_eval(LANG, editor.getValue())
-}
-
-//setup_ruby()
-setup_python()
 
 $("body").keypress(function(event) {
   if (event.ctrlKey) {
     if (event.charCode == 24) { // Ctrl-X
-      if (LANG == "python") {
-        LANG = "ruby"
-      } else {
-        LANG = "python"
-      }
-      setup_editor()
     } else if (event.charCode == 26) { // Ctrl-Z
-//      localStorage.removeItem('ruby')
-//      localStorage.removeItem('python')
-      setup_editor()
     } else {
       console.log("unknown ctrl key",event)
     }
@@ -411,23 +312,27 @@ var python_eval = function() {
     eval(module)
     } catch (e) {
       if (e.nativeError instanceof Promise) {
+        console.log("err",e)
         console.log("native promise!",e.nativeError)
-        e.nativeError.then(python_eval, function(err) { console.log("error reading data") } )
+        e.nativeError.then(python_eval, function(err) { handle_error(lineno_map,e) } )
       } else {
-        console.log(e)
-        var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
-        var block = Blocks[err_at.block]
-        block.find(".output").html("Error at line: " + err_at.line)
-        block.find("#data" + block.id).hide()
-        block.editor.getSession().setAnnotations([{
-          row: err_at.line,
-          text: e.tp$name,
-          type: "error" // also warning and information
-        }]);
-
+        handle_error(lineno_map,e)
       }
     }
   }
+}
+
+function handle_error(lineno_map, e) {
+  console.log("handle_error",e)
+  var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
+  var block = Blocks[err_at.block]
+  block.find(".output").html("Error at line: " + err_at.line)
+  block.find("#data" + block.id).hide()
+  block.editor.getSession().setAnnotations([{
+    row: err_at.line,
+    text: e.tp$name,
+    type: "error" // also warning and information
+  }]);
 }
 
 var pyblock = $("#pyblock")
