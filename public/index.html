@@ -1,17 +1,18 @@
 <html>
 <head>
   <link href="style.css" rel="stylesheet" type="text/css" />
-  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="//cdn.opalrb.org/opal/master/opal.min.js"></script>
-  <script src="//cdn.opalrb.org/opal/master/opal-parser.min.js"></script>
+  <script src="/jquery/jquery-1.11.3.min.js"></script>
+  <script src="/opal/opal.min.js"></script>
+  <script src="/opal/opal-parser.min.js"></script>
   <script src="/skulpt/skulpt.js"></script>
   <script src="/skulpt/skulpt-stdlib.js"></script>
   <script src="/ace-editor/ace.js"></script>
   <script src="/d3/d3.js"></script>
 </head>
 <body>
-<div id="notebook">
-
+  <div id="notebook">
+    <div id="blocks">
+<!--
   <div class="gutter">[1]</div>
   <div class="cell prose">
     <h1>Fallout character progress analysis</h1>
@@ -20,17 +21,29 @@
 
   <div class="gutter">[2]</div>
   <div class="cell" id="code">
-  <div class="cell" id="editor">
-  </div>
+    <div class="cell" id="editor"></div>
+    <div class="cell" id="output"></div>
   </div>
 
   <div class="gutter">[3]</div>
-  <div class="cell" id="plot"></div>
 
   <div class="gutter">[4]</div>
   <div class="cell"><div id="data"></div></div>
 
+-->
+    </div>
+    <div id="buttons">
+      <button id="newpy" class="newb">+Py</button><button id="newrb" class="newb">+Rb</button><button id="newmd" class="newb">+Md</button>
+    </div>
+
+  </div>
+  <div id="pyblock">
+    <div class="gutter">[0]</div>
+    <div class="cell python code">
+      <div class="cell editor"></div>
+      <div class="cell output"></div>
+    </div>
+  </div>
   <script src="/app.js"></script>
-</div>
 </body>
 </html>

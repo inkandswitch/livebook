@@ -1,4 +1,3 @@
-
 data = load("fallout.csv")
 for d in data:
     dparts = map(int, [0,0,0] + d["Duration"].split(":"))

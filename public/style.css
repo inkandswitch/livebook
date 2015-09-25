@@ -29,17 +29,17 @@ div.gutter {
   left: 24pt;
 }
 
-#code {
+.code {
   height: 10em;
   position: relative;
 }
 
-#code #editor { 
-  position: absolute;
+.code .editor { 
   top: 0;
   right: 64pt;
   bottom: 0;
   left: 64pt;
+  height: 100px;
 }
 
 circle {
@@ -92,4 +92,25 @@ h1 {
 p {
   margin: 0;
   margin-bottom: 2pt;
+}
+
+button.newb {
+  height: 50px;
+  width: 50px;
+  border: solid blue 2px;
+  border-radius: 10px;
+  margin: 10px
+}
+
+button.newb:enabled {
+  outline: none;
+}
+
+button.newb:hover {
+  cursor: pointer;
+  background-color: white;
+}
+
+div.pyblock {
+  display: none;
 }

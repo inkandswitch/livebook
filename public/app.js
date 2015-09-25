@@ -1,5 +1,14 @@
 "use strict";
 
+$(function() {
+// python - get magic eval working
+// python - figure our how to handle load
+// python - take return value and render it
+// python setup
+// handle load-callback issue
+
+// eval + x = lastline ; __display__(x)
+
 var LANG = "python"
 var uid = 0;
 
@@ -74,6 +83,17 @@ function tabulate(data) {
 function ruby_plot(opal_data, input, output) {
   var data = opal_data.map(function(d) { return d.smap })
   return plot(data,input,output)
+}
+
+function python_render(block, result) {
+  var $block = Sk.ffi.remapToJs(block)
+  var $result = Sk.ffi.remapToJs(result)
+  console.log("block",$block,"result",$result)
+  var b = Blocks[$block]
+  console.log("Block=",Blocks)
+  console.log("b=",b)
+  b.find(".output").html($result)
+  console.log("RENDER",block,result)
 }
 
 function python_plot(data, input, output) {
@@ -222,10 +242,10 @@ function _magic_eval(language, code) {
 //      var module = Sk.importMainWithBody("<stdin>", false, code)
 //      console.log(module)
       eval(Sk.importMainWithBody("<stdin>", false, code))
-      localStorage.setItem(language,editor.getValue())
+//      localStorage.setItem(language,editor.getValue())
     } else if (language == "ruby") {
       Opal.eval(code)
-      localStorage.setItem(language,editor.getValue())
+//      localStorage.setItem(language,editor.getValue())
     } else if (language == "js" ) {
       if (typeof code == 'function') {
         code()
@@ -259,23 +279,21 @@ d3.csv.parseRows = function(text,f) {
   return rows
 }
 
-var editor = ace.edit("editor");
-editor.$blockScrolling = Infinity
-editor.getSession().setMode("ace/mode/python");
-editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-editor.on("change",function() { _magic_eval(LANG,editor.getValue()); })
 
 var init_code = {}
 
 function setup_python() {
   Sk.builtins["load"] = python_load
   Sk.builtins["plot"] = python_plot
+  Sk.builtins["render"] = python_render
   Sk.configure({output: output})
-  _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
+//  _magic_eval("js", function() { load("fallout.csv") }) // hack b/c I cant catch promises from skulpt yet
+/*
   jQuery.get("/init.py",function(code) {
     init_code.python = code
     if (LANG == "python") setup_editor()
   })
+*/
 }
 
 function setup_ruby() {
@@ -301,14 +319,14 @@ function setup_ruby() {
 }
 
 function setup_editor() {
-  if (localStorage.getItem(LANG) == null) localStorage.setItem(LANG, init_code[LANG])
+//  if (localStorage.getItem(LANG) == null) localStorage.setItem(LANG, init_code[LANG])
   editor.getSession().setMode("ace/mode/"+LANG);
-  editor.setValue(localStorage.getItem(LANG))
+//  editor.setValue(localStorage.getItem(LANG))
   editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
   _magic_eval(LANG, editor.getValue())
 }
 
-setup_ruby()
+//setup_ruby()
 setup_python()
 
 $("body").keypress(function(event) {
@@ -321,11 +339,95 @@ $("body").keypress(function(event) {
       }
       setup_editor()
     } else if (event.charCode == 26) { // Ctrl-Z
-      localStorage.removeItem('ruby')
-      localStorage.removeItem('python')
+//      localStorage.removeItem('ruby')
+//      localStorage.removeItem('python')
       setup_editor()
     } else {
       console.log("unknown ctrl key",event)
     }
   }
 })
+
+var Block = 0
+var Blocks = []
+
+// these three lines came from skulpt repl.js codebase
+var importre = new RegExp("\\s*import")
+var defre = new RegExp("def.*|class.*")
+var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
+
+var eval_python = function() {
+  var lines = []
+  console.log("Blocks",Blocks)
+  console.log("Blocks.length=",Blocks.length)
+  var last = -1
+  for (var b of Blocks) {
+    if (b == undefined) continue;
+    console.log("b=",b)
+    if (b.lang == "python") {
+      for (var l of b.editor.getValue().split("\n")) {
+        if (!l.match(/^\s*$/)) {
+          lines.push(l)
+        }
+      }
+      var i = lines.length - 1
+      if (i > last) {
+        if (!assignment.test(lines[i]) && !defre.test(lines[i]) && !importre.test(lines[i])) {
+          lines[i] = "render(" + b.id + ",(" + lines[i] + "))"
+        }
+        last = i
+      }
+    }
+  }
+  if (lines.length > 0) {
+    try {
+    var code = lines.join("\n")
+    console.log(code)
+    var module = Sk.importMainWithBody("<stdin>", false, code)
+    console.log("to_eval:",module)
+    eval(module)
+//    eval(Sk.importMainWithBody("<stdin>", false, code))
+    } catch (e) {
+      console.log("err:",e)
+    }
+  }
+}
+
+var pyblock = $("#pyblock")
+
+$("#newpy").click(function(event) {
+  Block += 1
+
+  var lang = "python"
+  var block = pyblock.clone()
+  block.lang = lang
+  block.id = Block
+  Blocks[Block] = block
+
+  block.attr("id","block" + Block)
+  block.find("div.gutter").html("["+Block+"]")
+  block.find("div.editor").attr("id","editor" + Block)
+
+  $("#blocks").append(block)
+
+  block.editor = ace.edit("editor" + Block);
+  block.editor.$blockScrolling = Infinity
+  block.editor.getSession().setMode("ace/mode/" + lang);
+  block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+//  block.editor.on("change",function() { _magic_eval(lang, block.editor.getValue()); })
+  block.editor.on("change",eval_python)
+  block.editor.focus()
+
+  block.editor.setup = function() {
+//    if (localStorage.getItem(lang) == null) localStorage.setItem(lang, init_code[lang])
+    block.editor.getSession().setMode("ace/mode/"+lang);
+//    editor.setValue(localStorage.getItem(lang))
+    block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+//    _magic_eval(lang, block.editor.getValue())
+    eval_python()
+  }
+
+  block.editor.setup()
+})
+
+}) // $(function() {
