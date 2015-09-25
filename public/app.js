@@ -9,6 +9,8 @@ $(function() {
 
 // eval + x = lastline ; __display__(x)
 
+var Range = ace.require('ace/range').Range
+
 var LANG = "python"
 var uid = 0;
 
@@ -205,10 +207,12 @@ function python_load(name) {
   return $mapped
 }
 
+/*
 function ruby_load(name) {
   if (cache[name]) return cache[name].map(function(d) { return Opal.hash(d) })
   return load(name)
 }
+*/
 
 function load(name) {
   if (cache[name]) return cache[name]
@@ -244,7 +248,7 @@ function _magic_eval(language, code) {
       eval(Sk.importMainWithBody("<stdin>", false, code))
 //      localStorage.setItem(language,editor.getValue())
     } else if (language == "ruby") {
-      Opal.eval(code)
+//      Opal.eval(code)
 //      localStorage.setItem(language,editor.getValue())
     } else if (language == "js" ) {
       if (typeof code == 'function') {
@@ -296,6 +300,7 @@ function setup_python() {
 */
 }
 
+/*
 function setup_ruby() {
   Opal.modules["opal-parser"](Opal)
   window.ruby_bridge = {
@@ -317,6 +322,7 @@ function setup_ruby() {
     })
   })
 }
+*/
 
 function setup_editor() {
 //  if (localStorage.getItem(LANG) == null) localStorage.setItem(LANG, init_code[LANG])
@@ -356,17 +362,23 @@ var importre = new RegExp("\\s*import")
 var defre = new RegExp("def.*|class.*")
 var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
 
-var eval_python = function() {
+var python_eval = function() {
   var lines = []
   console.log("Blocks",Blocks)
   console.log("Blocks.length=",Blocks.length)
   var last = -1
+  var lineno = 0
+  var lineno_map = {}
   for (var b of Blocks) {
     if (b == undefined) continue;
-    console.log("b=",b)
     if (b.lang == "python") {
-      for (var l of b.editor.getValue().split("\n")) {
+      b.editor.getSession().clearAnnotations()
+      var editor_lines = b.editor.getValue().split("\n")
+      for (var lnum = 0; lnum < editor_lines.length; lnum++) {
+        var l = editor_lines[lnum]
         if (!l.match(/^\s*$/)) {
+          lineno += 1
+          lineno_map[lineno] = { block: b.id, line: lnum }
           lines.push(l)
         }
       }
@@ -382,13 +394,24 @@ var eval_python = function() {
   if (lines.length > 0) {
     try {
     var code = lines.join("\n")
-    console.log(code)
     var module = Sk.importMainWithBody("<stdin>", false, code)
     console.log("to_eval:",module)
     eval(module)
 //    eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
-      console.log("err:",e)
+      if (e instanceof Promise) {
+        e.then(python_eval, function(err) { console.log("error reading data") } )
+      } else {
+        var err_at = lineno_map[e.traceback[0].lineno]
+        var block = Blocks[err_at.block]
+        block.find(".output").html("Error at line: " + err_at.line)
+        block.editor.getSession().setAnnotations([{
+          row: err_at.line,
+          text: e.tp$name,
+          type: "error" // also warning and information
+        }]);
+
+      }
     }
   }
 }
@@ -415,7 +438,7 @@ $("#newpy").click(function(event) {
   block.editor.getSession().setMode("ace/mode/" + lang);
   block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
 //  block.editor.on("change",function() { _magic_eval(lang, block.editor.getValue()); })
-  block.editor.on("change",eval_python)
+  block.editor.on("change",python_eval)
   block.editor.focus()
 
   block.editor.setup = function() {
@@ -424,7 +447,7 @@ $("#newpy").click(function(event) {
 //    editor.setValue(localStorage.getItem(lang))
     block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
 //    _magic_eval(lang, block.editor.getValue())
-    eval_python()
+    python_eval()
   }
 
   block.editor.setup()
