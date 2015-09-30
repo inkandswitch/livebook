@@ -25,8 +25,6 @@ function moveCursor(delta) {
 }
 
 $(document).ready(function() {
-  $('#cursor').hide(); // remove later 
-
   moveCursor(0);
 
   $('body').keypress(function(e) {
