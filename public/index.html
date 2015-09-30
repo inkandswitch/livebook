@@ -1,49 +1,16 @@
+<!DOCTYPE html>
 <html>
 <head>
-  <link href="style.css" rel="stylesheet" type="text/css" />
-  <script src="/jquery/jquery-1.11.3.min.js"></script>
-  <script src="/skulpt/skulpt.js"></script>
-  <script src="/markdown/lib/markdown.js"></script>
-  <script src="/skulpt/skulpt-stdlib.js"></script>
-  <script src="/ace-editor/ace.js"></script>
-  <script src="/d3/d3.js"></script>
+  <title>iPython Notebook</title>
+  <link href="notebook.css" media="all" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.js"></script>
 </head>
 <body>
-  <div id="notebook">
-    <div id="blocks">
-<!--
-  <div class="gutter">[1]</div>
-  <div class="cell prose">
-    <h1>Fallout character progress analysis</h1>
-    <p>by Orion Henry, Aug 2015</p>
+  <div id="mount" class="wrapper">
   </div>
-
-  <div class="gutter">[2]</div>
-  <div class="cell" id="code">
-    <div class="cell" id="editor"></div>
-    <div class="cell" id="output"></div>
-  </div>
-
-  <div class="gutter">[3]</div>
-
-  <div class="gutter">[4]</div>
-  <div class="cell"><div id="data"></div></div>
-
--->
-    </div>
-    <div id="buttons">
-      <button id="newpy" class="newb">+Py</button><button id="newmd" class="newb">+Md</button>
-    </div>
-
-  </div>
-  <div id="pyblock">
-    <div class="gutter">[0]</div>
-    <div class="cell code">
-      <div class="cell editor"></div>
-      <div class="cell output"></div>
-      <div class="cell data"></div>
-    </div>
-  </div>
-  <script src="/app.js"></script>
+  <script type="text/babel" src="notebook.jsx"></script>
 </body>
 </html>
