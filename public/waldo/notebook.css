@@ -1,0 +1,179 @@
+body {
+  background: #888;
+  font-family: 'Helvetica Neue', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+div.wrapper {
+  margin: 0 auto;
+  width: 55em;
+  border-left: 1px solid #222;
+  border-right: 1px solid #222;
+}
+
+@media only screen and (max-width: 800px) {
+  div.wrapper {
+    padding: 0;
+    width: 100%;
+    border: none;
+  }
+}
+
+a {
+  color: #2A64C7;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+div.notebook {
+  padding: 32pt 64pt;
+  background: white;
+  min-height: 400pt;
+  z-index: -2;
+}
+
+div.notebook h1,
+div.notebook h2,
+div.notebook h3 {
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+
+div.notebook h1 {
+  font-size: 28pt;
+  margin-bottom: 12pt;
+  padding-bottom: 4pt;
+  border-bottom: 3px solid rgba(0,0,0,0.125);
+}
+
+div.notebook h2 {
+  font-size: 22pt;
+  margin-bottom: 10pt;
+  padding-bottom: 3pt;
+  border-bottom: 2px solid rgba(0,0,0,0.125);
+}
+
+div.notebook h3 {
+  font-size: 16pt;
+  margin-bottom: 8pt;
+  padding-bottom: 2pt;
+}
+
+div.notebook p {
+  font-size: 12pt;
+  line-height: 19pt;
+  margin: 0;
+  margin-bottom: 12pt;
+  text-align: justify;
+}
+
+div.notebook div.codewrap {
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  background: #eee;
+  padding: 8pt;
+  font-size: 10pt;
+  color: #000;
+  margin: 0;
+  margin-bottom: 12pt;
+}
+div.notebook div.code {
+  font-family: Menlo, monospace;
+  white-space: pre;
+  overflow: hidden;
+}
+
+div.notebook .yields img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: -28.5pt;
+  margin-bottom: 4pt;
+}
+
+div.notebook table {
+  border-collapse: collapse;
+  margin: 0;
+  margin-bottom: 12pt;
+  background: white;
+}
+div.notebook th,
+div.notebook td {
+  border: 1px solid #ccc;
+  padding: 4pt 8pt;
+  text-align: left;
+  line-height: 19pt;
+}
+div.notebook th {
+  font-size: 10pt;
+  background: #eee;
+}
+div.notebook td {
+  font-size: 12pt;
+}
+
+div.notebook div.cell {
+  position: relative;
+  z-index: 1;
+}
+div.notebook div.cell-label {
+  position: absolute;
+  left: -40pt;
+  font-family: Menlo, monospace;
+  font-size: 7pt;
+  color: #777;
+}
+
+div.notebook img {
+  max-width: 100%;
+}
+
+div.notebook hr {
+  border: 0;
+  height: 3px;
+  background: #ccc;
+}
+
+#cursor {
+  position: absolute;
+  top: -4pt;
+  left: -16pt;
+  width: 47em;
+  background: #D9FA21;
+  z-index: -1;
+  box-shadow: 0 3px 3px 0 rgba(0,0,0,0.2);
+}
+
+#addbar {
+  padding-right: 12pt;
+  padding-bottom: 12pt;
+}
+#add-prose,
+#add-code {
+  float: right;
+  margin-left: 4pt;
+  padding: 3pt 6pt;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 rgba(0,0,0,0.2);
+  font-weight: bold;
+  font-size: 10pt;
+  color: white;
+}
+#addbar a:hover {
+  text-decoration: none;
+}
+#add-prose {
+  background: #2A64C7;
+  border-color: #19448C;
+}
+#add-code {
+  background: #BA1BC5;
+  border-color: #820E8A;
+}
+
