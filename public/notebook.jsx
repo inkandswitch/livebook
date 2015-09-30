@@ -25,7 +25,6 @@ function moveCursor(delta) {
 }
 
 $(document).ready(function() {
-  moveCursor(0);
 
   $('body').keypress(function(e) {
     switch (e.which) {
@@ -104,5 +103,6 @@ $(document).ready(function() {
 
   jQuery.get("waldo.ipynb",function(data) {
     React.render(<Notebook data={data} />, mountNode);
+    moveCursor(0);
   }, "json")
 });
