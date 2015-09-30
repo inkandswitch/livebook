@@ -1,8 +1,10 @@
 "use strict";
 
 $(function() {
-// delete a segment?
-// show proper error on external error?
+// add markdown blocks
+// delete a block
+// show proper error on external error
+// keep but gray out old outputs...
 
 var Range = ace.require('ace/range').Range
 
@@ -284,6 +286,18 @@ var defre = new RegExp("def.*|class.*")
 var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
 var indent = /^\s+/
 
+var mk_eval = function(lang,block) {
+  if (lang == "markdown") {
+    return function() {
+      var b = Blocks[block]
+      var md = b.editor.getValue()
+      b.find(".output").html(markdown.toHTML(md))
+    }
+  } else {
+    return python_eval
+  }
+}
+
 var python_eval = function() {
   var lines = []
   console.log("Blocks",Blocks)
@@ -346,41 +360,57 @@ function handle_error(lineno_map, e) {
 
 var pyblock = $("#pyblock")
 
-$("#newpy").click(function(event) {
-  Block += 1
 
-  var lang = "python"
-  var block = pyblock.clone()
-  block.lang = lang
-  block.id = Block
-  Blocks[Block] = block
+function newBlock(lang, hide_editor) {
+  return function(event) {
+    Block += 1
 
-  block.attr("id","block" + Block)
-  block.find("div.gutter").html("["+Block+"]")
-  block.find("div.editor").attr("id","editor" + Block)
-  block.find("div.data").attr("id","data" + Block)
+    var block = pyblock.clone()
+    var _eval = mk_eval(lang,Block)
+    block.lang = lang
+    block.id = Block
+    block.hide = hide_editor
+    Blocks[Block] = block
 
-  $("#blocks").append(block)
+    block.attr("id","block" + Block)
+    block.find("div.gutter").html("["+Block+"]")
+    block.$editor = block.find("div.editor")
+    block.$editor.attr("id","editor" + Block)
+    block.find("div.data").attr("id","data" + Block)
 
-  block.editor = ace.edit("editor" + Block);
-  block.editor.$blockScrolling = Infinity
-  block.editor.getSession().setMode("ace/mode/" + lang);
-  block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-//  block.editor.on("change",function() { _magic_eval(lang, block.editor.getValue()); })
-  block.editor.on("change",python_eval)
-  block.editor.focus()
+    $("#blocks").append(block)
 
-  block.editor.setup = function() {
-//    if (localStorage.getItem(lang) == null) localStorage.setItem(lang, init_code[lang])
-    block.editor.getSession().setMode("ace/mode/"+lang);
-//    editor.setValue(localStorage.getItem(lang))
+    block.editor = ace.edit("editor" + Block)
+    block.editor.$blockScrolling = Infinity
+    block.editor.getSession().setMode("ace/mode/" + lang);
     block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
-//    _magic_eval(lang, block.editor.getValue())
-    python_eval()
-  }
+    block.editor.on("change",_eval)
+    block.editor.on("blur",function(event) { 
+    })
+    block.editor.on("focus",function(event) { 
+      Blocks.forEach(function(b) {
+        if (b.id != block.id && b.hide) { b.$editor.hide() }
+      })
+    })
+    block.editor.focus()
 
-  block.editor.setup()
-})
+    block.find(".output").click(function(event) {
+      block.$editor.show()
+      block.editor.focus()
+    })
+
+    block.editor.setup = function() {
+      block.editor.getSession().setMode("ace/mode/"+lang);
+      block.editor.getSession().getSelection().selectionLead.setPosition(2, 0); // cursor at end
+      _eval()
+    }
+
+    block.editor.setup()
+  }
+}
+
+$("#newmd").click(newBlock("markdown",true))
+$("#newpy").click(newBlock("python",false))
 
 jQuery.get("/init.py",function(data) {
   console.log(data)
