@@ -1,3 +1,8 @@
+var $ = require("jquery")
+var jQuery = require("jquery")
+var React = require("react")
+var marked = require("marked")
+
 var cursorCell = 0;
 
 function moveCursor(delta) {
@@ -25,7 +30,6 @@ function moveCursor(delta) {
 }
 
 $(document).ready(function() {
-
   $('body').keypress(function(e) {
     switch (e.which) {
       case 113:
