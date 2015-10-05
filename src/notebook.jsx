@@ -30,6 +30,9 @@ function moveCursor(delta) {
 function setMode(m) {
   Mode = m;
   render();
+
+  if (Mode == "edit")
+    $('textarea.ace_text-input').focus();
 }
 
 $('body').keypress(function(e) {
@@ -114,7 +117,14 @@ var Notebook = React.createClass({
     var index = -1;
     var cells = this.props.data.cells.map(function(cell) {
       index += 1
-      var klass = (index == CursorCell) ? "cursor" : "";
+
+      var klass = "";
+      if (index == CursorCell)
+        if (Mode == "nav")
+          klass = "cursor";
+        else
+          klass = "cursor-edit";
+
       if (cell.cell_type == "markdown") {
         return  <div className={klass}>
                   <MarkdownCell data={cell} index={index}/>

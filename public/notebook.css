@@ -12,6 +12,16 @@ div.cursor {
   border-left: 12pt solid #D6F717;
 }
 
+div.cursor-edit {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border: 2pt solid #D6F717;
+  border-left: 12pt solid #D6F717;
+  margin-left: -12pt;
+  margin-bottom: 9pt;
+}
+
 div.wrapper {
   margin: 0 auto;
   width: 55em;
@@ -145,16 +155,6 @@ div.notebook hr {
   background: #ccc;
 }
 
-#cursor {
-  position: absolute;
-  top: -4pt;
-  left: -16pt;
-  width: 47em;
-  background: #D9FA21;
-  z-index: -1;
-  box-shadow: 0 3px 3px 0 rgba(0,0,0,0.2);
-}
-
 #addbar {
   padding-right: 12pt;
   padding-bottom: 12pt;
@@ -181,5 +181,13 @@ div.notebook hr {
 #add-code {
   background: #BA1BC5;
   border-color: #820E8A;
+}
+
+div.ace_editor {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 10pt;
+  margin: 0;
 }
 
