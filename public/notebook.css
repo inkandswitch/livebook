@@ -149,6 +149,10 @@ div.notebook img {
   max-width: 100%;
 }
 
+div.hidden {
+  display: none;
+}
+
 div.notebook hr {
   border: 0;
   height: 3px;

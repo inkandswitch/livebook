@@ -9,6 +9,10 @@ var iPython = { cells:[] }
 var mountNode = document.getElementById('mount')
 var cellHeights = []
 
+var useEditor    = function(cell) { return (cell.props.index == CursorCell && Mode == "edit") }
+var editorClass  = function(cell)  { return !useEditor(cell) ? "hidden" : "" }
+var displayClass = function(cell) { return  useEditor(cell) ? "hidden" : "" }
+
 function onChangeFunc(i) { return e => iPython.cells[i].source = e.split("\n").map( s => s + "\n") }
 function rawMarkup(lines) { return { __html: marked(lines.join(""), {sanitize: true}) } }
 function cursor(i) {
@@ -21,7 +25,7 @@ function render() {
   React.render(<Notebook data={iPython} />, mountNode);
   var cells = $(".switch")
   for (var i = 0; i < cells.length; i++) {
-    cellHeights[i] = cells[i].offsetHeight // or .clientHeight
+    cellHeights[i] = cells[i].offsetHeight + "px" // or .clientHeight
   }
 }
 
@@ -39,13 +43,13 @@ function setMode(m) {
   render();
 
   if (Mode == "edit") {
-    $('textarea.ace_text-input').focus();
-    ace.edit("edit" + CursorCell).getSession().setUseWrapMode(true);
+    var editor = ace.edit("edit" + CursorCell)
+    editor.focus()
+    editor.getSession().setUseWrapMode(true);
   }
 }
 
 $('body').keyup(function(e) {
-  console.log(e)
   switch (e.which) {
     case 27: // esc
       setMode("nav");
@@ -79,26 +83,15 @@ $('body').keypress(function(e) {
 });
 
 var MarkdownCell = React.createClass({
-  content: function() {
-    if (this.props.index == CursorCell && Mode == "edit")
-      return <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
-    else
-      return <div dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
-  },
   render: function() {
-    return (<div className={cursor(this.props.index)}>
-              <div className="cell switch"> {this.content()} </div>
+    return ( <div className="cell switch">
+              <div className={displayClass(this)} dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
+              <AceEditor className={editorClass(this)} mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
             </div>)
   }
 });
 
 var CodeCell = React.createClass({
-  code: function() {
-    if (this.props.index == CursorCell && Mode == "edit")
-      return <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
-    else
-      return <div className="code">{this.props.data.source.join("")}</div>
-  },
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
   png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
   text: function(data) { return (data && data.join("\n")) },
@@ -107,18 +100,23 @@ var CodeCell = React.createClass({
       this.png(output.data["image/png"])  ||
       this.text(output.data["text/plain"])
   ))},
+ editor: function() {
+    return <AceEditor className={editorClass(this)} mode="python" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
+ },
+ code: function() {
+    return <div className={"code " + displayClass(this)}>{this.props.data.source.join("")}</div>
+ },
   render: function() { return (
-  <div className={cursor(this.props.index)}>
     <div className="cell">
       <div className="cell-label">In [{this.props.index}]:</div>
-        <div className="codewrap switch">
-          {this.code()}
+        <div className="switch">
+          {this.editor()}
+          <div className="codewrap"> {this.code()} </div>
         </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       <div className="cell-label">Out[{this.props.index}]:</div>
       {this.outputs()}
-    </div>
-  </div>)
+    </div>)
   }
 });
 
