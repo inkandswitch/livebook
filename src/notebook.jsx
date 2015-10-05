@@ -33,7 +33,6 @@ function setMode(m) {
 
   if (Mode == "edit") {
     $('textarea.ace_text-input').focus();
-    ace.edit("edit0").moveCursorTo(0,0);
   }
 }
 
@@ -73,7 +72,7 @@ var MarkdownCell = React.createClass({
   },
   render: function() {
     if (this.props.index == CursorCell && Mode == "edit")
-      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
+      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart="-1" theme="github" onChange={onChange} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
     else
       var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
