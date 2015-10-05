@@ -45,9 +45,16 @@ function setMode(m) {
 }
 
 $('body').keyup(function(e) {
+  console.log(e)
   switch (e.which) {
     case 27: // esc
       setMode("nav");
+      break;
+    case 38: // up
+      moveCursor(-1);
+      break;
+    case 40: // down
+      moveCursor(1);
       break;
   }
 })
@@ -79,7 +86,9 @@ var MarkdownCell = React.createClass({
       return <div dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
   },
   render: function() {
-    return <div className="cell switch"> {this.content()} </div>
+    return (<div className={cursor(this.props.index)}>
+              <div className="cell switch"> {this.content()} </div>
+            </div>)
   }
 });
 
@@ -93,38 +102,44 @@ var CodeCell = React.createClass({
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
   png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
   text: function(data) { return (data && data.join("\n")) },
-  outputs:  function() { return (this.props.data.outputs.map((output) =>
-      this.html(output.data["text/html"]) || this.png(output.data["image/png"]) || this.text(output.data["text/plain"])
+  outputs:  function() { return (this.props.data.outputs.map(output =>
+      this.html(output.data["text/html"]) ||
+      this.png(output.data["image/png"])  ||
+      this.text(output.data["text/plain"])
   ))},
-  render: function() { return (<div className="cell">
+  render: function() { return (
+  <div className={cursor(this.props.index)}>
+    <div className="cell">
       <div className="cell-label">In [{this.props.index}]:</div>
         <div className="codewrap switch">
           {this.code()}
         </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       <div className="cell-label">Out[{this.props.index}]:</div>
-        {this.outputs()}
-      </div>)
+      {this.outputs()}
+    </div>
+  </div>)
   }
 });
 
-var Notebook = React.createClass({
+var Cell = React.createClass({
+  subcell: function() {
+    if (this.props.data.cell_type == "markdown")
+      return <MarkdownCell data={this.props.data} index={this.props.index}/>
+    else
+      return <CodeCell data={this.props.data} index={this.props.index}/>
+  },
   render: function() {
-    var index = -1;
-    var cells = this.props.data.cells.map(function(cell) {
-      index += 1
+    return <div className={cursor(this.props.index)}> {this.subcell()} </div>
+  }
+})
 
-      if (cell.cell_type == "markdown") {
-        return  <div className={cursor(index)}>
-                  <MarkdownCell data={cell} index={index}/>
-                </div>
-      } else {
-        return  <div className={cursor(index)}>
-                  <CodeCell data={cell} index={index}/>
-                </div>
-      }
-    })
-    return <div className="notebook">{cells}</div>
+var Notebook = React.createClass({
+  cells: function() {
+    return this.props.data.cells.map((cell,index) => <Cell data={cell} index={index}/>)
+  },
+  render: function() {
+    return <div className="notebook">{this.cells()}</div>
   },
 })
 
