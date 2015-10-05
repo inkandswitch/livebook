@@ -9,9 +9,17 @@ var iPython = { cells:[] }
 var mountNode = document.getElementById('mount')
 var cellHeights = []
 
+function onChangeFunc(i) { return e => iPython.cells[i].source = e.split("\n").map( s => s + "\n") }
+function rawMarkup(lines) { return { __html: marked(lines.join(""), {sanitize: true}) } }
+function cursor(i) {
+  if (i != CursorCell) return ""
+  if (Mode == "nav")   return "cursor"
+  else                 return "cursor-edit"
+}
+
 function render() {
   React.render(<Notebook data={iPython} />, mountNode);
-  var cells = $(".cell")
+  var cells = $(".switch")
   for (var i = 0; i < cells.length; i++) {
     cellHeights[i] = cells[i].offsetHeight // or .clientHeight
   }
@@ -19,7 +27,6 @@ function render() {
 
 function moveCursor(delta) {
   if (Mode != "nav") return;
-
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
@@ -64,64 +71,39 @@ $('body').keypress(function(e) {
   }
 });
 
-var onChange = function(x) {
-  console.log("change")
-}
-
 var MarkdownCell = React.createClass({
-  onChangeFunc: function() {
-    var i = this.props.index
-    return function(e) {
-      iPython.cells[i].source = e.split("\n").map( s => s + "\n")
-    }
-  },
-  rawMarkup: function() {
-    var raw = marked(this.props.data.source.join(""), {sanitize: true})
-    return { __html: raw }
+  content: function() {
+    if (this.props.index == CursorCell && Mode == "edit")
+      return <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
+    else
+      return <div dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
   },
   render: function() {
-    if (this.props.index == CursorCell && Mode == "edit")
-      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={this.onChangeFunc()} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
-    else
-      var content = <div dangerouslySetInnerHTML={this.rawMarkup()} />
-    return (
-      <div className="cell">
-        {content}
-      </div>)
+    return <div className="cell switch"> {this.content()} </div>
   }
 });
 
 var CodeCell = React.createClass({
-  render: function() {
-    var outputs = this.props.data.outputs.map(function(output) {
-      var html = output.data["text/html"]
-      var text = output.data["text/plain"]
-      var png  = output.data["image/png"]
-      if (html) {
-        var code = {__html: html.join("") }
-        return <div dangerouslySetInnerHTML={code} />
-      } else if (png) {
-        var inline = "data:image/png;base64," + png
-        return <img src={inline} />
-      } else if (text) {
-        var output = text.join("\n")
-        if (output == "''") { // strange :-(
-          return ""
-        } else {
-          return output
-        }
-      } else {
-        return "UNKNOWN"
-      }
-    })
-    return (<div className="cell">
+  code: function() {
+    if (this.props.index == CursorCell && Mode == "edit")
+      return <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
+    else
+      return <div className="code">{this.props.data.source.join("")}</div>
+  },
+  html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
+  png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
+  text: function(data) { return (data && data.join("\n")) },
+  outputs:  function() { return (this.props.data.outputs.map((output) =>
+      this.html(output.data["text/html"]) || this.png(output.data["image/png"]) || this.text(output.data["text/plain"])
+  ))},
+  render: function() { return (<div className="cell">
       <div className="cell-label">In [{this.props.index}]:</div>
-      <div className="codewrap">
-        <div className="code">{this.props.data.source.join("")}</div>
-      </div>
+        <div className="codewrap switch">
+          {this.code()}
+        </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       <div className="cell-label">Out[{this.props.index}]:</div>
-        {outputs}
+        {this.outputs()}
       </div>)
   }
 });
@@ -132,19 +114,12 @@ var Notebook = React.createClass({
     var cells = this.props.data.cells.map(function(cell) {
       index += 1
 
-      var klass = "";
-      if (index == CursorCell)
-        if (Mode == "nav")
-          klass = "cursor";
-        else
-          klass = "cursor-edit";
-
       if (cell.cell_type == "markdown") {
-        return  <div className={klass}>
+        return  <div className={cursor(index)}>
                   <MarkdownCell data={cell} index={index}/>
                 </div>
       } else {
-        return  <div className={klass}>
+        return  <div className={cursor(index)}>
                   <CodeCell data={cell} index={index}/>
                 </div>
       }
