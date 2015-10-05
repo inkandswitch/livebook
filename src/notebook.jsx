@@ -4,7 +4,7 @@ var marked    = require("marked")
 var AceEditor = require('react-ace');
 
 var mode = "nav";
-var cursorCell = 2;
+var cursorCell = 0;
 
 function render() {
   React.render(<Notebook data={iPython} />, mountNode);
@@ -17,6 +17,8 @@ function moveCursor(delta) {
   if (cursorCell + delta >= iPython.cells.length || cursorCell + delta < 0) return;
   cursorCell = cursorCell + delta;
   render()
+
+  $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 
 //  var newCell = cursorCell + delta;
 //  if (newCell >= 0 && newCell < numCells) {
