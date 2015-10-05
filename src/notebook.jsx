@@ -59,22 +59,15 @@ var MarkdownCell = React.createClass({
   },
   render: function() {
     iii = iii + 1
-    var editor = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("\n")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
-    var klass = "cursor"
-    var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
-    if (this.props.index != CursorCell) {
-      klass = "";
-      editor = ""
-    } else if (Mode == "edit") {
-      content = ""
-    } else {
-      editor = ""
-    }
+    var klass = (this.props.index == CursorCell) ? "cursor" : "";
+    if (this.props.index == CursorCell && Mode == "edit")
+      var content = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("\n")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
+    else
+      var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
       <div>
         <div className={klass}>
           {content}
-          {editor}
         </div>
       </div>)
   }
@@ -103,8 +96,7 @@ var CodeCell = React.createClass({
         return "UNKNOWN"
       }
     })
-    var klass = "cursor"
-    if (this.props.index != CursorCell) klass = "";
+    var klass = (this.props.index == CursorCell) ? "cursor" : "";
     return (<div className="cell">
       <div className={klass}>
       <div className="cell-label">In [{this.props.index}]:</div>
