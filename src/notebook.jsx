@@ -3,46 +3,25 @@ var React     = require("react")
 var marked    = require("marked")
 var AceEditor = require('react-ace');
 
-var mode = "nav";
-var cursorCell = 0;
+var Mode = "nav";
+var CursorCell = 0;
+var iPython = { cells:[] }
+var mountNode = document.getElementById('mount')
 
 function render() {
   React.render(<Notebook data={iPython} />, mountNode);
 }
 
 function moveCursor(delta) {
-//  var cells = $('.notebook .cell');
-//  var numCells = cells.size();
-//  var numCells = 10;
-  if (cursorCell + delta >= iPython.cells.length || cursorCell + delta < 0) return;
-  cursorCell = cursorCell + delta;
-  render()
-
+  var newCursor = CursorCell + delta;
+  if (newCursor >= iPython.cells.length || newCursor < 0) return;
+  CursorCell = newCursor;
+  render();
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
-
-//  var newCell = cursorCell + delta;
-//  if (newCell >= 0 && newCell < numCells) {
-//    cursorCell = newCell;
-/*
-    var cell = $(cells[cursorCell]);
-
-    var cursor = $('#cursor');
-    var height = parseInt(cell.css('height'));
-
-    cursor.detach();
-    cell.append(cursor);
-    cursor.css('height', '' + (height+10) + 'px');
-
-    var addbar = $('#addbar');
-    addbar.css('margin-top', '' + (height+0) + 'px');
-
-    $('body').animate({ scrollTop: cursor.offset().top - 80 });
-*/
- // }
 }
 
 function setMode(m) {
-  mode = m;
+  Mode = m;
   render();
 }
 
@@ -66,8 +45,6 @@ $('body').keypress(function(e) {
   e.preventDefault();
 });
 
-var mountNode = document.getElementById('mount')
-
 var onChange = function(x) {
   console.log("change")
 }
@@ -83,10 +60,10 @@ var MarkdownCell = React.createClass({
     var editor = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("\n")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
     var klass = "cursor"
     var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
-    if (this.props.index != cursorCell) {
+    if (this.props.index != CursorCell) {
       klass = "";
       editor = ""
-    } else if (mode == "edit") {
+    } else if (Mode == "edit") {
       content = ""
     } else {
       editor = ""
@@ -125,7 +102,7 @@ var CodeCell = React.createClass({
       }
     })
     var klass = "cursor"
-    if (this.props.index != cursorCell) klass = "";
+    if (this.props.index != CursorCell) klass = "";
     return (<div className="cell">
       <div className={klass}>
       <div className="cell-label">In [{this.props.index}]:</div>
@@ -157,9 +134,7 @@ var Notebook = React.createClass({
   },
 })
 
-var iPython = {}
 $.get("waldo.ipynb",function(data) {
   iPython = data
   render()
-  moveCursor(0);
 }, "json")
