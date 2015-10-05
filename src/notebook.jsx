@@ -7,9 +7,14 @@ var Mode = "nav";
 var CursorCell = 0;
 var iPython = { cells:[] }
 var mountNode = document.getElementById('mount')
+var cellHeights = []
 
 function render() {
   React.render(<Notebook data={iPython} />, mountNode);
+  var cells = $(".cell")
+  for (var i = 0; i < cells.length; i++) {
+    cellHeights[i] = cells[0].offsetHeight // or .clientHeight
+  }
 }
 
 function moveCursor(delta) {
@@ -60,7 +65,7 @@ var MarkdownCell = React.createClass({
   render: function() {
     iii = iii + 1
     if (this.props.index == CursorCell && Mode == "edit")
-      var content = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
+      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
     else
       var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
