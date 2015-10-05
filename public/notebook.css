@@ -6,6 +6,11 @@ body {
   padding: 0;
 }
 
+div.cursor {
+  margin-left: -12pt;
+  border-left: 12pt solid #D6F717;
+}
+
 div.wrapper {
   margin: 0 auto;
   width: 55em;
