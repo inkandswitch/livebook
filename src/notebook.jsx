@@ -31,8 +31,10 @@ function setMode(m) {
   Mode = m;
   render();
 
-  if (Mode == "edit")
+  if (Mode == "edit") {
     $('textarea.ace_text-input').focus();
+    ace.edit("edit0").moveCursorTo(0,0);
+  }
 }
 
 $('body').keyup(function(e) {
