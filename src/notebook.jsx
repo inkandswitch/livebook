@@ -13,6 +13,8 @@ function render() {
 }
 
 function moveCursor(delta) {
+  if (Mode != "nav") return;
+
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
