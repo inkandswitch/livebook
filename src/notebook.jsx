@@ -59,16 +59,13 @@ var MarkdownCell = React.createClass({
   },
   render: function() {
     iii = iii + 1
-    var klass = (this.props.index == CursorCell) ? "cursor" : "";
     if (this.props.index == CursorCell && Mode == "edit")
       var content = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
     else
       var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
-      <div>
-        <div className={klass}>
-          {content}
-        </div>
+      <div className="cell">
+        {content}
       </div>)
   }
 });
@@ -96,9 +93,7 @@ var CodeCell = React.createClass({
         return "UNKNOWN"
       }
     })
-    var klass = (this.props.index == CursorCell) ? "cursor" : "";
     return (<div className="cell">
-      <div className={klass}>
       <div className="cell-label">In [{this.props.index}]:</div>
       <div className="codewrap">
         <div className="code">{this.props.data.source.join("")}</div>
@@ -106,7 +101,6 @@ var CodeCell = React.createClass({
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       <div className="cell-label">Out[{this.props.index}]:</div>
         {outputs}
-      </div>)
       </div>)
   }
 });
@@ -117,11 +111,15 @@ var Notebook = React.createClass({
     var index = -1;
     var cells = this.props.data.cells.map(function(cell) {
       index += 1
-
+      var klass = (index == CursorCell) ? "cursor" : "";
       if (cell.cell_type == "markdown") {
-        return <MarkdownCell data={cell} index={index}/>
+        return  <div className={klass}>
+                  <MarkdownCell data={cell} index={index}/>
+                </div>
       } else {
-        return <CodeCell data={cell} index={index}/>
+        return  <div className={klass}>
+                  <CodeCell data={cell} index={index}/>
+                </div>
       }
     })
     return <div className="notebook">{cells}</div>
