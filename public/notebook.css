@@ -7,7 +7,8 @@ body {
 }
 
 div.cursor {
-  margin-left: -12pt;
+  margin-left: -24pt;
+  padding-left: 12pt;
   border-left: 12pt solid #D6F717;
 }
 
