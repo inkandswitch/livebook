@@ -61,7 +61,7 @@ var MarkdownCell = React.createClass({
     iii = iii + 1
     var klass = (this.props.index == CursorCell) ? "cursor" : "";
     if (this.props.index == CursorCell && Mode == "edit")
-      var content = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("\n")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
+      var content = <AceEditor mode="markdown" width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
     else
       var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
