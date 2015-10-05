@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "go run server.go"
+    "start": "./server"
   },
   "author": "",
   "license": "ISC",
