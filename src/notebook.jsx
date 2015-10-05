@@ -35,13 +35,18 @@ function setMode(m) {
     $('textarea.ace_text-input').focus();
 }
 
+$('body').keyup(function(e) {
+  switch (e.which) {
+    case 27: // esc
+      setMode("nav");
+      break;
+  }
+})
+
 $('body').keypress(function(e) {
   switch (e.which) {
     case 101:
       setMode("edit");
-      break;
-    case 96:
-      setMode("nav");
       break;
     case 113:
       console.log("up=",e)
