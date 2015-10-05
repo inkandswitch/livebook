@@ -13,7 +13,7 @@ function render() {
   React.render(<Notebook data={iPython} />, mountNode);
   var cells = $(".cell")
   for (var i = 0; i < cells.length; i++) {
-    cellHeights[i] = cells[0].offsetHeight // or .clientHeight
+    cellHeights[i] = cells[i].offsetHeight // or .clientHeight
   }
 }
 
@@ -77,7 +77,7 @@ var MarkdownCell = React.createClass({
     if (this.props.index == CursorCell && Mode == "edit")
       var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart="-1" theme="github" onChange={onChange} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
     else
-      var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
+      var content = <div dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
       <div className="cell">
         {content}
@@ -122,7 +122,6 @@ var CodeCell = React.createClass({
 
 var Notebook = React.createClass({
   render: function() {
-    console.log(this.props.data)
     var index = -1;
     var cells = this.props.data.cells.map(function(cell) {
       index += 1
