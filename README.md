@@ -4,7 +4,8 @@
 Install needed modules
 
     $ npm install
+    $ go get -u github.com/ddollar/forego
 
 Start the server
 
-    $ npm start
+    $ forego start

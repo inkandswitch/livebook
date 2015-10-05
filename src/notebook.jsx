@@ -3,6 +3,9 @@ var React     = require("react")
 var marked    = require("marked")
 var AceEditor = require('react-ace');
 
+// Sk.builtins["load"] = python_load
+Sk.configure({output: text => console.log("output::",text) })
+
 var Mode = "nav";
 var CursorCell = 0;
 var iPython = { cells:[] }
@@ -81,6 +84,53 @@ $('body').keypress(function(e) {
       break;
   }
 });
+
+
+// todo
+var python_eval = function() {
+  var lines = []
+  var last = -1
+  var lineno = 0
+  var lineno_map = {}
+  for (var b of Blocks) {
+    if (b == undefined) continue;
+    if (b.lang == "python") {
+      b.editor.getSession().clearAnnotations()
+      var editor_lines = b.editor.getValue().split("\n")
+      for (var lnum = 0; lnum < editor_lines.length; lnum++) {
+        var l = editor_lines[lnum]
+        if (!l.match(/^\s*$/)) {
+          lineno += 1
+          lineno_map[lineno] = { block: b.id, line: lnum }
+          lines.push(l)
+        }
+      }
+      var i = lines.length - 1
+      if (i > last) {
+        if (!assignment.test(lines[i]) && !defre.test(lines[i]) && !importre.test(lines[i]) && !indent.test(lines[i])) {
+          lines[i] = "render(" + b.id + ",(" + lines[i] + "))"
+        } else {
+          lines[i] = "render(" + b.id + ",None)"
+        }
+        last = i
+      }
+    }
+  }
+  if (lines.length > 0) {
+    try {
+    var code = lines.join("\n")
+    eval(Sk.importMainWithBody("<stdin>", false, code))
+    } catch (e) {
+      if (e.nativeError instanceof Promise) {
+        console.log("err",e)
+        console.log("native promise!",e.nativeError)
+        e.nativeError.then(python_eval, function(err) { handle_error(lineno_map,e) } )
+      } else {
+        handle_error(lineno_map,e)
+      }
+    }
+  }
+}
 
 var MarkdownCell = React.createClass({
   render: function() {

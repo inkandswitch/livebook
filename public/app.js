@@ -300,8 +300,6 @@ var mk_eval = function(lang,block) {
 
 var python_eval = function() {
   var lines = []
-  console.log("Blocks",Blocks)
-  console.log("Blocks.length=",Blocks.length)
   var last = -1
   var lineno = 0
   var lineno_map = {}
