@@ -45,20 +45,22 @@ $('body').keyup(function(e) {
 })
 
 $('body').keypress(function(e) {
+  if (Mode != "nav") return;
+
   switch (e.which) {
     case 101:
       setMode("edit");
+      e.preventDefault();
       break;
     case 113:
-      console.log("up=",e)
       moveCursor(-1);
+      e.preventDefault();
       break;
     case 97:
-      console.log("down=",e)
       moveCursor(1);
+      e.preventDefault();
       break;
   }
-  e.preventDefault();
 });
 
 var onChange = function(x) {
