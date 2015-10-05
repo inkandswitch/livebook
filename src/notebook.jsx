@@ -33,6 +33,7 @@ function setMode(m) {
 
   if (Mode == "edit") {
     $('textarea.ace_text-input').focus();
+    ace.edit("edit" + CursorCell).getSession().setUseWrapMode(true);
   }
 }
 
