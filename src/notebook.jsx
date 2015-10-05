@@ -56,16 +56,14 @@ var onChange = function(x) {
   console.log("change")
 }
 
-var iii = 0
 var MarkdownCell = React.createClass({
   rawMarkup: function() {
     var raw = marked(this.props.data.source.join(""), {sanitize: true})
     return { __html: raw }
   },
   render: function() {
-    iii = iii + 1
     if (this.props.index == CursorCell && Mode == "edit")
-      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + iii} editorProps={{$blockScrolling: true}} />
+      var content = <AceEditor mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} theme="github" onChange={onChange} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
     else
       var content = <div className="cell" dangerouslySetInnerHTML={this.rawMarkup()} />
     return (
