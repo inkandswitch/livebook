@@ -1,4 +1,0 @@
-#!/bin/bash
-
-webpack --progress --colors --watch &
-go run server.go
