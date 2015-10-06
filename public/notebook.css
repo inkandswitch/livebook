@@ -149,7 +149,9 @@ div.notebook img {
   max-width: 100%;
 }
 
-div.hidden {
+div.editor {
+  position: absolute;
+  z-index: 2;
   display: none;
 }
 

@@ -13,6 +13,7 @@ function python_render(cell,result) {
   var $cell = Sk.ffi.remapToJs(cell)
   var $result = Sk.ffi.remapToJs(result)
   _buffer.push($result)
+  console.log(_buffer)
   iPython.cells[$cell].outputs = [
     {
      "data": {
@@ -34,19 +35,21 @@ Sk.configure({output: text => _buffer.push(text) })
 var Mode = "nav";
 var CursorCell = 0;
 var iPython = { cells:[] }
-var mountNode = document.getElementById('mount')
-var cellHeights = []
+var notebookMount = document.getElementById('notebook')
+var editorMount = document.getElementById('editor')
 
-var editor       = n => ace.edit("edit"+n)
+var editor       = {}
 var useEditor    = function(cell) { return (cell.props.index == CursorCell && Mode == "edit") }
 var editorClass  = function(cell)  { return !useEditor(cell) ? "hidden" : "" }
 var displayClass = function(cell) { return  useEditor(cell) ? "hidden" : "" }
 
-function onChangeFunc(i) { return e => iPython.cells[i].source = e.split("\n").map( s => s + "\n") }
-function onChangePythonFunc(i) {
-  var f1 = onChangeFunc(i)
-  return e => { f1(e); python_eval() }
+function onChangeFunc(i) {
+  return e => {
+    iPython.cells[i].source = e.split("\n").map( s => s + "\n")
+    if (iPython.cells[i].cell_type == "code") python_eval()
+  }
 }
+
 function rawMarkup(lines) { return { __html: marked(lines.join(""), {sanitize: true}) } }
 function cursor(i) {
   if (i != CursorCell) return ""
@@ -54,8 +57,42 @@ function cursor(i) {
   else                 return "cursor-edit"
 }
 
+function renderEditor() {
+  if (Mode != "edit") {
+    $("#editX").hide()
+  } else {
+    var height = $(".switch")[CursorCell].offsetHeight + "px"
+    var width  = $(".switch")[CursorCell].offsetWidth  + "px"
+    var lang   = iPython.cells[CursorCell].cell_type == "code" ? "python" : "markdown"
+    var value  = iPython.cells[CursorCell].source.join("")
+    var change = onChangeFunc(CursorCell)
+    var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} />
+    React.render(dom, editorMount);
+
+    var pos = cellPosition()
+
+    $("#editX").show()
+    $("#editX").css("top",pos.top)
+    $("#editX").css("left",pos.left)
+
+    editor = ace.edit("editX")
+    editor.focus()
+    editor.moveCursorTo(0,0);
+    editor.getSession().setUseWrapMode(true);
+  }
+}
+
+function cellPosition() {
+  var bodyRect = document.body.getBoundingClientRect()
+  var elemRect = $(".switch")[CursorCell].getBoundingClientRect()
+  var t   = Math.round(elemRect.top  - bodyRect.top) + "px";
+  var l   = Math.round(elemRect.left - bodyRect.left) + "px";
+  return { top: t, left: l }
+}
+
+
 function render() {
-  React.render(<Notebook data={iPython} />, mountNode);
+  React.render(<Notebook data={iPython} />, notebookMount);
 }
 
 function moveCursor(delta) {
@@ -67,23 +104,12 @@ function moveCursor(delta) {
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
-function captureCellHeight() {
-  var cells = $(".switch")
-  for (var i = 0; i < cells.length; i++) {
-    cellHeights[i] = cells[i].offsetHeight + "px" // or .clientHeight
-  }
-}
-
 function setMode(m) {
   Mode = m;
-  captureCellHeight()
-  render();
-
-  if (Mode == "edit") {
-    var editor = ace.edit("edit" + CursorCell)
-    editor.focus()
-    editor.getSession().setUseWrapMode(true);
-  }
+  if (m == "edit") CODE.cache(CursorCell)
+  else             CODE.clear(CursorCell)
+  render()
+  renderEditor();
 }
 
 $('body').keyup(function(e) {
@@ -122,16 +148,14 @@ $('body').keypress(function(e) {
 });
 
 
-// todo
 var python_eval = function() {
   var lines = []
   var lineno = 0
   var lineno_map = {}
   iPython.cells.forEach((c,i) => {
-    console.log(c)
     if (c.cell_type == "code") {
       var valid = false
-      editor(i).getSession().clearAnnotations()
+      editor.getSession().clearAnnotations()
       c.source.forEach((line,line_number) => {
         if (!line.match(/^\s*$/)) {
           valid = true
@@ -153,11 +177,10 @@ var python_eval = function() {
       }
     }
   })
-  console.log(lines)
   if (lines.length > 0) {
     try {
     var code = lines.join("")
-    console.log(code)
+    _buffer = []
     eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
       handle_error(lineno_map,e)
@@ -167,10 +190,9 @@ var python_eval = function() {
 }
 
 function handle_error(lineno_map, e) {
-  console.log("handle_error",e)
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
   var msg = Sk.ffi.remapToJs(e.args)[0]
-  editor(err_at.cell).getSession().setAnnotations([{
+  editor.getSession().setAnnotations([{
     row: err_at.line,
     text: msg,
     type: "error" // also warning and information
@@ -181,31 +203,32 @@ var MarkdownCell = React.createClass({
   render: function() {
     return ( <div className="cell switch">
               <div className={displayClass(this)} dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
-              <AceEditor className={editorClass(this)} mode="markdown" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangeFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
             </div>)
   }
 });
 
+var CODE = {
+  cache: (i) => CODE[i] = iPython.cells[i].source.join("") + " ",
+  clear: (i) => delete CODE[i],
+  read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
+}
+
 var CodeCell = React.createClass({
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
   png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
-  text: function(data) { return (data && data.join("\n")) },
+  text: function(data) { return (data && <pre>{data.join("")}</pre>) },
   outputs:  function() { return (this.props.data.outputs.map(output =>
       this.html(output.data["text/html"]) ||
       this.png(output.data["image/png"])  ||
       this.text(output.data["text/plain"])
   ))},
- editor: function() {
-    return <AceEditor className={editorClass(this)} mode="python" height={cellHeights[this.props.index]} width="100%" value={this.props.data.source.join("")} cursorStart={-1} theme="github" onChange={onChangePythonFunc(this.props.index)} name={"edit" + this.props.index} editorProps={{$blockScrolling: true}} />
- },
  code: function() {
-    return <div className={"code " + displayClass(this)}>{this.props.data.source.join("")}</div>
+    return <div className={"code " + displayClass(this)}>{CODE.read(this.props.index)}</div>
  },
   render: function() { return (
     <div className="cell">
       <div className="cell-label">In [{this.props.index}]:</div>
         <div className="switch">
-          {this.editor()}
           <div className="codewrap"> {this.code()} </div>
         </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
