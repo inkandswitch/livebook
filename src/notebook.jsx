@@ -12,25 +12,25 @@ var indent = /^\s+/
 function python_render(cell,result) {
   var $cell = Sk.ffi.remapToJs(cell)
   var $result = Sk.ffi.remapToJs(result)
-  _buffer.push($result)
-  console.log(_buffer)
+  stdout_buffer.push($result)
+  console.log(stdout_buffer)
   iPython.cells[$cell].outputs = [
     {
      "data": {
-      "text/plain": _buffer
+      "text/plain": stdout_buffer
      },
      "execution_count": 1,
      "metadata": {},
      "output_type": "execute_result"
     }
   ]
-  _buffer = []
+  stdout_buffer = []
 }
 
-var _buffer = []
+var stdout_buffer = []
 
 Sk.builtins["render"] = python_render
-Sk.configure({output: text => _buffer.push(text) })
+Sk.configure({output: text => stdout_buffer.push(text) })
 
 var Mode = "nav";
 var CursorCell = 0;
@@ -180,7 +180,7 @@ var python_eval = function() {
   if (lines.length > 0) {
     try {
     var code = lines.join("")
-    _buffer = []
+    stdout_buffer = []
     eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
       handle_error(lineno_map,e)
@@ -207,6 +207,7 @@ var MarkdownCell = React.createClass({
   }
 });
 
+// this is to cache the code being edited so the pane does not update under the editor
 var CODE = {
   cache: (i) => CODE[i] = iPython.cells[i].source.join("") + " ",
   clear: (i) => delete CODE[i],
