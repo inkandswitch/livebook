@@ -56,10 +56,6 @@ function cursor(i) {
 
 function render() {
   React.render(<Notebook data={iPython} />, mountNode);
-  var cells = $(".switch")
-  for (var i = 0; i < cells.length; i++) {
-    cellHeights[i] = cells[i].offsetHeight + "px" // or .clientHeight
-  }
 }
 
 function moveCursor(delta) {
@@ -71,8 +67,16 @@ function moveCursor(delta) {
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
+function captureCellHeight() {
+  var cells = $(".switch")
+  for (var i = 0; i < cells.length; i++) {
+    cellHeights[i] = cells[i].offsetHeight + "px" // or .clientHeight
+  }
+}
+
 function setMode(m) {
   Mode = m;
+  captureCellHeight()
   render();
 
   if (Mode == "edit") {
