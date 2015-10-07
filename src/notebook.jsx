@@ -104,14 +104,41 @@ function moveCursor(delta) {
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
-function insertCell() {
+function appendCell(type) {
   if (Mode != "nav") return;
 
-  iPython.cells.splice(CursorCell, 0, {
-     "cell_type": "markdown",
-     "metadata": {},
-     "source": [ "type markdown" ]
-  });
+  var cell = '';
+
+  if (type == "code")
+    cell = ({
+       "cell_type": "code",
+       "execution_count": 1,
+       "metadata": { "collapsed": false },
+       "outputs": [
+          {
+           "data": {
+            "text/plain": [ "(waiting)" ]
+           },
+           "execution_count": 1,
+           "metadata": {},
+           "output_type": "execute_result"
+         }
+       ],
+       "source": [ "type some python" ]
+    });
+  else if (type == "markdown")
+    cell = ({
+       "cell_type": "markdown",
+       "metadata": {},
+       "source": [ "type some markdown" ]
+    });
+  else {
+    console.log("bad cell type " + type);
+    return;
+  }
+
+  iPython.cells.splice(CursorCell+1, 0, cell);
+  CursorCell += 1;
 
   render();
   setMode("edit");
@@ -160,8 +187,12 @@ $('body').keypress(function(e) {
       moveCursor(1);
       e.preventDefault();
       break;
-    case 105:
-      insertCell();
+    case 99: //c
+      appendCell('code');
+      e.preventDefault();
+      break;
+    case 109: //m
+      appendCell('markdown');
       e.preventDefault();
       break;
   }
