@@ -263,6 +263,7 @@ var Notebook = React.createClass({
 
 var fname = window.location.hash.substring(1);
 if (fname == "") fname = "waldo";
+document.title = fname + " notebook"
 fname += ".ipynb";
 console.log("Loading " + fname);
 
