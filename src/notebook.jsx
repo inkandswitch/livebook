@@ -228,12 +228,10 @@ var CodeCell = React.createClass({
  },
   render: function() { return (
     <div className="cell">
-      <div className="cell-label">In [{this.props.index}]:</div>
-        <div className="switch">
-          <div className="codewrap"> {this.code()} </div>
-        </div>
+      <div className="switch">
+        <div className="codewrap"> {this.code()} </div>
+      </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
-      <div className="cell-label">Out[{this.props.index}]:</div>
       {this.outputs()}
     </div>)
   }

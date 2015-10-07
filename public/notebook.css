@@ -137,13 +137,6 @@ div.notebook div.cell {
   position: relative;
   z-index: 1;
 }
-div.notebook div.cell-label {
-  position: absolute;
-  left: -40pt;
-  font-family: Menlo, monospace;
-  font-size: 7pt;
-  color: #777;
-}
 
 div.notebook img {
   max-width: 100%;
