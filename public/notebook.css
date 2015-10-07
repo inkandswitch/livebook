@@ -191,3 +191,6 @@ div.ace_editor {
 .ace-github .ace_gutter {
   background: #D6F717 !important;
 }
+
+div.pyresult {
+}

@@ -220,7 +220,7 @@ var CODE = {
 var CodeCell = React.createClass({
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
   png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
-  text: function(data) { return (data && <pre>{data.join("")}</pre>) },
+  text: function(data) { return (data && <div className="pyresult">{data.join("")}</div>) },
   outputs:  function() { return (this.props.data.outputs.map(output =>
       this.html(output.data["text/html"]) ||
       this.png(output.data["image/png"])  ||
@@ -261,8 +261,12 @@ var Notebook = React.createClass({
   },
 })
 
-$.get("waldo.ipynb",function(data) {
-//$.get("oneplusone.ipynb",function(data) {
+var fname = window.location.hash.substring(1);
+if (fname == "") fname = "waldo";
+fname += ".ipynb";
+console.log("Loading " + fname);
+
+$.get(fname,function(data) {
   iPython = data
   render()
 }, "json")
