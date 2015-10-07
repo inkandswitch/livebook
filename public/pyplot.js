@@ -20,7 +20,10 @@ var $builtinmodule = function() {
     return 1010;
   })
   makefunc(mod,"plot",["color","alpha","lw","label"],function(args,kwargs) {
-    return 1011;
+    var $args = Sk.ffi.remapToJs(args)
+    if ($args[0] == "black") return
+    console.log("PLOT",$args,kwargs);
+    window.__plot__($args[0],$args[1])
   });
   mod.xlim = new Sk.builtin.func(function(self,a,b,c) {
     return 100
