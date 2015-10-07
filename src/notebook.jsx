@@ -104,6 +104,22 @@ function moveCursor(delta) {
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
+function insertCell() {
+  if (Mode != "nav") return;
+
+  iPython.cells.splice(CursorCell, 0, {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [ "type markdown" ]
+  });
+
+  render();
+  setMode("edit");
+
+  editor = ace.edit("editX")
+  editor.selectAll();
+}
+
 function setMode(m) {
   Mode = m;
   if (m == "edit") CODE.cache(CursorCell)
@@ -142,6 +158,10 @@ $('body').keypress(function(e) {
     case 106: //j
     case 97:  //a
       moveCursor(1);
+      e.preventDefault();
+      break;
+    case 105:
+      insertCell();
       e.preventDefault();
       break;
   }
