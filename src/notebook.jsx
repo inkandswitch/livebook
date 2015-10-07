@@ -177,11 +177,12 @@ var python_eval = function() {
       }
     }
   })
+
   if (lines.length > 0) {
     try {
-    var code = lines.join("")
-    stdout_buffer = []
-    eval(Sk.importMainWithBody("<stdin>", false, code))
+      var code = lines.join("")
+      stdout_buffer = []
+      eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
       handle_error(lineno_map,e)
     }
