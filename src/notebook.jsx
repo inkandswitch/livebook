@@ -8,6 +8,7 @@ window.__load__ = function(name) {
   if (cache[name]) return cache[name]
   // convert waldo.csv -> data
   var promise = new Promise(function(resolve,reject) {
+    // FILENAME to $data here
     var result = d3.csv(name, function(d) {
       for (var key in d) {
         if (!isNaN(+d[key])) {
@@ -33,7 +34,6 @@ var indent = /^\s+/
 
 function pyLoad(x)
 {
-  console.log("load",x)
   if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
     throw "File not found: '" + x + "'";
   return Sk.builtinFiles["files"][x];
@@ -41,11 +41,9 @@ function pyLoad(x)
 function python_render(cell,result) {
   var $cell = Sk.ffi.remapToJs(cell)
   var $result = Sk.ffi.remapToJs(result)
-  stdout_buffer.push($result)
-  console.log("STDOUT",stdout_buffer)
 
   // kludge to guess tabular data output from DataFrame.describe()
-  if (typeof $result == "object" && $result.length > 10) {
+  if (typeof $result == "object" && $result.length > 10 && $result[0]["X"]) {
     var table = "<table>";
 
     var fields = [ "Book", "Page", "X", "Y" ]
@@ -64,15 +62,23 @@ function python_render(cell,result) {
     iPython.cells[$cell].outputs = [
       {
        "data": {
+         "text/plain": stdout_buffer
+       },
+       "execution_count": 1,
+       "metadata": {},
+       "output_type": "execute_result"
+      },
+      {
+       "data": {
          "text/html": [ table ]
        },
        "execution_count": 1,
        "metadata": {},
        "output_type": "execute_result"
-      }
+      },
     ]
-  }
-  else {
+  } else {
+    stdout_buffer.push($result)
     iPython.cells[$cell].outputs = [
       {
        "data": {
@@ -320,6 +326,7 @@ var python_eval = function() {
           handle_error(lineno_map,e)
         } )
       } else {
+        console.log(e)
         handle_error(lineno_map,e)
       }
     }
