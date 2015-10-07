@@ -192,5 +192,17 @@ div.ace_editor {
   background: #D6F717 !important;
 }
 
+div.pyresult:before {
+  content: "→ ";
+}
 div.pyresult {
+  font-family: Menlo, monospace;
+  white-space: pre;
+  border: 1px solid #99c0ff;
+  border-radius: 2px;
+  background: #f7faff;
+  padding: 8pt;
+  font-size: 10pt;
+  color: #2A64C7;
+  margin-top: -24pt;
 }
