@@ -8,7 +8,7 @@ var $builtinmodule = function() {
     return $ret;
   });
   mod.GroupBy = Sk.misceval.buildClass(mod, function($gbl, $loc) {
-    $loc.__init__ = new Sk.builtin.func(function(self,data,groupby) {
+    $loc.__init__ = new Sk.builtin.func(function(self, data, groupby) {
       var $groupby = Sk.ffi.remapToJs(groupby)
       var group = {}
       data.forEach(d => {
@@ -18,10 +18,6 @@ var $builtinmodule = function() {
       })
       self.$keys   = Object.keys(group)
       self.$group = group
-    })
-    $loc.to_a = new Sk.builtin.func(function(self,x) {
-      console.log("TO_A")
-      return self.$keys.map(k => Sk.builtin.tuple([k,Sk.misceval.callsimOrSuspend(mod.DataFrame,this.$group[k])]))
     })
     $loc.__iter__ = new Sk.builtin.func(function(self,x) {
       var i = 0
