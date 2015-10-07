@@ -43,16 +43,47 @@ function python_render(cell,result) {
   var $result = Sk.ffi.remapToJs(result)
   stdout_buffer.push($result)
   console.log("STDOUT",stdout_buffer)
-  iPython.cells[$cell].outputs = [
-    {
-     "data": {
-      "text/plain": stdout_buffer
-     },
-     "execution_count": 1,
-     "metadata": {},
-     "output_type": "execute_result"
+
+  // kludge to guess tabular data output from DataFrame.describe()
+  if (typeof $result == "object" && $result.length > 10) {
+    var table = "<table>";
+
+    var fields = [ "Book", "Page", "X", "Y" ]
+    table += "<thead><tr>"
+    for (var i = 0; i < fields.length; i++)
+      table += "<th>" + fields[i] + "</th>"
+    table += "</tr></thead>"
+
+    for (var i = 0; i < $result.length; i++) {
+      table += "<tr>"
+      for (var j = 0; j < fields.length; j++)
+        table += "<td>" + $result[i][fields[j]] + "</td>"
     }
-  ]
+    table == "</table>"
+
+    iPython.cells[$cell].outputs = [
+      {
+       "data": {
+         "text/html": [ table ]
+       },
+       "execution_count": 1,
+       "metadata": {},
+       "output_type": "execute_result"
+      }
+    ]
+  }
+  else {
+    iPython.cells[$cell].outputs = [
+      {
+       "data": {
+         "text/plain": stdout_buffer
+       },
+       "execution_count": 1,
+       "metadata": {},
+       "output_type": "execute_result"
+      }
+    ]
+  }
   stdout_buffer = []
 }
 
