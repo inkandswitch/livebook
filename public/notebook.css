@@ -206,3 +206,51 @@ div.pyresult {
   color: #2A64C7;
   margin-top: -24pt;
 }
+
+.hamburger-menu {
+  position: fixed;
+  top: 8pt;
+  left: 8pt;
+  cursor: pointer;
+}
+.hamburger-menu ul {
+  list-style-type: none;
+  font-size: 9pt;
+  padding: 0;
+}
+.hamburger-menu li {
+}
+.hamburger-menu hr {
+  opacity: 0;
+}
+.hamburger-menu img {
+  width: 16pt;
+  height: 16pt;
+  opacity: 0.5;
+}
+
+.menu-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  transform: translateZ(0);
+  transform: translateY(-10%);
+  transition: all 0.5s;
+}
+
+.hamburger-menu.active .menu-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(0%);
+  transition-delay: 0s;
+}
+
+.hamburger-menu a {
+  color: #333;
+  text-decoration: none;
+}
+.hamburger-menu a:hover {
+  color: #000;
+}
