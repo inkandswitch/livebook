@@ -193,11 +193,13 @@ var python_eval = function() {
 function handle_error(lineno_map, e) {
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
   var msg = Sk.ffi.remapToJs(e.args)[0]
-  editor.getSession().setAnnotations([{
-    row: err_at.line,
-    text: msg,
-    type: "error" // also warning and information
-  }]);
+  if (err_at.cell == CursorCell) {
+    editor.getSession().setAnnotations([{
+      row: err_at.line,
+      text: msg,
+      type: "error" // also warning and information
+    }]);
+  }
 }
 
 var MarkdownCell = React.createClass({
@@ -259,8 +261,8 @@ var Notebook = React.createClass({
   },
 })
 
-//$.get("waldo.ipynb",function(data) {
-$.get("oneplusone.ipynb",function(data) {
+$.get("waldo.ipynb",function(data) {
+//$.get("oneplusone.ipynb",function(data) {
   iPython = data
   render()
 }, "json")
