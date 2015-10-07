@@ -6,22 +6,6 @@ body {
   padding: 0;
 }
 
-div.cursor {
-  margin-left: -24pt;
-  padding-left: 12pt;
-  border-left: 12pt solid #D6F717;
-}
-
-div.cursor-edit {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  border: 2pt solid #D6F717;
-  border-left: 12pt solid #D6F717;
-  margin-left: -12pt;
-  margin-bottom: 9pt;
-}
-
 div.wrapper {
   margin: 0 auto;
   width: 55em;
@@ -182,11 +166,27 @@ div.notebook hr {
   border-color: #820E8A;
 }
 
+div.cursor {
+  margin-left: -24pt;
+  padding-left: 12pt;
+  border-left: 12pt solid #D6F717;
+}
+
+div.cursor-edit {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border-left: 12pt solid #D6F717;
+  margin-left: -12pt;
+  margin-bottom: 9pt;
+}
+
 div.ace_editor {
   box-sizing: border-box;
-  border: 1px solid #ddd;
-  border-radius: 2px;
+  border: 1px solid #D6F717;
   font-size: 10pt;
   margin: 0;
 }
-
+.ace-github .ace_gutter {
+  background: #D6F717 !important;
+}
