@@ -120,6 +120,7 @@ div.notebook td {
 div.notebook div.cell {
   position: relative;
   z-index: 1;
+  margin-bottom: 12pt;
 }
 
 div.notebook img {
