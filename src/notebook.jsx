@@ -3,17 +3,46 @@ var React     = require("react")
 var marked    = require("marked")
 var AceEditor = require('react-ace');
 
+var cache = {}
+window.__load__ = function(name) {
+  if (cache[name]) return cache[name]
+  // convert waldo.csv -> data
+  var promise = new Promise(function(resolve,reject) {
+    var result = d3.csv(name, function(d) {
+      for (var key in d) {
+        if (!isNaN(+d[key])) {
+          d[key] = +d[key]
+        }
+      }
+      return d
+    },
+    function(error, data) {
+      if (error) reject(error);
+      cache[name] = data
+      resolve(data)
+    });
+  })
+  throw promise
+}
+
 // these three lines came from skulpt repl.js codebase
 var importre = new RegExp("\\s*import")
 var defre = new RegExp("def.*|class.*")
 var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
 var indent = /^\s+/
 
+function pyLoad(x)
+{
+  console.log("load",x)
+  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+    throw "File not found: '" + x + "'";
+  return Sk.builtinFiles["files"][x];
+}
 function python_render(cell,result) {
   var $cell = Sk.ffi.remapToJs(cell)
   var $result = Sk.ffi.remapToJs(result)
   stdout_buffer.push($result)
-  console.log(stdout_buffer)
+  console.log("STDOUT",stdout_buffer)
   iPython.cells[$cell].outputs = [
     {
      "data": {
@@ -30,7 +59,7 @@ function python_render(cell,result) {
 var stdout_buffer = []
 
 Sk.builtins["render"] = python_render
-Sk.configure({output: text => stdout_buffer.push(text) })
+Sk.configure({output: text => stdout_buffer.push(text), read: pyLoad })
 
 var Mode = "nav";
 var CursorCell = 0;
@@ -161,8 +190,8 @@ function setMode(m) {
   Mode = m;
   if (m == "edit") CODE.cache(CursorCell)
   else             CODE.clear(CursorCell)
-  render()
   renderEditor();
+  python_eval()
 }
 
 $('body').keyup(function(e) {
@@ -249,7 +278,15 @@ var python_eval = function() {
       stdout_buffer = []
       eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
-      handle_error(lineno_map,e)
+      if (e.nativeError instanceof Promise) {
+        console.log("native promise!",e.nativeError)
+        e.nativeError.then(python_eval, function(err) {
+          console.log("double error",err)
+          handle_error(lineno_map,e)
+        } )
+      } else {
+        handle_error(lineno_map,e)
+      }
     }
   }
   render()
@@ -332,7 +369,17 @@ document.title = fname + " notebook"
 fname += ".ipynb";
 console.log("Loading " + fname);
 
-$.get(fname,function(data) {
-  iPython = data
-  render()
-}, "json")
+// TODO figure out how to make webpack pack these so I can avoid all this sillyness
+$.get("pandas.js",function(data) {
+  Sk.builtinFiles["files"]["./pandas.js"] = data
+  $.get("pyplot.js",function(data) {
+    Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = data
+    $.get("matplotlib.js",function(data) {
+      Sk.builtinFiles["files"]["./matplotlib.js"] = data
+      $.get(fname,function(data) {
+        iPython = data
+        render()
+      }, "json")
+    })
+  })
+})
