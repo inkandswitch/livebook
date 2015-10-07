@@ -105,8 +105,6 @@ function moveCursor(delta) {
 }
 
 function appendCell(type) {
-  if (Mode != "nav") return;
-
   var cell = '';
 
   if (type == "code")
@@ -145,6 +143,18 @@ function appendCell(type) {
 
   editor = ace.edit("editX")
   editor.selectAll();
+}
+
+function deleteCell() {
+  console.log('delete');
+  iPython.cells.splice(CursorCell, 1);
+
+  if (CursorCell > 0)
+    CursorCell -= 1;
+
+  CursorCell = Math.min(CursorCell, iPython.cells.length-1);
+
+  render();
 }
 
 function setMode(m) {
@@ -193,6 +203,10 @@ $('body').keypress(function(e) {
       break;
     case 109: //m
       appendCell('markdown');
+      e.preventDefault();
+      break;
+    case 120: //x
+      deleteCell();
       e.preventDefault();
       break;
   }
