@@ -70,7 +70,19 @@ var $builtinmodule = function() {
     $loc.groupby = new Sk.builtin.func(function(self,group) {
       return Sk.misceval.callsimOrSuspend(mod.GroupBy,self.$data,group);
     });
-    $loc.describe = new Sk.builtin.func(function(self,x) {
+    $loc.to_js = new Sk.builtin.func(function(self) {
+      var dump = {
+        rows: [],
+        cols: self.$keys,
+        data: {}
+      }
+      for (var i = 0; i < self.$data.length; i++) {
+        dump.rows.push(i)
+        dump.data[i] = self.$data[i]
+      }
+      return Sk.ffi.remapToPy(dump)
+    })
+    $loc.describe = new Sk.builtin.func(function(self) {
       var summary = {
         rows: ["count","mean","std","min","25","50","75","max"],
         cols: self.$keys,

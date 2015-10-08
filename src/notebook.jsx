@@ -49,7 +49,15 @@ function python_mark(cell) {
 
 function python_render(result) {
   if (result == undefined) return
-  var $result = Sk.ffi.remapToJs(result)
+  console.log("2_js",result.to_js);
+  var $result;
+  if (result.to_js) {
+    var $method = Sk.abstr.gattr(result, 'to_js', true)
+    var tmp = Sk.misceval.callsimOrSuspend($method)
+    $result = Sk.ffi.remapToJs(tmp)
+  } else {
+    $result = Sk.ffi.remapToJs(result)
+  }
 
   if ($result && $result.rows && $result.cols && $result.data) {
     var table = "<table><thead><tr><th>&nbsp;</th>";
