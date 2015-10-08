@@ -92,7 +92,7 @@ Sk.builtins["mark"] = python_mark
 Sk.builtins["render"] = python_render
 Sk.configure({output: text => { console.log("STDOUT:",text) }, read: pyLoad })
 
-var Mode = "nav";
+var Mode = "view";
 var CursorCell = 0;
 var iPython = { cells:[] }
 var notebookMount = document.getElementById('notebook')
