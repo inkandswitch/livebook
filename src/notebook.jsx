@@ -75,14 +75,6 @@ function python_render(result) {
     iPython.cells[$cell].outputs = [
       {
        "data": {
-         "text/plain": stdout_buffer
-       },
-       "execution_count": 1,
-       "metadata": {},
-       "output_type": "execute_result"
-      },
-      {
-       "data": {
          "text/html": [ table ]
        },
        "execution_count": 1,
@@ -91,11 +83,10 @@ function python_render(result) {
       },
     ]
   } else {
-    stdout_buffer.push($result)
     iPython.cells[$cell].outputs = [
       {
        "data": {
-         "text/plain": stdout_buffer
+         "text/plain": [$result]
        },
        "execution_count": 1,
        "metadata": {},
@@ -103,14 +94,11 @@ function python_render(result) {
       }
     ]
   }
-  stdout_buffer = []
 }
-
-var stdout_buffer = []
 
 Sk.builtins["mark"] = python_mark
 Sk.builtins["render"] = python_render
-Sk.configure({output: text => stdout_buffer.push(text), read: pyLoad })
+Sk.configure({output: text => { console.log("STDOUT:",text) }, read: pyLoad })
 
 var Mode = "nav";
 var CursorCell = 0;
@@ -329,7 +317,6 @@ var python_eval = function() {
   if (lines.length > 0) {
     try {
       var code = lines.join("")
-      stdout_buffer = []
       eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
       if (e.nativeError instanceof Promise) {

@@ -4,8 +4,15 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "go run server.go"
+    "start": "forego start"
   },
+  "repository" : {
+    "type" : "git",
+    "url" : "git@github.com:aordlab/touchplot.git"
+  },
+  "engineStrict": true,
+  "engine": "node 5.0.0",
+  "engines": { "node": "5.0.0" },
   "author": "",
   "license": "ISC",
   "dependencies": {
