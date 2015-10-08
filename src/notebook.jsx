@@ -115,7 +115,8 @@ function cursor(i) {
   if (i != CursorCell) return ""
   if (Mode == "view")  return ""
   if (Mode == "nav")   return "cursor"
-  else                 return "cursor-edit"
+  if (Mode == "edit")  return "cursor-edit"
+  else                 throw  "Invalid mode: " + Mode
 }
 
 function renderEditor() {
@@ -161,7 +162,8 @@ function render() {
 
 function moveCursor(delta) {
   if (Mode == "edit") return;
-  if (Mode == "view") setMode("nav")
+  if (Mode == "view") { setMode("nav"); return }
+
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
@@ -220,12 +222,13 @@ function deleteCell() {
 }
 
 function setMode(m) {
-  if (Mode == m) return;
+  if (Mode == m) return false;
   Mode = m;
   if (m == "edit") CODE.cache(CursorCell)
   else             CODE.clear(CursorCell)
   renderEditor();
   render()
+  return true
 }
 
 $('body').keyup(function(e) {
