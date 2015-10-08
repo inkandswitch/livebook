@@ -345,8 +345,8 @@ function handle_error(lineno_map, e) {
 
 var _plot = function() {}
 
-window.__plot2 = function(X,Y) {
-  _plot(X,Y)
+window.__plot2 = function(X,Y,colorName) {
+  _plot(X,Y,colorName)
 }
 
 window.__plot1 = function(xmax,ymax) {
@@ -424,7 +424,8 @@ window.__plot1 = function(xmax,ymax) {
         .text(function(d) { return d; });
 
   var n = 0
-  _plot = function(X,Y) {
+  _plot = function(X,Y,colorName) {
+    var color = d3.rgb(colorName);
 //    svg.selectAll(".dot")
     n++;
     svg.selectAll(".dot"+n)
