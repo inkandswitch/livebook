@@ -58,7 +58,7 @@ function python_render(result) {
     table += "<tbody>"
     $result.rows.forEach(row => {
       table += "<tr><th>" + row + "</th>"
-      $result.cols.forEach(col => table += "<td>" + $result.data[row][col] + "</td>")
+      $result.cols.forEach(col => table += "<td>" + $result.data[row][col].toFixed(6) + "</td>")
       table += "</tr>"
     })
     table += "</tbody>"
