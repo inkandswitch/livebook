@@ -344,7 +344,7 @@ var python_eval = function() {
 }
 
 function handle_error(lineno_map, e) {
-  var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1]
+  var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0]
   if (err_at.cell == CursorCell) {
     editor.getSession().setAnnotations([{
