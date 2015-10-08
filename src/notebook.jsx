@@ -51,22 +51,18 @@ function python_render(result) {
   if (result == undefined) return
   var $result = Sk.ffi.remapToJs(result)
 
-  // kludge to guess tabular data output from DataFrame.describe()
-  if (typeof $result == "object" && $result.length > 10 && $result[0]["X"]) {
-    var table = "<table>";
-
-    var fields = [ "Book", "Page", "X", "Y" ]
-    table += "<thead><tr>"
-    for (var i = 0; i < fields.length; i++)
-      table += "<th>" + fields[i] + "</th>"
+  if ($result && $result.rows && $result.cols && $result.data) {
+    var table = "<table><thead><tr><th>&nbsp;</th>";
+    $result.cols.forEach(col => table += "<th>" + col + "</th>")
     table += "</tr></thead>"
-
-    for (var i = 0; i < $result.length; i++) {
-      table += "<tr>"
-      for (var j = 0; j < fields.length; j++)
-        table += "<td>" + $result[i][fields[j]] + "</td>"
-    }
-    table == "</table>"
+    table += "<tbody>"
+    $result.rows.forEach(row => {
+      table += "<tr><th>" + row + "</th>"
+      $result.cols.forEach(col => table += "<td>" + $result.data[row][col] + "</td>")
+      table += "</tr>"
+    })
+    table += "</tbody>"
+    table += "</table>"
 
     iPython.cells[$cell].outputs = [
       {
@@ -163,10 +159,8 @@ function render() {
 }
 
 function moveCursor(delta) {
-  console.log("Move Cursor1")
   if (Mode == "edit") return;
   if (Mode == "view") setMode("nav")
-  console.log("Move Cursor2")
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;

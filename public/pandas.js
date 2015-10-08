@@ -71,9 +71,16 @@ var $builtinmodule = function() {
       return Sk.misceval.callsimOrSuspend(mod.GroupBy,self.$data,group);
     });
     $loc.describe = new Sk.builtin.func(function(self,x) {
-      console.log("STD",math.std(students))
-//      console.log("Book STD",math.std(self.$vals["Book"]))
-      return Sk.ffi.remapToPy(self.$data)
+      var summary = {
+        rows: ["count","mean","std","min","25","50","75","max"],
+        cols: self.$keys,
+        data: {}
+      }
+      summary.rows.forEach(func => {
+        summary.data[func] = {}
+        summary.cols.forEach(k => summary.data[func][k] = math[func](self.$vals[k]))
+      })
+      return Sk.ffi.remapToPy(summary)
     });
     $loc.__iter__ = new Sk.builtin.func(function(self,x) {
       var i = 0
