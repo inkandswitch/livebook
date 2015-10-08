@@ -119,6 +119,7 @@ function cursor(i) {
 }
 
 function renderEditor() {
+  console.log("render editor")
   if (Mode != "edit") {
     $("#editX").hide()
   } else {
