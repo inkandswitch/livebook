@@ -9,14 +9,14 @@ var $builtinmodule = function() {
     mean:    (list) => math.sum(list) / list.length,
     sum:     (list) => list.reduce((a,b) => a+b),
     std:     (list) => Math.sqrt(math.variance(list)),
-    25:      (list) => math.percent(list,0.25)
-    50:      (list) => math.percent(list,0.50)
-    75:      (list) => math.percent(list,0.75)
+    25:      (list) => math.percentile(list,0.25),
+    50:      (list) => math.percentile(list,0.50),
+    75:      (list) => math.percentile(list,0.75),
     variance:(list) => {
       var mean = math.mean(list)
       return math.sum(list.map((a) => Math.pow(a - mean,2)))/list.length
     },
-    percent  (list,p) => list.sort()[Math.floor(list.length * p)],
+    percentile: (list,p) => list.sort()[Math.floor(list.length * p)]
   }
 
   mod.read_csv = new Sk.builtin.func(function(name) {
