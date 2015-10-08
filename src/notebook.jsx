@@ -121,6 +121,7 @@ function onChangeFunc(i) {
 function rawMarkup(lines) { return { __html: marked(lines.join(""), {sanitize: true}) } }
 function cursor(i) {
   if (i != CursorCell) return ""
+  if (Mode == "view")  return ""
   if (Mode == "nav")   return "cursor"
   else                 return "cursor-edit"
 }
@@ -147,6 +148,8 @@ function renderEditor() {
     editor.focus()
     editor.moveCursorTo(0,0);
     editor.getSession().setUseWrapMode(true);
+    // TODO if type==code?
+    python_eval()
   }
 }
 
@@ -164,7 +167,10 @@ function render() {
 }
 
 function moveCursor(delta) {
-  if (Mode != "nav") return;
+  console.log("Move Cursor1")
+  if (Mode == "edit") return;
+  if (Mode == "view") setMode("nav")
+  console.log("Move Cursor2")
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
@@ -208,9 +214,6 @@ function appendCell(type) {
 
   render();
   setMode("edit");
-
-  editor = ace.edit("editX")
-  editor.selectAll();
 }
 
 function deleteCell() {
@@ -226,29 +229,33 @@ function deleteCell() {
 }
 
 function setMode(m) {
+  if (Mode == m) return;
   Mode = m;
   if (m == "edit") CODE.cache(CursorCell)
   else             CODE.clear(CursorCell)
   renderEditor();
-  python_eval()
+  render()
 }
 
 $('body').keyup(function(e) {
   switch (e.which) {
     case 27: // esc
-      setMode("nav");
+      if (Mode == "edit") setMode("nav")
+      else                setMode("view")
       break;
     case 38: // up
+      if (Mode == "edit") break;
       moveCursor(-1);
       break;
     case 40: // down
+      if (Mode == "edit") break;
       moveCursor(1);
       break;
   }
 })
 
 $('body').keypress(function(e) {
-  if (Mode != "nav") return;
+  if (Mode == "edit") return;
 
   switch (e.which) {
     case 101:
