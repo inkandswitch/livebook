@@ -98,6 +98,7 @@ div.notebook .yields img {
 
 div.notebook table {
   border-collapse: collapse;
+  width: 100%;
   margin: 0;
   margin-bottom: 12pt;
   background: white;
@@ -205,6 +206,11 @@ div.pyresult {
   font-size: 10pt;
   color: #2A64C7;
   margin-top: -24pt;
+}
+
+div.plot {
+  margin-left: 90px;
+  margin-top: -20pt;
 }
 
 .hamburger-menu {

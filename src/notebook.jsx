@@ -479,7 +479,7 @@ var CodeCell = React.createClass({
       </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       {this.outputs()}
-      <div id={"plot"+this.props.index}></div>
+      <div id={"plot"+this.props.index} className="plot"></div>
     </div>)
   }
 });
