@@ -40,9 +40,19 @@ function pyLoad(x)
     throw "File not found: '" + x + "'";
   return Sk.builtinFiles["files"][x];
 }
-function python_render(cell,result) {
-  var $cell = Sk.ffi.remapToJs(cell)
+
+var $cell = undefined;
+
+function python_mark(cell) {
+  $cell = Sk.ffi.remapToJs(cell)
+  console.log("CELL=",$cell)
+}
+
+function python_render(result) {
+  if (result == undefined) return
+  console.log("result",result)
   var $result = Sk.ffi.remapToJs(result)
+  console.log("$result",$result)
 
   // kludge to guess tabular data output from DataFrame.describe()
   if (typeof $result == "object" && $result.length > 10 && $result[0]["X"]) {
@@ -61,6 +71,7 @@ function python_render(cell,result) {
     }
     table == "</table>"
 
+    console.log("CELL",$cell)
     iPython.cells[$cell].outputs = [
       {
        "data": {
@@ -97,6 +108,7 @@ function python_render(cell,result) {
 
 var stdout_buffer = []
 
+Sk.builtins["mark"] = python_mark
 Sk.builtins["render"] = python_render
 Sk.configure({output: text => stdout_buffer.push(text), read: pyLoad })
 
@@ -291,26 +303,25 @@ var python_eval = function() {
   var lineno_map = {}
   iPython.cells.forEach((c,i) => {
     if (c.cell_type == "code") {
-      var valid = false
       editor.getSession().clearAnnotations()
+
+//      lineno += 1
+//      lineno_map[lineno] = { cell: i, line: line_number }
+      lines.push("mark("+i+")\n")
+
       c.source.forEach((line,line_number) => {
         if (!line.match(/^\s*$/)) {
-          valid = true
           lineno += 1
           lineno_map[lineno] = { cell: i, line: line_number }
           lines.push(line)
         }
       })
-      if (!valid) {
-        lines.push("render(" + i + ",None)\n")
+      var line = lines.pop()
+      if (!assignment.test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
+        lines.push("render(" + line.trim() + ")\n")
       } else {
-        var line = lines.pop()
-        if (!assignment.test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-          lines.push("render(" + i + ",(" + line.trim() + "))\n")
-        } else {
-          lines.push(line)
-          lines.push("render(" + i + ",None)\n")
-        }
+        lines.push(line)
+        lines.push("render(None)\n")
       }
     }
   })
@@ -328,7 +339,7 @@ var python_eval = function() {
           handle_error(lineno_map,e)
         } )
       } else {
-        console.log(e)
+        console.log("Handle Error",e)
         handle_error(lineno_map,e)
       }
     }
@@ -348,12 +359,16 @@ function handle_error(lineno_map, e) {
   }
 }
 
-window.__plot__ = function(x,y) {
-  console.log("__plot__",x,y)
-  plot("#plot",x,y)
+var _plot = function() {}
+
+window.__plot2 = function(X,Y) {
+  _plot(X,Y)
 }
 
-function plot(selector, X, Y) {
+window.__plot1 = function(xmax,ymax) {
+
+  iPython.cells[$cell].outputs = []
+  var selector = "#plot" + $cell;
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = 500 - margin.left - margin.right,
       height = 300 - margin.top - margin.bottom;
@@ -372,15 +387,16 @@ function plot(selector, X, Y) {
       .scale(y)
       .orient("left");
 
-//  var svg = d3.select("svg").remove()
+  d3.select("svg").remove()
+
   var svg = d3.select(selector).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(d3.extent(X)).nice();
-    y.domain(d3.extent(Y)).nice();
+    x.domain(d3.extent([0,xmax])).nice();
+    y.domain(d3.extent([0,ymax])).nice();
 
     svg.append("g")
         .attr("class", "x axis")
@@ -404,20 +420,6 @@ function plot(selector, X, Y) {
         .style("text-anchor", "end")
 //        .text(input)
 
-    svg.selectAll(".dot")
-        .data(zip(X,Y))
-      .enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", 3.5)
-        .attr("id", function(d) { return "p_" + d._id; })
-        .attr("cx", function(d) { return x(d[0]); })
-        .attr("cy", function(d) { return y(d[1]); })
-//        .style("fill", function(d) { return color(d.species); });
-//        .style("fill", function(d) { return color("derka"); })
-        .on("click", function(d,x) {
-          console.log(d,x)
-        })
-
     var legend = svg.selectAll(".legend")
         .data(color.domain())
       .enter().append("g")
@@ -436,6 +438,24 @@ function plot(selector, X, Y) {
         .attr("dy", ".35em")
         .style("text-anchor", "end")
         .text(function(d) { return d; });
+
+  var n = 0
+  _plot = function(X,Y) {
+//    svg.selectAll(".dot")
+    n++;
+    svg.selectAll(".dot"+n)
+        .data(zip(X,Y))
+      .enter().append("circle")
+        .attr("class", "dot"+n)
+        .attr("r", 3.5)
+        .attr("id", function(d) { return "p_" + d._id; })
+        .attr("cx", function(d) { return x(d[0]); })
+        .attr("cy", function(d) { return y(d[1]); })
+        .style("fill", color)
+        .on("click", function(d,x) {
+          console.log("click",d,x)
+        })
+  }
 }
 
 var MarkdownCell = React.createClass({
@@ -472,6 +492,7 @@ var CodeCell = React.createClass({
       </div>
       <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
       {this.outputs()}
+      <div id={"plot"+this.props.index}></div>
     </div>)
   }
 });

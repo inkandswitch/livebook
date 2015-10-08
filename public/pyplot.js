@@ -14,16 +14,16 @@ var $builtinmodule = function() {
     module[name] = new Sk.builtin.func(f)
   }
   makefunc(mod,"legend",["ncol","frameon","fancybox","bbox_to_anchor"],function(args,kwargs) {
-    return 1009;
   })
   makefunc(mod,"figure",["figsize","color"],function(args,kwargs) {
-    return 1010;
+    var $args = Sk.ffi.remapToJs(args)
+    window.__plot1($args[0][0],$args[0][1])
   })
   makefunc(mod,"plot",["color","alpha","lw","label"],function(args,kwargs) {
     var $args = Sk.ffi.remapToJs(args)
     if ($args[0] == "black") return
     console.log("PLOT",$args,kwargs);
-    window.__plot__($args[0],$args[1])
+    window.__plot2($args[0],$args[1])
   });
   mod.xlim = new Sk.builtin.func(function(self,a,b,c) {
     return 100
