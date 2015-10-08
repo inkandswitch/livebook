@@ -100,7 +100,8 @@ div.notebook table {
   border-collapse: collapse;
   width: 100%;
   margin: 0;
-  margin-bottom: 12pt;
+  margin-top: -12pt;
+  margin-bottom: 36pt;
   background: white;
 }
 div.notebook th,
