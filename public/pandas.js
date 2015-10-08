@@ -82,6 +82,15 @@ var $builtinmodule = function() {
       }
       return Sk.ffi.remapToPy(dump)
     })
+    $loc.select = new Sk.builtin.func(function(self,key,value) {
+      var $key = Sk.ffi.remapToJs(key);
+      var $value = Sk.ffi.remapToJs(value);
+      var $subset = []
+      self.$data.forEach(function(d) {
+        if (d[$key] == $value) $subset.push(d)
+      })
+      return Sk.misceval.callsimOrSuspend(mod.DataFrame,$subset)
+    })
     $loc.describe = new Sk.builtin.func(function(self) {
       var summary = {
         rows: ["count","mean","std","min","25","50","75","max"],
