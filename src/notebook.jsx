@@ -45,14 +45,11 @@ var $cell = undefined;
 
 function python_mark(cell) {
   $cell = Sk.ffi.remapToJs(cell)
-  console.log("CELL=",$cell)
 }
 
 function python_render(result) {
   if (result == undefined) return
-  console.log("result",result)
   var $result = Sk.ffi.remapToJs(result)
-  console.log("$result",$result)
 
   // kludge to guess tabular data output from DataFrame.describe()
   if (typeof $result == "object" && $result.length > 10 && $result[0]["X"]) {
@@ -71,7 +68,6 @@ function python_render(result) {
     }
     table == "</table>"
 
-    console.log("CELL",$cell)
     iPython.cells[$cell].outputs = [
       {
        "data": {

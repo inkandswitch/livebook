@@ -1,6 +1,24 @@
 var $builtinmodule = function() {
   "use strict";
   var mod = {};
+  var students = [2,4,4,4,5,5,7,9]
+  var math = {
+    max:     (list) => Math.max(...list),
+    min:     (list) => Math.min(...list),
+    count:   (list) => list.length,
+    mean:    (list) => math.sum(list) / list.length,
+    sum:     (list) => list.reduce((a,b) => a+b),
+    std:     (list) => Math.sqrt(math.variance(list)),
+    25:      (list) => math.percent(list,0.25)
+    50:      (list) => math.percent(list,0.50)
+    75:      (list) => math.percent(list,0.75)
+    variance:(list) => {
+      var mean = math.mean(list)
+      return math.sum(list.map((a) => Math.pow(a - mean,2)))/list.length
+    },
+    percent  (list,p) => list.sort()[Math.floor(list.length * p)],
+  }
+
   mod.read_csv = new Sk.builtin.func(function(name) {
     var $name = Sk.ffi.remapToJs(name);
     var $data = window.__load__($name)
@@ -40,10 +58,11 @@ var $builtinmodule = function() {
   mod.DataFrame = Sk.misceval.buildClass(mod, function($gbl, $loc) {
     $loc.__init__ = new Sk.builtin.func(function(self,data) {
       if (data.length > 0) {
+        self.$vals = {}
         self.$keys = Object.keys(data[0])
         self.$keys.forEach(k => {
-          var vals = data.map(d => d[k])
-          Sk.abstr.sattr(self, k, Sk.builtin.list(vals), true);
+          self.$vals[k] = data.map(d => d[k])
+          Sk.abstr.sattr(self, k, Sk.builtin.list(self.$vals[k]), true);
         })
       }
       self.$data = data
@@ -52,6 +71,8 @@ var $builtinmodule = function() {
       return Sk.misceval.callsimOrSuspend(mod.GroupBy,self.$data,group);
     });
     $loc.describe = new Sk.builtin.func(function(self,x) {
+      console.log("STD",math.std(students))
+//      console.log("Book STD",math.std(self.$vals["Book"]))
       return Sk.ffi.remapToPy(self.$data)
     });
     $loc.__iter__ = new Sk.builtin.func(function(self,x) {

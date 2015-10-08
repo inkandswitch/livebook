@@ -22,7 +22,6 @@ var $builtinmodule = function() {
   makefunc(mod,"plot",["color","alpha","lw","label"],function(args,kwargs) {
     var $args = Sk.ffi.remapToJs(args)
     if ($args[0] == "black") return
-    console.log("PLOT",$args,kwargs);
     window.__plot2($args[0],$args[1])
   });
   mod.xlim = new Sk.builtin.func(function(self,a,b,c) {
