@@ -91,6 +91,12 @@ var $builtinmodule = function() {
       })
       return Sk.misceval.callsimOrSuspend(mod.DataFrame,$subset)
     })
+    $loc.size = new Sk.builtin.func(function(self) {
+      return Sk.ffi.remapToPy(self.$data.length);
+    })
+    $loc.columns = new Sk.builtin.func(function(self) {
+      return Sk.ffi.remapToPy(self.$keys)
+    })
     $loc.describe = new Sk.builtin.func(function(self) {
       var summary = {
         rows: ["count","mean","std","min","25","50","75","max"],
