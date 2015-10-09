@@ -302,8 +302,6 @@ var python_eval = function() {
     if (c.cell_type == "code") {
       editor.getSession().clearAnnotations()
 
-//      lineno += 1
-//      lineno_map[lineno] = { cell: i, line: line_number }
       lines.push("mark("+i+")\n")
 
       c.source.forEach((line,line_number) => {
@@ -403,7 +401,6 @@ window.__plot1 = function(xmax,ymax) {
         .attr("x", width)
         .attr("y", -6)
         .style("text-anchor", "end")
-//        .text(output);
 
     svg.append("g")
         .attr("class", "y axis")
@@ -414,7 +411,6 @@ window.__plot1 = function(xmax,ymax) {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-//        .text(input)
 
     var legend = svg.selectAll(".legend")
         .data(color.domain())
@@ -438,7 +434,6 @@ window.__plot1 = function(xmax,ymax) {
   var n = 0
   _plot = function(X,Y,colorName) {
     var color = d3.rgb(colorName);
-//    svg.selectAll(".dot")
     n++;
     svg.selectAll(".dot"+n)
         .data(zip(X,Y))
