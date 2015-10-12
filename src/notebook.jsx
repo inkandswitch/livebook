@@ -8,25 +8,10 @@ var zip = (a,b) => a.map( (v,i) => [v,b[i]])
 var cache = {}
 window.__load__ = function(name) {
   if (cache[name]) return cache[name]
-  // convert waldo.csv -> data
-  var promise = new Promise(function(resolve,reject) {
-    // FILENAME to $data here
-    var result = d3.csv(name, function(d) {
-      for (var key in d) {
-        if (!isNaN(+d[key])) {
-          d[key] = +d[key]
-        }
-      }
-      return d
-    },
-    function(error, data) {
-      if (error) reject(error);
-      cache[name] = data
-      resolve(data)
-    });
-  })
-  throw promise
+  throw "File not found: " + name
 }
+
+var ShowUploader = true
 
 // these three lines came from skulpt repl.js codebase
 var importre = new RegExp("\\s*import")
@@ -166,6 +151,7 @@ function cellPosition() {
 
 function render() {
   React.render(<Notebook data={iPython} />, notebookMount);
+  setup_drag_drop()
 }
 
 function moveCursor(delta) {
@@ -501,12 +487,19 @@ var Cell = React.createClass({
   }
 })
 
+var Uploader = React.createClass({
+  render: function() {
+    return <div id="upload"><h1>Drag an <code>.ipynb</code> iPython notebook file and CSV data file here</h1></div>
+  }
+})
+
 var Notebook = React.createClass({
   cells: function() {
     return this.props.data.cells.map((cell,index) => <Cell data={cell} index={index}/>)
   },
   render: function() {
-    return <div className="notebook">{this.cells()}</div>
+    if (ShowUploader) return <div className="notebook"><Uploader /></div>
+    else              return <div className="notebook">{this.cells()}</div>
   },
 })
 
@@ -516,17 +509,71 @@ document.title = fname + " notebook"
 fname += ".ipynb";
 console.log("Loading " + fname);
 
-// TODO figure out how to make webpack pack these so I can avoid all this sillyness
+function setup_drag_drop() {
+  var upload = document.getElementById('notebook')
+  upload.ondrop = function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var is_notebook = /[.]ipynb$/
+    var is_csv = /[.]csv$/
+    var files = e.dataTransfer.files
+    if (files.length != 2) {
+      alert("You must drop 2 files!")
+      return
+    }
+    if (!(is_notebook.test(files[0].name) || is_notebook.test(files[1].name))) {
+      alert("one of the dropped files must be an ipynb")
+      return
+    }
+    if (!(is_csv.test(files[0].name) || is_csv.test(files[1].name))) {
+      alert("one of the dropped files must be a csv")
+      return
+    }
+    var notebook_loaded = false
+    var csv_loaded      = false
+    for (var i = 0; i < files.length; i++) {
+      let file = files[i]
+      let reader = new FileReader();
+      reader.onload = function(e2) {
+        if (is_notebook.test(file.name)) {
+          var doc = e2.target.result;
+          iPython = JSON.parse(doc)
+          notebook_loaded = true
+        } else {
+          var raw_data = e2.target.result;
+          var header = undefined
+          var data = d3.csv.parseRows(raw_data,function(row) {
+            if (!header) { header = row; return }
+            var object = {}
+            row.forEach((d,i) => object[header[i]] = (+d || d))
+            return object
+          })
+          cache[file.name] = data
+          csv_loaded = true
+        }
+        if (notebook_loaded && csv_loaded) {
+          ShowUploader = false
+          render()
+        }
+      }
+      reader.readAsText(file);
+    }
+  }
+  upload.ondragover = function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  }
+}
+
 $.get("pandas.js",function(data) {
   Sk.builtinFiles["files"]["./pandas.js"] = data
   $.get("pyplot.js",function(data) {
     Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = data
     $.get("matplotlib.js",function(data) {
       Sk.builtinFiles["files"]["./matplotlib.js"] = data
-      $.get(fname,function(data) {
-        iPython = data
-        render()
-      }, "json")
+      // TODO prevent python_eval until this is done
+      render()
     })
   })
 })

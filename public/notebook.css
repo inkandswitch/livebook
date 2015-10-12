@@ -262,3 +262,30 @@ div.plot {
 .hamburger-menu a:hover {
   color: #000;
 }
+
+#upload {
+  box-sizing: border-box;
+  border: 6pt dashed #ccc;
+  border-radius: 24pt;
+  width: 250pt;
+  min-height: 150pt;
+  margin: 20pt auto;
+  padding: 24pt;
+  padding-top: 32pt;
+  background: rgba(0,0,0,0.03);
+  color: #888;
+}
+
+#upload h1 {
+  font-size: 16pt;
+  border: 0;
+}
+
+#upload.hover {
+  border: 6pt dashed #FF8018;
+  background: rgba(255,128,24,0.3);
+}
+
+#upload.hover h1 {
+  color: #D36B14;
+}
