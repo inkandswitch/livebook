@@ -482,8 +482,8 @@ var Menu = React.createClass({
     resetToStarterNotebook()
   },
   render: function() { return (
-    <div id="hamburger-menu" className={this.state.active ? "active" : ""}>
-      <img src="hamburger-menu.png" alt="menu" onClick={this.handleClick} />
+    <div id="menu" className={this.state.active ? "active" : ""}>
+      <img src="menu.png" alt="menu" onClick={this.handleClick} />
       <ul className="menu-content">
         <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
         <li onClick={this.handleNew}>New</li>
