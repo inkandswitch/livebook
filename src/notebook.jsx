@@ -5,10 +5,10 @@ var AceEditor = require('react-ace');
 
 var zip = (a,b) => a.map( (v,i) => [v,b[i]])
 
-var cache = {}
+var theData = null;
 window.__load__ = function(name) {
-  if (cache[name]) return cache[name]
-  throw "File not found: " + name
+  if (theData) return theData
+  throw "No CSV data loaded"
 }
 
 var ShowUploader = false
@@ -595,7 +595,7 @@ function setup_drag_drop() {
             row.forEach((d,i) => object[header[i]] = (+d || d))
             return object
           })
-          cache[file.name] = data
+          theData = data
           csv_loaded = true
         }
         if (notebook_loaded && csv_loaded) {
@@ -615,7 +615,7 @@ function setup_drag_drop() {
 }
 
 // hardcoded data to pair with starter notebook
-cache['starter.csv'] = [
+theData = [
   { 'x': 1, 'y': 1 },
   { 'x': 2, 'y': 3 },
   { 'x': 5, 'y': 2 },
