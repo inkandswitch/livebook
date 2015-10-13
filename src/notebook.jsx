@@ -489,7 +489,13 @@ var Cell = React.createClass({
 
 var Uploader = React.createClass({
   render: function() {
-    return <div id="upload"><h1>Drag an <code>.ipynb</code> iPython notebook file and CSV data file here</h1></div>
+    return <div id="upload">
+             <h1>Drag files here</h1>
+             <ul>
+               <li className="ipynb"><code>.ipynb</code> notebook</li>
+               <li className="csv">CSV data</li>
+             </ul>
+           </div>
   }
 })
 

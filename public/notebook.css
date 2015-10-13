@@ -267,18 +267,37 @@ div.plot {
   box-sizing: border-box;
   border: 6pt dashed #ccc;
   border-radius: 24pt;
-  width: 250pt;
-  min-height: 150pt;
+  width: 300pt;
+  min-height: 200pt;
   margin: 20pt auto;
-  padding: 24pt;
-  padding-top: 32pt;
+  padding: 16pt;
+  padding-left: 32pt;
+  padding-top: 28pt;
   background: rgba(0,0,0,0.03);
   color: #888;
-}
-
-#upload h1 {
   font-size: 16pt;
+  font-weight: bold;
+}
+#upload ul {
+  padding-left: 16pt;
+}
+#upload h1 {
+  font-size: 28pt;
+  color: #aaa;
   border: 0;
+}
+#upload li {
+  list-style-type: none;
+  padding-left: 28pt;
+  margin-bottom: 16pt;
+}
+#upload li.ipynb {
+  background: url('file-ipynb.png') left center no-repeat;
+  background-size: 15pt;
+}
+#upload li.csv {
+  background: url('file-csv.png') left center no-repeat;
+  background-size: 15pt;
 }
 
 #upload.hover {
