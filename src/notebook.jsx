@@ -486,10 +486,8 @@ var Menu = React.createClass({
       <img src="hamburger-menu.png" alt="menu" onClick={this.handleClick} />
       <ul className="menu-content">
         <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
-        <li><hr/></li>
         <li onClick={this.handleNew}>New</li>
         <li onClick={this.handleImport}>Import</li>
-        <li><hr/></li>
         <li>Cheatsheet</li>
         <li>About</li>
       </ul>

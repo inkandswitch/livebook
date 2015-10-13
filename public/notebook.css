@@ -222,9 +222,7 @@ div.plot {
   padding: 0;
 }
 #hamburger-menu li {
-}
-#hamburger-menu hr {
-  opacity: 0;
+  padding: 2pt 4pt;
 }
 #hamburger-menu img {
   width: 16pt;
@@ -254,8 +252,10 @@ div.plot {
   color: #333;
   text-decoration: none;
 }
-#hamburger-menu a:hover {
+#hamburger-menu li:hover {
+  background: #ddd;
   color: #000;
+  border-radius: 2pt;
 }
 
 #upload {
