@@ -302,9 +302,4 @@ div.plot {
 
 #upload.hover {
   border: 6pt dashed #FF8018;
-  background: rgba(255,128,24,0.3);
-}
-
-#upload.hover h1 {
-  color: #D36B14;
 }

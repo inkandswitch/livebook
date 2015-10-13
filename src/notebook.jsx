@@ -518,6 +518,7 @@ console.log("Loading " + fname);
 function setup_drag_drop() {
   var upload = document.getElementById('notebook')
   upload.ondrop = function(e) {
+    $('#upload').removeClass('hover');
     e.stopPropagation();
     e.preventDefault();
     var is_notebook = /[.]ipynb$/
@@ -566,6 +567,7 @@ function setup_drag_drop() {
     }
   }
   upload.ondragover = function(e) {
+    $('#upload').addClass('hover');
     e.stopPropagation();
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
