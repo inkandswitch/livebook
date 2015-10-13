@@ -11,7 +11,7 @@ window.__load__ = function(name) {
   throw "File not found: " + name
 }
 
-var ShowUploader = true
+var ShowUploader = false
 
 // these three lines came from skulpt repl.js codebase
 var importre = new RegExp("\\s*import")
@@ -602,8 +602,17 @@ $.get("pandas.js",function(data) {
     Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = data
     $.get("matplotlib.js",function(data) {
       Sk.builtinFiles["files"]["./matplotlib.js"] = data
-      // TODO prevent python_eval until this is done
-      render()
+      $.get("starter.ipynb",function(data) {
+        iPython = data
+        cache['starter.csv'] = [
+          { 'x': 1, 'y': 1 },
+          { 'x': 2, 'y': 3 },
+          { 'x': 5, 'y': 2 },
+          { 'x': 6, 'y': 5 }
+        ]
+        // TODO prevent python_eval until this is done
+        render()
+      }, "json")
     })
   })
 })
