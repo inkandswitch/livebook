@@ -90,6 +90,7 @@ var CursorCell = 0;
 var iPython = { cells:[] }
 var notebookMount = document.getElementById('notebook')
 var editorMount = document.getElementById('editor')
+var menuMount = document.getElementById('menu')
 
 var editor       = {}
 var useEditor    = function(cell) { return (cell.props.index == CursorCell && Mode == "edit") }
@@ -151,6 +152,7 @@ function cellPosition() {
 
 function render() {
   React.render(<Notebook data={iPython} />, notebookMount);
+  React.render(<Menu />, menuMount);
   setup_drag_drop()
 }
 
@@ -450,6 +452,35 @@ var CODE = {
   clear: (i) => delete CODE[i],
   read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
 }
+
+var Menu = React.createClass({
+  getInitialState: function() {
+    return {active: false, download: false};
+  },
+  handleDownload: function(event) {
+    this.setState({download: true});
+  },
+  handleClick: function(event) {
+    this.setState({active: !this.state.active});
+  },
+  downloadPayload: function() {
+    return 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
+  },
+  render: function() { return (
+    <div id="hamburger-menu" onClick={this.handleClick} className={this.state.active ? "active" : ""}>
+    <img src="hamburger-menu.png" alt="menu" />
+    <ul className="menu-content">
+      <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
+      <li><hr/></li>
+      <li>New</li>
+      <li>Import</li>
+      <li><hr/></li>
+      <li>Cheatsheet</li>
+      <li>About</li>
+    </ul>
+  </div>
+  )}
+})
 
 var CodeCell = React.createClass({
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },

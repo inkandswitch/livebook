@@ -215,23 +215,23 @@ div.plot {
   margin-top: -20pt;
 }
 
-.hamburger-menu {
+#hamburger-menu {
   position: fixed;
   top: 8pt;
   left: 8pt;
   cursor: pointer;
 }
-.hamburger-menu ul {
+#hamburger-menu ul {
   list-style-type: none;
   font-size: 9pt;
   padding: 0;
 }
-.hamburger-menu li {
+#hamburger-menu li {
 }
-.hamburger-menu hr {
+#hamburger-menu hr {
   opacity: 0;
 }
-.hamburger-menu img {
+#hamburger-menu img {
   width: 16pt;
   height: 16pt;
   opacity: 0.5;
@@ -248,18 +248,18 @@ div.plot {
   transition: all 0.5s;
 }
 
-.hamburger-menu.active .menu-content {
+#hamburger-menu.active .menu-content {
   visibility: visible;
   opacity: 1;
   transform: translateX(0%);
   transition-delay: 0s;
 }
 
-.hamburger-menu a {
+#hamburger-menu a {
   color: #333;
   text-decoration: none;
 }
-.hamburger-menu a:hover {
+#hamburger-menu a:hover {
   color: #000;
 }
 

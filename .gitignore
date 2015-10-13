@@ -3,3 +3,4 @@ example
 npm-debug.log
 bower_components
 bundle.js
+.DS_Store
