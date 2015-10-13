@@ -462,8 +462,8 @@ var Menu = React.createClass({
     return 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
   render: function() { return (
-    <div id="hamburger-menu" onClick={this.handleClick} className={this.state.active ? "active" : ""}>
-    <img src="hamburger-menu.png" alt="menu" />
+    <div id="hamburger-menu" className={this.state.active ? "active" : ""}>
+    <img src="hamburger-menu.png" alt="menu" onClick={this.handleClick} />
     <ul className="menu-content">
       <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
       <li><hr/></li>
