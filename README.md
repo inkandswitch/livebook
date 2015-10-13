@@ -1,11 +1,18 @@
 
 ## Install
 
+Set your database URL
+
+    $ export DATABASE_URL="sqlite3://db.sql"
+
+Or
+
+    $ export DATABASE_URL="postgres://user@localhost/dbname"
+
 Install needed modules
 
-    $ npm install
-    $ go get -u github.com/ddollar/forego
+    $ ./setup
 
 Start the server
 
-    $ forego start
+    $ npm start
