@@ -277,11 +277,6 @@ $('body').keypress(function(e) {
   }
 });
 
-$('.hamburger-menu img').click(function() {
-  $('.hamburger-menu').toggleClass('active');
-});
-
-
 var python_eval = function() {
   var lines = []
   var lineno = 0
