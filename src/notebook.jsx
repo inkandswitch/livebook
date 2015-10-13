@@ -342,6 +342,8 @@ function resetToStarterNotebook() {
   // hack to deep clone
   iPython = JSON.parse(JSON.stringify(starterNotebook))
 
+  ShowUploader = false
+
   render() // TODO prevent python_eval until this is done
 }
 
