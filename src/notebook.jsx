@@ -13,6 +13,8 @@ window.__load__ = function(name) {
 
 var ShowUploader = false
 
+var starterNotebook = null;
+
 // these three lines came from skulpt repl.js codebase
 var importre = new RegExp("\\s*import")
 var defre = new RegExp("def.*|class.*")
@@ -336,6 +338,13 @@ function handle_error(lineno_map, e) {
   }
 }
 
+function resetToStarterNotebook() {
+  // hack to deep clone
+  iPython = JSON.parse(JSON.stringify(starterNotebook))
+
+  render() // TODO prevent python_eval until this is done
+}
+
 var _plot = function() {}
 
 window.__plot2 = function(X,Y,colorName) {
@@ -466,19 +475,23 @@ var Menu = React.createClass({
     ShowUploader = true
     render()
   },
+  handleNew: function(event) {
+    this.setState({active: false})
+    resetToStarterNotebook()
+  },
   render: function() { return (
     <div id="hamburger-menu" className={this.state.active ? "active" : ""}>
-    <img src="hamburger-menu.png" alt="menu" onClick={this.handleClick} />
-    <ul className="menu-content">
-      <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
-      <li><hr/></li>
-      <li>New</li>
-      <li onClick={this.handleImport}>Import</li>
-      <li><hr/></li>
-      <li>Cheatsheet</li>
-      <li>About</li>
-    </ul>
-  </div>
+      <img src="hamburger-menu.png" alt="menu" onClick={this.handleClick} />
+      <ul className="menu-content">
+        <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
+        <li><hr/></li>
+        <li onClick={this.handleNew}>New</li>
+        <li onClick={this.handleImport}>Import</li>
+        <li><hr/></li>
+        <li>Cheatsheet</li>
+        <li>About</li>
+      </ul>
+    </div>
   )}
 })
 
@@ -601,6 +614,14 @@ function setup_drag_drop() {
   }
 }
 
+// hardcoded data to pair with starter notebook
+cache['starter.csv'] = [
+  { 'x': 1, 'y': 1 },
+  { 'x': 2, 'y': 3 },
+  { 'x': 5, 'y': 2 },
+  { 'x': 6, 'y': 5 }
+]
+
 $.get("pandas.js",function(data) {
   Sk.builtinFiles["files"]["./pandas.js"] = data
   $.get("pyplot.js",function(data) {
@@ -608,15 +629,8 @@ $.get("pandas.js",function(data) {
     $.get("matplotlib.js",function(data) {
       Sk.builtinFiles["files"]["./matplotlib.js"] = data
       $.get("starter.ipynb",function(data) {
-        iPython = data
-        cache['starter.csv'] = [
-          { 'x': 1, 'y': 1 },
-          { 'x': 2, 'y': 3 },
-          { 'x': 5, 'y': 2 },
-          { 'x': 6, 'y': 5 }
-        ]
-        // TODO prevent python_eval until this is done
-        render()
+        starterNotebook = data
+        resetToStarterNotebook()
       }, "json")
     })
   })
