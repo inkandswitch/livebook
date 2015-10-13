@@ -6,15 +6,18 @@ body {
   padding: 0;
 }
 
-div.wrapper {
+div.notebook {
   margin: 0 auto;
   width: 55em;
   border-left: 1px solid #222;
   border-right: 1px solid #222;
+  padding: 32pt 64pt;
+  background: white;
+  min-height: 400pt;
 }
 
 @media only screen and (max-width: 800px) {
-  div.wrapper {
+  div.notebook {
     padding: 0;
     width: 100%;
     border: none;
@@ -27,13 +30,6 @@ a {
 }
 a:hover {
   text-decoration: underline;
-}
-
-div.notebook {
-  padding: 32pt 64pt;
-  background: white;
-  min-height: 400pt;
-  z-index: -2;
 }
 
 div.notebook h1,
@@ -121,7 +117,6 @@ div.notebook td {
 
 div.notebook div.cell {
   position: relative;
-  z-index: 1;
   margin-bottom: 12pt;
 }
 
