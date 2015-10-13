@@ -509,12 +509,6 @@ var Notebook = React.createClass({
   },
 })
 
-var fname = window.location.hash.substring(1);
-if (fname == "") fname = "waldo";
-document.title = fname + " notebook"
-fname += ".ipynb";
-console.log("Loading " + fname);
-
 function setup_drag_drop() {
   var upload = document.getElementById('notebook')
   upload.ondrop = function(e) {
@@ -546,6 +540,8 @@ function setup_drag_drop() {
           var doc = e2.target.result;
           iPython = JSON.parse(doc)
           notebook_loaded = true
+
+          document.title = file.name.slice(0, -6) + " notebook"
         } else {
           var raw_data = e2.target.result;
           var header = undefined
