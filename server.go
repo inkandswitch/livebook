@@ -95,16 +95,17 @@ func getDocument(w http.ResponseWriter, r *http.Request) {
 func main() {
 	DB = connectToDatabase()
 	DB.Debug()
-        addr := ":8888"
+        addr := "127.0.0.1:8888"
 
         http.NewServeMux()
 
         mux := mux.NewRouter()
         mux.HandleFunc("/d/", newDocument).Methods("POST")
         mux.HandleFunc("/d/{id}", getDocument).Methods("GET")
-        mux.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+        mux.PathPrefix("/").Handler(noStore(http.FileServer(http.Dir("./public/"))))
         http.Handle("/", mux)
 
         fmt.Printf("Running on %s\n", addr)
         log.Fatal(http.ListenAndServe(addr, context.ClearHandler(http.DefaultServeMux)))
+
 }
