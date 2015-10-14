@@ -76,9 +76,10 @@ var DB gorm.DB
 func newDocument(w http.ResponseWriter, r *http.Request) {
 	var document = Document{}
         body, _ := ioutil.ReadAll(r.Body)
+	fmt.Printf("Post Document %v\n",body)
 	json.Unmarshal(body,&document)
 	DB.Debug().Create(&document)
-	w.Write([]byte("ok\n"))
+	w.Write([]byte(fmt.Sprintf("/d/%d\n",document.ID)))
 }
 
 func getDocument(w http.ResponseWriter, r *http.Request) {

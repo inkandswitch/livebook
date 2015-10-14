@@ -89,6 +89,8 @@ Sk.configure({output: text => { console.log("STDOUT:",text) }, read: pyLoad })
 
 var Mode = "view";
 var CursorCell = 0;
+var DataRaw = ""
+var iPythonRaw = ""
 var iPython = { cells:[] }
 var notebookMount = document.getElementById('notebook')
 var editorMount = document.getElementById('editor')
@@ -581,15 +583,15 @@ function setup_drag_drop() {
       let reader = new FileReader();
       reader.onload = function(e2) {
         if (is_notebook.test(file.name)) {
-          var doc = e2.target.result;
-          iPython = JSON.parse(doc)
+          iPythonRaw= e2.target.result;
+          iPython = JSON.parse(iPythonRaw)
           notebook_loaded = true
 
           document.title = file.name.slice(0, -6) + " notebook"
         } else {
-          var raw_data = e2.target.result;
+          DataRaw = e2.target.result;
           var header = undefined
-          var data = d3.csv.parseRows(raw_data,function(row) {
+          var data = d3.csv.parseRows(DataRaw,function(row) {
             if (!header) { header = row; return }
             var object = {}
             row.forEach((d,i) => object[header[i]] = (+d || d))
@@ -600,6 +602,10 @@ function setup_drag_drop() {
         }
         if (notebook_loaded && csv_loaded) {
           ShowUploader = false
+          var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , data: { name: "DataName", body: DataRaw }})
+          $.post("/d/",doc,function(response) {
+            // document.location = response
+          })
           render()
         }
       }
