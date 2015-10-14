@@ -1,7 +1,7 @@
 body {
-  background: #888;
   font-family: 'Helvetica Neue', sans-serif;
   color: #333;
+  background: white;
   margin: 0;
   padding: 0;
 }
@@ -9,10 +9,7 @@ body {
 div.notebook {
   margin: 0 auto;
   width: 55em;
-  border-left: 1px solid #222;
-  border-right: 1px solid #222;
   padding: 32pt 64pt;
-  background: white;
   min-height: 400pt;
 }
 
@@ -212,8 +209,8 @@ div.plot {
 
 #menu {
   position: fixed;
-  top: 8pt;
-  left: 8pt;
+  top: 16pt;
+  left: 16pt;
   cursor: pointer;
 }
 #menu ul {
@@ -298,3 +295,27 @@ div.plot {
 #upload.hover {
   border: 6pt dashed #B1CD14;
 }
+
+.collaborators {
+  position: fixed;
+  top: 16pt;
+  right: 16pt;
+}
+.collaborators ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.collaborators li {
+  padding: 12pt;
+  margin-bottom: 8pt;
+}
+.collaborators li.author {
+  background: url('avatar-author.png') center center no-repeat;
+  background-size: contain;
+}
+.collaborators li.observer {
+  background: url('avatar-observer.png') center center no-repeat;
+  background-size: contain;
+}
+

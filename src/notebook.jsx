@@ -98,6 +98,7 @@ var iPython = { cells:[] }
 var notebookMount = document.getElementById('notebook')
 var editorMount = document.getElementById('editor')
 var menuMount = document.getElementById('menu')
+var collaboratorsMount = document.getElementById('collaborators')
 
 var editor       = {}
 var useEditor    = function(cell) { return (cell.props.index == CursorCell && Mode == "edit") }
@@ -161,6 +162,7 @@ function cellPosition() {
 function render() {
   React.render(<Notebook data={iPython} />, notebookMount);
   React.render(<Menu />, menuMount);
+  React.render(<Collaborators />, collaboratorsMount);
   setup_drag_drop()
 }
 
@@ -518,6 +520,17 @@ var Menu = React.createClass({
         <li onClick={this.handleImport}>Import</li>
         <li>Cheatsheet</li>
         <li>About</li>
+      </ul>
+    </div>
+  )}
+})
+
+var Collaborators = React.createClass({
+  render: function() { return (
+    <div className="collaborators">
+      <ul>
+        <li className="author"></li>
+        <li className="observer"></li>
       </ul>
     </div>
   )}
