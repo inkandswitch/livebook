@@ -225,11 +225,33 @@ function deleteCell() {
   render();
 }
 
+function save_notebook() {
+  console.log("Saving notebook...")
+  iPythonRaw = JSON.stringify(iPython)
+  var data = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } })
+  $.ajax({
+    method: "PUT",
+    url: document.location + ".json",
+    data: data,
+    complete: function(response, status) {
+      console.log("save response",response) // TODO handle errors
+  }})
+}
+
 function setMode(m) {
   if (Mode == m) return false;
+  var old = Mode
   Mode = m;
-  if (m == "edit") CODE.cache(CursorCell)
-  else             CODE.clear(CursorCell)
+  switch (m) {
+    case "edit":
+      CODE.cache(CursorCell)
+      break;
+    case "nav":
+      if (old == "edit") save_notebook()
+      // fall through
+    default:
+      CODE.clear(CursorCell)
+  }
   renderEditor();
   render()
   return true

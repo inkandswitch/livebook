@@ -4,6 +4,7 @@ import (
 	_ "database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -90,6 +91,24 @@ func newDocument(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateDocument(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var id,_ = strconv.Atoi(vars["id"])
+
+	var newDoc = Document{}
+
+	body, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(body, &newDoc)
+
+	var notebook = Notebook{}
+	DB.First(&notebook, Notebook{DocumentId: uint(id)})
+	notebook.Body = newDoc.Notebook.Body
+
+	if (notebook.Body != "") {
+		DB.Debug().Save(&notebook)
+		w.Write([]byte("ok"))
+	} else {
+		w.Write([]byte("err")) // TODO http error code
+	}
 }
 
 func getDocument(w http.ResponseWriter, r *http.Request) {
