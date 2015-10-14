@@ -476,7 +476,7 @@ var Menu = React.createClass({
     this.setState({active: !this.state.active});
   },
   downloadPayload: function() {
-    return 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
+    return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
   handleImport: function(event) {
     this.setState({active: false})
@@ -491,7 +491,7 @@ var Menu = React.createClass({
     <div id="menu" className={this.state.active ? "active" : ""}>
       <img src="/menu.png" alt="menu" onClick={this.handleClick} />
       <ul className="menu-content">
-        <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
+        <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
         <li onClick={this.handleNew}>New</li>
         <li onClick={this.handleImport}>Import</li>
         <li>Cheatsheet</li>
