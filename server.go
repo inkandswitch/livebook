@@ -17,7 +17,14 @@ import (
 	"log"
 )
 
-type File struct {
+type DataFile struct {
+	gorm.Model
+        DocumentId  uint
+        Name        string `sql:"type:text"`
+        Body        string `sql:"type:text"`
+}
+
+type Notebook struct {
 	gorm.Model
         DocumentId  uint
         Name        string `sql:"type:text"`
@@ -27,8 +34,8 @@ type File struct {
 type Document struct {
 	gorm.Model
         Name        string `sql:"type:text"`
-	Notebook    File
-	Data        File
+	Notebook    Notebook
+	DataFile    DataFile
 }
 
 func noStore(h http.Handler) http.Handler {
@@ -67,7 +74,7 @@ func connectToDatabase() (DB gorm.DB) {
 			fmt.Printf("unknown DATABASE_URL schema in %s\n",databaseURL)
 			os.Exit(1)
 	}
-        DB.AutoMigrate(&File{}, &Document{})
+        DB.AutoMigrate(&Notebook{}, &DataFile{}, &Document{})
 	return
 }
 
@@ -87,10 +94,22 @@ func getDocument(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Get Document\n")
 	var document = Document{}
 	DB.First(&document, vars["id"])
+	DB.Model(&document).Related(&document.Notebook)
+	DB.Model(&document).Related(&document.DataFile)
         json, _ := json.Marshal(document)
         fmt.Printf("json=%v\n",string(json))
         w.Header().Set("Content-Type", "application/json; charset=utf-8")
         w.Write(json)
+}
+
+func getIndex(w http.ResponseWriter, r *http.Request) {
+	if (r.URL.String() == "/d/deps.js") {
+		w.Write([]byte(""))
+	} else {
+		fmt.Printf("Get Index %s\n", r.URL.String())
+		var data,_ = ioutil.ReadFile("./public/index.html")
+		w.Write(data)
+	}
 }
 
 func main() {
@@ -102,7 +121,8 @@ func main() {
 
         mux := mux.NewRouter()
         mux.HandleFunc("/d/", newDocument).Methods("POST")
-        mux.HandleFunc("/d/{id}", getDocument).Methods("GET")
+        mux.HandleFunc("/d/{id}.json", getDocument).Methods("GET")
+        mux.HandleFunc("/d/{id}", getIndex).Methods("GET")
         mux.PathPrefix("/").Handler(noStore(http.FileServer(http.Dir("./public/"))))
         http.Handle("/", mux)
 

@@ -1,7 +1,10 @@
 var $         = require("jquery")
+var ace       = require("brace")
 var React     = require("react")
 var marked    = require("marked")
 var AceEditor = require('react-ace');
+
+ace.config.set("basePath","/")
 
 var zip = (a,b) => a.map( (v,i) => [v,b[i]])
 
@@ -118,7 +121,6 @@ function cursor(i) {
 }
 
 function renderEditor() {
-  console.log("render editor")
   if (Mode != "edit") {
     $("#editX").hide()
   } else {
@@ -127,7 +129,9 @@ function renderEditor() {
     var lang   = iPython.cells[CursorCell].cell_type == "code" ? "python" : "markdown"
     var value  = iPython.cells[CursorCell].source.join("")
     var change = onChangeFunc(CursorCell)
-    var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} />
+    var onBeforeLoad = function() {
+    }
+    var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} onBeforeLoad={onBeforeLoad}/>
     React.render(dom, editorMount);
 
     var pos = cellPosition()
@@ -485,7 +489,7 @@ var Menu = React.createClass({
   },
   render: function() { return (
     <div id="menu" className={this.state.active ? "active" : ""}>
-      <img src="menu.png" alt="menu" onClick={this.handleClick} />
+      <img src="/menu.png" alt="menu" onClick={this.handleClick} />
       <ul className="menu-content">
         <li><a href={this.downloadPayload()} id="downloader">Download</a></li>
         <li onClick={this.handleNew}>New</li>
@@ -514,7 +518,7 @@ var CodeCell = React.createClass({
       <div className="switch">
         <div className="codewrap"> {this.code()} </div>
       </div>
-      <div className="yields"><img src="yield-arrow.png" alt="yields" /></div>
+      <div className="yields"><img src="/yield-arrow.png" alt="yields" /></div>
       {this.outputs()}
       <div id={"plot"+this.props.index} className="plot"></div>
     </div>)
@@ -555,6 +559,27 @@ var Notebook = React.createClass({
   },
 })
 
+function parse_raw_notebook() {
+  iPython = JSON.parse(iPythonRaw)
+  var header = undefined
+  var data = d3.csv.parseRows(DataRaw,function(row) {
+  if (!header) { header = row; return }
+    var object = {}
+    row.forEach((d,i) => object[header[i]] = (+d || d))
+    return object
+  })
+  theData = data
+}
+
+function post_notebook_to_server() {
+  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
+  $.post("/d/",doc,function(response) {
+    console.log("responsee",response)
+    // document.location = response
+     window.history.pushState({hello:"world"},"", response);
+  })
+}
+
 function setup_drag_drop() {
   var upload = document.getElementById('notebook')
   upload.ondrop = function(e) {
@@ -578,34 +603,24 @@ function setup_drag_drop() {
     }
     var notebook_loaded = false
     var csv_loaded      = false
+
     for (var i = 0; i < files.length; i++) {
       let file = files[i]
       let reader = new FileReader();
       reader.onload = function(e2) {
         if (is_notebook.test(file.name)) {
           iPythonRaw= e2.target.result;
-          iPython = JSON.parse(iPythonRaw)
           notebook_loaded = true
 
           document.title = file.name.slice(0, -6) + " notebook"
         } else {
           DataRaw = e2.target.result;
-          var header = undefined
-          var data = d3.csv.parseRows(DataRaw,function(row) {
-            if (!header) { header = row; return }
-            var object = {}
-            row.forEach((d,i) => object[header[i]] = (+d || d))
-            return object
-          })
-          theData = data
           csv_loaded = true
         }
         if (notebook_loaded && csv_loaded) {
+          post_notebook_to_server()
+          parse_raw_notebook()
           ShowUploader = false
-          var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , data: { name: "DataName", body: DataRaw }})
-          $.post("/d/",doc,function(response) {
-            // document.location = response
-          })
           render()
         }
       }
@@ -628,16 +643,26 @@ theData = [
   { 'x': 6, 'y': 5 }
 ]
 
-$.get("pandas.js",function(data) {
+$.get("/pandas.js",function(data) {
   Sk.builtinFiles["files"]["./pandas.js"] = data
-  $.get("pyplot.js",function(data) {
+  $.get("/pyplot.js",function(data) {
     Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = data
-    $.get("matplotlib.js",function(data) {
+    $.get("/matplotlib.js",function(data) {
       Sk.builtinFiles["files"]["./matplotlib.js"] = data
-      $.get("starter.ipynb",function(data) {
-        starterNotebook = data
-        resetToStarterNotebook()
-      }, "json")
+      if (/[/]d[/](\d*)$/.test(document.location)) {
+        $.get(document.location + ".json",function(data) {
+          iPythonRaw = data.Notebook.Body
+          DataRaw = data.DataFile.Body
+          parse_raw_notebook()
+          ShowUploader = false
+          render()
+        }, "json")
+      } else {
+        $.get("/starter.ipynb",function(data) {
+          starterNotebook = data
+          resetToStarterNotebook()
+        }, "json")
+      }
     })
   })
 })
