@@ -5,11 +5,16 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/jinzhu/gorm"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/context"
+	"io/ioutil"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
 	"fmt"
 	"os"
+	"log"
 )
 
 type File struct {
@@ -66,8 +71,40 @@ func connectToDatabase() (DB gorm.DB) {
 	return
 }
 
+var DB gorm.DB
+
+func newDocument(w http.ResponseWriter, r *http.Request) {
+	var document = Document{}
+        body, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(body,&document)
+	DB.Debug().Create(&document)
+	w.Write([]byte("ok\n"))
+}
+
+func getDocument(w http.ResponseWriter, r *http.Request) {
+        vars := mux.Vars(r)
+	fmt.Printf("Get Document\n")
+	var document = Document{}
+	DB.First(&document, vars["id"])
+        json, _ := json.Marshal(document)
+        fmt.Printf("json=%v\n",string(json))
+        w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.Write(json)
+}
+
 func main() {
-	var DB = connectToDatabase()
+	DB = connectToDatabase()
 	DB.Debug()
-	http.ListenAndServe(":8888", noStore(http.FileServer(http.Dir("public"))))
+        addr := ":8888"
+
+        http.NewServeMux()
+
+        mux := mux.NewRouter()
+        mux.HandleFunc("/d/", newDocument).Methods("POST")
+        mux.HandleFunc("/d/{id}", getDocument).Methods("GET")
+        mux.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+        http.Handle("/", mux)
+
+        fmt.Printf("Running on %s\n", addr)
+        log.Fatal(http.ListenAndServe(addr, context.ClearHandler(http.DefaultServeMux)))
 }
