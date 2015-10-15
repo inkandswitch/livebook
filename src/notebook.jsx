@@ -320,7 +320,8 @@ var python_eval = function() {
       lines.push("mark("+i+")\n")
 
       c.source.forEach((line,line_number) => {
-        if (!line.match(/^\s*$/)) {
+        if (!line.match(/^\s*$/) &&
+            !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline" that skulpt doesn't parse
           lineno += 1
           lineno_map[lineno] = { cell: i, line: line_number }
           lines.push(line)
