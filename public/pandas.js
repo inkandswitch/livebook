@@ -91,9 +91,6 @@ var $builtinmodule = function() {
       })
       return Sk.misceval.callsimOrSuspend(mod.DataFrame,$subset)
     })
-    $loc.size = new Sk.builtin.func(function(self) {
-      return Sk.ffi.remapToPy(self.$data.length);
-    })
     $loc.columns = new Sk.builtin.func(function(self) {
       return Sk.ffi.remapToPy(self.$keys)
     })
@@ -118,6 +115,9 @@ var $builtinmodule = function() {
           return Sk.ffi.remapToJs(Object.keys($tuple).map(k => $tuple[k]))
         }
       }}
+    })
+    $loc.__len__ = new Sk.builtin.func(function(self) {
+      return Sk.ffi.remapToJs(self.$data.length)
     })
  },'DataFrame', []);
  return mod
