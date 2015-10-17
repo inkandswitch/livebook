@@ -3,6 +3,9 @@ var Fellows
 var URL
 var WebRTCServers = null
 var Last = 0
+var Arrival
+
+var vals = (obj) => Object.keys(obj).map((k) => obj[k])
 
 // 1a ----> who is here? (excluding A,B,C)
 // 1b <---- here is a list of peers [1,2,3]
@@ -15,7 +18,7 @@ function notice(desc) {
 }
 
 function mkFellow(name) {
-  var fellow = {id: name}
+  var fellow = {id: name, state: "new" }
 
   fellow.setupPeer = function() {
     var peer = new RTCPeerConnection(WebRTCServers)
@@ -31,10 +34,12 @@ function mkFellow(name) {
     peer.onremovestream = notice("onremovestream")
     peer.ondatachannel  = function(event) {
       console.log("new data channel") // receiver sees this!
+      fellow.state = "ready"
       fellow.data = event.channel
       fellow.data.onmessage = msg => process_message(peer,JSON.parse(msg.data))
+      if (Arrival) Arrival(fellow)
     }
-    fellow.peer = peer 
+    fellow.peer = peer
   }
 
   fellow.setupPeer()
@@ -54,8 +59,10 @@ function mkFellow(name) {
       console.log("processing signal",signal)
       var callback = function() { };
       if (signal.type == "offer") callback = function() {
+        fellow.state = "answering"
         fellow.peer.createAnswer(function(answer) {
           console.log("created answer",answer)
+          fellow.state = "answering-setlocal"
           fellow.peer.setLocalDescription(answer,function() {
             console.log("set local descr")
             put(fellow.id,answer)
@@ -67,6 +74,7 @@ function mkFellow(name) {
         });
       }
       if (signal.sdp) {
+        fellow.state = "setremote"
         fellow.peer.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
           console.log("Error setRemoteDescription",e)
         })
@@ -96,14 +104,20 @@ function mkFellow(name) {
   fellow.offer = function() {
     fellow.data           = fellow.peer.createDataChannel("datachannel",{reliable: false});
     fellow.data.onmessage = notice("data:message")
-    fellow.data.onopen    = notice("data:open") // offerer sees this
     fellow.data.onclose   = notice("data:onclose")
     fellow.data.onerror   = notice("data:error")
-    fellow.peer.createOffer(desc =>
+    fellow.data.onopen    = function(event) {
+      console.log("data channel open")
+      fellow.state = "ready"
+      if (Arrival) Arrival(fellow)
+    }
+    fellow.state = "offering"
+    fellow.peer.createOffer(desc => {
+      fellow.state = "offer-setlocal"
       fellow.peer.setLocalDescription(desc,
         () => put(fellow.id,desc),
-        e  => console.log("error on setLocalDescription",e)),
-    e => console.log("error with createOffer",e));
+        e  => console.log("error on setLocalDescription",e))
+    }, e => console.log("error with createOffer",e));
   }
 
   return fellow
@@ -152,6 +166,16 @@ function get() {
         console.log("Fail to get",URL,e)
       }
     });
+}
+
+module.exports.all_fellows = () => vals(Fellows)
+module.exports.fellows = () => vals(Fellows).filter(f => f.state == "ready")
+
+module.exports.arrive = function(func) {
+  Arrival = func
+}
+
+module.exports.depart = function(func) {
 }
 
 module.exports.join = function(url) {

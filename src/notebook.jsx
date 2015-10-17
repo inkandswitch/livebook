@@ -5,6 +5,15 @@ var marked     = require("marked")
 var AceEditor  = require('react-ace');
 var fellowship = require('./fellowship');
 
+var num_fellows = 1
+var update_fellows = function() {
+  num_fellows = fellowship.fellows().length + 1
+  console.log("NUM FELLOWS",num_fellows,fellowship.all_fellows())
+  React.render(<Collaborators />, collaboratorsMount);
+}
+fellowship.arrive(update_fellows)
+fellowship.depart(update_fellows)
+
 ace.config.set("basePath","/")
 
 var zip = (a,b) => a.map( (v,i) => [v,b[i]])
@@ -528,11 +537,8 @@ var Menu = React.createClass({
 })
 
 var Collaborators = React.createClass({
-  getInitialState: function() {
-    return { numCollaborators: 1 }
-  },
   renderAvatars: function() {
-    var count = parseInt(this.state.numCollaborators)
+    var count = num_fellows
     if (count < 1) return
 
     var avatars = []
@@ -543,7 +549,8 @@ var Collaborators = React.createClass({
 
     return avatars
   },
-  render: function() { return (
+  render: function() {
+    return (
     <div className="collaborators">
       <ul>{this.renderAvatars()}</ul>
     </div>
