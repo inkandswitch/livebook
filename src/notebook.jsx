@@ -1,8 +1,9 @@
-var $         = require("jquery")
-var ace       = require("brace")
-var React     = require("react")
-var marked    = require("marked")
-var AceEditor = require('react-ace');
+var $          = require("jquery")
+var ace        = require("brace")
+var React      = require("react")
+var marked     = require("marked")
+var AceEditor  = require('react-ace');
+var fellowship = require('./fellowship');
 
 ace.config.set("basePath","/")
 
@@ -612,7 +613,9 @@ function post_notebook_to_server() {
   $.post("/d/",doc,function(response) {
     console.log("responsee",response)
     // document.location = response
-     window.history.pushState({hello:"world"},"", response);
+      window.history.pushState({hello:"world"},"", response); // TODO make the back button work here
+      console.log("location", document.location)
+      fellowship.join(document.location + ".rtc")
   })
 }
 
@@ -692,6 +695,7 @@ $.get("/pandas.js",function(data) {
           parse_raw_notebook()
           ShowUploader = false
           render()
+          fellowship.join(document.location + ".rtc")
         }, "json")
       } else {
         $.get("/starter.ipynb",function(data) {
