@@ -528,12 +528,24 @@ var Menu = React.createClass({
 })
 
 var Collaborators = React.createClass({
+  getInitialState: function() {
+    return { numCollaborators: 1 }
+  },
+  renderAvatars: function() {
+    var count = parseInt(this.state.numCollaborators)
+    if (count < 1) return
+
+    var avatars = []
+    avatars.push(<li className="author" key="avatar0"></li>)
+
+    for (var i = 1; i < count; i++)
+      avatars.push(<li className="observer"></li>)
+
+    return avatars
+  },
   render: function() { return (
     <div className="collaborators">
-      <ul>
-        <li className="author"></li>
-        <li className="observer"></li>
-      </ul>
+      <ul>{this.renderAvatars()}</ul>
     </div>
   )}
 })
