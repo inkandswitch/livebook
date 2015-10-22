@@ -1,9 +1,11 @@
 var $ = require('jquery')
 var Fellows
+var Connected = {}
 var URL
 var WebRTCServers = null
-var Last = 0
+var Session = ""
 var Arrival
+var Depart
 
 var vals = (obj) => Object.keys(obj).map((k) => obj[k])
 
@@ -28,6 +30,18 @@ function mkFellow(name) {
         put(fellow.id, event.candidate) // FIXME
       }
     }
+    peer.oniceconnectionstatechange = function(event) {
+      console.log("notice:statechange",peer.iceConnectionState, event)
+      if (peer.iceConnectionState == 'disconnected') {
+//        fellow.state = "closed"
+        delete Connected[name]
+        if (Depart) { Depart(name) }
+      }
+      if (peer.iceConnectionState == 'connected' || peer.iceConnectionState == 'completed') {
+        Connected[name] = fellow
+        if (Arrival) { Arrival(name) }
+      }
+    }
     peer.onconnecting   = notice("onconnecting")
     peer.onopen         = notice("onopen")
     peer.onaddstream    = notice("onaddstream")
@@ -37,7 +51,7 @@ function mkFellow(name) {
       fellow.state = "ready"
       fellow.data = event.channel
       fellow.data.onmessage = msg => process_message(peer,JSON.parse(msg.data))
-      if (Arrival) Arrival(fellow)
+//      if (Arrival) Arrival(fellow)
     }
     fellow.peer = peer
   }
@@ -124,13 +138,11 @@ function mkFellow(name) {
 }
 
 function put(target, message) {
-  console.log("PUT", target, message)
   $.ajax(URL, {
     method: "put",
     dataType: "json",
-    data: { to: target, message: JSON.stringify(message) },
+    data: { to: target, session: Session, message: JSON.stringify(message) },
     success: function(data) {
-      console.log("PUT",data)
     },
     error: function(e) {
       console.log("Fail to PUT",URL,e)
@@ -139,13 +151,13 @@ function put(target, message) {
 }
 
 function get() {
-    $.ajax(URL + "?last=" + Last, {
+    $.ajax(URL + "?session=" + Session, {
       contentType: "application/json; charset=UTF-8",
       method: "get",
       dataType: "json",
       success: function(data) {
-        console.log("GOT",data)
-        Last = data.Timestamp
+//        console.log("GOT",data)
+        Session = data.Session
         if (Fellows == undefined) {
           Fellows = {}
           data.Members.forEach((member) => {
@@ -168,14 +180,14 @@ function get() {
     });
 }
 
-module.exports.all_fellows = () => vals(Fellows)
-module.exports.fellows = () => vals(Fellows).filter(f => f.state == "ready")
+module.exports.fellows = () => Object.keys(Connected).map((key) => Connected[key])
 
 module.exports.arrive = function(func) {
   Arrival = func
 }
 
 module.exports.depart = function(func) {
+  Depart = func
 }
 
 module.exports.join = function(url) {

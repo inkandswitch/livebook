@@ -8,7 +8,7 @@ var fellowship = require('./fellowship');
 var num_fellows = 1
 var update_fellows = function() {
   num_fellows = fellowship.fellows().length + 1
-  console.log("NUM FELLOWS",num_fellows,fellowship.all_fellows())
+  console.log("NUM FELLOWS",num_fellows,fellowship.fellows())
   React.render(<Collaborators />, collaboratorsMount);
 }
 fellowship.arrive(update_fellows)

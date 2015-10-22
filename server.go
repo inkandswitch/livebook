@@ -1,5 +1,13 @@
 package main
 
+// TODO
+// edge cases to handle
+// user logs in with two browsers
+// user logs in with two tabs on the same browser
+// user connects/disconnects rapidly
+// what if the session goes bad?
+// deleting old entries?
+
 import (
 	"crypto/rand"
 	_ "database/sql"
@@ -49,16 +57,18 @@ type Document struct {
 type Member struct {
 	updated_on int64
 	created_on int64
+	session    string
+	messages   map[string][]string
 }
 
 type Fellowship struct {
 	Members  map[string]map[string]*Member
-	Messages map[string]map[string]map[string][]string
+//	Messages map[string]map[string]map[string][]string
 	MX       sync.Mutex
 }
 
 type FellowshipUpdate struct {
-	Timestamp int64
+	Session   string
 	Members   []string
 	Messages  map[string][]string
 }
@@ -67,54 +77,47 @@ var FELLOWSHIP = &Fellowship{}
 
 func (f *Fellowship) Init() {
 	f.Members = map[string]map[string]*Member{}
-	f.Messages = map[string]map[string]map[string][]string{}
 	f.MX = sync.Mutex{}
 }
 
-func (f *Fellowship) Put(group string, from string, to string, message string) {
+func (f *Fellowship) Put(group string, from string, session string, to string, message string) {
 	f.MX.Lock()
 	defer f.MX.Unlock()
 
-	if _, ok := f.Messages[group]; !ok {
-		f.Messages[group] = map[string]map[string][]string{}
+	From := f.Members[group][from]
+	To   := f.Members[group][to]
+
+	if From.session != session {
+		fmt.Printf("Session mismatch - must be an out of date message u=%s s=%s\n",from,session)
+		return
 	}
 
-	if _, ok := f.Messages[group][to]; !ok {
-		f.Messages[group][to] = map[string][]string{}
-	}
-
-	if _, ok := f.Messages[group][to]; !ok {
-		f.Messages[group][to][from] = []string{}
-	}
-
-	f.Messages[group][to][from] = append(f.Messages[group][to][from], message)
+	To.messages[from] = append(To.messages[from], message)
 }
 
-func (f *Fellowship) Get(group string, name string, last int64) *FellowshipUpdate {
+func (f *Fellowship) Get(group string, name string, session string) *FellowshipUpdate {
 	f.MX.Lock()
 	defer f.MX.Unlock()
 
-	fmt.Printf("last=%v\n", last)
-
+	last := int64(0)
 	now := time.Now().Unix()
 
 	if f.Members[group] == nil {
 		f.Members[group] = map[string]*Member{}
 	}
 
-	if _, ok := f.Members[group][name]; !ok {
-		f.Members[group][name] = &Member{created_on: now, updated_on: now}
+	if session == "" { // begin a new session
+		session = randomString(4)
+		f.Members[group][name] = &Member{created_on: now, updated_on: now, session: session, messages: map[string][]string{}}
+	} else {
+		last = f.Members[group][name].updated_on
+		f.Members[group][name].updated_on = now
 	}
 
-	f.Members[group][name].updated_on = now
+	Member := f.Members[group][name]
 
-	messages := map[string][]string{}
-	if m, ok := f.Messages[group][name]; ok {
-		messages = m
-		f.Messages[group][name] = map[string][]string{}
-	}
-
-	update := &FellowshipUpdate{Members: []string{}, Messages: messages, Timestamp: now}
+	update := &FellowshipUpdate{Members: []string{}, Messages: Member.messages, Session: session}
+	Member.messages = map[string][]string{}
 
 	for k := range f.Members[group] {
 		if k != name && f.Members[group][k].created_on >= last {
@@ -209,37 +212,19 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	fmt.Printf("PUT FORM %v\n", r.Form)
 	to := r.Form["to"][0]
+	session := r.Form["session"][0]
 	message := r.Form["message"][0]
-	FELLOWSHIP.Put(vars["id"], user, to, message)
+	FELLOWSHIP.Put(vars["id"], user, session, to, message)
 	w.Write([]byte("{\"ok\":true}"))
-	//	vars := mux.Vars(r)
-	//	send { to: f1, from: f0 }
 }
 
 func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
-	last := r.Form["last"][0]
-	lastInt, _ := strconv.ParseInt(last, 10, 64)
-	members := FELLOWSHIP.Get(vars["id"], user, lastInt)
+	session := r.Form["session"][0]
+	members := FELLOWSHIP.Get(vars["id"], user, session)
 	json, _ := json.Marshal(members)
 	w.Write(json)
-
-	// who got here before me
-	// any messages for me?
-
-	//      member = { id, last_seen, first_seen }
-	//      gc if not seen in a while
-	//      show me since X
-
-	//	add user to the room w/ timestamp
-	//      get others in the room since timestamp
-	//	if (users)
-	//		write(users)
-	// 	else
-	//		<- wait for new users
-	//		<- wait for new messages
-	//		write(new_users)
 }
 
 func getDocument(user string, w http.ResponseWriter, r *http.Request) {
@@ -250,7 +235,6 @@ func getDocument(user string, w http.ResponseWriter, r *http.Request) {
 	DB.Model(&document).Related(&document.Notebook)
 	DB.Model(&document).Related(&document.DataFile)
 	json, _ := json.Marshal(document)
-	//	fmt.Printf("json=%v\n", string(json))
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(json)
 }
