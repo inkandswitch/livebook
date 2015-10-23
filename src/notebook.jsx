@@ -29,7 +29,8 @@ window.__load__ = function(name) {
   throw "No CSV data loaded"
 }
 
-var ShowUploader = false
+var Pages = [ "notebook", "upload" ]
+var CurrentPage = "notebook"
 
 var starterNotebook = null;
 
@@ -274,6 +275,16 @@ function setMode(m) {
   return true
 }
 
+function setCurrentPage(page) {
+  if (!Pages.includes(page)) {
+    console.log("Error: '" + page + "' is not a valid page")
+    return
+  }
+
+  CurrentPage = page
+  render()
+}
+
 $('body').keyup(function(e) {
   switch (e.which) {
     case 27: // esc
@@ -325,15 +336,11 @@ $('body').keypress(function(e) {
 });
 
 window.onpopstate = function(event) {
-  console.log("onpopstate", document.location, event.state)
-
   var path = document.location.pathname
   if (path == "/upload")
-    ShowUploader = true
+    setCurrentPage("upload")
   else
-    ShowUploader = false
-
-  render()
+    setCurrentPage("notebook")
 }
 
 var python_eval = function() {
@@ -400,7 +407,7 @@ function resetToStarterNotebook() {
   // hack to deep clone
   iPython = JSON.parse(JSON.stringify(starterNotebook))
 
-  ShowUploader = false
+  setCurrentPage("notebook")
 
   render() // TODO prevent python_eval until this is done
 }
@@ -533,8 +540,7 @@ var Menu = React.createClass({
   handleUpload: function(event) {
     this.setState({active: false})
     window.history.pushState({}, "Upload", "/upload")
-    ShowUploader = true
-    render()
+    setCurrentPage("upload")
   },
   handleNew: function(event) {
     this.setState({active: false})
@@ -625,8 +631,12 @@ var Notebook = React.createClass({
     return this.props.data.cells.map((cell,index) => <Cell data={cell} index={index}/>)
   },
   render: function() {
-    if (ShowUploader) return <div className="notebook"><Uploader /></div>
-    else              return <div className="notebook">{this.cells()}</div>
+    switch (CurrentPage) {
+      case "upload":
+        return <div className="notebook"><Uploader /></div>
+      case "notebook":
+        return <div className="notebook">{this.cells()}</div>
+    }
   },
 })
 
@@ -692,8 +702,7 @@ function setup_drag_drop() {
         if (notebook_loaded && csv_loaded) {
           post_notebook_to_server()
           parse_raw_notebook()
-          ShowUploader = false
-          render()
+          setCurrentPage("notebook")
         }
       }
       reader.readAsText(file);
@@ -726,8 +735,7 @@ $.get("/pandas.js",function(data) {
           iPythonRaw = data.Notebook.Body
           DataRaw = data.DataFile.Body
           parse_raw_notebook()
-          ShowUploader = false
-          render()
+          setCurrentPage("notebook")
           fellowship.join(document.location + ".rtc")
         }, "json")
       } else {
