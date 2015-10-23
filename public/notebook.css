@@ -308,7 +308,18 @@ div.plot {
 }
 .collaborators li {
   padding: 12pt;
-  margin-bottom: 8pt;
+  margin-bottom: 16pt;
+  position: relative;
+}
+.collaborators li span {
+  font-size: 7pt;
+  font-weight: bold;
+  color: #555;
+  position: absolute;
+  bottom: -8pt;
+  left: 0;
+  text-align: center;
+  width: 100%;
 }
 .collaborators li.author {
   background: url('avatar-author.png') center center no-repeat;
@@ -318,4 +329,23 @@ div.plot {
   background: url('avatar-observer.png') center center no-repeat;
   background-size: contain;
 }
+.collaborators li.here {
+  opacity: 1;
+}
+.collaborators li.arriving,
+.collaborators li.departing {
+  opacity: 0.3;
+  animation-duration: 0.7s;
+  animation-name: pulse;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
 
+@keyframes pulse {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.7;
+  }
+}

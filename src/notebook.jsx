@@ -5,10 +5,15 @@ var marked     = require("marked")
 var AceEditor  = require('react-ace');
 var fellowship = require('./fellowship');
 
-var num_fellows = 1
+var fellowPresence = [
+  { name: "Me", status: "here" },
+  { name: "Jane", status: "arriving" },
+  { name: "Joe", status: "here" },
+  { name: "Mary", status: "departing" }
+]
+
 var update_fellows = function() {
-  num_fellows = fellowship.fellows().length + 1
-  console.log("NUM FELLOWS",num_fellows,fellowship.fellows())
+  console.log("FELLOWS",fellowship.fellows())
   React.render(<Collaborators />, collaboratorsMount);
 }
 fellowship.arrive(update_fellows)
@@ -538,15 +543,12 @@ var Menu = React.createClass({
 
 var Collaborators = React.createClass({
   renderAvatars: function() {
-    var count = num_fellows
-    if (count < 1) return
-
     var avatars = []
-    avatars.push(<li className="author" key="avatar0"></li>)
-
-    for (var i = 1; i < count; i++)
-      avatars.push(<li className="observer"></li>)
-
+    for (var i = 0; i < fellowPresence.length; i++) {
+      var f = fellowPresence[i]
+      var klass = "observer " + f.status;
+      avatars.push(<li className={klass}><span>{f.name}</span></li>)
+    }
     return avatars
   },
   render: function() {
