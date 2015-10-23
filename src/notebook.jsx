@@ -324,6 +324,18 @@ $('body').keypress(function(e) {
   }
 });
 
+window.onpopstate = function(event) {
+  console.log("onpopstate", document.location, event.state)
+
+  var path = document.location.pathname
+  if (path == "/upload")
+    ShowUploader = true
+  else
+    ShowUploader = false
+
+  render()
+}
+
 var python_eval = function() {
   var lines = []
   var lineno = 0
@@ -518,8 +530,9 @@ var Menu = React.createClass({
   downloadPayload: function() {
     return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
-  handleImport: function(event) {
+  handleUpload: function(event) {
     this.setState({active: false})
+    window.history.pushState({}, "Upload", "/upload")
     ShowUploader = true
     render()
   },
@@ -533,7 +546,7 @@ var Menu = React.createClass({
       <ul className="menu-content">
         <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
         <li onClick={this.handleNew}>New</li>
-        <li onClick={this.handleImport}>Import</li>
+        <li onClick={this.handleUpload}>Upload</li>
         <li>Cheatsheet</li>
         <li>About</li>
       </ul>
@@ -633,8 +646,7 @@ function post_notebook_to_server() {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
   $.post("/d/",doc,function(response) {
     console.log("responsee",response)
-    // document.location = response
-      window.history.pushState({hello:"world"},"", response); // TODO make the back button work here
+      window.history.pushState({}, "Notebook", response);
       console.log("location", document.location)
       fellowship.join(document.location + ".rtc")
   })
