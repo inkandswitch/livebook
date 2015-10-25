@@ -1,12 +1,10 @@
 package main
 
+// user may have multiple sessions [split screen]
+// messages are sent to a session not a user
+// agressivly time sessions out - potentially bring them back if needed
+
 // TODO
-// edge cases to handle
-// user logs in with two browsers
-// user logs in with two tabs on the same browser
-// user connects/disconnects rapidly
-// what if the session goes bad?
-// deleting old entries?
 
 import (
 	"crypto/rand"
@@ -55,72 +53,84 @@ type Document struct {
 }
 
 type Member struct {
+	name       string
 	updated_on int64
 	created_on int64
-	session    string
-	messages   map[string][]string
+	messages   map[Session][]string
 }
 
+type Group string
+type Session string
+
 type Fellowship struct {
-	Members  map[string]map[string]*Member
+	Members  map[Group]map[Session]*Member
 //	Messages map[string]map[string]map[string][]string
 	MX       sync.Mutex
 }
 
 type FellowshipUpdate struct {
-	Session   string
-	Members   []string
-	Messages  map[string][]string
+	Session   Session
+	Members   []Session
+	Messages  map[Session][]string
 }
 
 var FELLOWSHIP = &Fellowship{}
 
 func (f *Fellowship) Init() {
-	f.Members = map[string]map[string]*Member{}
+	f.Members = map[Group]map[Session]*Member{}
 	f.MX = sync.Mutex{}
 }
 
-func (f *Fellowship) Put(group string, from string, session string, to string, message string) {
+func (f *Fellowship) Put(_group string, _from string, _to string, message string) {
 	f.MX.Lock()
 	defer f.MX.Unlock()
 
-	From := f.Members[group][from]
-	To   := f.Members[group][to]
+	group := Group(_group)
+	from  := Session(_from)
+	to    := Session(_to)
 
-	if From.session != session {
-		fmt.Printf("Session mismatch - must be an out of date message u=%s s=%s\n",from,session)
+	//From,fok := f.Members[group][from]
+	To,tok   := f.Members[group][to]
+
+	// TODO also check for the dead flag
+
+	if !tok {
+		fmt.Printf("Session mismatch - must be an out of date message u=%s s=%s\n",from,to)
 		return
 	}
 
 	To.messages[from] = append(To.messages[from], message)
 }
 
-func (f *Fellowship) Get(group string, name string, session string) *FellowshipUpdate {
+func (f *Fellowship) Get(_group string, name string, _session string) *FellowshipUpdate {
 	f.MX.Lock()
 	defer f.MX.Unlock()
+
+	group   := Group(_group)
+	session := Session(_session)
 
 	last := int64(0)
 	now := time.Now().Unix()
 
 	if f.Members[group] == nil {
-		f.Members[group] = map[string]*Member{}
+		f.Members[group] = map[Session]*Member{}
 	}
 
 	if session == "" { // begin a new session
-		session = randomString(4)
-		f.Members[group][name] = &Member{created_on: now, updated_on: now, session: session, messages: map[string][]string{}}
+		session = Session(randomString(6))
+		f.Members[group][session] = &Member{name: name, created_on: now, updated_on: now, messages: map[Session][]string{}}
 	} else {
-		last = f.Members[group][name].updated_on
-		f.Members[group][name].updated_on = now
+		last = f.Members[group][session].updated_on
+		f.Members[group][session].updated_on = now
 	}
 
-	Member := f.Members[group][name]
+	Member := f.Members[group][session]
 
-	update := &FellowshipUpdate{Members: []string{}, Messages: Member.messages, Session: session}
-	Member.messages = map[string][]string{}
+	update := &FellowshipUpdate{Members: []Session{}, Messages: Member.messages, Session: session}
+	Member.messages = map[Session][]string{}
 
 	for k := range f.Members[group] {
-		if k != name && f.Members[group][k].created_on >= last {
+		if k != session && f.Members[group][k].created_on >= last {
 			update.Members = append(update.Members, k)
 		}
 	}
@@ -214,7 +224,7 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	to := r.Form["to"][0]
 	session := r.Form["session"][0]
 	message := r.Form["message"][0]
-	FELLOWSHIP.Put(vars["id"], user, session, to, message)
+	FELLOWSHIP.Put(vars["id"], session, to, message)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
@@ -253,7 +263,6 @@ func base64Decode(s string) ([]byte, error) {
 func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := SESSION.Get(r, "sessionName")
-		fmt.Printf("SESSION: %v\n", session)
 		if session.Values["ID"] == nil {
 			session.Values["ID"] = randomString(16)
 			session.Save(r, w)
