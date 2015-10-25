@@ -22,6 +22,21 @@ function notice(desc) {
 function mkFellow(name) {
   var fellow = {id: name, state: "new" }
 
+  fellow.status = function() {
+    switch (fellow.peer.iceConnectionState) {
+      case 'disconnected':
+        return 'departing';
+      case 'new':
+        return 'arriving';
+      case 'connected':
+      case 'completed':
+        return 'here';
+      default:
+        console.log("ICE STATE: " + fellow.peer.iceConnectionState)
+        return 'arriving';
+    }
+  }
+
   fellow.setupPeer = function() {
     var peer = new RTCPeerConnection(WebRTCServers)
 
@@ -172,7 +187,7 @@ function get() {
         for (let from in data.Messages) {
           Fellows[from].process(data.Messages[from])
         }
-        setTimeout(get,5000)
+        setTimeout(get,500)
       },
       error: function(e) {
         console.log("Fail to get",URL,e)
@@ -180,7 +195,14 @@ function get() {
     });
 }
 
-module.exports.fellows = () => Object.keys(Connected).map((key) => Connected[key])
+module.exports.fellows = function() {
+  var fellows = [ {name:"Me", status: "here" }]
+  Object.keys(Fellows).forEach((key) => {
+    fellows.push({name:key, status:Fellows[key].status() })
+  })
+  return fellows
+}
+//() => Object.keys(Connected).map((key) => Connected[key])
 
 module.exports.arrive = function(func) {
   Arrival = func

@@ -6,14 +6,12 @@ var AceEditor  = require('react-ace');
 var fellowship = require('./fellowship');
 
 var fellowPresence = [
-  { name: "Me", status: "here" },
-  { name: "Jane", status: "arriving" },
-  { name: "Joe", status: "here" },
-  { name: "Mary", status: "departing" }
+  { name: "Me", status: "here" }
 ]
 
 var update_fellows = function() {
   console.log("FELLOWS",fellowship.fellows())
+  fellowPresence = fellowship.fellows()
   React.render(<Collaborators />, collaboratorsMount);
 }
 fellowship.arrive(update_fellows)

@@ -18,7 +18,7 @@ type Member struct {
 	updated_on  int64
 	created_on  int64
 	messages    map[Session][]string
-	reply_queue []func()
+	reply       *func()
 }
 
 type Group string
@@ -64,8 +64,11 @@ func (f *Fellowship) Init() {
 }
 
 func (f *Fellowship) handler() {
+	ticker := time.Tick(5 * time.Second)
 	for {
 		select {
+			case <-ticker:
+				f.cleanup()
 			case get := <-f.getChan:
 				f.handleGet(get);
 			case put := <-f.putChan:
@@ -76,6 +79,23 @@ func (f *Fellowship) handler() {
 
 func (f *Fellowship) Put(group string, from string, to string, message string) {
 	f.putChan <- put{group: Group(group), from: Session(from), to: Session(to), message: message }
+}
+
+func (f *Fellowship) cleanup() {
+	now := time.Now().Unix()
+	for group,v := range f.Members {
+		for session,member := range v {
+			if member.reply != nil {
+				fmt.Printf("Reply timeout g=%v s=%v\n",group,session)
+				(*member.reply)()
+				member.reply = nil
+			} else {
+				if now - member.updated_on > 5 {
+					fmt.Printf("member is old\n")
+				}
+			}
+		}
+	}
 }
 
 func (f *Fellowship) handlePut(put put) {
@@ -93,10 +113,9 @@ func (f *Fellowship) handlePut(put put) {
 
 	To.messages[put.from] = append(To.messages[put.from], put.message)
 
-	if len(To.reply_queue) > 0 {
-		reply := To.reply_queue[0]
-		To.reply_queue = To.reply_queue[1:]
-		reply()
+	if To.reply != nil{
+		(*To.reply)()
+		To.reply = nil
 	}
 }
 
@@ -130,8 +149,6 @@ func (f *Fellowship) handleGet(get get) {
 
 	member := f.Members[group][session]
 
-	fmt.Printf("GET 1\n")
-
 	reply := func() {
 		update := &FellowshipUpdate{Members: []Session{}, Messages: member.messages, Session: session}
 		member.messages = map[Session][]string{}
@@ -142,16 +159,14 @@ func (f *Fellowship) handleGet(get get) {
 			}
 		}
 
-		fmt.Printf("GET 3\n")
 		get.reply <-update
 	}
 
-	if (len(member.messages) > 0 || get.session == "") {
-		fmt.Printf("GET 2a\n")
+	if len(member.messages) > 0 || get.session == "" {
 		reply()
 	} else {
-		fmt.Printf("GET 2b\n")
-		member.reply_queue = append(member.reply_queue,reply)
+		if member.reply != nil { (*member.reply)() }
+		member.reply = &reply
 	}
 }
 
