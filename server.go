@@ -7,6 +7,7 @@ package main
 // TODO
 
 import (
+	"./fellowship"
 	"crypto/rand"
 	_ "database/sql"
 	"encoding/base64"
@@ -25,8 +26,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
-	"time"
 )
 
 var SESSION = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
@@ -52,91 +51,7 @@ type Document struct {
 	DataFile DataFile
 }
 
-type Member struct {
-	name       string
-	updated_on int64
-	created_on int64
-	messages   map[Session][]string
-}
-
-type Group string
-type Session string
-
-type Fellowship struct {
-	Members  map[Group]map[Session]*Member
-//	Messages map[string]map[string]map[string][]string
-	MX       sync.Mutex
-}
-
-type FellowshipUpdate struct {
-	Session   Session
-	Members   []Session
-	Messages  map[Session][]string
-}
-
-var FELLOWSHIP = &Fellowship{}
-
-func (f *Fellowship) Init() {
-	f.Members = map[Group]map[Session]*Member{}
-	f.MX = sync.Mutex{}
-}
-
-func (f *Fellowship) Put(_group string, _from string, _to string, message string) {
-	f.MX.Lock()
-	defer f.MX.Unlock()
-
-	group := Group(_group)
-	from  := Session(_from)
-	to    := Session(_to)
-
-	//From,fok := f.Members[group][from]
-	To,tok   := f.Members[group][to]
-
-	// TODO also check for the dead flag
-
-	if !tok {
-		fmt.Printf("Session mismatch - must be an out of date message u=%s s=%s\n",from,to)
-		return
-	}
-
-	To.messages[from] = append(To.messages[from], message)
-}
-
-func (f *Fellowship) Get(_group string, name string, _session string) *FellowshipUpdate {
-	f.MX.Lock()
-	defer f.MX.Unlock()
-
-	group   := Group(_group)
-	session := Session(_session)
-
-	last := int64(0)
-	now := time.Now().Unix()
-
-	if f.Members[group] == nil {
-		f.Members[group] = map[Session]*Member{}
-	}
-
-	if session == "" { // begin a new session
-		session = Session(randomString(6))
-		f.Members[group][session] = &Member{name: name, created_on: now, updated_on: now, messages: map[Session][]string{}}
-	} else {
-		last = f.Members[group][session].updated_on
-		f.Members[group][session].updated_on = now
-	}
-
-	Member := f.Members[group][session]
-
-	update := &FellowshipUpdate{Members: []Session{}, Messages: Member.messages, Session: session}
-	Member.messages = map[Session][]string{}
-
-	for k := range f.Members[group] {
-		if k != session && f.Members[group][k].created_on >= last {
-			update.Members = append(update.Members, k)
-		}
-	}
-
-	return update
-}
+var FELLOWSHIP = fellowship.New()
 
 func randomString(length int) (str string) {
 	b := make([]byte, length)
@@ -189,7 +104,6 @@ var DB gorm.DB
 func newDocument(w http.ResponseWriter, r *http.Request) {
 	var document = Document{}
 	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Printf("Post Document %v\n", body)
 	json.Unmarshal(body, &document)
 	DB.Create(&document)
 	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
@@ -218,9 +132,7 @@ func updateDocument(user string, w http.ResponseWriter, r *http.Request) {
 
 func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Printf("PUT man!\n")
 	r.ParseForm()
-	fmt.Printf("PUT FORM %v\n", r.Form)
 	to := r.Form["to"][0]
 	session := r.Form["session"][0]
 	message := r.Form["message"][0]
@@ -239,7 +151,6 @@ func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
 
 func getDocument(user string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Printf("Get Document\n")
 	var document = Document{}
 	DB.First(&document, vars["id"])
 	DB.Model(&document).Related(&document.Notebook)
@@ -276,7 +187,6 @@ func getIndex(user string, w http.ResponseWriter, r *http.Request) {
 	if r.URL.String() == "/d/deps.js" {
 		w.Write([]byte(""))
 	} else {
-		fmt.Printf("Get Index %s\n", r.URL.String())
 		var data, _ = ioutil.ReadFile("./public/index.html")
 		w.Write(data)
 	}
@@ -286,8 +196,6 @@ func main() {
 	DB = connectToDatabase()
 	DB.Debug()
 	addr := "127.0.0.1:8888"
-
-	FELLOWSHIP.Init()
 
 	http.NewServeMux()
 
