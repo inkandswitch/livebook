@@ -1,3 +1,4 @@
+# Livebook, an iPython notebook-compatible live coding experiment
 
 ## Install
 
