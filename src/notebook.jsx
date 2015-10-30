@@ -3,19 +3,19 @@ var ace        = require("brace")
 var React      = require("react")
 var marked     = require("marked")
 var AceEditor  = require('react-ace');
-var fellowship = require('./fellowship');
+var cradle     = require('./cradle');
 
 var fellowPresence = [
   { name: "Me", status: "here" }
 ]
 
 var update_fellows = function() {
-  console.log("FELLOWS",fellowship.fellows())
-  fellowPresence = fellowship.fellows()
+  console.log("FELLOWS",cradle.fellows())
+  fellowPresence = cradle.fellows()
   React.render(<Collaborators />, collaboratorsMount);
 }
-fellowship.arrive(update_fellows)
-fellowship.depart(update_fellows)
+cradle.arrive(update_fellows)
+cradle.depart(update_fellows)
 
 ace.config.set("basePath","/")
 
@@ -656,7 +656,7 @@ function post_notebook_to_server() {
     console.log("responsee",response)
       window.history.pushState({}, "Notebook", response);
       console.log("location", document.location)
-      fellowship.join(document.location + ".rtc")
+      cradle.join(document.location + ".rtc")
   })
 }
 
@@ -734,7 +734,7 @@ $.get("/pandas.js",function(data) {
           DataRaw = data.DataFile.Body
           parse_raw_notebook()
           setCurrentPage("notebook")
-          fellowship.join(document.location + ".rtc")
+          cradle.join(document.location + ".rtc")
         }, "json")
       } else {
         $.get("/starter.ipynb",function(data) {

@@ -7,7 +7,7 @@ package main
 // TODO
 
 import (
-	"./fellowship"
+	"./cradle"
 	"crypto/rand"
 	_ "database/sql"
 	"encoding/base64"
@@ -51,7 +51,7 @@ type Document struct {
 	DataFile DataFile
 }
 
-var FELLOWSHIP = fellowship.New()
+var CRADLE = cradle.New()
 
 func randomString(length int) (str string) {
 	b := make([]byte, length)
@@ -136,7 +136,7 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	to := r.Form["to"][0]
 	session := r.Form["session"][0]
 	message := r.Form["message"][0]
-	FELLOWSHIP.Put(vars["id"], session, to, message)
+	CRADLE.Put(vars["id"], session, to, message)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
@@ -144,7 +144,7 @@ func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session := r.Form["session"][0]
-	members := FELLOWSHIP.Get(vars["id"], user, session)
+	members := CRADLE.Get(vars["id"], user, session)
 	json, _ := json.Marshal(members)
 	w.Write(json)
 }

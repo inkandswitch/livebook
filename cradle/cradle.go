@@ -1,4 +1,4 @@
-package fellowship
+package cradle
 
 // user may have multiple sessions [split screen]
 // messages are sent to a session not a user
