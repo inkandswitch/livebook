@@ -3,7 +3,7 @@ var Peers
 var Connected = {}
 var URL
 var WebRTCServers = null
-var Session = ""
+var SessionID = ""
 var Arrival
 var Depart
 
@@ -159,7 +159,7 @@ function put(target, message) {
   $.ajax(URL, {
     method: "put",
     dataType: "json",
-    data: { to: target, session: Session, message: JSON.stringify(message) },
+    data: { to: target, session_id: SessionID, message: JSON.stringify(message) },
     success: function(data) {
     },
     error: function(e) {
@@ -169,13 +169,13 @@ function put(target, message) {
 }
 
 function get() {
-    $.ajax(URL + "?session=" + Session, {
+    $.ajax(URL + "?session_id=" + SessionID, {
       contentType: "application/json; charset=UTF-8",
       method: "get",
       dataType: "json",
       success: function(data) {
 //        console.log("GOT",data)
-        Session = data.Session
+        SessionID = data.SessionID
         if (Peers == undefined) {
           Peers = {}
           data.Members.forEach((member) => {

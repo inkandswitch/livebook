@@ -18,7 +18,7 @@ type Member struct {
 	updated_on int64
 	created_on int64
 	active     bool
-	messages   map[Session][]string
+	messages   map[SessionID][]string
 	reply      *func()
 }
 
@@ -30,34 +30,34 @@ func (m *Member) Reply() {
 }
 
 type Group string
-type Session string
+type SessionID string
 
 type Fellowship struct {
-	Members map[Group]map[Session]*Member
+	Members map[Group]map[SessionID]*Member
 	putChan chan put
 	getChan chan get
 	events  chan func()
 }
 
 type get struct {
-	group   Group
-	session Session
-	name    string
-	closer  <-chan bool
-	reply   chan *FellowshipUpdate
+	group      Group
+	session_id SessionID
+	name       string
+	closer     <-chan bool
+	reply      chan *FellowshipUpdate
 }
 
 type put struct {
 	group   Group
-	from    Session
-	to      Session
+	from    SessionID
+	to      SessionID
 	message string
 }
 
 type FellowshipUpdate struct {
-	Session  Session
-	Members  []Session
-	Messages map[Session][]string
+	SessionID SessionID
+	Members   []SessionID
+	Messages  map[SessionID][]string
 }
 
 func New() *Fellowship {
@@ -67,7 +67,7 @@ func New() *Fellowship {
 }
 
 func (f *Fellowship) Init() {
-	f.Members = map[Group]map[Session]*Member{}
+	f.Members = map[Group]map[SessionID]*Member{}
 	f.getChan = make(chan get)
 	f.putChan = make(chan put)
 	f.events = make(chan func())
@@ -91,7 +91,7 @@ func (f *Fellowship) handler() {
 }
 
 func (f *Fellowship) Put(group string, from string, to string, message string) {
-	p := put{group: Group(group), from: Session(from), to: Session(to), message: message}
+	p := put{group: Group(group), from: SessionID(from), to: SessionID(to), message: message}
 	f.events <- func() { f.handlePut(p) }
 }
 
@@ -124,8 +124,8 @@ func (f *Fellowship) handlePut(put put) {
 	}
 }
 
-func (f *Fellowship) Get(group string, name string, session string, closer <-chan bool) *FellowshipUpdate {
-	get := get{group: Group(group), name: name, session: Session(session), closer: closer, reply: make(chan *FellowshipUpdate)}
+func (f *Fellowship) Get(group string, name string, session_id string, closer <-chan bool) *FellowshipUpdate {
+	get := get{group: Group(group), name: name, session_id: SessionID(session_id), closer: closer, reply: make(chan *FellowshipUpdate)}
 	f.events <- func() { f.handleGet(get) }
 	return <-get.reply
 }
@@ -134,33 +134,33 @@ func (f *Fellowship) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
 	group := get.group
 	name := get.name
-	session := get.session
+	session_id := get.session_id
 
 	var last int64 = 0
 
 	if f.Members[group] == nil {
-		f.Members[group] = map[Session]*Member{}
+		f.Members[group] = map[SessionID]*Member{}
 	}
 
-	if session == "" || f.Members[group][session] == nil { // begin a new session
-		session = Session(randomString(6))
-		f.Members[group][session] = &Member{name: name, created_on: time.Now().Unix(), messages: map[Session][]string{}}
+	if session_id == "" || f.Members[group][session_id] == nil { // begin a new session
+		session_id = SessionID(randomString(6))
+		f.Members[group][session_id] = &Member{name: name, created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
 	} else {
-		last = f.Members[group][session].updated_on
+		last = f.Members[group][session_id].updated_on
 	}
 
-	member := f.Members[group][session]
+	member := f.Members[group][session_id]
 
 	member.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
-		update := &FellowshipUpdate{Members: []Session{}, Messages: member.messages, Session: session}
-		member.messages = map[Session][]string{}
+		update := &FellowshipUpdate{Members: []SessionID{}, Messages: member.messages, SessionID: session_id}
+		member.messages = map[SessionID][]string{}
 
 		for k := range f.Members[group] {
-			if k != session && f.Members[group][k].created_on >= last {
+			if k != session_id && f.Members[group][k].created_on >= last {
 				update.Members = append(update.Members, k)
 			}
 		}
@@ -185,7 +185,7 @@ func (f *Fellowship) handleGet(get get) {
 		}
 	}()
 
-	if len(member.messages) > 0 || get.session == "" {
+	if len(member.messages) > 0 || get.session_id == "" {
 		reply()
 	} else {
 		member.active = false

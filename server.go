@@ -134,9 +134,9 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
 	to := r.Form["to"][0]
-	session := r.Form["session"][0]
+	session_id := r.Form["session_id"][0]
 	message := r.Form["message"][0]
-	CRADLE.Put(vars["id"], session, to, message)
+	CRADLE.Put(vars["id"], session_id, to, message)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
@@ -144,8 +144,8 @@ func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Get - x\n")
 	r.ParseForm()
 	vars := mux.Vars(r)
-	session := r.Form["session"][0]
-	members := CRADLE.Get(vars["id"], user, session, w.(http.CloseNotifier).CloseNotify())
+	session_id := r.Form["session_id"][0]
+	members := CRADLE.Get(vars["id"], user, session_id, w.(http.CloseNotifier).CloseNotify())
 	if members != nil {
 		json, _ := json.Marshal(members)
 		w.Write(json)
