@@ -175,20 +175,20 @@ function get() {
       dataType: "json",
       success: function(data) {
 //        console.log("GOT",data)
-        SessionID = data.SessionID
+        SessionID = data.session_id
         if (Peers == undefined) {
           Peers = {}
-          data.Sessions.forEach((session) => {
+          data.sessions.forEach((session) => {
             Peers[session] = newPeer(session)
             Peers[session].offer()
           })
         } else {
-          data.Sessions.forEach((session) => {
+          data.sessions.forEach((session) => {
             Peers[session] = newPeer(session)
           })
         }
-        for (let from in data.Messages) {
-          Peers[from].process(data.Messages[from])
+        for (let from in data.messages) {
+          Peers[from].process(data.messages[from])
         }
         setTimeout(get,500)
       },

@@ -141,7 +141,6 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 }
 
 func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Get - x\n")
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session_id"][0]

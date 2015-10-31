@@ -14,11 +14,11 @@ import (
 )
 
 type Session struct {
-	updated_on int64
-	created_on int64
-	active     bool
-	messages   map[SessionID][]string
-	reply      *func()
+	UpdatedOn int64
+	CreatedOn int64
+	Active    bool
+	messages  map[SessionID][]string
+	reply     *func()
 }
 
 func (m *Session) Reply() {
@@ -51,9 +51,9 @@ type put struct {
 }
 
 type CradleState struct {
-	SessionID SessionID
-	Sessions  []SessionID
-	Messages  map[SessionID][]string
+	SessionID SessionID              `json:"session_id"`
+	Sessions  []SessionID            `json:"sessions"`
+	Messages  map[SessionID][]string `json:"messages"`
 }
 
 func New() *Cradle {
@@ -133,9 +133,9 @@ func (c *Cradle) handleGet(get get) {
 
 	if session_id == "" || c.Sessions[group_id][session_id] == nil { // begin a new session
 		session_id = SessionID(randomString(6))
-		c.Sessions[group_id][session_id] = &Session{created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
+		c.Sessions[group_id][session_id] = &Session{CreatedOn: time.Now().Unix(), messages: map[SessionID][]string{}}
 	} else {
-		last = c.Sessions[group_id][session_id].updated_on
+		last = c.Sessions[group_id][session_id].UpdatedOn
 	}
 
 	session := c.Sessions[group_id][session_id]
@@ -149,7 +149,7 @@ func (c *Cradle) handleGet(get get) {
 		session.messages = map[SessionID][]string{}
 
 		for k := range c.Sessions[group_id] {
-			if k != session_id && c.Sessions[group_id][k].created_on >= last {
+			if k != session_id && c.Sessions[group_id][k].CreatedOn >= last {
 				update.Sessions = append(update.Sessions, k)
 			}
 		}
@@ -159,8 +159,8 @@ func (c *Cradle) handleGet(get get) {
 	}
 
 	go func() {
-		session.updated_on = time.Now().Unix()
-		session.active = false
+		session.UpdatedOn = time.Now().Unix()
+		session.Active = false
 		select {
 		case <-get.closer:
 			c.events <- func() {
@@ -177,7 +177,7 @@ func (c *Cradle) handleGet(get get) {
 	if len(session.messages) > 0 || get.session_id == "" {
 		reply()
 	} else {
-		session.active = false
+		session.Active = false
 		session.reply = &reply
 	}
 }
