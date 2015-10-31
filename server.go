@@ -141,12 +141,15 @@ func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
 }
 
 func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Get - x\n")
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session := r.Form["session"][0]
-	members := CRADLE.Get(vars["id"], user, session)
-	json, _ := json.Marshal(members)
-	w.Write(json)
+	members := CRADLE.Get(vars["id"], user, session, w.(http.CloseNotifier).CloseNotify())
+	if members != nil {
+		json, _ := json.Marshal(members)
+		w.Write(json)
+	}
 }
 
 func getDocument(user string, w http.ResponseWriter, r *http.Request) {
@@ -179,6 +182,7 @@ func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http
 			session.Save(r, w)
 		}
 		id := session.Values["ID"].(string)
+		fmt.Printf("id=%v\n", id)
 		f(id, w, r)
 	}
 }
