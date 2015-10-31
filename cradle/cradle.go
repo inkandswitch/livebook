@@ -28,33 +28,31 @@ func (m *Session) Reply() {
 	}
 }
 
-type Group string
+type GroupID string
 type SessionID string
 
 type Fellowship struct {
-	Sessions map[Group]map[SessionID]*Session
-	putChan chan put
-	getChan chan get
-	events  chan func()
+	Sessions map[GroupID]map[SessionID]*Session
+	events   chan func()
 }
 
 type get struct {
-	group      Group
+	group_id   GroupID
 	session_id SessionID
 	closer     <-chan bool
 	reply      chan *FellowshipUpdate
 }
 
 type put struct {
-	group   Group
-	from    SessionID
-	to      SessionID
-	message string
+	group_id GroupID
+	from     SessionID
+	to       SessionID
+	message  string
 }
 
 type FellowshipUpdate struct {
 	SessionID SessionID
-	Sessions   []SessionID
+	Sessions  []SessionID
 	Messages  map[SessionID][]string
 }
 
@@ -65,9 +63,7 @@ func New() *Fellowship {
 }
 
 func (f *Fellowship) Init() {
-	f.Sessions = map[Group]map[SessionID]*Session{}
-	f.getChan = make(chan get)
-	f.putChan = make(chan put)
+	f.Sessions = map[GroupID]map[SessionID]*Session{}
 	f.events = make(chan func())
 	go f.handler()
 }
@@ -80,16 +76,12 @@ func (f *Fellowship) handler() {
 			f.cleanup()
 		case event := <-f.events:
 			event()
-		case get := <-f.getChan:
-			f.handleGet(get)
-		case put := <-f.putChan:
-			f.handlePut(put)
 		}
 	}
 }
 
-func (f *Fellowship) Put(group string, from string, to string, message string) {
-	p := put{group: Group(group), from: SessionID(from), to: SessionID(to), message: message}
+func (f *Fellowship) Put(group_id string, from string, to string, message string) {
+	p := put{group_id: GroupID(group_id), from: SessionID(from), to: SessionID(to), message: message}
 	f.events <- func() { f.handlePut(p) }
 }
 
@@ -104,8 +96,8 @@ func (f *Fellowship) cleanup() {
 func (f *Fellowship) handlePut(put put) {
 	fmt.Printf("handle put %v\n", put)
 
-	//From,fok := f.Sessions[group][from]
-	To, tok := f.Sessions[put.group][put.to]
+	//From,fok := f.Sessions[group_id][from]
+	To, tok := f.Sessions[put.group_id][put.to]
 
 	// TODO also check for the dead flag
 
@@ -122,31 +114,31 @@ func (f *Fellowship) handlePut(put put) {
 	}
 }
 
-func (f *Fellowship) Get(group string, name string, session_id string, closer <-chan bool) *FellowshipUpdate {
-	get := get{group: Group(group), session_id: SessionID(session_id), closer: closer, reply: make(chan *FellowshipUpdate)}
+func (f *Fellowship) Get(group_id string, name string, session_id string, closer <-chan bool) *FellowshipUpdate {
+	get := get{group_id: GroupID(group_id), session_id: SessionID(session_id), closer: closer, reply: make(chan *FellowshipUpdate)}
 	f.events <- func() { f.handleGet(get) }
 	return <-get.reply
 }
 
 func (f *Fellowship) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
-	group := get.group
+	group_id := get.group_id
 	session_id := get.session_id
 
 	var last int64 = 0
 
-	if f.Sessions[group] == nil {
-		f.Sessions[group] = map[SessionID]*Session{}
+	if f.Sessions[group_id] == nil {
+		f.Sessions[group_id] = map[SessionID]*Session{}
 	}
 
-	if session_id == "" || f.Sessions[group][session_id] == nil { // begin a new session
+	if session_id == "" || f.Sessions[group_id][session_id] == nil { // begin a new session
 		session_id = SessionID(randomString(6))
-		f.Sessions[group][session_id] = &Session{created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
+		f.Sessions[group_id][session_id] = &Session{created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
 	} else {
-		last = f.Sessions[group][session_id].updated_on
+		last = f.Sessions[group_id][session_id].updated_on
 	}
 
-	session := f.Sessions[group][session_id]
+	session := f.Sessions[group_id][session_id]
 
 	session.Reply()
 
@@ -156,8 +148,8 @@ func (f *Fellowship) handleGet(get get) {
 		update := &FellowshipUpdate{Sessions: []SessionID{}, Messages: session.messages, SessionID: session_id}
 		session.messages = map[SessionID][]string{}
 
-		for k := range f.Sessions[group] {
-			if k != session_id && f.Sessions[group][k].created_on >= last {
+		for k := range f.Sessions[group_id] {
+			if k != session_id && f.Sessions[group_id][k].created_on >= last {
 				update.Sessions = append(update.Sessions, k)
 			}
 		}
