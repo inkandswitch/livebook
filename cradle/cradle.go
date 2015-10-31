@@ -22,7 +22,7 @@ type Member struct {
 	reply      *func()
 }
 
-func (m*Member) Reply() {
+func (m *Member) Reply() {
 	if m.reply != nil {
 		(*m.reply)()
 		m.reply = nil
@@ -132,8 +132,8 @@ func (f *Fellowship) Get(group string, name string, session string, closer <-cha
 
 func (f *Fellowship) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
-	group   := get.group
-	name    := get.name
+	group := get.group
+	name := get.name
 	session := get.session
 
 	var last int64 = 0
@@ -173,15 +173,15 @@ func (f *Fellowship) handleGet(get get) {
 		member.updated_on = time.Now().Unix()
 		member.active = false
 		select {
-			case <-get.closer:
-				f.events <- func() {
-					fmt.Printf("Connection closed!\n")
-					if member.reply == &reply {
-						member.reply = nil
-					}
-					get.reply <- nil
+		case <-get.closer:
+			f.events <- func() {
+				fmt.Printf("Connection closed!\n")
+				if member.reply == &reply {
+					member.reply = nil
 				}
-			case <-success:
+				get.reply <- nil
+			}
+		case <-success:
 		}
 	}()
 
