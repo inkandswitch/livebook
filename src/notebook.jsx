@@ -5,17 +5,17 @@ var marked     = require("marked")
 var AceEditor  = require('react-ace');
 var cradle     = require('./cradle');
 
-var fellowPresence = [
+var peerPresence = [
   { name: "Me", status: "here" }
 ]
 
-var update_fellows = function() {
-  console.log("FELLOWS",cradle.fellows())
-  fellowPresence = cradle.fellows()
+var update_peers = function() {
+  console.log("FELLOWS",cradle.peers())
+  peerPresence = cradle.peers()
   React.render(<Collaborators />, collaboratorsMount);
 }
-cradle.arrive(update_fellows)
-cradle.depart(update_fellows)
+cradle.arrive(update_peers)
+cradle.depart(update_peers)
 
 ace.config.set("basePath","/")
 
@@ -561,8 +561,8 @@ var Menu = React.createClass({
 var Collaborators = React.createClass({
   renderAvatars: function() {
     var avatars = []
-    for (var i = 0; i < fellowPresence.length; i++) {
-      var f = fellowPresence[i]
+    for (var i = 0; i < peerPresence.length; i++) {
+      var f = peerPresence[i]
       var klass = "observer " + f.status;
       avatars.push(<li className={klass}><span>{f.name}</span></li>)
     }

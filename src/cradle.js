@@ -1,5 +1,5 @@
 var $ = require('jquery')
-var Fellows
+var Peers
 var Connected = {}
 var URL
 var WebRTCServers = null
@@ -8,6 +8,9 @@ var Arrival
 var Depart
 
 var vals = (obj) => Object.keys(obj).map((k) => obj[k])
+
+// peer list (server [live:dead], webrtc [live:dead] )
+// peer.live = () => server.live() || webrtc.live()
 
 // 1a ----> who is here? (excluding A,B,C)
 // 1b <---- here is a list of peers [1,2,3]
@@ -19,11 +22,11 @@ function notice(desc) {
   return function(event) { console.log("notice:" + desc,event) }
 }
 
-function mkFellow(name) {
-  var fellow = {id: name, state: "new" }
+function newPeer(name) {
+  var peer = {id: name, state: "new" }
 
-  fellow.status = function() {
-    switch (fellow.webrtc.iceConnectionState) {
+  peer.status = function() {
+    switch (peer.webrtc.iceConnectionState) {
       case 'disconnected':
         return 'departing';
       case 'new':
@@ -32,28 +35,28 @@ function mkFellow(name) {
       case 'completed':
         return 'here';
       default:
-        console.log("ICE STATE: " + fellow.webrtc.iceConnectionState)
+        console.log("ICE STATE: " + peer.webrtc.iceConnectionState)
         return 'arriving';
     }
   }
 
-  fellow.setupPeer = function() {
+  peer.setupPeer = function() {
     var webrtc = new RTCPeerConnection(WebRTCServers)
 
     webrtc.onicecandidate = function(event) {
       if (event.candidate) {
-        put(fellow.id, event.candidate) // FIXME
+        put(peer.id, event.candidate) // FIXME
       }
     }
     webrtc.oniceconnectionstatechange = function(event) {
       console.log("notice:statechange",webrtc.iceConnectionState, event)
       if (webrtc.iceConnectionState == 'disconnected') {
-//        fellow.state = "closed"
+//        peer.state = "closed"
         delete Connected[name]
         if (Depart) { Depart(name) }
       }
       if (webrtc.iceConnectionState == 'connected' || webrtc.iceConnectionState == 'completed') {
-        Connected[name] = fellow
+        Connected[name] = peer
         if (Arrival) { Arrival(name) }
       }
     }
@@ -63,38 +66,38 @@ function mkFellow(name) {
     webrtc.onremovestream = notice("onremovestream")
     webrtc.ondatachannel  = function(event) {
       console.log("new data channel") // receiver sees this!
-      fellow.state = "ready"
-      fellow.data = event.channel
-      fellow.data.onmessage = msg => process_message(webrtc,JSON.parse(msg.data))
-//      if (Arrival) Arrival(fellow)
+      peer.state = "ready"
+      peer.data = event.channel
+      peer.data.onmessage = msg => process_message(webrtc,JSON.parse(msg.data))
+//      if (Arrival) Arrival(peer)
     }
-    fellow.webrtc = webrtc
+    peer.webrtc = webrtc
   }
 
-  fellow.setupPeer()
+  peer.setupPeer()
 
-  fellow.send = function(obj) {
-    console.log("SEND:",obj,"to",fellow.data)
+  peer.send = function(obj) {
+    console.log("SEND:",obj,"to",peer.data)
     try {
-      fellow.data.send(JSON.stringify(obj))
+      peer.data.send(JSON.stringify(obj))
     } catch(e) {
       console.log("error sending message",e)
     }
   }
 
-  fellow.process = function(signals) {
+  peer.process = function(signals) {
     signals.forEach(function(signalJSON) {
       var signal = JSON.parse(signalJSON)
       console.log("processing signal",signal)
       var callback = function() { };
       if (signal.type == "offer") callback = function() {
-        fellow.state = "answering"
-        fellow.webrtc.createAnswer(function(answer) {
+        peer.state = "answering"
+        peer.webrtc.createAnswer(function(answer) {
           console.log("created answer",answer)
-          fellow.state = "answering-setlocal"
-          fellow.webrtc.setLocalDescription(answer,function() {
+          peer.state = "answering-setlocal"
+          peer.webrtc.setLocalDescription(answer,function() {
             console.log("set local descr")
-            put(fellow.id,answer)
+            put(peer.id,answer)
           },function(e) {
             console.log("Error setting setLocalDescription",e)
           })
@@ -103,25 +106,25 @@ function mkFellow(name) {
         });
       }
       if (signal.sdp) {
-        fellow.state = "setremote"
-        fellow.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
+        peer.state = "setremote"
+        peer.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
           console.log("Error setRemoteDescription",e)
         })
       } else if (signal.candidate) {
-        fellow.webrtc.addIceCandidate(new RTCIceCandidate(signal));
+        peer.webrtc.addIceCandidate(new RTCIceCandidate(signal));
       }
     })
   }
 
 /*
-  fellow.get = function() {
+  peer.get = function() {
     $.ajax(URL, {
       contentType: "application/json; charset=UTF-8",
       method: "get",
       dataType: "json",
       success: function(data) {
-        fellow.process(data)
-        fellow.get()
+        peer.process(data)
+        peer.get()
       },
       error: function(e) {
         console.log("Fail to get",URL,e)
@@ -130,26 +133,26 @@ function mkFellow(name) {
   }
 */
 
-  fellow.offer = function() {
-    fellow.data           = fellow.webrtc.createDataChannel("datachannel",{reliable: false});
-    fellow.data.onmessage = notice("data:message")
-    fellow.data.onclose   = notice("data:onclose")
-    fellow.data.onerror   = notice("data:error")
-    fellow.data.onopen    = function(event) {
+  peer.offer = function() {
+    peer.data           = peer.webrtc.createDataChannel("datachannel",{reliable: false});
+    peer.data.onmessage = notice("data:message")
+    peer.data.onclose   = notice("data:onclose")
+    peer.data.onerror   = notice("data:error")
+    peer.data.onopen    = function(event) {
       console.log("data channel open")
-      fellow.state = "ready"
-      if (Arrival) Arrival(fellow)
+      peer.state = "ready"
+      if (Arrival) Arrival(peer)
     }
-    fellow.state = "offering"
-    fellow.webrtc.createOffer(desc => {
-      fellow.state = "offer-setlocal"
-      fellow.webrtc.setLocalDescription(desc,
-        () => put(fellow.id,desc),
+    peer.state = "offering"
+    peer.webrtc.createOffer(desc => {
+      peer.state = "offer-setlocal"
+      peer.webrtc.setLocalDescription(desc,
+        () => put(peer.id,desc),
         e  => console.log("error on setLocalDescription",e))
     }, e => console.log("error with createOffer",e));
   }
 
-  return fellow
+  return peer
 }
 
 function put(target, message) {
@@ -173,19 +176,19 @@ function get() {
       success: function(data) {
 //        console.log("GOT",data)
         Session = data.Session
-        if (Fellows == undefined) {
-          Fellows = {}
+        if (Peers == undefined) {
+          Peers = {}
           data.Members.forEach((member) => {
-            Fellows[member] = mkFellow(member)
-            Fellows[member].offer()
+            Peers[member] = newPeer(member)
+            Peers[member].offer()
           })
         } else {
           data.Members.forEach((member) => {
-            Fellows[member] = mkFellow(member)
+            Peers[member] = newPeer(member)
           })
         }
         for (let from in data.Messages) {
-          Fellows[from].process(data.Messages[from])
+          Peers[from].process(data.Messages[from])
         }
         setTimeout(get,500)
       },
@@ -195,12 +198,12 @@ function get() {
     });
 }
 
-module.exports.fellows = function() {
-  var fellows = [ {name:"Me", status: "here" }]
-  Object.keys(Fellows).forEach((key) => {
-    fellows.push({name:key, status:Fellows[key].status() })
+module.exports.peers = function() {
+  var peers = [ {name:"Me", status: "here" }]
+  Object.keys(Peers).forEach((key) => {
+    peers.push({name:key, status:Peers[key].status() })
   })
-  return fellows
+  return peers
 }
 //() => Object.keys(Connected).map((key) => Connected[key])
 
