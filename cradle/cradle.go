@@ -14,6 +14,7 @@ import (
 )
 
 type Session struct {
+	SessionID SessionID
 	UpdatedOn int64
 	CreatedOn int64
 	Active    bool
@@ -21,10 +22,11 @@ type Session struct {
 	reply     *func()
 }
 
-func (m *Session) Reply() {
-	if m.reply != nil {
-		(*m.reply)()
-		m.reply = nil
+func (s *Session) Reply() {
+	if s.reply != nil {
+		fmt.Printf("REPLY s=%v\n",s.SessionID)
+		(*s.reply)()
+		s.reply = nil
 	}
 }
 
@@ -32,7 +34,7 @@ type GroupID string
 type SessionID string
 
 type Cradle struct {
-	Sessions map[GroupID]map[SessionID]*Session
+	Sessions map[GroupID][]*Session
 	events   chan func()
 }
 
@@ -63,7 +65,7 @@ func New() *Cradle {
 }
 
 func (c *Cradle) Init() {
-	c.Sessions = map[GroupID]map[SessionID]*Session{}
+	c.Sessions = map[GroupID][]*Session{}
 	c.events = make(chan func())
 	go c.handler()
 }
@@ -73,7 +75,7 @@ func (c *Cradle) handler() {
 	for {
 		select {
 		case <-ticker:
-			c.cleanup()
+//			c.cleanup()
 		case event := <-c.events:
 			event()
 		}
@@ -88,30 +90,56 @@ func (c *Cradle) Put(group_id string, from string, to string, message string) {
 func (c *Cradle) cleanup() {
 	for _, v := range c.Sessions {
 		for _, session := range v {
+			fmt.Printf("Cleanup\n")
 			session.Reply()
 		}
+	}
+}
+
+func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID) (*Session,bool) {
+	session := c.session(group_id,session_id)
+	now := time.Now().Unix()
+	init := false
+	if session == nil {
+		session_id = SessionID(randomString(6))
+		fmt.Printf("creating session %v\n",session_id)
+		session = &Session{SessionID: session_id, CreatedOn: now, messages: map[SessionID][]string{}}
+		c.Sessions[group_id] = append(c.Sessions[group_id],session)
+		init = true
+	}
+	session.UpdatedOn = now
+	return session,init
+}
+
+func (c *Cradle) session(group_id GroupID, session_id SessionID) *Session {
+	if c.Sessions[group_id] == nil {
+		c.Sessions[group_id] = []*Session{}
+	}
+	for _,session := range c.Sessions[group_id] {
+		if (session.SessionID == session_id) {
+			return session
+		}
+	}
+	return nil
+}
+
+func (c *Cradle) sessionDo(group_id GroupID, session_id SessionID, f func(*Session)) {
+	session := c.session(group_id, session_id)
+	if session != nil {
+		f(session)
+	} else {
+		fmt.Printf("missing session_id=%v\n",session_id)
 	}
 }
 
 func (c *Cradle) handlePut(put put) {
 	fmt.Printf("handle put %v\n", put)
 
-	//From,fok := c.Sessions[group_id][from]
-	To, tok := c.Sessions[put.group_id][put.to]
-
-	// TODO also check for the dead flag
-
-	if !tok {
-		fmt.Printf("Session mismatch - must be an out of date message u=%s s=%s\n", put.from, put.to)
-		return
-	}
-
-	To.messages[put.from] = append(To.messages[put.from], put.message)
-
-	if To.reply != nil {
-		(*To.reply)()
-		To.reply = nil
-	}
+	c.sessionDo(put.group_id,put.to,func(session *Session) {
+		session.messages[put.from] = append(session.messages[put.from], put.message)
+		fmt.Printf("Put new message")
+		session.Reply()
+	})
 }
 
 func (c *Cradle) Get(group_id string, name string, session_id string, closer <-chan bool) *CradleState {
@@ -122,37 +150,23 @@ func (c *Cradle) Get(group_id string, name string, session_id string, closer <-c
 
 func (c *Cradle) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
-	group_id := get.group_id
-	session_id := get.session_id
 
-	var last int64 = 0
-
-	if c.Sessions[group_id] == nil {
-		c.Sessions[group_id] = map[SessionID]*Session{}
-	}
-
-	if session_id == "" || c.Sessions[group_id][session_id] == nil { // begin a new session
-		session_id = SessionID(randomString(6))
-		c.Sessions[group_id][session_id] = &Session{CreatedOn: time.Now().Unix(), messages: map[SessionID][]string{}}
-	} else {
-		last = c.Sessions[group_id][session_id].UpdatedOn
-	}
-
-	session := c.Sessions[group_id][session_id]
-
+	session,init := c.sessionTouch(get.group_id, get.session_id)
 	session.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
-		update := &CradleState{Sessions: []SessionID{}, Messages: session.messages, SessionID: session_id}
+		update := &CradleState{Sessions: []SessionID{}, Messages: session.messages, SessionID: session.SessionID}
 		session.messages = map[SessionID][]string{}
 
-		for k := range c.Sessions[group_id] {
-			if k != session_id && c.Sessions[group_id][k].CreatedOn >= last {
-				update.Sessions = append(update.Sessions, k)
-			}
+		for _,s := range c.Sessions[get.group_id] {
+//			if s.SessionID != session.SessionID && s.CreatedOn < session.CreatedOn {
+				update.Sessions = append(update.Sessions, s.SessionID)
+//			}
 		}
+
+		fmt.Printf("Sessions=%v\n",update.Sessions)
 
 		success <- true
 		get.reply <- update
@@ -174,9 +188,11 @@ func (c *Cradle) handleGet(get get) {
 		}
 	}()
 
-	if len(session.messages) > 0 || get.session_id == "" {
+	if len(session.messages) > 0 || init {
+		fmt.Printf("reply now\n")
 		reply()
 	} else {
+		fmt.Printf("save for later\n")
 		session.Active = false
 		session.reply = &reply
 	}

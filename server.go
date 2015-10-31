@@ -181,7 +181,6 @@ func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http
 			session.Save(r, w)
 		}
 		id := session.Values["ID"].(string)
-		fmt.Printf("id=%v\n", id)
 		f(id, w, r)
 	}
 }

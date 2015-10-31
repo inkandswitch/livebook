@@ -1,5 +1,5 @@
 var $ = require('jquery')
-var Peers
+var Peers = {}
 var Connected = {}
 var URL
 var WebRTCServers = null
@@ -176,17 +176,14 @@ function get() {
       success: function(data) {
 //        console.log("GOT",data)
         SessionID = data.session_id
-        if (Peers == undefined) {
-          Peers = {}
-          data.sessions.forEach((session) => {
+        var came_before_me = true
+        data.sessions.forEach((session) => {
+          if (session == SessionID) came_before_me = false;
+          else if (Peers[session] == undefined) {
             Peers[session] = newPeer(session)
-            Peers[session].offer()
-          })
-        } else {
-          data.sessions.forEach((session) => {
-            Peers[session] = newPeer(session)
-          })
-        }
+            if (came_before_me) Peers[session].offer()
+          }
+        })
         for (let from in data.messages) {
           Peers[from].process(data.messages[from])
         }
