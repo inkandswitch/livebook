@@ -178,13 +178,13 @@ function get() {
         SessionID = data.SessionID
         if (Peers == undefined) {
           Peers = {}
-          data.Members.forEach((member) => {
-            Peers[member] = newPeer(member)
-            Peers[member].offer()
+          data.Sessions.forEach((session) => {
+            Peers[session] = newPeer(session)
+            Peers[session].offer()
           })
         } else {
-          data.Members.forEach((member) => {
-            Peers[member] = newPeer(member)
+          data.Sessions.forEach((session) => {
+            Peers[session] = newPeer(session)
           })
         }
         for (let from in data.Messages) {

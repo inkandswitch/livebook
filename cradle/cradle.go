@@ -13,8 +13,7 @@ import (
 	"time"
 )
 
-type Member struct {
-	name       string
+type Session struct {
 	updated_on int64
 	created_on int64
 	active     bool
@@ -22,7 +21,7 @@ type Member struct {
 	reply      *func()
 }
 
-func (m *Member) Reply() {
+func (m *Session) Reply() {
 	if m.reply != nil {
 		(*m.reply)()
 		m.reply = nil
@@ -33,7 +32,7 @@ type Group string
 type SessionID string
 
 type Fellowship struct {
-	Members map[Group]map[SessionID]*Member
+	Sessions map[Group]map[SessionID]*Session
 	putChan chan put
 	getChan chan get
 	events  chan func()
@@ -42,7 +41,6 @@ type Fellowship struct {
 type get struct {
 	group      Group
 	session_id SessionID
-	name       string
 	closer     <-chan bool
 	reply      chan *FellowshipUpdate
 }
@@ -56,7 +54,7 @@ type put struct {
 
 type FellowshipUpdate struct {
 	SessionID SessionID
-	Members   []SessionID
+	Sessions   []SessionID
 	Messages  map[SessionID][]string
 }
 
@@ -67,7 +65,7 @@ func New() *Fellowship {
 }
 
 func (f *Fellowship) Init() {
-	f.Members = map[Group]map[SessionID]*Member{}
+	f.Sessions = map[Group]map[SessionID]*Session{}
 	f.getChan = make(chan get)
 	f.putChan = make(chan put)
 	f.events = make(chan func())
@@ -96,9 +94,9 @@ func (f *Fellowship) Put(group string, from string, to string, message string) {
 }
 
 func (f *Fellowship) cleanup() {
-	for _, v := range f.Members {
-		for _, member := range v {
-			member.Reply()
+	for _, v := range f.Sessions {
+		for _, session := range v {
+			session.Reply()
 		}
 	}
 }
@@ -106,8 +104,8 @@ func (f *Fellowship) cleanup() {
 func (f *Fellowship) handlePut(put put) {
 	fmt.Printf("handle put %v\n", put)
 
-	//From,fok := f.Members[group][from]
-	To, tok := f.Members[put.group][put.to]
+	//From,fok := f.Sessions[group][from]
+	To, tok := f.Sessions[put.group][put.to]
 
 	// TODO also check for the dead flag
 
@@ -125,7 +123,7 @@ func (f *Fellowship) handlePut(put put) {
 }
 
 func (f *Fellowship) Get(group string, name string, session_id string, closer <-chan bool) *FellowshipUpdate {
-	get := get{group: Group(group), name: name, session_id: SessionID(session_id), closer: closer, reply: make(chan *FellowshipUpdate)}
+	get := get{group: Group(group), session_id: SessionID(session_id), closer: closer, reply: make(chan *FellowshipUpdate)}
 	f.events <- func() { f.handleGet(get) }
 	return <-get.reply
 }
@@ -133,35 +131,34 @@ func (f *Fellowship) Get(group string, name string, session_id string, closer <-
 func (f *Fellowship) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
 	group := get.group
-	name := get.name
 	session_id := get.session_id
 
 	var last int64 = 0
 
-	if f.Members[group] == nil {
-		f.Members[group] = map[SessionID]*Member{}
+	if f.Sessions[group] == nil {
+		f.Sessions[group] = map[SessionID]*Session{}
 	}
 
-	if session_id == "" || f.Members[group][session_id] == nil { // begin a new session
+	if session_id == "" || f.Sessions[group][session_id] == nil { // begin a new session
 		session_id = SessionID(randomString(6))
-		f.Members[group][session_id] = &Member{name: name, created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
+		f.Sessions[group][session_id] = &Session{created_on: time.Now().Unix(), messages: map[SessionID][]string{}}
 	} else {
-		last = f.Members[group][session_id].updated_on
+		last = f.Sessions[group][session_id].updated_on
 	}
 
-	member := f.Members[group][session_id]
+	session := f.Sessions[group][session_id]
 
-	member.Reply()
+	session.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
-		update := &FellowshipUpdate{Members: []SessionID{}, Messages: member.messages, SessionID: session_id}
-		member.messages = map[SessionID][]string{}
+		update := &FellowshipUpdate{Sessions: []SessionID{}, Messages: session.messages, SessionID: session_id}
+		session.messages = map[SessionID][]string{}
 
-		for k := range f.Members[group] {
-			if k != session_id && f.Members[group][k].created_on >= last {
-				update.Members = append(update.Members, k)
+		for k := range f.Sessions[group] {
+			if k != session_id && f.Sessions[group][k].created_on >= last {
+				update.Sessions = append(update.Sessions, k)
 			}
 		}
 
@@ -170,14 +167,14 @@ func (f *Fellowship) handleGet(get get) {
 	}
 
 	go func() {
-		member.updated_on = time.Now().Unix()
-		member.active = false
+		session.updated_on = time.Now().Unix()
+		session.active = false
 		select {
 		case <-get.closer:
 			f.events <- func() {
 				fmt.Printf("Connection closed!\n")
-				if member.reply == &reply {
-					member.reply = nil
+				if session.reply == &reply {
+					session.reply = nil
 				}
 				get.reply <- nil
 			}
@@ -185,11 +182,11 @@ func (f *Fellowship) handleGet(get get) {
 		}
 	}()
 
-	if len(member.messages) > 0 || get.session_id == "" {
+	if len(session.messages) > 0 || get.session_id == "" {
 		reply()
 	} else {
-		member.active = false
-		member.reply = &reply
+		session.active = false
+		session.reply = &reply
 	}
 }
 

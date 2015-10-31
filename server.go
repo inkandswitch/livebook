@@ -145,9 +145,9 @@ func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session_id"][0]
-	members := CRADLE.Get(vars["id"], user, session_id, w.(http.CloseNotifier).CloseNotify())
-	if members != nil {
-		json, _ := json.Marshal(members)
+	sessions := CRADLE.Get(vars["id"], user, session_id, w.(http.CloseNotifier).CloseNotify())
+	if sessions != nil {
+		json, _ := json.Marshal(sessions)
 		w.Write(json)
 	}
 }
