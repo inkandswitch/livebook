@@ -17,8 +17,16 @@ type Member struct {
 	name       string
 	updated_on int64
 	created_on int64
+	active     bool
 	messages   map[Session][]string
 	reply      *func()
+}
+
+func (m*Member) Reply() {
+	if m.reply != nil {
+		(*m.reply)()
+		m.reply = nil
+	}
 }
 
 type Group string
@@ -88,18 +96,9 @@ func (f *Fellowship) Put(group string, from string, to string, message string) {
 }
 
 func (f *Fellowship) cleanup() {
-	now := time.Now().Unix()
-	for group, v := range f.Members {
-		for session, member := range v {
-			if member.reply != nil {
-				fmt.Printf("Reply timeout g=%v s=%v\n", group, session)
-				(*member.reply)()
-				member.reply = nil
-			} else {
-				if now-member.updated_on > 5 {
-					fmt.Printf("member is old\n")
-				}
-			}
+	for _, v := range f.Members {
+		for _, member := range v {
+			member.Reply()
 		}
 	}
 }
@@ -133,12 +132,11 @@ func (f *Fellowship) Get(group string, name string, session string, closer <-cha
 
 func (f *Fellowship) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
-	group := get.group
-	name := get.name
+	group   := get.group
+	name    := get.name
 	session := get.session
 
 	var last int64 = 0
-	now := time.Now().Unix()
 
 	if f.Members[group] == nil {
 		f.Members[group] = map[Session]*Member{}
@@ -146,14 +144,14 @@ func (f *Fellowship) handleGet(get get) {
 
 	if session == "" || f.Members[group][session] == nil { // begin a new session
 		session = Session(randomString(6))
-		f.Members[group][session] = &Member{name: name, created_on: now, messages: map[Session][]string{}}
+		f.Members[group][session] = &Member{name: name, created_on: time.Now().Unix(), messages: map[Session][]string{}}
 	} else {
 		last = f.Members[group][session].updated_on
 	}
 
-	f.Members[group][session].updated_on = now
-
 	member := f.Members[group][session]
+
+	member.Reply()
 
 	success := make(chan bool)
 
@@ -172,25 +170,25 @@ func (f *Fellowship) handleGet(get get) {
 	}
 
 	go func() {
+		member.updated_on = time.Now().Unix()
+		member.active = false
 		select {
-		case <-get.closer:
-			f.events <- func() {
-				fmt.Printf("Connection closed!\n")
-				if member.reply == &reply {
-					member.reply = nil
+			case <-get.closer:
+				f.events <- func() {
+					fmt.Printf("Connection closed!\n")
+					if member.reply == &reply {
+						member.reply = nil
+					}
+					get.reply <- nil
 				}
-				get.reply <- nil
-			}
-		case <-success:
+			case <-success:
 		}
 	}()
 
 	if len(member.messages) > 0 || get.session == "" {
 		reply()
 	} else {
-		if member.reply != nil {
-			(*member.reply)()
-		}
+		member.active = false
 		member.reply = &reply
 	}
 }
