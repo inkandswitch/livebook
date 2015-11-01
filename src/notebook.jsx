@@ -761,39 +761,8 @@ var CODE = {
 
 var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
+var CodeCell = require("./components/code-cell.jsx");
 
-
-// BOOTS TODO
-// - put in separate file
-/**
- * [Global Deps]
- * `CODE`
- * `displayClass`
- * ``
- */
-var CodeCell = React.createClass({
-  html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
-  png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
-  text: function(data) { return (data && <div className="pyresult">{data.join("")}</div>) },
-  outputs:  function() { return (this.props.data.outputs.map(output =>
-      this.html(output.data["text/html"]) ||
-      this.png(output.data["image/png"])  ||
-      this.text(output.data["text/plain"])
-  ))},
- code: function() {
-    return <div className={"code " + displayClass(this)}>{CODE.read(this.props.index)}</div>
- },
-  render: function() { return (
-    <div className="cell">
-      <div className="switch">
-        <div className="codewrap"> {this.code()} </div>
-      </div>
-      <div className="yields"><img src="/yield-arrow.png" alt="yields" /></div>
-      {this.outputs()}
-      <div id={"plot"+this.props.index} className="plot"></div>
-    </div>)
-  }
-});
 
 var Cell = React.createClass({
   subcell: function() {
@@ -1014,9 +983,11 @@ function loadMatplot(callback) {
 // for other files to access state from this module.
 
 module.exports = {
-  getiPython: () => iPython,
-  getMode   : () => Mode,
-  getPeerPresence: () => peerPresence,
+  displayClass    : displayClass,
+  getCODE         : () => CODE,
+  getiPython      : () => iPython,
+  getMode         : () => Mode,
+  getPeerPresence : () => peerPresence,
   resetToStarterNotebook: resetToStarterNotebook,
   setCurrentPage: setCurrentPage,
 };
