@@ -4,6 +4,7 @@ var React      = require("react")
 var AceEditor  = require('react-ace');
 var cradle     = require('./cradle');
 
+// Utils
 var rawMarkup     = require("./util").rawMarkup;
 var $resultToHtml = require("./util").$resultToHtml;
 var zip           = require("./util").zip;
@@ -22,8 +23,6 @@ cradle.depart(update_peers);
 function update_peers () {
   console.log("FELLOWS", cradle.peers());
   peerPresence = cradle.peers();
-  // BOOTS ???
-  // - where is collaboratorsMount defined?
   React.render(<Collaborators />, collaboratorsMount); 
 }
 
@@ -35,10 +34,8 @@ var theData = null;
  * `theData` - Some hard-coded data for the intial example
  */
 window.__load__ = function(name) {
-  if (theData) return theData
-  // BOOTS TODO
-  // - don't throw strings, throw error objects
-  throw "No CSV data loaded" 
+  if (theData) return theData;
+  throw new Error("No CSV data loaded");
 }
 
 var Pages = [ "notebook", "upload" ]
@@ -61,9 +58,7 @@ var indent = /^\s+/
  */
 function pyLoad(x) {
   if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
-    // BOOTS TODO
-    // - throw Error object not string
-    throw "File not found: '" + x + "'";    
+    throw new Error("File not found: '" + x + "'");
   }
   return Sk.builtinFiles["files"][x];
 }
@@ -140,7 +135,10 @@ function python_render(result) {
 
 Sk.builtins["mark"] = python_mark
 Sk.builtins["render"] = python_render
-Sk.configure({output: text => { console.log("STDOUT:",text) }, read: pyLoad })
+Sk.configure({
+  output: text => { console.log("STDOUT:",text) },
+  read: pyLoad,
+});
 
 var Mode = "view";
 var CursorCell = 0;
@@ -196,7 +194,7 @@ function cursor(i) {
   if (Mode == "view")  return ""
   if (Mode == "nav")   return "cursor"
   if (Mode == "edit")  return "cursor-edit"
-  else                 throw  "Invalid mode: " + Mode // BOOTS TODO - error object
+  else                 throw  new Error("Invalid mode: " + Mode);
 }
 
 /**
