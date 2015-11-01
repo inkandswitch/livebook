@@ -23,6 +23,7 @@ var peerPresence = [
   { name: "Me", status: "here", },
 ];
 
+
 cradle.arrive(update_peers);
 cradle.depart(update_peers);
 /**
@@ -802,31 +803,9 @@ var Menu = React.createClass({
   )}
 })
 
-// BOOTS TODO
-// - put in separate file
-/**
- * [Global Deps]
- * `peerPresence`
- */
-var Collaborators = React.createClass({
-  renderAvatars: function() {
-    var avatars = []
-    for (var i = 0; i < peerPresence.length; i++) {
-      var f = peerPresence[i]
-      var klass = "observer " + f.status;
-      // BOOTS TODO
-      // - these elements will desire a `key` prop at some point
-      avatars.push(<li className={klass}><span>{f.name}</span></li>)
-    }
-    return avatars
-  },
-  render: function() {
-    return (
-    <div className="collaborators">
-      <ul>{this.renderAvatars()}</ul>
-    </div>
-  )}
-})
+
+var Collaborators = require("./collaborators.jsx");
+
 
 // BOOTS TODO
 // - put in separate file
@@ -1081,4 +1060,5 @@ function loadMatplot(callback) {
 module.exports = {
   getiPython: () => iPython,
   getMode   : () => Mode,
+  getPeerPresence: () => peerPresence,
 };
