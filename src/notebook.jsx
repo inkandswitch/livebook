@@ -758,52 +758,8 @@ var CODE = {
   read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
 }
 
-// BOOTS TODO
-// - put in separate file
-/**
- * [Global Deps]
- * `React`
- * `iPython`
- * `setCurrentPage`
- * `resetToStarterNotebook`
- */
-var Menu = React.createClass({
-  getInitialState: function() {
-    return {active: false, download: false};
-  },
-  handleDownload: function(event) {
-    this.setState({download: true});
-  },
-  handleClick: function(event) {
-    this.setState({active: !this.state.active});
-  },
-  downloadPayload: function() {
-    return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
-  },
-  handleUpload: function(event) {
-    this.setState({active: false})
-    window.history.pushState({}, "Upload", "/upload")
-    setCurrentPage("upload")
-  },
-  handleNew: function(event) {
-    this.setState({active: false})
-    resetToStarterNotebook()
-  },
-  render: function() { return (
-    <div id="menu" className={this.state.active ? "active" : ""}>
-      <img src="/menu.png" alt="menu" onClick={this.handleClick} />
-      <ul className="menu-content">
-        <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
-        <li onClick={this.handleNew}>New</li>
-        <li onClick={this.handleUpload}>Upload</li>
-        <li>Cheatsheet</li>
-        <li>About</li>
-      </ul>
-    </div>
-  )}
-})
 
-
+var Menu = require("./menu.jsx");
 var Collaborators = require("./collaborators.jsx");
 
 
@@ -1061,4 +1017,6 @@ module.exports = {
   getiPython: () => iPython,
   getMode   : () => Mode,
   getPeerPresence: () => peerPresence,
+  resetToStarterNotebook: resetToStarterNotebook,
+  setCurrentPage: setCurrentPage,
 };
