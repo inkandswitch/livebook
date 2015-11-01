@@ -1,9 +1,12 @@
 var $          = require("jquery")
 var ace        = require("brace")
 var React      = require("react")
-var marked     = require("marked")
 var AceEditor  = require('react-ace');
 var cradle     = require('./cradle');
+
+var rawMarkup     = require("./util").rawMarkup;
+var $resultToHtml = require("./util").$resultToHtml;
+var zip           = require("./util").zip;
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -24,13 +27,7 @@ function update_peers () {
   React.render(<Collaborators />, collaboratorsMount); 
 }
 
-
 ace.config.set("basePath", "/");
-
-// BOOTS TODO 
-// - put in util file
-var zip = (a,b) => a.map( (v,i) => [v,b[i]])
-
 
 var theData = null;
 /**
@@ -114,18 +111,8 @@ function python_render(result) {
   if ($result && $result.rows && $result.cols && $result.data) {
     // BOOTS TODO
     // - use `let`
-    // - refactor into util
-    var table = "<table><thead><tr><th>&nbsp;</th>";
-    $result.cols.forEach(col => table += "<th>" + col + "</th>")
-    table += "</tr></thead>"
-    table += "<tbody>"
-    $result.rows.forEach(row => {
-      table += "<tr><th>" + row + "</th>"
-      $result.cols.forEach(col => table += "<td>" + $result.data[row][col].toFixed(6) + "</td>")
-      table += "</tr>"
-    })
-    table += "</tbody>"
-    table += "</table>"
+
+    var table = $resultToHtml($result);
 
     iPython.cells[$cell].outputs = [
       {
@@ -197,11 +184,7 @@ function onChangeFunc(i) { // i is the CursorCell
  * [Global Deps]
  * `marked`
  */
-function rawMarkup(lines) {
-  return {
-    __html: marked(lines.join(""), { sanitize: true, })
-  };
-}
+
 
 // BOOTS ???
 /**
@@ -1053,3 +1036,14 @@ $.get("/pandas.js",function(data) {
     })
   })
 })
+
+
+// BOOTS
+// 
+// The following is an (exported) interface 
+// for other files to access state from this module.
+
+module.exports = {
+  getiPython: () => iPython,
+  getMode   : () => Mode,
+};
