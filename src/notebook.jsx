@@ -1,3 +1,12 @@
+/**
+ * [Global State]
+ * `peerPresence`
+ * `theData`
+ * `Mode`
+ * `$cell`
+ * `CurrentCursor`
+ */
+
 var $          = require("jquery")
 var ace        = require("brace")
 var React      = require("react")
@@ -5,9 +14,10 @@ var AceEditor  = require('react-ace');
 var cradle     = require('./cradle');
 
 // Utils
-var rawMarkup     = require("./util").rawMarkup;
-var $resultToHtml = require("./util").$resultToHtml;
-var zip           = require("./util").zip;
+var asyncRunParallel = require("./util").asyncRunParallel;
+var rawMarkup        = require("./util").rawMarkup;
+var $resultToHtml    = require("./util").$resultToHtml;
+var zip              = require("./util").zip;
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -38,8 +48,8 @@ window.__load__ = function(name) {
   throw new Error("No CSV data loaded");
 }
 
-var Pages = [ "notebook", "upload" ]
-var CurrentPage = "notebook"
+var Pages = [ "notebook", "upload" ];
+var CurrentPage = "notebook";
 
 var starterNotebook = null;
 
@@ -67,6 +77,8 @@ function pyLoad(x) {
 var $cell = undefined;
 
 /**
+ *  Assigned to Sk.builtins["mark"]
+ *
  * [Global Deps]
  * `Sk`
  * `$cell` - ??? The current cell?
@@ -1001,7 +1013,6 @@ theData = [
 // BOOTS ???
 // BOOTS TODO
 // - separate into index.js
-// - let's get out of callback hell
 /**
  * [Global Deps]
  * `iPythonRaw`
@@ -1011,30 +1022,55 @@ theData = [
  * starterNotebook
  * resetToStarterNotebook()
  */
-$.get("/pandas.js",function(data) {
-  Sk.builtinFiles["files"]["./pandas.js"] = data
-  $.get("/pyplot.js",function(data) {
-    Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = data
-    $.get("/matplotlib.js",function(data) {
-      Sk.builtinFiles["files"]["./matplotlib.js"] = data
-      if (/[/]d[/](\d*)$/.test(document.location)) {
-        $.get(document.location + ".json",function(data) {
-          iPythonRaw = data.Notebook.Body
-          DataRaw = data.DataFile.Body
-          parse_raw_notebook()
-          setCurrentPage("notebook")
-          cradle.join(document.location + ".rtc")
-        }, "json")
-      } else {
-        $.get("/starter.ipynb",function(data) {
-          starterNotebook = data
-          resetToStarterNotebook()
-        }, "json")
-      }
-    })
-  })
-})
+asyncRunParallel([loadPandas, loadPyPlot, loadMatplot], function(err, results) {
+  if (err) {
+    console.log("Error loading python libraries!", err);
+    return;
+  }
+  results.forEach((message) => console.log(message));
 
+  if (/[/]d[/](\d*)$/.test(document.location)) {
+    $.get(document.location + ".json",function(data) {
+      iPythonRaw = data.Notebook.Body
+      DataRaw = data.DataFile.Body
+      parse_raw_notebook()
+      setCurrentPage("notebook")
+      cradle.join(document.location + ".rtc")
+    }, "json")
+  } else {
+    $.get("/starter.ipynb",function(data) {
+      starterNotebook = data
+      resetToStarterNotebook()
+    }, "json")
+  }
+});
+
+function loadPandas(callback) {
+  $.get("./pandas.js", function(js) {
+    Sk.builtinFiles["files"]["./pandas.js"] = js;
+    callback(null, "Loaded up some pandas");
+  }).fail(function() {
+    callback(new Error("pandas.js failed to load from server."));
+  });
+}
+
+function loadPyPlot(callback) {
+  $.get("./pyplot.js", function(js) {
+    Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = js;
+    callback(null, "Loaded up some pyplot");
+  }).fail(function() {
+    callback(new Error("pyplot.js failed to load from server."));
+  });
+}
+
+function loadMatplot(callback) {
+  $.get("/matplotlib.js",function(js) {
+    Sk.builtinFiles["files"]["./matplotlib.js"] = js;
+    callback(null, "Loaded up some matplot");
+  }).fail(function() {
+    callback(new Error("matplotlib.js failed to load from server."));
+  });
+}
 
 // BOOTS
 // 
