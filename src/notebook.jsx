@@ -951,7 +951,7 @@ asyncRunParallel([loadPandas, loadPyPlot, loadMatplot], function(err, results) {
 });
 
 function loadPandas(callback) {
-  $.get("./pandas.js", function(js) {
+  $.get("/pandas.js", function(js) {
     Sk.builtinFiles["files"]["./pandas.js"] = js;
     callback(null, "Loaded up some pandas");
   }).fail(function() {
@@ -960,7 +960,7 @@ function loadPandas(callback) {
 }
 
 function loadPyPlot(callback) {
-  $.get("./pyplot.js", function(js) {
+  $.get("/pyplot.js", function(js) {
     Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = js;
     callback(null, "Loaded up some pyplot");
   }).fail(function() {
