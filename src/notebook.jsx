@@ -6,25 +6,42 @@ var AceEditor  = require('react-ace');
 var cradle     = require('./cradle');
 
 var peerPresence = [
-  { name: "Me", status: "here" }
-]
+  { name: "Me", status: "here", },
+];
 
-var update_peers = function() {
-  console.log("FELLOWS",cradle.peers())
-  peerPresence = cradle.peers()
-  React.render(<Collaborators />, collaboratorsMount);
+cradle.arrive(update_peers);
+cradle.depart(update_peers);
+/**
+ * [Global Deps]
+ * `cradle`
+ * `collaboratorsMount`
+ */
+function update_peers () {
+  console.log("FELLOWS", cradle.peers());
+  peerPresence = cradle.peers();
+  // BOOTS ???
+  // - where is collaboratorsMount defined?
+  React.render(<Collaborators />, collaboratorsMount); 
 }
-cradle.arrive(update_peers)
-cradle.depart(update_peers)
 
-ace.config.set("basePath","/")
 
+ace.config.set("basePath", "/");
+
+// BOOTS TODO 
+// - put in util file
 var zip = (a,b) => a.map( (v,i) => [v,b[i]])
 
+
 var theData = null;
+/**
+ * [Global Deps]
+ * `theData` - Some hard-coded data for the intial example
+ */
 window.__load__ = function(name) {
   if (theData) return theData
-  throw "No CSV data loaded"
+  // BOOTS TODO
+  // - don't throw strings, throw error objects
+  throw "No CSV data loaded" 
 }
 
 var Pages = [ "notebook", "upload" ]
@@ -38,24 +55,51 @@ var defre = new RegExp("def.*|class.*")
 var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
 var indent = /^\s+/
 
-function pyLoad(x)
-{
-  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-    throw "File not found: '" + x + "'";
+
+// BOOTS ???
+// - Seems to check if python environment has any files in it
+/**
+ * [Global Deps]
+ * `Sk`
+ */
+function pyLoad(x) {
+  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
+    // BOOTS TODO
+    // - throw Error object not string
+    throw "File not found: '" + x + "'";    
+  }
   return Sk.builtinFiles["files"][x];
 }
 
+// BOOTS ???
 var $cell = undefined;
 
+/**
+ * [Global Deps]
+ * `Sk`
+ * `$cell` - ??? The current cell?
+ */
 function python_mark(cell) {
   $cell = Sk.ffi.remapToJs(cell)
 }
 
+/**
+ * [Global Deps]
+ * `Sk`
+ * `$cell` - ??? The current cell?
+ * `iPython` - ???
+ */
 function python_render(result) {
-  if (result == undefined) return
+  if (result === undefined) return;
   console.log("2_js",result.to_js);
   var $result;
+  // BOOTS ???
+  // Duck type result... if it has `to_js` method, proceed
   if (result.to_js) {
+    // BOOTS ???
+    // - what is tmp here?
+    // BOOTS TODO
+    // - use `let`
     var $method = Sk.abstr.gattr(result, 'to_js', true)
     var tmp = Sk.misceval.callsimOrSuspend($method)
     $result = Sk.ffi.remapToJs(tmp)
@@ -63,7 +107,14 @@ function python_render(result) {
     $result = Sk.ffi.remapToJs(result)
   }
 
+  // BOOTS ???
+  // - if there's a result with rows, cols, and data,
+  //   let's render a table and record it to the iPython object
+  //   otherwise, let's render it as plaintext to the iPython object
   if ($result && $result.rows && $result.cols && $result.data) {
+    // BOOTS TODO
+    // - use `let`
+    // - refactor into util
     var table = "<table><thead><tr><th>&nbsp;</th>";
     $result.cols.forEach(col => table += "<th>" + col + "</th>")
     table += "</tr></thead>"
@@ -109,36 +160,83 @@ var CursorCell = 0;
 var DataRaw = ""
 var iPythonRaw = ""
 var iPython = { cells:[] }
+
+// React mount points
 var notebookMount = document.getElementById('notebook')
 var editorMount = document.getElementById('editor')
 var menuMount = document.getElementById('menu')
 var collaboratorsMount = document.getElementById('collaborators')
 
+// Editor
 var editor       = {}
-var useEditor    = function(cell) { return (cell.props.index == CursorCell && Mode == "edit") }
-var editorClass  = function(cell)  { return !useEditor(cell) ? "hidden" : "" }
-var displayClass = function(cell) { return  useEditor(cell) ? "hidden" : "" }
+function useEditor(cell) {
+  return (cell.props.index == CursorCell && Mode == "edit")
+}
+function editorClass(cell)  {
+  return !useEditor(cell) ? "hidden" : "";
+}
+function displayClass(cell) {
+  return  useEditor(cell) ? "hidden" : "";
+}
 
-function onChangeFunc(i) {
+/**
+ * [Global Deps]
+ * `iPython`
+ * `python_eval` - 
+ */
+function onChangeFunc(i) { // i is the CursorCell
   return e => {
     iPython.cells[i].source = e.split("\n").map( s => s + "\n")
     if (iPython.cells[i].cell_type == "code") python_eval()
   }
 }
 
-function rawMarkup(lines) { return { __html: marked(lines.join(""), {sanitize: true}) } }
+// BOOTS TODO
+// - utilify
+/**
+ * [Global Deps]
+ * `marked`
+ */
+function rawMarkup(lines) {
+  return {
+    __html: marked(lines.join(""), { sanitize: true, })
+  };
+}
+
+// BOOTS ???
+/**
+ * [Global Deps]
+ * `Mode`
+ */
 function cursor(i) {
   if (i != CursorCell) return ""
   if (Mode == "view")  return ""
   if (Mode == "nav")   return "cursor"
   if (Mode == "edit")  return "cursor-edit"
-  else                 throw  "Invalid mode: " + Mode
+  else                 throw  "Invalid mode: " + Mode // BOOTS TODO - error object
 }
 
+/**
+ * [Global Deps]
+ * `Mode`
+ * `CursorCell`
+ * `AceEditor`
+ * `React`
+ * `$`
+ * `onChangeFunc`
+ * `cellPosition`
+ * `editorMount`
+ * `editor`
+ * `python_eval`
+ */
 function renderEditor() {
+  // BOOTS TODO
+  // - cache $("#editX");
   if (Mode != "edit") {
     $("#editX").hide()
   } else {
+    // BOOTS TODO
+    // - use `let`
     var height = $(".switch")[CursorCell].offsetHeight + "px"
     var width  = $(".switch")[CursorCell].offsetWidth  + "px"
     var lang   = iPython.cells[CursorCell].cell_type == "code" ? "python" : "markdown"
@@ -146,14 +244,21 @@ function renderEditor() {
     var change = onChangeFunc(CursorCell)
     var onBeforeLoad = function() {
     }
+
+    // BOOTS TODO
+    // - write a convenience method for this
     var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} onBeforeLoad={onBeforeLoad}/>
+    // BOOTS TODO
+    // - where is editorMount?
     React.render(dom, editorMount);
 
-    var pos = cellPosition()
+    var pos = cellPosition();
 
+    // BOOTS TODO
+    // - method chain
     $("#editX").show()
-    $("#editX").css("top",pos.top)
-    $("#editX").css("left",pos.left)
+    $("#editX").css("top", pos.top)
+    $("#editX").css("left", pos.left)
 
     editor = ace.edit("editX")
     editor.focus()
@@ -164,15 +269,33 @@ function renderEditor() {
   }
 }
 
+// BOOTS !!!
+// - yay good.
+/**
+ * [Global Deps]
+ * `CursorCell`
+ * `$`
+ */
 function cellPosition() {
   var bodyRect = document.body.getBoundingClientRect()
   var elemRect = $(".switch")[CursorCell].getBoundingClientRect()
   var t   = Math.round(elemRect.top  - bodyRect.top) + "px";
   var l   = Math.round(elemRect.left - bodyRect.left) + "px";
-  return { top: t, left: l }
+  return {
+    top: t,
+    left: l,
+  };
 }
 
-
+// BOOTS ???
+/**
+ * [Global Deps]
+ * `iPython`
+ * `notebookMount`
+ * `menuMount`
+ * `collaboratorsMount`
+ * `setup_drag_drop`
+ */
 function render() {
   React.render(<Notebook data={iPython} />, notebookMount);
   React.render(<Menu />, menuMount);
@@ -180,6 +303,17 @@ function render() {
   setup_drag_drop()
 }
 
+// BOOTS ??? !!! (on the next many functions)
+// - all these calls to render() are a huge smell
+/**
+ * [Global Deps]
+ * `Mode`
+ * `setMode`
+ * `iPython`
+ * `CursorCell`
+ * `render`
+ * 
+ */
 function moveCursor(delta) {
   if (Mode == "edit") return;
   if (Mode == "view") { setMode("nav"); return }
@@ -188,9 +322,18 @@ function moveCursor(delta) {
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
   render();
+  // BOOTS ???
+  // why - 80?
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `render`
+ * `CursorCell`
+ * `setMode`
+ */
 function appendCell(type) {
   var cell = '';
 
@@ -229,6 +372,13 @@ function appendCell(type) {
   setMode("edit");
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `render`
+ * `CursorCell`
+ * `setMode`
+ */
 function deleteCell() {
   console.log('delete');
   iPython.cells.splice(CursorCell, 1);
@@ -241,9 +391,16 @@ function deleteCell() {
   render();
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `iPythonRaw`
+ */
 function save_notebook() {
   console.log("Saving notebook...")
   iPythonRaw = JSON.stringify(iPython)
+  // BOOTS ???
+  // - wat is getting PUTted here?
   var data = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } })
   $.ajax({
     method: "PUT",
@@ -254,6 +411,12 @@ function save_notebook() {
   }})
 }
 
+/**
+ * [Global Deps]
+ * `Mode`
+ * `CODE` - 
+ * `save_notebook`
+ */
 function setMode(m) {
   if (Mode == m) return false;
   var old = Mode
@@ -273,6 +436,12 @@ function setMode(m) {
   return true
 }
 
+/**
+ * [Global Deps]
+ * `Pages`
+ * `CurrentPage`
+ * `render`
+ */
 function setCurrentPage(page) {
   if (!Pages.includes(page)) {
     console.log("Error: '" + page + "' is not a valid page")
@@ -283,6 +452,14 @@ function setCurrentPage(page) {
   render()
 }
 
+// BOOTS TODO
+// - refactor into hotkeys file
+/**
+ * [Global Deps]
+ * `Mode`
+ * `setMode`
+ * `moveCursor`
+ */
 $('body').keyup(function(e) {
   switch (e.which) {
     case 27: // esc
@@ -300,6 +477,16 @@ $('body').keyup(function(e) {
   }
 })
 
+// BOOTS TODO
+// - refactor into hotkeys file
+/**
+ * [Global Deps]
+ * `Mode`
+ * `setMode`
+ * `moveCursor`
+ * `appendCell`
+ * `deleteCell`
+ */
 $('body').keypress(function(e) {
   if (Mode == "edit") return;
 
@@ -333,19 +520,37 @@ $('body').keypress(function(e) {
   }
 });
 
+// BOOTS ??? !!!
+// - router stuff
+/**
+ * [Global Deps]
+ * `setCurrentPage`
+ */
 window.onpopstate = function(event) {
-  var path = document.location.pathname
-  if (path == "/upload")
+  var path = document.location.pathname;
+  if (path === "/upload")
     setCurrentPage("upload")
   else
     setCurrentPage("notebook")
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `editor`
+ * `assignment`
+ * `defre`
+ * `importre`
+ * `indent`
+ * `Sk`
+ * `handle_error`
+ * `render`
+ */
 var python_eval = function() {
-  var lines = []
-  var lineno = 0
-  var lineno_map = {}
-  iPython.cells.forEach((c,i) => {
+  var lines = [];
+  var lineno = 0;
+  var lineno_map = {}; // keeps track of line number on which to print error
+  iPython.cells.forEach((c, i) => {
     if (c.cell_type == "code") {
       editor.getSession().clearAnnotations()
 
@@ -376,9 +581,9 @@ var python_eval = function() {
     } catch (e) {
       if (e.nativeError instanceof Promise) {
         console.log("native promise!",e.nativeError)
-        e.nativeError.then(python_eval, function(err) {
+        e.nativeError.then(python_eval, function(err) { // RUH ROH RECURSION
           console.log("double error",err)
-          handle_error(lineno_map,e)
+          handle_error(lineno_map,e) // 
         } )
       } else {
         console.log("Handle Error",e)
@@ -389,6 +594,12 @@ var python_eval = function() {
   render()
 }
 
+/**
+ * [Global Deps]
+ * `CursorCell`
+ * `editor`
+ * `Sk`
+ */
 function handle_error(lineno_map, e) {
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0]
@@ -401,7 +612,15 @@ function handle_error(lineno_map, e) {
   }
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `starterNotebook`
+ * `setCurrentPage`
+ * `render`
+ */
 function resetToStarterNotebook() {
+  // BOOTS TODO - write a deep clone
   // hack to deep clone
   iPython = JSON.parse(JSON.stringify(starterNotebook))
 
@@ -410,12 +629,25 @@ function resetToStarterNotebook() {
   render() // TODO prevent python_eval until this is done
 }
 
+// BOOTS TODO
+// - refactor into charts file
 var _plot = function() {}
 
+/**
+ * [Global Deps]
+ * `_plot`
+ */
 window.__plot2 = function(X,Y,colorName) {
   _plot(X,Y,colorName)
 }
 
+/**
+ * [Global Deps]
+ * `iPython`
+ * `d3`
+ * `zip`
+ * `_plot`
+ */
 window.__plot1 = function(xmax,ymax) {
 
   iPython.cells[$cell].outputs = []
@@ -507,6 +739,10 @@ window.__plot1 = function(xmax,ymax) {
   }
 }
 
+/**
+ * [Global Deps]
+ * `React`
+ */
 var MarkdownCell = React.createClass({
   render: function() {
     return ( <div className="cell switch">
@@ -515,6 +751,10 @@ var MarkdownCell = React.createClass({
   }
 });
 
+/**
+ * [Global Deps]
+ * `iPython`
+ */
 // this is to cache the code being edited so the pane does not update under the editor
 var CODE = {
   cache: (i) => CODE[i] = iPython.cells[i].source.join("") + " ",
@@ -522,6 +762,15 @@ var CODE = {
   read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
 }
 
+// BOOTS TODO
+// - put in separate file
+/**
+ * [Global Deps]
+ * `React`
+ * `iPython`
+ * `setCurrentPage`
+ * `resetToStarterNotebook`
+ */
 var Menu = React.createClass({
   getInitialState: function() {
     return {active: false, download: false};
@@ -558,12 +807,20 @@ var Menu = React.createClass({
   )}
 })
 
+// BOOTS TODO
+// - put in separate file
+/**
+ * [Global Deps]
+ * `peerPresence`
+ */
 var Collaborators = React.createClass({
   renderAvatars: function() {
     var avatars = []
     for (var i = 0; i < peerPresence.length; i++) {
       var f = peerPresence[i]
       var klass = "observer " + f.status;
+      // BOOTS TODO
+      // - these elements will desire a `key` prop at some point
       avatars.push(<li className={klass}><span>{f.name}</span></li>)
     }
     return avatars
@@ -576,6 +833,14 @@ var Collaborators = React.createClass({
   )}
 })
 
+// BOOTS TODO
+// - put in separate file
+/**
+ * [Global Deps]
+ * `CODE`
+ * `displayClass`
+ * ``
+ */
 var CodeCell = React.createClass({
   html: function(data) { return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />) },
   png:  function(data) { return (data && <img src={"data:image/png;base64," + data} />) },
@@ -638,28 +903,58 @@ var Notebook = React.createClass({
   },
 })
 
+
+/**
+ * [Global Deps]
+ * `iPython` 
+ * `iPythonRaw`
+ * `d3`
+ * `DataRaw`
+ * `theData`
+ */
 function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
   var header = undefined
   var data = d3.csv.parseRows(DataRaw,function(row) {
   if (!header) { header = row; return }
     var object = {}
-    row.forEach((d,i) => object[header[i]] = (+d || d))
+    row.forEach((d,i) => object[header[i]] = (+d || d)) // BOOTS TODO - this will short-circuit on 0
     return object
   })
   theData = data
 }
 
+// BOOTS TODO
+// - put in separate file
+/**
+ * [Global Deps]
+ * `iPythonRaw`
+ * `d3`
+ * `DataRaw`
+ * `theData`
+ */
 function post_notebook_to_server() {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
-  $.post("/d/",doc,function(response) {
+  $.post("/d/", doc, function(response) {
     console.log("responsee",response)
-      window.history.pushState({}, "Notebook", response);
-      console.log("location", document.location)
-      cradle.join(document.location + ".rtc")
+    window.history.pushState({}, "Notebook", response);
+    console.log("location", document.location)
+    cradle.join(document.location + ".rtc")
   })
 }
 
+// BOOTS TODO
+// - separate into another file
+// - pass iPython
+/**
+ * [Global Deps]
+ * `iPythonRaw`
+ * `DataRaw`
+ * `theData`
+ * post_notebook_to_server
+ * parse_raw_notebook
+ * setCurrentPage
+ */
 function setup_drag_drop() {
   var upload = document.getElementById('notebook')
   upload.ondrop = function(e) {
@@ -722,6 +1017,19 @@ theData = [
   { 'x': 6, 'y': 5 }
 ]
 
+// BOOTS ???
+// BOOTS TODO
+// - separate into index.js
+// - let's get out of callback hell
+/**
+ * [Global Deps]
+ * `iPythonRaw`
+ * `DataRaw`
+ * parse_raw_notebook
+ * setCurrentPage
+ * starterNotebook
+ * resetToStarterNotebook()
+ */
 $.get("/pandas.js",function(data) {
   Sk.builtinFiles["files"]["./pandas.js"] = data
   $.get("/pyplot.js",function(data) {
