@@ -41,7 +41,7 @@ ace.config.set("basePath", "/");
 var theData = null;
 /**
  * [Global Deps]
- * `theData` - Some hard-coded data for the intial example
+ * `theData` - Some hard-coded data for the intial example... or CSV data that has been loaded.
  */
 window.__load__ = function(name) {
   if (theData) return theData;
@@ -63,6 +63,7 @@ var indent = /^\s+/
 // BOOTS ???
 // - Seems to check if python environment has any files in it
 /**
+ * Custom file loader for Skulpt
  * [Global Deps]
  * `Sk`
  */
@@ -77,7 +78,8 @@ function pyLoad(x) {
 var $cell = undefined;
 
 /**
- *  Assigned to Sk.builtins["mark"]
+ * Maps content of (code) cell to a javascript object, and assigns it to `$cell`
+ * This function is placed in Sk.builtins["mark"]
  *
  * [Global Deps]
  * `Sk`
@@ -1010,7 +1012,6 @@ theData = [
   { 'x': 6, 'y': 5 }
 ]
 
-// BOOTS ???
 // BOOTS TODO
 // - separate into index.js
 /**
