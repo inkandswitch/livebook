@@ -7,7 +7,6 @@ function requireGlobalDeps() {
 }
 /**
  * [Global Deps]
- * `React`
  * `iPython`
  * `setCurrentPage`
  * `resetToStarterNotebook`

@@ -8,7 +8,6 @@ function requireGlobalDeps() {
  * [Global Deps]
  * `CODE`
  * `displayClass`
- * ``
  */
 var CodeCell = React.createClass({
 
@@ -41,7 +40,7 @@ var CodeCell = React.createClass({
  code() {
     var displayClass = requireGlobalDeps().displayClass;
     var CODE         = requireGlobalDeps().getCODE();
-    
+
     return (
       <div className={"code " + displayClass(this)}>
         {CODE.read(this.props.index)}

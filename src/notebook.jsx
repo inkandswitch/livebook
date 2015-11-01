@@ -10,12 +10,11 @@
 var $          = require("jquery")
 var ace        = require("brace")
 var React      = require("react")
-var AceEditor  = require('react-ace');
-var cradle     = require('./cradle');
+var AceEditor  = require("react-ace");
+var cradle     = require("./cradle");
 
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
-var rawMarkup        = require("./util").rawMarkup;
 var $resultToHtml    = require("./util").$resultToHtml;
 var zip              = require("./util").zip;
 
@@ -190,13 +189,6 @@ function onChangeFunc(i) { // i is the CursorCell
     if (iPython.cells[i].cell_type == "code") python_eval()
   }
 }
-
-// BOOTS TODO
-// - utilify
-/**
- * [Global Deps]
- * `marked`
- */
 
 
 // BOOTS ???
@@ -735,17 +727,6 @@ window.__plot1 = function(xmax,ymax) {
   }
 }
 
-/**
- * [Global Deps]
- * `React`
- */
-var MarkdownCell = React.createClass({
-  render: function() {
-    return ( <div className="cell switch">
-              <div className={displayClass(this)} dangerouslySetInnerHTML={rawMarkup(this.props.data.source)} />
-            </div>)
-  }
-});
 
 /**
  * [Global Deps]
@@ -761,20 +742,9 @@ var CODE = {
 
 var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
-var CodeCell = require("./components/code-cell.jsx");
+var Cell = require("./components/cell.jsx");
 
 
-var Cell = React.createClass({
-  subcell: function() {
-    if (this.props.data.cell_type == "markdown")
-      return <MarkdownCell data={this.props.data} index={this.props.index}/>
-    else
-      return <CodeCell data={this.props.data} index={this.props.index}/>
-  },
-  render: function() {
-    return <div className={cursor(this.props.index)}> {this.subcell()} </div>
-  }
-})
 
 var Uploader = React.createClass({
   render: function() {
@@ -983,6 +953,7 @@ function loadMatplot(callback) {
 // for other files to access state from this module.
 
 module.exports = {
+  cursor          : cursor,
   displayClass    : displayClass,
   getCODE         : () => CODE,
   getiPython      : () => iPython,
