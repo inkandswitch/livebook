@@ -1,6 +1,9 @@
 var React = require("react");
-// BOOTS TODO
-// - put in separate file
+
+function requireGlobalDeps() {
+  return require("../notebook.jsx");
+}
+
 /**
  * [Global Deps]
  * `React`
@@ -25,19 +28,19 @@ var Menu = React.createClass({
   },
 
   downloadPayload() {
-    var iPython = require("./notebook.jsx").getiPython();
+    var iPython = requireGlobalDeps().getiPython();
     return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
 
   handleUpload(event) {
-    var setCurrentPage = require("./notebook.jsx").setCurrentPage
+    var setCurrentPage = requireGlobalDeps().setCurrentPage
     this.setState({active: false});
     window.history.pushState({}, "Upload", "/upload");
     setCurrentPage("upload");
   },
 
   handleNew(event) {
-    var resetToStarterNotebook = require("./notebook.jsx").resetToStarterNotebook;
+    var resetToStarterNotebook = requireGlobalDeps().resetToStarterNotebook;
     this.setState({active: false});
     resetToStarterNotebook();
   },

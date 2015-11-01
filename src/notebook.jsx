@@ -759,8 +759,8 @@ var CODE = {
 }
 
 
-var Menu = require("./menu.jsx");
-var Collaborators = require("./collaborators.jsx");
+var Menu = require("./components/menu.jsx");
+var Collaborators = require("./components/collaborators.jsx");
 
 
 // BOOTS TODO
