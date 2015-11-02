@@ -20,7 +20,7 @@ require("./charts");  // Assigns the charts
 var asyncRunParallel = require("./util").asyncRunParallel;
 var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
-var $resultToHtml    = require("./util").$resultToHtml;
+var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
 var peerPresence = [
@@ -121,7 +121,7 @@ function python_render(result) {
     // BOOTS TODO
     // - use `let`
 
-    var table = $resultToHtml($result);
+    var table = resultToHtml($result);
 
     iPython.cells[$cell].outputs = [
       {

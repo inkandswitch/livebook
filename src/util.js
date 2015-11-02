@@ -5,7 +5,7 @@ module.exports = {
   deepClone       : deepClone,
   noop            : () => {},
   rawMarkup       : rawMarkup,
-  $resultToHtml   : $resultToHtml,
+  resultToHtml    : resultToHtml,
   zip             : zip,
 };
 
@@ -20,14 +20,14 @@ function rawMarkup(lines) {
   };
 }
 
-function $resultToHtml($result) {
+function resultToHtml(result) {
   var table = "<table><thead><tr><th>&nbsp;</th>";
-  $result.cols.forEach(col => table += "<th>" + col + "</th>")
+  result.cols.forEach(col => table += "<th>" + col + "</th>")
   table += "</tr></thead>"
   table += "<tbody>"
-  $result.rows.forEach(row => {
+  result.rows.forEach(row => {
     table += "<tr><th>" + row + "</th>"
-    $result.cols.forEach(col => table += "<td>" + $result.data[row][col].toFixed(6) + "</td>")
+    result.cols.forEach(col => table += "<td>" + result.data[row][col].toFixed(6) + "</td>")
     table += "</tr>"
   })
   table += "</tbody>"
