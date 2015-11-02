@@ -13,7 +13,6 @@ var React      = require("react")
 var AceEditor  = require("react-ace");
 var cradle     = require("./cradle");
 
-
 require("./hotkeys"); // Assigns the keyboard commands
 require("./charts");  // Assigns the charts
 
@@ -36,7 +35,7 @@ cradle.depart(update_peers);
  * `collaboratorsMount`
  */
 function update_peers () {
-  console.log("FELLOWS", cradle.peers());
+  console.log("---> update FELLOWS", cradle.peers())
   peerPresence = cradle.peers();
   React.render(<Collaborators />, collaboratorsMount); 
 }
