@@ -119,6 +119,20 @@ var $builtinmodule = function() {
     $loc.__len__ = new Sk.builtin.func(function(self) {
       return Sk.ffi.remapToJs(self.$data.length)
     })
+
+    // BOOTS
+    // A few (possible) issues:
+    // * This should be an optionally named parameter, right? (Implement kwargs)
+    // * `tail` does not preserve indices when it is rendered in an HTML table
+    $loc.head = new Sk.builtin.func(function(self, n) {
+      n = (n === undefined) ? 5 : Sk.ffi.remapToJs(n);
+      return Sk.misceval.callsimOrSuspend(mod.DataFrame, self.$data.slice(0, n));
+    })
+    $loc.tail = new Sk.builtin.func(function(self, n) {
+      var length = self.$data.length;
+      n = (n === undefined) ? 5 : Sk.ffi.remapToJs(n);
+      return Sk.misceval.callsimOrSuspend(mod.DataFrame, self.$data.slice(length - n));
+    })
  },'DataFrame', []);
- return mod
+ return mod;
 }
