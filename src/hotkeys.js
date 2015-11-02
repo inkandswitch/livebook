@@ -1,4 +1,4 @@
-var $          = require("jquery")
+var $ = require("jquery")
 
 function requireGlobalDeps() {
   return require("./notebook.jsx");
