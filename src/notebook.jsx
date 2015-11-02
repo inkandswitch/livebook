@@ -572,20 +572,7 @@ var CODE = {
 var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
 var Cell = require("./components/cell.jsx");
-
-
-
-var Uploader = React.createClass({
-  render: function() {
-    return <div id="upload">
-             <h1>Drag files here</h1>
-             <ul>
-               <li className="ipynb"><code>.ipynb</code> notebook</li>
-               <li className="csv">CSV data</li>
-             </ul>
-           </div>
-  }
-})
+var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
