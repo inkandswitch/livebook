@@ -16,7 +16,7 @@ var $builtinmodule = function() {
       var mean = math.mean(list)
       return math.sum(list.map((a) => Math.pow(a - mean,2)))/list.length
     },
-    percentile: (list,p) => list.sort()[Math.floor(list.length * p)]
+    percentile: (list,p) => list.sort((a, b) => a - b)[Math.floor(list.length * p)]
   }
 
   mod.read_csv = new Sk.builtin.func(function(name) {
