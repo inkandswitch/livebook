@@ -2,9 +2,10 @@ var marked = require("marked")
 
 module.exports = {
   asyncRunParallel: asyncRunParallel,
-  rawMarkup     : rawMarkup,
-  $resultToHtml : $resultToHtml, 
-  zip           : zip,
+  noop            : () => {},
+  rawMarkup       : rawMarkup,
+  $resultToHtml   : $resultToHtml,
+  zip             : zip,
 };
 
 function rawMarkup(lines) {

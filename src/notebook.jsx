@@ -13,15 +13,18 @@ var React      = require("react")
 var AceEditor  = require("react-ace");
 var cradle     = require("./cradle");
 
+// Assigns the keyboard commands
+var hotkeys = require("./hotkeys");
+
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
+var noop             = require("./util").noop;
 var $resultToHtml    = require("./util").$resultToHtml;
 var zip              = require("./util").zip;
 
 var peerPresence = [
   { name: "Me", status: "here", },
 ];
-
 
 cradle.arrive(update_peers);
 cradle.depart(update_peers);
@@ -59,9 +62,6 @@ var defre = new RegExp("def.*|class.*")
 var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
 var indent = /^\s+/
 
-
-// BOOTS ???
-// - Seems to check if python environment has any files in it
 /**
  * Custom file loader for Skulpt
  * [Global Deps]
@@ -78,12 +78,11 @@ function pyLoad(x) {
 var $cell = undefined;
 
 /**
- * Maps content of (code) cell to a javascript object, and assigns it to `$cell`
- * This function is placed in Sk.builtins["mark"]
+ * ??? No idea when this is called
  *
  * [Global Deps]
  * `Sk`
- * `$cell` - ??? The current cell?
+ * `$cell` - javascript equivalent of `cell` (presumably python code)
  */
 function python_mark(cell) {
   $cell = Sk.ffi.remapToJs(cell)
@@ -92,12 +91,12 @@ function python_mark(cell) {
 /**
  * [Global Deps]
  * `Sk`
- * `$cell` - ??? The current cell?
- * `iPython` - ???
+ * `$cell`   - Index of the current cell
+ * `iPython` - Object that is stringified into .ipynb file
  */
 function python_render(result) {
   if (result === undefined) return;
-  console.log("2_js",result.to_js);
+  console.log("2_js", result.to_js);
   var $result;
   // BOOTS ???
   // Duck type result... if it has `to_js` method, proceed
@@ -154,6 +153,7 @@ Sk.configure({
   read: pyLoad,
 });
 
+// All The Globals
 var Mode = "view";
 var CursorCell = 0;
 var DataRaw = ""
@@ -161,15 +161,15 @@ var iPythonRaw = ""
 var iPython = { cells:[] }
 
 // React mount points
-var notebookMount = document.getElementById('notebook')
-var editorMount = document.getElementById('editor')
-var menuMount = document.getElementById('menu')
+var notebookMount      = document.getElementById('notebook')
+var editorMount        = document.getElementById('editor')
+var menuMount          = document.getElementById('menu')
 var collaboratorsMount = document.getElementById('collaborators')
 
 // Editor
 var editor       = {}
 function useEditor(cell) {
-  return (cell.props.index == CursorCell && Mode == "edit")
+  return (cell.props.index === CursorCell && Mode === "edit")
 }
 function editorClass(cell)  {
   return !useEditor(cell) ? "hidden" : "";
@@ -189,7 +189,6 @@ function onChangeFunc(i) { // i is the CursorCell
     if (iPython.cells[i].cell_type == "code") python_eval()
   }
 }
-
 
 // BOOTS ???
 /**
@@ -218,47 +217,40 @@ function cursor(i) {
  * `python_eval`
  */
 function renderEditor() {
-  // BOOTS TODO
-  // - cache $("#editX");
-  if (Mode != "edit") {
-    $("#editX").hide()
-  } else {
-    // BOOTS TODO
-    // - use `let`
-    var height = $(".switch")[CursorCell].offsetHeight + "px"
-    var width  = $(".switch")[CursorCell].offsetWidth  + "px"
-    var lang   = iPython.cells[CursorCell].cell_type == "code" ? "python" : "markdown"
-    var value  = iPython.cells[CursorCell].source.join("")
-    var change = onChangeFunc(CursorCell)
-    var onBeforeLoad = function() {
-    }
-
-    // BOOTS TODO
-    // - write a convenience method for this
-    var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} onBeforeLoad={onBeforeLoad}/>
-    // BOOTS TODO
-    // - where is editorMount?
-    React.render(dom, editorMount);
-
-    var pos = cellPosition();
-
-    // BOOTS TODO
-    // - method chain
-    $("#editX").show()
-    $("#editX").css("top", pos.top)
-    $("#editX").css("left", pos.left)
-
-    editor = ace.edit("editX")
-    editor.focus()
-    editor.moveCursorTo(0,0);
-    editor.getSession().setUseWrapMode(true);
-    // TODO if type==code?
-    python_eval()
+  if (Mode !== "edit") {
+    $("#editX").hide();
+    return;
   }
+  // BOOTS TODO
+  // - use `let`
+  var height = $(".switch")[CursorCell].offsetHeight + "px"
+  var width  = $(".switch")[CursorCell].offsetWidth  + "px"
+  var lang   = iPython.cells[CursorCell].cell_type === "code" ? "python" : "markdown"
+  var value  = iPython.cells[CursorCell].source.join("")
+  var change = onChangeFunc(CursorCell)
+  var onBeforeLoad = noop;
+
+  // BOOTS TODO
+  // - write a convenience method for this
+  var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} onBeforeLoad={onBeforeLoad}/>
+  React.render(dom, editorMount);
+
+  // Position editor
+  var pos = cellPosition();
+  $("#editX")
+    .css("top", pos.top)
+    .css("left", pos.left)
+    .show();
+
+  editor = ace.edit("editX")
+  editor.focus()
+  editor.moveCursorTo(0,0);
+  editor.getSession().setUseWrapMode(true);
+  // TODO if type==code?
+  python_eval()
+
 }
 
-// BOOTS !!!
-// - yay good.
 /**
  * [Global Deps]
  * `CursorCell`
@@ -267,16 +259,17 @@ function renderEditor() {
 function cellPosition() {
   var bodyRect = document.body.getBoundingClientRect()
   var elemRect = $(".switch")[CursorCell].getBoundingClientRect()
-  var t   = Math.round(elemRect.top  - bodyRect.top) + "px";
-  var l   = Math.round(elemRect.left - bodyRect.left) + "px";
+  var t        = Math.round(elemRect.top  - bodyRect.top) + "px";
+  var l        = Math.round(elemRect.left - bodyRect.left) + "px";
   return {
     top: t,
     left: l,
   };
 }
 
-// BOOTS ???
 /**
+ * Rerenders compondents
+ *
  * [Global Deps]
  * `iPython`
  * `notebookMount`
@@ -303,8 +296,8 @@ function render() {
  * 
  */
 function moveCursor(delta) {
-  if (Mode == "edit") return;
-  if (Mode == "view") { setMode("nav"); return }
+  if (Mode === "edit") return;
+  if (Mode === "view") { setMode("nav"); return }
 
   var newCursor = CursorCell + delta;
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
@@ -325,7 +318,7 @@ function moveCursor(delta) {
 function appendCell(type) {
   var cell = '';
 
-  if (type == "code")
+  if (type === "code")
     cell = ({
        "cell_type": "code",
        "execution_count": 1,
@@ -342,7 +335,7 @@ function appendCell(type) {
        ],
        "source": [ "type some python" ]
     });
-  else if (type == "markdown")
+  else if (type === "markdown")
     cell = ({
        "cell_type": "markdown",
        "metadata": {},
@@ -385,39 +378,53 @@ function deleteCell() {
  * `iPythonRaw`
  */
 function save_notebook() {
-  console.log("Saving notebook...")
-  iPythonRaw = JSON.stringify(iPython)
-  // BOOTS ???
-  // - wat is getting PUTted here?
-  var data = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } })
+  if (document.location ===  "/") {
+    // Stops 404 that results from posting to `/.json` on the starter page
+    return;
+  }
+  console.log("Saving notebook...");
+  iPythonRaw = JSON.stringify(iPython);
+  var data = {
+    name: "Hello",
+    notebook: {
+      name: "NotebookName", 
+      body: iPythonRaw,
+    },
+  };
   $.ajax({
     method: "PUT",
     url: document.location + ".json",
-    data: data,
+    data: JSON.stringify(data),
     complete: function(response, status) {
-      console.log("save response",response) // TODO handle errors
-  }})
-}
+      console.log("save response", response);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      // TODO handle errors
+      console.log("Saving notebook failed:", textStatus);
+    },
+  });
+};
 
 /**
  * [Global Deps]
  * `Mode`
- * `CODE` - 
+ * `CODE`
  * `save_notebook`
  */
 function setMode(m) {
-  if (Mode == m) return false;
-  var old = Mode
+  if (Mode === m) return false;
+  var old = Mode;
   Mode = m;
   switch (m) {
     case "edit":
-      CODE.cache(CursorCell)
+      CODE.cache(CursorCell);
       break;
     case "nav":
-      if (old == "edit") save_notebook()
-      // fall through
-    default:
+      if (old === "edit") save_notebook();
       CODE.clear(CursorCell)
+      break;
+    default:
+      CODE.clear(CursorCell);
   }
   renderEditor();
   render()
@@ -432,81 +439,13 @@ function setMode(m) {
  */
 function setCurrentPage(page) {
   if (!Pages.includes(page)) {
-    console.log("Error: '" + page + "' is not a valid page")
-    return
+    console.log("Error: '" + page + "' is not a valid page");
+    return;
   }
 
-  CurrentPage = page
+  CurrentPage = page;
   render()
 }
-
-// BOOTS TODO
-// - refactor into hotkeys file
-/**
- * [Global Deps]
- * `Mode`
- * `setMode`
- * `moveCursor`
- */
-$('body').keyup(function(e) {
-  switch (e.which) {
-    case 27: // esc
-      if (Mode == "edit") setMode("nav")
-      else                setMode("view")
-      break;
-    case 38: // up
-      if (Mode == "edit") break;
-      moveCursor(-1);
-      break;
-    case 40: // down
-      if (Mode == "edit") break;
-      moveCursor(1);
-      break;
-  }
-})
-
-// BOOTS TODO
-// - refactor into hotkeys file
-/**
- * [Global Deps]
- * `Mode`
- * `setMode`
- * `moveCursor`
- * `appendCell`
- * `deleteCell`
- */
-$('body').keypress(function(e) {
-  if (Mode == "edit") return;
-
-  switch (e.which) {
-    case 101:
-      setMode("edit");
-      e.preventDefault();
-      break;
-    case 107: //k
-    case 113: //q
-      moveCursor(-1);
-      e.preventDefault();
-      break;
-    case 106: //j
-    case 97:  //a
-      moveCursor(1);
-      e.preventDefault();
-      break;
-    case 99: //c
-      appendCell('code');
-      e.preventDefault();
-      break;
-    case 109: //m
-      appendCell('markdown');
-      e.preventDefault();
-      break;
-    case 120: //x
-      deleteCell();
-      e.preventDefault();
-      break;
-  }
-});
 
 // BOOTS ??? !!!
 // - router stuff
@@ -953,12 +892,16 @@ function loadMatplot(callback) {
 // for other files to access state from this module.
 
 module.exports = {
+  appendCell      : appendCell,
   cursor          : cursor,
+  deleteCell      : deleteCell,
   displayClass    : displayClass,
   getCODE         : () => CODE,
   getiPython      : () => iPython,
   getMode         : () => Mode,
   getPeerPresence : () => peerPresence,
+  moveCursor      : moveCursor,
   resetToStarterNotebook: resetToStarterNotebook,
   setCurrentPage: setCurrentPage,
+  setMode: setMode,  
 };
