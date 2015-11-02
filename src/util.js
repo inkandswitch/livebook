@@ -2,11 +2,17 @@ var marked = require("marked")
 
 module.exports = {
   asyncRunParallel: asyncRunParallel,
+  deepClone       : deepClone,
   noop            : () => {},
   rawMarkup       : rawMarkup,
   $resultToHtml   : $resultToHtml,
   zip             : zip,
 };
+
+function deepClone(o) {
+  // Hack
+  return JSON.parse(JSON.stringify(o));
+}
 
 function rawMarkup(lines) {
   return {

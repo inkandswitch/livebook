@@ -19,6 +19,7 @@ require("./charts");  // Assigns the charts
 
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
+var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
 var $resultToHtml    = require("./util").$resultToHtml;
 var zip              = require("./util").zip;
@@ -548,13 +549,11 @@ function handle_error(lineno_map, e) {
  * `render`
  */
 function resetToStarterNotebook() {
-  // BOOTS TODO - write a deep clone
-  // hack to deep clone
-  iPython = JSON.parse(JSON.stringify(starterNotebook))
+  iPython = deepClone(starterNotebook);
 
-  setCurrentPage("notebook")
+  setCurrentPage("notebook");
 
-  render() // TODO prevent python_eval until this is done
+  render(); // TODO prevent python_eval until this is done
 }
 
 /**
@@ -769,17 +768,17 @@ function loadMatplot(callback) {
 // for other files to access state from this module.
 
 module.exports = {
-  appendCell      : appendCell,
-  cursor          : cursor,
-  deleteCell      : deleteCell,
-  displayClass    : displayClass,
-  get$cell        : () => $cell,
-  getCODE         : () => CODE,
-  getiPython      : () => iPython,
-  getMode         : () => Mode,
-  getPeerPresence : () => peerPresence,
-  moveCursor      : moveCursor,
-  resetToStarterNotebook: resetToStarterNotebook,
-  setCurrentPage: setCurrentPage,
-  setMode: setMode,  
+  appendCell             : appendCell,
+  cursor                 : cursor,
+  deleteCell             : deleteCell,
+  displayClass           : displayClass,
+  get$cell               : () => $cell,
+  getCODE                : () => CODE,
+  getiPython             : () => iPython,
+  getMode                : () => Mode,
+  getPeerPresence        : () => peerPresence,
+  moveCursor             : moveCursor,
+  resetToStarterNotebook : resetToStarterNotebook,
+  setCurrentPage         : setCurrentPage,
+  setMode                : setMode,  
 };
