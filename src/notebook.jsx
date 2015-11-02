@@ -10,7 +10,7 @@ var peerPresence = [
 ]
 
 var update_peers = function() {
-  console.log("FELLOWS",cradle.peers())
+  console.log("---> update FELLOWS",cradle.peers())
   peerPresence = cradle.peers()
   React.render(<Collaborators />, collaboratorsMount);
 }

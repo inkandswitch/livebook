@@ -14,17 +14,16 @@ import (
 )
 
 type Session struct {
-	SessionID SessionID
-	UpdatedOn int64
-	CreatedOn int64
-	Active    bool
+	SessionID SessionID `json:"session_id"`
+	UpdatedOn int64     `json:"updated_on"`
+	CreatedOn int64     `json:"created_on"`
+	Active    bool      `json:"active"`
 	messages  map[SessionID][]string
 	reply     *func()
 }
 
 func (s *Session) Reply() {
 	if s.reply != nil {
-		fmt.Printf("REPLY s=%v\n",s.SessionID)
 		(*s.reply)()
 		s.reply = nil
 	}
@@ -54,7 +53,7 @@ type put struct {
 
 type CradleState struct {
 	SessionID SessionID              `json:"session_id"`
-	Sessions  []SessionID            `json:"sessions"`
+	Sessions  []*Session             `json:"sessions"`
 	Messages  map[SessionID][]string `json:"messages"`
 }
 
@@ -75,7 +74,7 @@ func (c *Cradle) handler() {
 	for {
 		select {
 		case <-ticker:
-//			c.cleanup()
+			//			c.cleanup()
 		case event := <-c.events:
 			event()
 		}
@@ -90,33 +89,31 @@ func (c *Cradle) Put(group_id string, from string, to string, message string) {
 func (c *Cradle) cleanup() {
 	for _, v := range c.Sessions {
 		for _, session := range v {
-			fmt.Printf("Cleanup\n")
 			session.Reply()
 		}
 	}
 }
 
-func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID) (*Session,bool) {
-	session := c.session(group_id,session_id)
+func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID) (*Session, bool) {
+	session := c.session(group_id, session_id)
 	now := time.Now().Unix()
 	init := false
 	if session == nil {
-		session_id = SessionID(randomString(6))
-		fmt.Printf("creating session %v\n",session_id)
+		session_id = SessionID(randomString(6)[0:4])
 		session = &Session{SessionID: session_id, CreatedOn: now, messages: map[SessionID][]string{}}
-		c.Sessions[group_id] = append(c.Sessions[group_id],session)
+		c.Sessions[group_id] = append(c.Sessions[group_id], session)
 		init = true
 	}
 	session.UpdatedOn = now
-	return session,init
+	return session, init
 }
 
 func (c *Cradle) session(group_id GroupID, session_id SessionID) *Session {
 	if c.Sessions[group_id] == nil {
 		c.Sessions[group_id] = []*Session{}
 	}
-	for _,session := range c.Sessions[group_id] {
-		if (session.SessionID == session_id) {
+	for _, session := range c.Sessions[group_id] {
+		if session.SessionID == session_id {
 			return session
 		}
 	}
@@ -128,16 +125,15 @@ func (c *Cradle) sessionDo(group_id GroupID, session_id SessionID, f func(*Sessi
 	if session != nil {
 		f(session)
 	} else {
-		fmt.Printf("missing session_id=%v\n",session_id)
+		fmt.Printf("missing session_id=%v\n", session_id)
 	}
 }
 
 func (c *Cradle) handlePut(put put) {
 	fmt.Printf("handle put %v\n", put)
 
-	c.sessionDo(put.group_id,put.to,func(session *Session) {
+	c.sessionDo(put.group_id, put.to, func(session *Session) {
 		session.messages[put.from] = append(session.messages[put.from], put.message)
-		fmt.Printf("Put new message")
 		session.Reply()
 	})
 }
@@ -151,23 +147,14 @@ func (c *Cradle) Get(group_id string, name string, session_id string, closer <-c
 func (c *Cradle) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
 
-	session,init := c.sessionTouch(get.group_id, get.session_id)
+	session, init := c.sessionTouch(get.group_id, get.session_id)
 	session.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
-		update := &CradleState{Sessions: []SessionID{}, Messages: session.messages, SessionID: session.SessionID}
+		update := &CradleState{Sessions: c.Sessions[get.group_id][:], Messages: session.messages, SessionID: session.SessionID}
 		session.messages = map[SessionID][]string{}
-
-		for _,s := range c.Sessions[get.group_id] {
-//			if s.SessionID != session.SessionID && s.CreatedOn < session.CreatedOn {
-				update.Sessions = append(update.Sessions, s.SessionID)
-//			}
-		}
-
-		fmt.Printf("Sessions=%v\n",update.Sessions)
-
 		success <- true
 		get.reply <- update
 	}
@@ -189,10 +176,8 @@ func (c *Cradle) handleGet(get get) {
 	}()
 
 	if len(session.messages) > 0 || init {
-		fmt.Printf("reply now\n")
 		reply()
 	} else {
-		fmt.Printf("save for later\n")
 		session.Active = false
 		session.reply = &reply
 	}

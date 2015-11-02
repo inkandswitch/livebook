@@ -18,26 +18,19 @@ var vals = (obj) => Object.keys(obj).map((k) => obj[k])
 // 2b <---- reply1, reply2, reply3
 // 3c ----> please alert me to any new offers! (exits? arrivals?) (long poll? / websocket?)
 
+var now = () => Math.round(Date.now() / 1000)
+var age = (t) => now() - t
+
 function notice(desc) {
   return function(event) { console.log("notice:" + desc,event) }
 }
 
-function newPeer(name) {
-  var peer = {id: name, state: "new" }
+function newPeer(session_id) {
+  var peer = {id: session_id, state: "new"}
 
-  peer.status = function() {
-    switch (peer.webrtc.iceConnectionState) {
-      case 'disconnected':
-        return 'departing';
-      case 'new':
-        return 'arriving';
-      case 'connected':
-      case 'completed':
-        return 'here';
-      default:
-        console.log("ICE STATE: " + peer.webrtc.iceConnectionState)
-        return 'arriving';
-    }
+  peer.set_session = function(s) {
+    peer.session_record = s
+    peer.update_state()
   }
 
   peer.setupPeer = function() {
@@ -48,38 +41,89 @@ function newPeer(name) {
         put(peer.id, event.candidate) // FIXME
       }
     }
+
     webrtc.oniceconnectionstatechange = function(event) {
       console.log("notice:statechange",webrtc.iceConnectionState, event)
-      if (webrtc.iceConnectionState == 'disconnected') {
-//        peer.state = "closed"
-        delete Connected[name]
-        if (Depart) { Depart(name) }
-      }
-      if (webrtc.iceConnectionState == 'connected' || webrtc.iceConnectionState == 'completed') {
-        Connected[name] = peer
-        if (Arrival) { Arrival(name) }
-      }
+      peer.update_state()
     }
+
     webrtc.onconnecting   = notice("onconnecting")
     webrtc.onopen         = notice("onopen")
     webrtc.onaddstream    = notice("onaddstream")
     webrtc.onremovestream = notice("onremovestream")
     webrtc.ondatachannel  = function(event) {
       console.log("new data channel") // receiver sees this!
-      peer.state = "ready"
-      peer.data = event.channel
-      peer.data.onmessage = msg => process_message(webrtc,JSON.parse(msg.data))
-//      if (Arrival) Arrival(peer)
+      peer.data_channel = event.channel
+      peer.data_channel.onmessage = msg => process_message(webrtc,JSON.parse(msg.data))
+      peer.update_state()
     }
     peer.webrtc = webrtc
+  }
+
+  peer.update_state = function() {
+    var old_state = peer.state
+    var new_state = peer.calculate_state()
+    if (old_state != new_state) {
+      console.log("--DIFF--old/new",old_state,new_state)
+      peer.state = new_state
+      switch (peer.state) {
+        case "connected":
+          if (Arrival) Arrival(peer)
+          break
+        case "disconnected":
+          if (Depart) { Depart(peer) }
+          break
+        case "closed":
+          console.log("x - peer is gone - deleting",peer.id)
+          if (Depart) { Depart(peer) } // FIXME - doesnt this need its own event type?
+          delete Peers[peer.id]
+        default:
+          console.log("------ unknown state",peer.state)
+      }
+    } else {
+      console.log("--SAME--old/new",old_state,new_state)
+    }
+  }
+
+  peer.calculate_state = function() {
+    if (peer.data_channel) {
+      console.log("--> data-connected",peer.id)
+      return "connected"       // data-connected
+    }
+
+    switch (peer.webrtc.iceConnectionState) {
+      case 'new':
+      case 'checking':
+      case 'disconnected':
+      case 'failed':
+        break                  // return 'arriving';
+      case 'connected':
+      case 'completed':
+        console.log("--> webrtc-connected",peer.id)
+        return 'connected'     // webrtc-connected
+      default:
+        console.log("ICE STATE UNKNOWN: " + peer.webrtc.iceConnectionState)
+    }
+
+    if (peer.session_record.active || age(peer.session_record.updated_on) < 5) {
+        console.log("--> server-connected",peer.id)
+        return 'connected'     // server-connected
+    } else if (!peer.session_record.active && age(peer.session_record.updated_on) < 10) {
+        console.log("--> disconnected",peer.id, age(peer.session_record.updated_on))
+        return 'disconnected'  // disconnected
+    } else {
+        console.log("--> closed",peer.id)
+        console.log("closed active",peer.session_record.active,"age",age(peer.session_record.updated_on))
+        return 'closed'
+    }
   }
 
   peer.setupPeer()
 
   peer.send = function(obj) {
-    console.log("SEND:",obj,"to",peer.data)
+    console.log("SEND:",obj,"to",peer.data_channel)
     try {
-      peer.data.send(JSON.stringify(obj))
+      peer.data_channel.send(JSON.stringify(obj))
     } catch(e) {
       console.log("error sending message",e)
     }
@@ -106,7 +150,6 @@ function newPeer(name) {
         });
       }
       if (signal.sdp) {
-        peer.state = "setremote"
         peer.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
           console.log("Error setRemoteDescription",e)
         })
@@ -116,36 +159,17 @@ function newPeer(name) {
     })
   }
 
-/*
-  peer.get = function() {
-    $.ajax(URL, {
-      contentType: "application/json; charset=UTF-8",
-      method: "get",
-      dataType: "json",
-      success: function(data) {
-        peer.process(data)
-        peer.get()
-      },
-      error: function(e) {
-        console.log("Fail to get",URL,e)
-      }
-    });
-  }
-*/
-
   peer.offer = function() {
-    peer.data           = peer.webrtc.createDataChannel("datachannel",{reliable: false});
-    peer.data.onmessage = notice("data:message")
-    peer.data.onclose   = notice("data:onclose")
-    peer.data.onerror   = notice("data:error")
-    peer.data.onopen    = function(event) {
+    var data = peer.webrtc.createDataChannel("datachannel",{reliable: false});
+    data.onmessage = notice("data:message")
+    data.onclose   = notice("data:onclose")
+    data.onerror   = notice("data:error")
+    data.onopen = function(event) {
       console.log("data channel open")
-      peer.state = "ready"
-      if (Arrival) Arrival(peer)
+      peer.data_channel = data
+      peer.update_state()
     }
-    peer.state = "offering"
     peer.webrtc.createOffer(desc => {
-      peer.state = "offer-setlocal"
       peer.webrtc.setLocalDescription(desc,
         () => put(peer.id,desc),
         e  => console.log("error on setLocalDescription",e))
@@ -169,7 +193,7 @@ function put(target, message) {
 }
 
 function get() {
-    $.ajax(URL + "?session_id=" + SessionID, {
+    $.ajax(URL + "?session=" + SessionID, {
       contentType: "application/json; charset=UTF-8",
       method: "get",
       dataType: "json",
@@ -178,14 +202,22 @@ function get() {
         SessionID = data.session_id
         var came_before_me = true
         data.sessions.forEach((session) => {
-          if (session == SessionID) came_before_me = false;
-          else if (Peers[session] == undefined) {
-            Peers[session] = newPeer(session)
-            if (came_before_me) Peers[session].offer()
+          console.log(session)
+          if (session.session_id == SessionID) came_before_me = false;
+          else if (Peers[session.session_id] == undefined) {
+            Peers[session.session_id] = newPeer(session.session_id)
+            Peers[session.session_id].set_session(session)
+
+            // TODO - make cleaner - Im deleting from Peers on close - can happen in set_session() for defunct connections
+            if (came_before_me && Peers[session.session_id]) Peers[session.session_id].offer()
+          } else {
+            Peers[session.session_id].set_session(session)
           }
         })
+        console.log("Peers",Peers)
         for (let from in data.messages) {
-          Peers[from].process(data.messages[from])
+          console.log("from",from)
+          if (Peers[from]) Peers[from].process(data.messages[from])
         }
         setTimeout(get,500)
       },
@@ -196,9 +228,18 @@ function get() {
 }
 
 module.exports.peers = function() {
-  var peers = [ {name:"Me", status: "here" }]
+  var peers = [ {name:`Me (${SessionID})`, status: "here" }]
+  console.log("Peers",Peers)
   Object.keys(Peers).forEach((key) => {
-    peers.push({name:key, status:Peers[key].status() })
+    if (Peers[key].state == "connected") {
+      console.log("ID",key,"connected")
+      peers.push({name:key, status:"here"})
+    } else if (Peers[key].state == "disconnected") {
+      console.log("ID",key,"departing")
+      peers.push({name:key, status:"departing"})
+    } else {
+      console.log("ID",key,"unknown...",Peers[key].state)
+    }
   })
   return peers
 }
@@ -216,5 +257,12 @@ module.exports.join = function(url) {
   URL = url
   get()
 }
+
+setInterval(function() {
+  //console.log("checking (n) peers",Object.keys(Peers).length)
+  for (let session_id in Peers) {
+    Peers[session_id].update_state()
+  }
+},3000)
 
 module.exports.hello = "World"
