@@ -28,7 +28,7 @@ var Cell = React.createClass({
       // enable cursor movement
       setMode("nav");
     }
-    moveCursor(delta);
+    moveCursor(delta, {noScroll: true});
     // set mode to edit
     setMode("edit");      
   },
