@@ -224,8 +224,8 @@ function renderEditor() {
   }
   // BOOTS TODO
   // - use `let`
-  var height = $(".switch")[CursorCell].offsetHeight + "px"
-  var width  = $(".switch")[CursorCell].offsetWidth  + "px"
+  var height = getEditorHeight();
+  var width  = getEditorWidth();
   var lang   = iPython.cells[CursorCell].cell_type === "code" ? "python" : "markdown"
   var value  = iPython.cells[CursorCell].source.join("")
   var change = onChangeFunc(CursorCell)
@@ -233,23 +233,64 @@ function renderEditor() {
 
   // BOOTS TODO
   // - write a convenience method for this
-  var dom    = <AceEditor className="editor" mode={lang} height={height} width={width} value={value} theme="github" onChange={change} name="editX" editorProps={{$blockScrolling: true}} onBeforeLoad={onBeforeLoad}/>
-  React.render(dom, editorMount);
+  var editorOptions = {
+    lang: lang,
+    height: height,
+    width: width,
+    value: value,
+    change: change,
+    onBeforeLoad: onBeforeLoad,
+    onLoad: () => { if (editor) editor.moveCursorTo(0, 0) },
+  };
+
+  React.render(createAceEditor(editorOptions), editorMount);
 
   // Position editor
-  var pos = cellPosition();
+  // var pos = cellPosition();
   $("#editX")
-    .css("top", pos.top)
+    // .css("top", pos.top)
     // .css("left", pos.left)
+    .css("margin-top", 80)
     .show();
 
   editor = ace.edit("editX")
   editor.focus()
   editor.moveCursorTo(0,0);
   editor.getSession().setUseWrapMode(true);
+
   // TODO if type==code?
   python_eval()
 
+}
+
+function createAceEditor(options) {
+  var lang = options.lang,
+      height = options.height,
+      width = options.width,
+      value = options.value,
+      change = options.change,
+      onBeforeLoad = options.onBeforeLoad,
+      onLoad = options.onLoad;
+
+  return (
+    <AceEditor className="editor" name="editX" 
+      mode={lang} value={value} 
+      height={height} width={width} 
+      theme="github" onChange={change} 
+      showGutter={false} 
+      editorProps={{$blockScrolling: true,}} 
+      onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
+  );
+}
+
+function getEditorHeight() {
+  var offsetHeight = $(".switch")[CursorCell].offsetHeight;
+  return Math.max(offsetHeight, 200) + "px"; 
+}
+
+function getEditorWidth() {
+  var containerWidth = $(".editor-container").width();
+  return Math.floor(containerWidth);
 }
 
 /**
@@ -776,10 +817,12 @@ module.exports = {
   get$cell               : () => $cell,
   getCODE                : () => CODE,
   getCursorCell          : () => CursorCell,
+  getEditor              : () => editor,
   getiPython             : () => iPython,
   getMode                : () => Mode,
   getPeerPresence        : () => peerPresence,
   moveCursor             : moveCursor,
+  renderEditor           : renderEditor,
   resetToStarterNotebook : resetToStarterNotebook,
   setCurrentPage         : setCurrentPage,
   setMode                : setMode,  
