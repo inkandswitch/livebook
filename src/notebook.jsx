@@ -6,6 +6,7 @@
  * `$cell`
  * `CurrentCursor`
  * `ERROR_MARKER_IDS`
+ * `ERROR_CELL_CLASSNAME`
  */
 
 var $          = require("jquery")
@@ -26,6 +27,7 @@ var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
+var ERROR_CELL_CLASSNAME = "cell-syntax-error";
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -191,6 +193,7 @@ function displayClass(cell) {
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
     iPython.cells[i].source = e.split("\n").map( s => s + "\n")
+    $("[data-cell-index]").removeClass(ERROR_CELL_CLASSNAME);
     if (iPython.cells[i].cell_type === "code") {
       // clear error lines?
       editor.getSession()
@@ -610,6 +613,10 @@ function handle_error(lineno_map, e) {
       .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
 
     ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
+
+    // highlight the offending rendered cell
+    $("[data-cell-index='" + err_at.cell + "']").addClass(ERROR_CELL_CLASSNAME)
+    // $("[data-cell-index='" + CursorCell + "']").addClass("blahblah")
   }
 }
 
