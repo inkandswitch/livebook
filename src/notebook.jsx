@@ -542,13 +542,15 @@ window.onpopstate = function(event) {
  * `handle_error`
  * `render`
  */
-var python_eval = function() {
+function python_eval() {
   var lines = [];
   var lineno = 0;
   var lineno_map = {}; // keeps track of line number on which to print error
   iPython.cells.forEach((c, i) => {
     if (c.cell_type == "code") {
-      editor.getSession().clearAnnotations()
+      if (editor && editor.getSession) {
+        editor.getSession().clearAnnotations()        
+      }
 
       lines.push("mark("+i+")\n")
 
@@ -795,9 +797,7 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
 function initializeEditor() {
   setMode("nav");
   moveCursor(0);
-  setMode("edit");
-  renderEditor();
-  setMode("nav");
+  python_eval(); // draws charts
 }
 
 // BOOTS
