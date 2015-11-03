@@ -841,8 +841,9 @@ function loadMatplot(callback) {
 function initializeEditor() {
   setMode("nav");
   moveCursor(0);
-  renderEditor();
   setMode("edit");
+  renderEditor();
+  setMode("nav");
 }
 
 // BOOTS
