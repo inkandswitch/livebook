@@ -13,16 +13,32 @@ function requireGlobalDeps() {
  */
 var Cell = React.createClass({
 
+  enterEditMode() {
+    var moveCursor = requireGlobalDeps().moveCursor;
+    var setMode    = requireGlobalDeps().setMode;
+
+    // move cursor to the clicked cell
+    var clickedCell = this.props.index;
+    var cursorCell  = requireGlobalDeps().getCursorCell();
+    var delta       = clickedCell - cursorCell;
+    moveCursor(delta);
+
+    // set mode to edit
+    setMode("edit");
+  },
+
   subcell() {
-    if (this.props.data.cell_type === "markdown")
-      return <MarkdownCell data={this.props.data} index={this.props.index}/>
-    else
-      return <CodeCell data={this.props.data} index={this.props.index}/>
+    if (this.props.data.cell_type === "markdown") {
+      return <MarkdownCell data={this.props.data} index={this.props.index}/>      
+    }
+    else {
+      return <CodeCell data={this.props.data} index={this.props.index}/>      
+    }
   },
 
   render() {
     var cursor = requireGlobalDeps().cursor;
-    return <div className={cursor(this.props.index)}> {this.subcell()} </div>
+    return <div className={cursor(this.props.index)} onClick={this.enterEditMode}> {this.subcell()} </div>
   },
 
 });
