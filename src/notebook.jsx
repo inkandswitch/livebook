@@ -255,7 +255,7 @@ function renderEditor() {
     value: value,
     change: change,
     onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (editor) editor.moveCursorTo(0, 0) },
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
 
   React.render(createAceEditor(editorOptions), editorMount);
@@ -278,6 +278,7 @@ function renderEditor() {
       editor.getSession().removeMarker(id);
     });
   };
+
   // TODO if type==code?
   python_eval()
 
@@ -359,6 +360,7 @@ function render() {
  * 
  */
 function moveCursor(delta, options) {
+  options = Object.assign({}, options);
   if (Mode === "edit") return;
   if (Mode === "view") { setMode("nav"); return }
 
@@ -788,6 +790,13 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     starterNotebook = data
     resetToStarterNotebook()
   }, "json")
+}
+
+function initializeEditor() {
+  setMode("nav");
+  moveCursor(0);
+  renderEditor();
+  setMode("edit");
 }
 
 // BOOTS
