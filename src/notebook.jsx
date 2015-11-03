@@ -249,7 +249,7 @@ function renderEditor() {
     value: value,
     change: change,
     onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (editor) editor.moveCursorTo(0, 0) },
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
 
   React.render(createAceEditor(editorOptions), editorMount);
@@ -272,6 +272,7 @@ function renderEditor() {
       editor.getSession().removeMarker(id);
     });
   };
+
   // TODO if type==code?
   python_eval()
 
@@ -353,6 +354,7 @@ function render() {
  * 
  */
 function moveCursor(delta, options) {
+  options = Object.assign({}, options);
   if (Mode === "edit") return;
   if (Mode === "view") { setMode("nav"); return }
 
@@ -794,11 +796,17 @@ asyncRunParallel([loadPandas, loadPyPlot, loadMatplot], function(err, results) {
       parse_raw_notebook()
       setCurrentPage("notebook")
       cradle.join(document.location + ".rtc")
+
+      initializeEditor();
+
     }, "json")
   } else {
     $.get("/starter.ipynb",function(data) {
       starterNotebook = data
       resetToStarterNotebook()
+
+      initializeEditor();
+
     }, "json")
   }
 });
@@ -828,6 +836,13 @@ function loadMatplot(callback) {
   }).fail(function() {
     callback(new Error("matplotlib.js failed to load from server."));
   });
+}
+
+function initializeEditor() {
+  setMode("nav");
+  moveCursor(0);
+  renderEditor();
+  setMode("edit");
 }
 
 // BOOTS
