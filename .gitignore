@@ -1,6 +1,7 @@
 node_modules
 example
 npm-debug.log
+src/pyload.js
 bower_components
 bundle.js
 .DS_Store

@@ -1,1 +1,1 @@
-var notebookState = require("./notebook.jsx");
+var notebookState = require("./notebook");

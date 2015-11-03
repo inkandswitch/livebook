@@ -36,16 +36,5 @@ var $builtinmodule = function() {
   mod.yticks = new Sk.builtin.func(function(self,a,b) {
     return 100
   })
-  mod.Stack = Sk.misceval.buildClass(mod, function($gbl, $loc) {
-    $loc.__init__ = new Sk.builtin.func(function(self) {
-      self.stack = [];
-    });
-    $loc.push = new Sk.builtin.func(function(self,x) {
-      self.stack.push(x);
-    });
-    $loc.pop = new Sk.builtin.func(function(self) {
-      return self.stack.pop();
-    });
-  },'Stack', []);
   return mod
 }

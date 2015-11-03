@@ -11,7 +11,11 @@ var $          = require("jquery")
 var ace        = require("brace")
 var React      = require("react")
 var AceEditor  = require("react-ace");
+
 var cradle     = require("./cradle");
+var pyload     = require("./pyload");
+
+console.log("python",pyload.files)
 
 require("./hotkeys"); // Assigns the keyboard commands
 require("./charts");  // Assigns the charts
@@ -69,6 +73,7 @@ var indent = /^\s+/
  * `Sk`
  */
 function pyLoad(x) {
+  console.log("pyLoad",x)
   if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
     throw new Error("File not found: '" + x + "'");
   }
