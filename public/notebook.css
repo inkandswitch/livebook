@@ -93,8 +93,6 @@ div.notebook table {
   border-collapse: collapse;
   width: 100%;
   margin: 0;
-  margin-top: -12pt;
-  margin-bottom: 36pt;
   background: white;
 }
 div.notebook th,
@@ -164,14 +162,14 @@ div.notebook hr {
 div.cursor {
   margin-left: -24pt;
   padding-left: 12pt;
-  border-left: 12pt solid #D6F717;
+  border-left: 12pt solid #2A64C7;
 }
 
 div.cursor-edit {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  border-left: 12pt solid #D6F717;
+  border-left: 12pt solid #2A64C7;
   margin-left: -12pt;
   margin-bottom: 9pt;
 }
@@ -192,19 +190,16 @@ div.pyresult:before {
 div.pyresult {
   font-family: Menlo, monospace;
   white-space: pre;
-  border: 1px solid #99c0ff;
+  border: 1px solid #ccc;
   border-radius: 2px;
-  background: #f7faff;
+  background: #eee;
   padding: 8pt;
   font-size: 10pt;
-  color: #2A64C7;
-  margin-top: -24pt;
-  margin-bottom: 36pt;
+  overflow: hidden;
 }
 
 div.plot {
   margin-left: 90px;
-  margin-top: -20pt;
 }
 
 #menu {
