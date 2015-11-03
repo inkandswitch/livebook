@@ -5,10 +5,12 @@
  * `Mode`
  * `$cell`
  * `CurrentCursor`
+ * `ERROR_MARKER_IDS`
  */
 
 var $          = require("jquery")
 var ace        = require("brace")
+var Range      = ace.acequire('ace/range').Range;
 var React      = require("react")
 var AceEditor  = require("react-ace");
 var cradle     = require("./cradle");
@@ -22,6 +24,8 @@ var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
+
+var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -187,7 +191,11 @@ function displayClass(cell) {
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
     iPython.cells[i].source = e.split("\n").map( s => s + "\n")
-    if (iPython.cells[i].cell_type === "code") python_eval();
+    if (iPython.cells[i].cell_type === "code") {
+      // clear error lines?
+      editor.getSession()
+      python_eval();
+    }
     if (iPython.cells[i].cell_type === "markdown") render();
   }
 }
@@ -227,8 +235,8 @@ function renderEditor() {
   // - use `let`
   var height = getEditorHeight();
   var width  = getEditorWidth();
-  var lang   = iPython.cells[CursorCell].cell_type === "code" ? "python" : "markdown"
-  var value  = iPython.cells[CursorCell].source.join("")
+  var lang   = iPython.cells[CursorCell].cell_type === "code" ? "python" : "markdown";
+  var value  = iPython.cells[CursorCell].source.join("");
   var change = onChangeFunc(CursorCell)
   var onBeforeLoad = noop;
 
@@ -247,24 +255,30 @@ function renderEditor() {
   React.render(createAceEditor(editorOptions), editorMount);
 
   // Position editor
-  // var pos = cellPosition();
+  var pos = cellPosition();
   $("#editX")
-    // .css("top", pos.top)
-    // .css("left", pos.left)
-    .css("margin-top", 80)
+    .css("top", pos.top)
     .show();
 
   editor = ace.edit("editX")
   editor.focus()
-  editor.moveCursorTo(0,0);
+  editor.moveCursorTo(0, 0);
   editor.getSession().setUseWrapMode(true);
 
+  // TEMP for testing
+  global.EDITOR = editor;
+  global.REMOVE_MARKERS = () => {
+    ERROR_MARKER_IDS.forEach((id) => {
+      editor.getSession().removeMarker(id);
+    });
+  };
   // TODO if type==code?
   python_eval()
 
 }
 
 function createAceEditor(options) {
+  options = Object.assign({}, options);
   var lang = options.lang,
       height = options.height,
       width = options.width,
@@ -343,7 +357,9 @@ function moveCursor(delta, options) {
   if (Mode === "view") { setMode("nav"); return }
 
   var newCursor = CursorCell + delta;
-  if (newCursor >= iPython.cells.length || newCursor < 0) return;
+  if (newCursor >= iPython.cells.length || newCursor < 0) {
+    return;
+  }
   CursorCell = newCursor;
   render();
 
@@ -574,13 +590,22 @@ var python_eval = function() {
  */
 function handle_error(lineno_map, e) {
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
-  var msg = Sk.ffi.remapToJs(e.args)[0]
-  if (err_at.cell == CursorCell) {
+  var msg = Sk.ffi.remapToJs(e.args)[0];
+
+  console.log("Hi! err_at:", err_at);
+
+  if (err_at.cell === CursorCell) {
     editor.getSession().setAnnotations([{
       row: err_at.line,
       text: msg,
       type: "error" // also warning and information
     }]);
+
+    var markerId = editor
+      .getSession()
+      .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
+
+    ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
   }
 }
 

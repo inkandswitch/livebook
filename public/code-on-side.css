@@ -18,7 +18,7 @@ div.editor-container {
   float: left;
   height: 100%;
   right: 0;
-  position: fixed;
+  position: absolute;
   width: 40%;
   width: 40vw;
 }
