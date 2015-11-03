@@ -1,6 +1,6 @@
 var fs = require("fs")
 
-var files = []
+var files
 
 function load_py(dir) {
   fs.readdirSync(dir.join('/')).forEach((file) => {
@@ -13,16 +13,23 @@ function load_py(dir) {
   })
 }
 
-load_py(["skulpt"])
+function generate_pyload() {
+  files = []
+  load_py(["skulpt"])
 
-var body = [ "var f = []",""]
-files.forEach((file) => body.push('Sk.builtinFiles["files"]["' + file + '"] = require("raw!' + file  + '");'))
-body.push('')
-files.forEach((file) => body.push('f.push("' + file + '")'))
-body.push('')
-body.push('module.exports = { files: f }')
-fs.writeFileSync("src/pyload.js", body.join("\n"))
-console.log("imported skulpt files",files)
+  var body = [ "var f = []",""]
+  files.forEach((file) => body.push('Sk.builtinFiles["files"]["' + file + '"] = require("raw!' + file  + '");'))
+  body.push('')
+  files.forEach((file) => body.push('f.push("' + file + '")'))
+  body.push('')
+  body.push('module.exports = { files: f }')
+  fs.writeFileSync("src/pyload.js", body.join("\n"))
+//  console.log("imported skulpt files",files)
+}
+
+generate_pyload()
+
+setInterval(generate_pyload,5000)
 
 module.exports = {
     entry: "./src/index.js",
