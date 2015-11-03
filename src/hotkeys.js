@@ -52,7 +52,6 @@ $('body').keypress(function(e) {
   var deleteCell = deps.deleteCell;
 
   switch (e.which) {
-    case 101: //e
     case 13:  //enter
       setMode("edit");
       break;
