@@ -21,3 +21,14 @@ div.editor-container {
   position: absolute;
   width: 40%;
 }
+
+/* hide code */
+div.notebook div.codewrap {
+  display: none;
+}
+
+/* hide yield images from view */
+/* (we're still relying on the amount of space they take up in the layout) :D */
+div.notebook .yields img {
+  opacity: 0;
+}
