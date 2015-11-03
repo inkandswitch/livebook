@@ -8,6 +8,7 @@ div.notebook {
   float: left;
   position: absolute;
   width: 60%;
+  width: 60vw;
 }
 
 div.editor-container {
@@ -16,10 +17,12 @@ div.editor-container {
   box-sizing: border-box;
   float: left;
   height: 100%;
-  left: 60%;
-  left: calc(60% + 2px);
+  left: 60vw;
+  left: calc(60vw + 2px);
+  right: 0;
   position: absolute;
   width: 40%;
+  width: 40vw;
 }
 
 /* hide code */
@@ -31,4 +34,10 @@ div.notebook div.codewrap {
 /* (we're still relying on the amount of space they take up in the layout) :D */
 div.notebook .yields img {
   opacity: 0;
+}
+
+/* specificity necessary to override injected styles */
+div.ace-github,
+div.ace-content {
+  background: transparent;
 }
