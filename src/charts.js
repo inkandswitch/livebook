@@ -4,25 +4,10 @@ function requireGlobalDeps() {
   return require("./notebook.jsx");
 }
 
-var _plot = function() {}
+var _plot_generated_ = function() {}
 
-/**
- * [Global Deps]
- * `_plot`
- */
-window.__plot2 = function(X,Y,colorName) {
-  _plot(X,Y,colorName)
-}
-
-/**
- * [Global Deps]
- * `iPython`
- * `$cell`
- * `d3`
- * `zip`
- * `_plot`
- */
-window.__plot1 = function(xmax,ymax) {
+var _plot_d3_ = function(xmax,ymax) {
+  console.log("PLOT1",xmax,ymax)
   var iPython = requireGlobalDeps().getiPython(),
       $cell   = requireGlobalDeps().get$cell();
 
@@ -97,7 +82,7 @@ window.__plot1 = function(xmax,ymax) {
         .text(function(d) { return d; });
 
   var n = 0
-  _plot = function(X, Y, colorName) {
+  _plot_generated_ = function(X, Y, colorName) {
     var color = d3.rgb(colorName);
     n++;
     svg.selectAll(".dot" + n)
@@ -114,4 +99,16 @@ window.__plot1 = function(xmax,ymax) {
           console.log("click", d, i);
         })
   }
+}
+Sk.builtins["__figure_js__"] = function(xmax,ymax) {
+  var $xmax = Sk.ffi.remapToJs(xmax)
+  var $ymax = Sk.ffi.remapToJs(ymax)
+  _plot_d3_($xmax,$ymax)
+}
+
+Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
+  var $X = Sk.ffi.remapToJs(X)
+  var $Y = Sk.ffi.remapToJs(Y)
+  var $ColorName = Sk.ffi.remapToJs(ColorName)
+  _plot_generated_($X,$Y,$ColorName)
 }
