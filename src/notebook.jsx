@@ -296,7 +296,7 @@ function render() {
  * `render`
  * 
  */
-function moveCursor(delta) {
+function moveCursor(delta, options) {
   if (Mode === "edit") return;
   if (Mode === "view") { setMode("nav"); return }
 
@@ -304,7 +304,11 @@ function moveCursor(delta) {
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
   render();
-  $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
+
+  // allows us to disable auto scrolling on the click events
+  if (!options.noScroll) {
+    $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
+  }
 }
 
 /**
