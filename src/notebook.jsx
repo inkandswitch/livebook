@@ -187,7 +187,8 @@ function displayClass(cell) {
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
     iPython.cells[i].source = e.split("\n").map( s => s + "\n")
-    if (iPython.cells[i].cell_type == "code") python_eval()
+    if (iPython.cells[i].cell_type === "code") python_eval();
+    if (iPython.cells[i].cell_type === "markdown") render();
   }
 }
 
