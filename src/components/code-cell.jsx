@@ -50,7 +50,7 @@ var CodeCell = React.createClass({
 
   render() {
     return (
-      <div className="cell">
+      <div className="cell" data-cell-index={this.props.index}>
         <div className="switch">
           <div className="codewrap">
             {this.code()}
