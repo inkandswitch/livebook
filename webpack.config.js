@@ -5,7 +5,7 @@ var files = []
 function load_py(dir) {
   fs.readdirSync(dir.join('/')).forEach((file) => {
     var subdir = dir.concat([file])
-    if (file.match(/\.py$/)) {
+    if (file.match(/\.(py|js)$/)) {
       files.push(subdir.slice(1).join('/'))
     } else {
       load_py(subdir)

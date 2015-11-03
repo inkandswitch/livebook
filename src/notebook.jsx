@@ -705,65 +705,19 @@ theData = [
   { 'x': 6, 'y': 5 }
 ]
 
-// BOOTS TODO
-// - separate into index.js
-/**
- * [Global Deps]
- * `iPythonRaw`
- * `DataRaw`
- * parse_raw_notebook
- * setCurrentPage
- * starterNotebook
- * resetToStarterNotebook()
- */
-asyncRunParallel([loadPandas, loadPyPlot, loadMatplot], function(err, results) {
-  if (err) {
-    console.log("Error loading python libraries!", err);
-    return;
-  }
-  results.forEach((message) => console.log(message));
-
-  if (/[/]d[/](\d*)$/.test(document.location)) {
-    $.get(document.location + ".json",function(data) {
-      iPythonRaw = data.Notebook.Body
-      DataRaw = data.DataFile.Body
-      parse_raw_notebook()
-      setCurrentPage("notebook")
-      cradle.join(document.location + ".rtc")
-    }, "json")
-  } else {
-    $.get("/starter.ipynb",function(data) {
-      starterNotebook = data
-      resetToStarterNotebook()
-    }, "json")
-  }
-});
-
-function loadPandas(callback) {
-  $.get("/pandas.js", function(js) {
-    Sk.builtinFiles["files"]["./pandas.js"] = js;
-    callback(null, "Loaded up some pandas");
-  }).fail(function() {
-    callback(new Error("pandas.js failed to load from server."));
-  });
-}
-
-function loadPyPlot(callback) {
-  $.get("/pyplot.js", function(js) {
-    Sk.builtinFiles["files"]["./matplotlib/pyplot.js"] = js;
-    callback(null, "Loaded up some pyplot");
-  }).fail(function() {
-    callback(new Error("pyplot.js failed to load from server."));
-  });
-}
-
-function loadMatplot(callback) {
-  $.get("/matplotlib.js",function(js) {
-    Sk.builtinFiles["files"]["./matplotlib.js"] = js;
-    callback(null, "Loaded up some matplot");
-  }).fail(function() {
-    callback(new Error("matplotlib.js failed to load from server."));
-  });
+if (/[/]d[/](\d*)$/.test(document.location)) {
+  $.get(document.location + ".json",function(data) {
+    iPythonRaw = data.Notebook.Body
+    DataRaw = data.DataFile.Body
+    parse_raw_notebook()
+    setCurrentPage("notebook")
+    cradle.join(document.location + ".rtc")
+  }, "json")
+} else {
+  $.get("/starter.ipynb",function(data) {
+    starterNotebook = data
+    resetToStarterNotebook()
+  }, "json")
 }
 
 // BOOTS
