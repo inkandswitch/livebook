@@ -73,7 +73,6 @@ var indent = /^\s+/
  * `Sk`
  */
 function pyLoad(x) {
-  console.log("pyLoad",x)
   if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
     throw new Error("File not found: '" + x + "'");
   }
