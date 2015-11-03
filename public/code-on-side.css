@@ -1,0 +1,23 @@
+.notebook-wrapper {
+  width: 100%;
+}
+
+div.notebook {
+  box-sizing: border-box;
+  display: inline-block;
+  float: left;
+  position: absolute;
+  width: 60%;
+}
+
+div.editor-container {
+  background: #f5f5f5;
+  border-left: solid 2px #959595;
+  box-sizing: border-box;
+  float: left;
+  height: 100%;
+  left: 60%;
+  left: calc(60% + 2px);
+  position: absolute;
+  width: 40%;
+}

@@ -240,7 +240,7 @@ function renderEditor() {
   var pos = cellPosition();
   $("#editX")
     .css("top", pos.top)
-    .css("left", pos.left)
+    // .css("left", pos.left)
     .show();
 
   editor = ace.edit("editX")
@@ -304,8 +304,6 @@ function moveCursor(delta) {
   if (newCursor >= iPython.cells.length || newCursor < 0) return;
   CursorCell = newCursor;
   render();
-  // BOOTS ???
-  // why - 80?
   $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
 }
 
@@ -574,7 +572,7 @@ var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
-    return this.props.data.cells.map((cell,index) => <Cell data={cell} index={index}/>)
+    return this.props.data.cells.map((cell,index) => <Cell data={cell} key={index} index={index}/>) // `key` prop stops React warnings in the console
   },
   render: function() {
     switch (CurrentPage) {
@@ -773,6 +771,7 @@ module.exports = {
   displayClass           : displayClass,
   get$cell               : () => $cell,
   getCODE                : () => CODE,
+  getCursorCell          : () => CursorCell,
   getiPython             : () => iPython,
   getMode                : () => Mode,
   getPeerPresence        : () => peerPresence,
