@@ -14,17 +14,23 @@ function requireGlobalDeps() {
 var Cell = React.createClass({
 
   enterEditMode() {
-    var moveCursor = requireGlobalDeps().moveCursor;
-    var setMode    = requireGlobalDeps().setMode;
+    var moveCursor  = requireGlobalDeps().moveCursor;
+
+    var currentMode = requireGlobalDeps().getMode();
+    var setMode     = requireGlobalDeps().setMode;
 
     // move cursor to the clicked cell
     var clickedCell = this.props.index;
     var cursorCell  = requireGlobalDeps().getCursorCell();
     var delta       = clickedCell - cursorCell;
-    moveCursor(delta);
 
+    if (currentMode === "edit") {
+      // enable cursor movement
+      setMode("nav");
+    }
+    moveCursor(delta);
     // set mode to edit
-    setMode("edit");
+    setMode("edit");      
   },
 
   subcell() {
