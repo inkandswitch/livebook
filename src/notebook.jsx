@@ -795,8 +795,9 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
 function initializeEditor() {
   setMode("nav");
   moveCursor(0);
-  renderEditor();
   setMode("edit");
+  renderEditor();
+  setMode("nav");
 }
 
 // BOOTS
