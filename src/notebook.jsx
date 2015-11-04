@@ -309,14 +309,12 @@ function createAceEditor(options) {
 
 function getEditorHeight() {
   var offsetHeight = $(".switch")[CursorCell].offsetHeight;
-  return offsetHeight; 
+  return offsetHeight;
 }
 
 function getEditorWidth() {
-  // var containerWidth = $(".editor-container").width();
   var mySwitch = $(".switch")[CursorCell];
-  var width = $(mySwitch).parents().find(".code").width();
-  // debugger;
+  var width = $(mySwitch).width() - 15;
   return Math.floor(width);
 }
 
@@ -328,8 +326,8 @@ function getEditorWidth() {
 function cellPosition() {
   var bodyRect = document.body.getBoundingClientRect()
   var elemRect = $(".switch")[CursorCell].getBoundingClientRect()
-  var t        = Math.round(elemRect.top  - bodyRect.top) + "px";
-  var l        = Math.round(elemRect.left - bodyRect.left) + "px";
+  var t        = Math.round(elemRect.top  - bodyRect.top) + 2 + "px";
+  var l        = Math.round(elemRect.left - bodyRect.left) + 3 + "px";
   return {
     top: t,
     left: l,

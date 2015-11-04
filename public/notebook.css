@@ -183,6 +183,11 @@ div.ace_editor {
 .ace-github .ace_gutter {
   background: #D6F717 !important;
 }
+div.ace_content {
+  padding-top: 6pt;
+  padding-left: 5pt;
+  padding-right: 8pt;
+}
 
 div.pyresult:before {
   content: "→ ";
