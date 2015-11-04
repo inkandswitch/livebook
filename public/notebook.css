@@ -365,5 +365,17 @@ div.ace-content {
 }
 
 div.pyresult-error {
-  background: lightpink;
+  background-color: #FC212C;
+  color: white;
+}
+div.pyresult-error::before {
+  content: '';
+}
+div.pyresult-error {
+  background-image: url('/bang.png');
+  background-repeat: no-repeat;
+  background-position: 6pt 4pt;
+  background-size: 20pt;
+  padding-left: 32pt;
+  box-shadow: inset 2pt 4pt 6pt 0 rgba(0,0,0,0.1);
 }
