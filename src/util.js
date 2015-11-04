@@ -28,7 +28,7 @@ function resultToHtml(result) {
   table += "<tbody>"
   result.head.forEach(h => {
     table += "<tr><th>" + h + "</th>"
-    result.body[h].forEach(d => table += "<td>" + d.toFixed(6) + "</td>")
+    result.body[h].forEach(d => table += "<td>" + d + "</td>")
     table += "</tr>"
   })
   table += "</tbody>"
@@ -42,7 +42,7 @@ function resultToHtml(result) {
   table += "<tbody>"
   result.rows.forEach(row => {
     table += "<tr><th>" + row + "</th>"
-    result.cols.forEach(col => table += "<td>" + result.data[row][col].toFixed(6) + "</td>")
+    result.cols.forEach(col => table += "<td>" + result.data[row][col] + "</td>")
     table += "</tr>"
   })
   table += "</tbody>"
