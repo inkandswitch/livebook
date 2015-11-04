@@ -1,7 +1,6 @@
 /**
  * [Global State]
  * `peerPresence`
- * `theData`
  * `Mode`
  * `$cell`
  * `CurrentCursor`
@@ -73,18 +72,13 @@ function update_peers () {
 ace.config.set("basePath", "/");
 
 var theData = null;
-var theData2 = null;
 /**
  * [Global Deps]
  * `theData` - CSV data that has been loaded.
  */
-window.__load__ = function(name) {
-  if (theData) return theData;
-  throw new Error("No CSV data loaded");
-}
 
 Sk.builtins["__load_data__"] = function(name) {
-  if (theData2) return theData2;
+  if (theData) return theData;
   throw new Error("No CSV data loaded (2)");
 }
 
@@ -153,7 +147,7 @@ function python_render(result) {
   // - if there's a result with rows, cols, and data,
   //   let's render a table and record it to the iPython object
   //   otherwise, let's render it as plaintext to the iPython object
-  if ($result && (($result.rows && $result.cols && $result.data) || ($result.head && $result.body))) { // TODO - remove legacy
+  if ($result && (($result.rows && $result.cols && $result.data) || ($result.head && $result.body))) {
     let table = resultToHtml($result);
 
     iPython.cells[$cell].outputs = [
@@ -710,18 +704,9 @@ var Notebook = React.createClass({
 function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
   iPython.cells.forEach(cell => cell.outputs = [])
-  var header = undefined // legacy
   var head = undefined
   var body = {}
   var length = 0
-  // legacy format
-  var data = d3.csv.parseRows(DataRaw,function(row) {
-    if (!header) { header = row; return }
-      var object = {}
-      row.forEach((d,i) => object[header[i]] = (+d || d)) // BOOTS TODO - this will short-circuit on 0
-      return object
-  })
-  // v2 format
   d3.csv.parseRows(DataRaw,(row) => {
     if (!head) {
       head = row;
@@ -731,9 +716,8 @@ function parse_raw_notebook() {
       row.forEach((d,i) => body[head[i]].push(+d || d)) // BOOTS TODO - this will short-circuit on '0'
     }
   })
-  theData = data
-  theData2 = Sk.ffi.remapToPy({ head: head, body: body, length: length })
-  console.log(theData2)
+  theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
+  console.log(theData)
 }
 
 // BOOTS TODO
@@ -743,7 +727,6 @@ function parse_raw_notebook() {
  * `iPythonRaw`
  * `d3`
  * `DataRaw`
- * `theData`
  */
 function post_notebook_to_server() {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})

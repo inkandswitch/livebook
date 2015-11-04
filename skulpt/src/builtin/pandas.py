@@ -74,9 +74,3 @@ class GroupBy:
 def read_csv(name):
     return DataFrame(__load_data__(name))
 
-def test():
-    d = DataFrame({"head":["a","b","c"],"body":{"a":[1,2,3],"b":[100,200,300],"c":[1000,2000,3000]},"length":3})
-    print d.describe()
-
-
-test()
