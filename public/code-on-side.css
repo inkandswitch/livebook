@@ -1,45 +1,13 @@
-.notebook-wrapper {
-  width: 100%;
-}
-
-div.notebook {
-  box-sizing: border-box;
-  display: inline-block;
-  float: left;
-  position: absolute;
-  width: 60%;
-  width: 60vw;
-}
-
-div.editor-container {
-  background: #f5f5f5;
-  border-left: solid 2px #959595;
-  box-sizing: border-box;
-  float: left;
-  height: 100%;
-  right: 0;
-  position: absolute;
-  width: 40%;
-  width: 40vw;
-}
-
-.editor-container-heading {
-  color: #888;
-  font-size: 1.2em;
-  font-weight: 600;
-  text-align: center;
-}
-
 /* hide code */
-div.notebook div.codewrap {
+/*div.notebook div.codewrap {
   display: none;
-}
+}*/
 
 /* hide yield images from view */
 /* (we're still relying on the amount of space they take up in the layout) :D */
-div.notebook .yields img {
+/*div.notebook .yields img {
   opacity: 0;
-}
+}*/
 
 div.ace_editor {
   border: none;
@@ -48,5 +16,5 @@ div.ace_editor {
 /* specificity necessary to override injected styles */
 div.ace-github,
 div.ace-content {
-  background: transparent;
+  background: #eee;
 }

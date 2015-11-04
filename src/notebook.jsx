@@ -267,6 +267,7 @@ function renderEditor() {
   var pos = cellPosition();
   $("#editX")
     .css("top", pos.top)
+    .css("left", pos.left)
     .show();
 
   editor = ace.edit("editX")
@@ -310,7 +311,7 @@ function createAceEditor(options) {
 
 function getEditorHeight() {
   var offsetHeight = $(".switch")[CursorCell].offsetHeight;
-  return Math.max(offsetHeight, 200) + "px"; 
+  return offsetHeight; 
 }
 
 function getEditorWidth() {
@@ -788,11 +789,11 @@ theData = [
 
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
-    iPythonRaw = data.Notebook.Body
-    DataRaw = data.DataFile.Body
-    parse_raw_notebook()
-    setCurrentPage("notebook")
-    cradle.join(document.location + ".rtc")
+    iPythonRaw = data.Notebook.Body;
+    DataRaw = data.DataFile.Body;
+    parse_raw_notebook();
+    setCurrentPage("notebook");
+    cradle.join(document.location + ".rtc");
   }, "json")
 } else {
   $.get("/starter.ipynb",function(data) {
@@ -800,6 +801,7 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     resetToStarterNotebook()
   }, "json")
 }
+
 
 function initializeEditor() {
   setMode("nav");
