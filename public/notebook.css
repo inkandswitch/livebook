@@ -96,14 +96,14 @@ div.notebook table {
 }
 div.notebook th,
 div.notebook td {
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   padding: 4pt 8pt;
   text-align: left;
   line-height: 19pt;
 }
 div.notebook th {
   font-size: 10pt;
-  background: #eee;
+  background: #f8f8f8;
 }
 div.notebook td {
   font-size: 12pt;
