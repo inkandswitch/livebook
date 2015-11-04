@@ -13,6 +13,7 @@ function requireGlobalDeps() {
 var Collaborators = React.createClass({
 
   renderAvatars() {
+    if (requireGlobalDeps().getPeerPresence == undefined) return [] // FIXME - circular deps
     var peerPresence = requireGlobalDeps().getPeerPresence();
     // var avatars = []
     // for (var i = 0; i < peerPresence.length; i++) {

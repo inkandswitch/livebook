@@ -26,6 +26,7 @@ var Menu = React.createClass({
   },
 
   downloadPayload() {
+    if (requireGlobalDeps().getiPython == undefined) return ""; // FIXME - circular dependancy
     var iPython = requireGlobalDeps().getiPython();
     return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
