@@ -47,7 +47,7 @@ cradle.depart(update_peers);
 function update_peers () {
   console.log("---> update FELLOWS", cradle.peers())
   peerPresence = cradle.peers();
-  React.render(<Collaborators />, collaboratorsMount); 
+  React.render(<Collaborators />, collaboratorsMount);
 }
 
 ace.config.set("basePath", "/");
@@ -64,8 +64,6 @@ window.__load__ = function(name) {
 
 var Pages = [ "notebook", "upload" ];
 var CurrentPage = "notebook";
-
-var starterNotebook = null;
 
 // these three lines came from skulpt repl.js codebase
 var importre = new RegExp("\\s*import")
@@ -194,7 +192,7 @@ function displayClass(cell) {
 /**
  * [Global Deps]
  * `iPython`
- * `python_eval` - 
+ * `python_eval` -
  */
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
@@ -299,12 +297,12 @@ function createAceEditor(options) {
       onLoad = options.onLoad;
 
   return (
-    <AceEditor className="editor" name="editX" 
-      mode={lang} value={value} 
-      height={height} width={width} 
-      theme="github" onChange={change} 
-      showGutter={false} 
-      editorProps={{$blockScrolling: true,}} 
+    <AceEditor className="editor" name="editX"
+      mode={lang} value={value}
+      height={height} width={width}
+      theme="github" onChange={change}
+      showGutter={false}
+      editorProps={{$blockScrolling: true,}}
       onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
   );
 }
@@ -361,7 +359,7 @@ function render() {
  * `iPython`
  * `CursorCell`
  * `render`
- * 
+ *
  */
 function moveCursor(delta, options) {
   options = Object.assign({}, options);
@@ -460,7 +458,7 @@ function save_notebook() {
   var data = {
     name: "Hello",
     notebook: {
-      name: "NotebookName", 
+      name: "NotebookName",
       body: iPythonRaw,
     },
   };
@@ -553,7 +551,7 @@ function python_eval() {
   iPython.cells.forEach((c, i) => {
     if (c.cell_type == "code") {
       if (editor && editor.getSession) {
-        editor.getSession().clearAnnotations()        
+        editor.getSession().clearAnnotations()
       }
 
       lines.push("mark("+i+")\n")
@@ -585,7 +583,7 @@ function python_eval() {
         console.log("native promise!",e.nativeError)
         e.nativeError.then(python_eval, function(err) { // RUH ROH RECURSION
           console.log("double error",err)
-          handle_error(lineno_map,e) // 
+          handle_error(lineno_map,e) //
         } )
       } else {
         console.log("Handle Error",e)
@@ -630,21 +628,6 @@ function handle_error(lineno_map, e) {
 /**
  * [Global Deps]
  * `iPython`
- * `starterNotebook`
- * `setCurrentPage`
- * `render`
- */
-function resetToStarterNotebook() {
-  iPython = deepClone(starterNotebook);
-
-  setCurrentPage("notebook");
-
-  render(); // TODO prevent python_eval until this is done
-}
-
-/**
- * [Global Deps]
- * `iPython`
  */
 // this is to cache the code being edited so the pane does not update under the editor
 var CODE = {
@@ -676,7 +659,7 @@ var Notebook = React.createClass({
 
 /**
  * [Global Deps]
- * `iPython` 
+ * `iPython`
  * `iPythonRaw`
  * `d3`
  * `DataRaw`
@@ -779,14 +762,6 @@ function setup_drag_drop() {
   }
 }
 
-// hardcoded data to pair with starter notebook
-theData = [
-  { 'x': 1, 'y': 1 },
-  { 'x': 2, 'y': 3 },
-  { 'x': 5, 'y': 2 },
-  { 'x': 6, 'y': 5 }
-]
-
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
     iPythonRaw = data.Notebook.Body;
@@ -796,10 +771,7 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     cradle.join(document.location + ".rtc");
   }, "json")
 } else {
-  $.get("/starter.ipynb",function(data) {
-    starterNotebook = data
-    resetToStarterNotebook()
-  }, "json")
+  setCurrentPage("upload")
 }
 
 
@@ -810,8 +782,8 @@ function initializeEditor() {
 }
 
 // BOOTS
-// 
-// The following is an (exported) interface 
+//
+// The following is an (exported) interface
 // for other files to access state from this module.
 
 module.exports = {
@@ -828,7 +800,6 @@ module.exports = {
   getPeerPresence        : () => peerPresence,
   moveCursor             : moveCursor,
   renderEditor           : renderEditor,
-  resetToStarterNotebook : resetToStarterNotebook,
   setCurrentPage         : setCurrentPage,
-  setMode                : setMode,  
+  setMode                : setMode,
 };

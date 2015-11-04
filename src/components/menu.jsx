@@ -8,7 +8,6 @@ function requireGlobalDeps() {
  * [Global Deps]
  * `iPython`
  * `setCurrentPage`
- * `resetToStarterNotebook`
  */
 var Menu = React.createClass({
   getInitialState() {
@@ -38,19 +37,12 @@ var Menu = React.createClass({
     setCurrentPage("upload");
   },
 
-  handleNew(event) {
-    var resetToStarterNotebook = requireGlobalDeps().resetToStarterNotebook;
-    this.setState({active: false});
-    resetToStarterNotebook();
-  },
-
   render() {
     return (
       <div id="menu" className={this.state.active ? "active" : ""}>
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
           <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
-          <li onClick={this.handleNew}>New</li>
           <li onClick={this.handleUpload}>Upload</li>
           <li>Cheatsheet</li>
           <li>About</li>
