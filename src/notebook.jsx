@@ -32,6 +32,12 @@ var zip              = require("./util").zip;
 
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
 var ERROR_CELL_CLASSNAME = "cell-syntax-error";
+var REMOVE_MARKERS = () => {
+  ERROR_MARKER_IDS.forEach((id) => {
+    editor.getSession().removeMarker(id);
+  });
+  ERROR_MARKER_IDS = []
+};
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -278,12 +284,6 @@ function renderEditor() {
 
   // TEMP for testing
   global.EDITOR = editor;
-  global.REMOVE_MARKERS = () => {
-    ERROR_MARKER_IDS.forEach((id) => {
-      editor.getSession().removeMarker(id);
-    });
-    ERROR_MARKER_IDS = []
-  };
   REMOVE_MARKERS();
 
   // TODO if type==code?
@@ -613,7 +613,8 @@ function handle_error(lineno_map, e) {
 
   console.log("Hi! err_at:", err_at);
 
-  global.REMOVE_MARKERS()
+  REMOVE_MARKERS()
+
   if (err_at.cell === CursorCell) {
     if (editor && editor.getSession()) {
       var markerId = editor
@@ -672,6 +673,7 @@ var Notebook = React.createClass({
  */
 function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
+  iPython.cells.forEach(cell => cell.outputs = [])
   var header = undefined
   var data = d3.csv.parseRows(DataRaw,function(row) {
   if (!header) { header = row; return }
