@@ -188,6 +188,10 @@ div.ace_content {
   padding-right: 8pt;
 }
 
+div.ace_error-marker {
+  background-color: #FC212C;
+}
+
 div.pyresult:before {
   content: "→ ";
 }
