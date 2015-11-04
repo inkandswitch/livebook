@@ -1,7 +1,7 @@
 var zip = require("./util").zip;
 
 function requireGlobalDeps() {
-  return require("./notebook.jsx");
+  return require("./notebook");
 }
 
 var _plot_generated_ = function() {}

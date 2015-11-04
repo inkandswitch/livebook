@@ -1,6 +1,5 @@
 
 import sys
-#import  warnings
 
 #import matplotlib
 #from matplotlib.figure import Figure, figaspect
@@ -180,7 +179,6 @@ def plot(*args, **kwargs):
 #
 #    return ret
     color = kwargs.pop('color', None)
-    print "hello from inside python"
     if color != "black":
         __plot_js__(args[0],args[1],args[2])
 
