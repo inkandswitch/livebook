@@ -195,8 +195,11 @@ function displayClass(cell) {
  */
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
-    iPython.cells[i].source = e.split("\n").map( s => s + "\n")
-    // $("[data-cell-index]").removeClass(ERROR_CELL_CLASSNAME);
+    var lines = e.split("\n");
+    var newSource = lines.map((s, i) => {
+        return (i !== lines.length -1) ? s + "\n" : s; // don't add a trailing newline to last line
+    })
+    iPython.cells[i].source = newSource;
     if (iPython.cells[i].cell_type === "code") {
       // clear error lines?
       editor.getSession()
@@ -280,10 +283,10 @@ function renderEditor() {
     });
     ERROR_MARKER_IDS = []
   };
+  REMOVE_MARKERS();
 
   // TODO if type==code?
   python_eval()
-
 }
 
 function createAceEditor(options) {
