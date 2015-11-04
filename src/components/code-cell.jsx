@@ -54,10 +54,8 @@ var CodeCell = React.createClass({
         <div className="switch">
           <div className="codewrap">
             {this.code()}
+            <img src="/yield-arrow.png" className="yield-arrow" />
           </div>
-        </div>
-        <div className="yields">
-          <img src="/yield-arrow.png" alt="yields" />
         </div>
         {this.outputs()}
         <div id={"plot"+this.props.index} className="plot"></div>

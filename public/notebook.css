@@ -73,20 +73,19 @@ div.notebook div.codewrap {
   font-size: 10pt;
   color: #000;
   margin: 0;
-  margin-bottom: 12pt;
+  margin-bottom: -1pt;
+  position: relative;
+}
+div.notebook .yield-arrow {
+  position: absolute;
+  left: 48%;
+  bottom: -10pt;
+  width: 20pt;
 }
 div.notebook div.code {
   font-family: Menlo, monospace;
   white-space: pre;
   overflow: hidden;
-}
-
-div.notebook .yields img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: -28.5pt;
-  margin-bottom: 4pt;
 }
 
 div.notebook table {
@@ -197,7 +196,7 @@ div.pyresult {
   white-space: pre;
   border: 1px solid #ccc;
   border-radius: 2px;
-  background: #eee;
+  background: #fff;
   padding: 8pt;
   font-size: 10pt;
   overflow: hidden;
