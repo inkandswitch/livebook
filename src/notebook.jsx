@@ -556,22 +556,24 @@ window.onpopstate = function(event) {
  */
 function python_eval() {
   REMOVE_MARKERS()
-  var bad_cells = []
+  var keepgoing = true
+  var badcells   = []
+  setTimeout(() => { keepgoing = false }, 500)
   do {
-    var code_ctx = generate_python_ctx(bad_cells)
+    var code_ctx = generate_python_ctx(badcells)
     var badcell  = execute_python_ctx(code_ctx)
-    bad_cells.push(badcell)
-  } while(badcell >= 0)
+    badcells.push(badcell)
+  } while(keepgoing && badcell >= 0)
   render()
 }
 
-function generate_python_ctx(bad_cells) {
+function generate_python_ctx(badcells) {
   console.log("eval python 2")
   var lines = [];
   var lineno = 0;
   var lineno_map = {}; // keeps track of line number on which to print error
   iPython.cells.forEach((c, i) => {
-    if (bad_cells.indexOf(i) >= 0) return;
+    if (badcells.indexOf(i) >= 0) return;
 
     if (c.cell_type == "code") {
 
