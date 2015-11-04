@@ -21,40 +21,44 @@ function rawMarkup(lines) {
 }
 
 function resultToHtml(result) {
-  if (result.head && result.body) {
-  var table = "<table><thead><tr><th>&nbsp;</th>";
-  result.head.forEach(h => table += "<th>" + h + "</th>")
-  table += "</tr></thead>"
-  table += "<tbody>"
-  result.head.forEach(h => {
-    table += "<tr><th>" + h + "</th>"
-    result.body[h].forEach(d => table += "<td>" + d + "</td>")
-    table += "</tr>"
-  })
-  table += "</tbody>"
-  table += "</table>";
+  if (result.head && result.body) { // this is DataFrame
+    console.log("RENDER",result)
+    var table = "<table><thead><tr><th>&nbsp;</th>";
+    result.head.forEach(h => table += "<th>" + h + "</th>")
+    table += "</tr></thead>"
+    table += "<tbody>"
+    for (let i = 0; i < result.length; i++) {
+      table += "<tr><th>" + i + "</th>"
+      result.head.forEach(h => {
+        var cellContent = result.body[h][i];
+        if (cellContent.toFixed) { cellContent = cellContent.toFixed(6); }
+        table += "<td>" + cellContent + "</td>"
+      })
+      table += "</tr>"
+    }
+    table += "</tbody>"
+    table += "</table>";
 
-  return table;
-  } else { // TODO - legacy
-  var table = "<table><thead><tr><th>&nbsp;</th>";
-  result.cols.forEach(col => table += "<th>" + col + "</th>")
-  table += "</tr></thead>"
-  table += "<tbody>"
-  result.rows.forEach(row => {
-    table += "<tr><th>" + row + "</th>"
-    result.cols.forEach(col => {
-      var cellContent = result.data[row][col];
-      if (cellContent.toFixed) {
-        cellContent = cellContent.toFixed(6);
-      }
-      table += "<td>" + cellContent + "</td>";
+    return table;
+  } else { // this is DataFrame.describe()
+    var table = "<table><thead><tr><th>&nbsp;</th>";
+    result.cols.forEach(col => table += "<th>" + col + "</th>")
+    table += "</tr></thead>"
+    table += "<tbody>"
+    result.rows.forEach(row => {
+      table += "<tr><th>" + row + "</th>"
+      result.cols.forEach(col => {
+        var cellContent = result.data[row][col];
+        if (cellContent.toFixed) {
+          cellContent = cellContent.toFixed(6);
+        }
+        table += "<td>" + cellContent + "</td>";
+      })
+      table += "</tr>"
     })
-    table += "</tr>"
-  })
-  table += "</tbody>"
-  table += "</table>";
-
-  return table;
+    table += "</tbody>"
+    table += "</table>";
+    return table;
   }
 }
 

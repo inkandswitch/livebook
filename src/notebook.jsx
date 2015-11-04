@@ -153,7 +153,7 @@ function python_render(result) {
   // - if there's a result with rows, cols, and data,
   //   let's render a table and record it to the iPython object
   //   otherwise, let's render it as plaintext to the iPython object
-  if ($result && ($result.rows && $result.cols && $result.data) || ($result.head && $result.body)) { // TODO - remove legacy
+  if ($result && (($result.rows && $result.cols && $result.data) || ($result.head && $result.body))) { // TODO - remove legacy
     let table = resultToHtml($result);
 
     iPython.cells[$cell].outputs = [
@@ -570,8 +570,8 @@ window.onpopstate = function(event) {
  */
 function python_eval() {
   REMOVE_MARKERS()
-  var keepgoing = true
-  var badcells   = []
+  var keepgoing = false
+  var badcells  = []
   setTimeout(() => { keepgoing = false }, 500)
   do {
     var code_ctx = generate_python_ctx(badcells)
@@ -713,6 +713,7 @@ function parse_raw_notebook() {
   var header = undefined // legacy
   var head = undefined
   var body = {}
+  var length = 0
   // legacy format
   var data = d3.csv.parseRows(DataRaw,function(row) {
     if (!header) { header = row; return }
@@ -726,11 +727,12 @@ function parse_raw_notebook() {
       head = row;
       head.forEach((h) => body[h] = [])
     } else {
+      length++;
       row.forEach((d,i) => body[head[i]].push(+d || d)) // BOOTS TODO - this will short-circuit on '0'
     }
   })
   theData = data
-  theData2 = Sk.ffi.remapToPy({ head: head, body: body })
+  theData2 = Sk.ffi.remapToPy({ head: head, body: body, length: length })
   console.log(theData2)
 }
 
