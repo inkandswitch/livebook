@@ -107,7 +107,6 @@ function python_mark(cell) {
  */
 function python_render(result) {
   if (result === undefined) return;
-  console.log("2_js", result.to_js);
   var $result;
   // BOOTS ???
   // Duck type result... if it has `to_js` method, proceed
@@ -279,6 +278,7 @@ function renderEditor() {
     ERROR_MARKER_IDS.forEach((id) => {
       editor.getSession().removeMarker(id);
     });
+    ERROR_MARKER_IDS = []
   };
 
   // TODO if type==code?
@@ -551,11 +551,9 @@ function python_eval() {
   var lineno_map = {}; // keeps track of line number on which to print error
   iPython.cells.forEach((c, i) => {
     if (c.cell_type == "code") {
-      if (editor && editor.getSession) {
-        editor.getSession().clearAnnotations()
-      }
 
       lines.push("mark("+i+")\n")
+      lineno += 1
 
       c.source.forEach((line,line_number) => {
         if (!line.match(/^\s*$/) &&
@@ -569,6 +567,7 @@ function python_eval() {
       if (!assignment.test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
         lines.push("render(" + line.trim() + ")\n")
       } else {
+        lineno += 1
         lines.push(line)
         lines.push("render(None)\n")
       }
@@ -578,6 +577,8 @@ function python_eval() {
   if (lines.length > 0) {
     try {
       var code = lines.join("")
+      console.log(code)
+      console.log(lineno_map)
       eval(Sk.importMainWithBody("<stdin>", false, code))
     } catch (e) {
       if (e.nativeError instanceof Promise) {
@@ -602,27 +603,26 @@ function python_eval() {
  * `Sk`
  */
 function handle_error(lineno_map, e) {
+  console.log("err line-no:",e.traceback[0].lineno)
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0];
 
   console.log("Hi! err_at:", err_at);
 
+  global.REMOVE_MARKERS()
   if (err_at.cell === CursorCell) {
-    editor.getSession().setAnnotations([{
-      row: err_at.line,
-      text: msg,
-      type: "error" // also warning and information
-    }]);
+    if (editor && editor.getSession()) {
+      var markerId = editor
+        .getSession()
+        .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
 
-    var markerId = editor
-      .getSession()
-      .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
+      console.log("ADD MARKER",markerId)
+      ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
 
-    ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
-
-    // highlight the offending rendered cell
-    $("[data-cell-index='" + err_at.cell + "']").addClass(ERROR_CELL_CLASSNAME)
-    // $("[data-cell-index='" + CursorCell + "']").addClass("blahblah")
+      // highlight the offending rendered cell
+      $("[data-cell-index='" + err_at.cell + "']").addClass(ERROR_CELL_CLASSNAME)
+      // $("[data-cell-index='" + CursorCell + "']").addClass("blahblah")
+    }
   }
 }
 
