@@ -3,6 +3,7 @@ var fs = require("fs")
 var files
 
 function load_py(dir) {
+  if (!fs.statSync(dir.join('/')).isDirectory()) return
   fs.readdirSync(dir.join('/')).forEach((file) => {
     var subdir = dir.concat([file])
     if (file.match(/\.(py|js)$/)) {
