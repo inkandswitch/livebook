@@ -30,16 +30,27 @@ var noop             = require("./util").noop;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
+var ERRORS = {
+  // expects this format:
+  //
+  // cellId: { cell: x, line: y, message: "hey"},
+};
+
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
 var ERROR_CELL_CLASSNAME = "cell-syntax-error";
-var REMOVE_MARKERS = () => {
+function REMOVE_ERRORS() {
+  REMOVE_MARKERS();
+  CLEAR_ERROR_MESSAGES();
+}
+function REMOVE_MARKERS() {
   ERROR_MARKER_IDS.forEach((id) => {
     editor.getSession().removeMarker(id);
   });
   ERROR_MARKER_IDS = []
-};
+}
 function CLEAR_ERROR_MESSAGES() {
-  $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
+  ERRORS = {};
+  // $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
 }
 
 var peerPresence = [
@@ -650,10 +661,8 @@ function handle_error(lineno_map, e) {
       $domCell.addClass(ERROR_CELL_CLASSNAME);
     }
   }
-  $domCell
-    .find(".js-pyresult-error")
-    .text(msg)
-    .show();
+  
+  ERRORS[err_at.cell] = Object.assign({message: msg}, err_at);
   return err_at.cell
 }
 
@@ -676,8 +685,12 @@ var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
-    return this.props.data.cells.map((cell,index) => <Cell data={cell} key={index} index={index}/>) // `key` prop stops React warnings in the console
+    return this.props.data.cells.map((cell,index) => {
+      var errorObject = ERRORS[index];
+      return <Cell data={cell} key={index} index={index} errorObject={errorObject}/>;
+    }) // `key` prop stops React warnings in the console
   },
+
   render: function() {
     switch (CurrentPage) {
       case "upload":

@@ -11,6 +11,22 @@ function requireGlobalDeps() {
  */
 var CodeCell = React.createClass({
 
+  errorMessage() {
+    var errorObject = this.props.errorObject,
+        line,
+        message;
+
+    if (!errorObject) return "";
+
+    message = errorObject.message;
+
+    return (
+      <div className="pyresult pyresult-error">
+        {message}
+      </div>
+    );
+  },
+
   html(data) {
     return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />);
   },
@@ -59,8 +75,7 @@ var CodeCell = React.createClass({
             <img src="/yield-arrow.png" className="yield-arrow" />
           </div>
         </div>
-        <div className="pyresult pyresult-error js-pyresult-error" style={hideMe}>
-        </div>
+        {this.errorMessage()}
         {this.outputs()}
         <div id={"plot"+this.props.index} className="plot"></div>
       </div>
