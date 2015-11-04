@@ -313,8 +313,11 @@ function getEditorHeight() {
 }
 
 function getEditorWidth() {
-  var containerWidth = $(".editor-container").width();
-  return Math.floor(containerWidth);
+  // var containerWidth = $(".editor-container").width();
+  var mySwitch = $(".switch")[CursorCell];
+  var width = $(mySwitch).parents().find(".code").width();
+  // debugger;
+  return Math.floor(width);
 }
 
 /**
