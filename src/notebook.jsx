@@ -621,6 +621,7 @@ function handle_error(lineno_map, e) {
   console.log("Hi! err_at:", err_at);
 
   REMOVE_MARKERS()
+  iPython.cells[err_at.cell].outputs = []
 
   if (err_at.cell === CursorCell) {
     if (editor && editor.getSession()) {
