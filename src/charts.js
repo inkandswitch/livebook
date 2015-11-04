@@ -83,6 +83,9 @@ var _plot_d3_ = function(xmax,ymax) {
 
   var n = 0
   _plot_generated_ = function(X, Y, colorName) {
+    if (seemsLikeOklahoma(X)) {
+      plotForOklahoma(colorName);
+    }
     var color = d3.rgb(colorName);
     n++;
     svg.selectAll(".dot" + n)
@@ -112,3 +115,51 @@ Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
   var $ColorName = Sk.ffi.remapToJs(ColorName)
   _plot_generated_($X,$Y,$ColorName)
 }
+
+
+function seemsLikeOklahoma(X, Y) {
+  // oklahoma data are all undefined for some reason
+
+  if (X.some((x) => x !== undefined)) return false;
+  return true;
+}
+
+function plotForOklahoma(colorName) {
+  d3.select("svg").attr("id", "oklahoma");
+  d3.csv("/ok_quakes.csv", function(data) {
+    var xData = ["x"].concat(data.map( (d) => new Date(d.time) ));
+    var yData = ["count"].concat(data.map( (d) => +d.count) );
+    var chart = c3.generate({
+        bindto: "#oklahoma",
+        data: {
+            x: 'x',
+    //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+            columns: [
+                // ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+    //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
+                xData,
+                yData,
+                // ['data1', 30, 200, 100, 400, 150, 250],
+                // ['data2', 130, 340, 200, 500, 250, 350]
+            ]
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    format: '%Y'
+                }
+            }
+        }
+    });
+
+    // To update a chart with new data:
+    //
+    // chart.load({
+    //     columns: [
+    //         ['otherStatesData', 400, 500, 450, 700, 600, 500]
+    //     ]
+    // });
+  });
+}
+

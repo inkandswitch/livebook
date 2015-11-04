@@ -42,7 +42,13 @@ function resultToHtml(result) {
   table += "<tbody>"
   result.rows.forEach(row => {
     table += "<tr><th>" + row + "</th>"
-    result.cols.forEach(col => table += "<td>" + result.data[row][col] + "</td>")
+    result.cols.forEach(col => {
+      var cellContent = result.data[row][col];
+      if (cellContent.toFixed) {
+        cellContent = cellContent.toFixed(6);
+      }
+      table += "<td>" + cellContent + "</td>";
+    })
     table += "</tr>"
   })
   table += "</tbody>"
