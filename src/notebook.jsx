@@ -197,7 +197,7 @@ function displayClass(cell) {
 function onChangeFunc(i) { // i is the CursorCell
   return e => {
     iPython.cells[i].source = e.split("\n").map( s => s + "\n")
-    $("[data-cell-index]").removeClass(ERROR_CELL_CLASSNAME);
+    // $("[data-cell-index]").removeClass(ERROR_CELL_CLASSNAME);
     if (iPython.cells[i].cell_type === "code") {
       // clear error lines?
       editor.getSession()
@@ -769,9 +769,11 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     parse_raw_notebook();
     setCurrentPage("notebook");
     cradle.join(document.location + ".rtc");
+    initializeEditor();
   }, "json")
 } else {
-  setCurrentPage("upload")
+  setCurrentPage("upload");
+  initializeEditor();
 }
 
 
