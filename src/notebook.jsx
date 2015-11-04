@@ -38,6 +38,9 @@ var REMOVE_MARKERS = () => {
   });
   ERROR_MARKER_IDS = []
 };
+function CLEAR_ERROR_MESSAGES() {
+  $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
+}
 
 var peerPresence = [
   { name: "Me", status: "here", },
@@ -208,8 +211,10 @@ function onChangeFunc(i) { // i is the CursorCell
     })
     iPython.cells[i].source = newSource;
     if (iPython.cells[i].cell_type === "code") {
-      // clear error lines?
-      editor.getSession()
+      // should we clear error lines here?
+      // once evaluation continues past erroneous cell, this approach should work
+      // otherwise, let's switch to only clearing error message for current cell
+      CLEAR_ERROR_MESSAGES();
       python_eval();
     }
     if (iPython.cells[i].cell_type === "markdown") render();
@@ -610,6 +615,8 @@ function handle_error(lineno_map, e) {
   console.log("err line-no:",e.traceback[0].lineno)
   var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0];
+  var $domCell = $("[data-cell-index='" + err_at.cell + "']"),
+      markerId;
 
   console.log("Hi! err_at:", err_at);
 
@@ -617,18 +624,22 @@ function handle_error(lineno_map, e) {
 
   if (err_at.cell === CursorCell) {
     if (editor && editor.getSession()) {
-      var markerId = editor
+      markerId = editor
         .getSession()
         .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
 
-      console.log("ADD MARKER",markerId)
+      console.log("ADD MARKER", markerId)
       ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
 
       // highlight the offending rendered cell
-      $("[data-cell-index='" + err_at.cell + "']").addClass(ERROR_CELL_CLASSNAME)
-      // $("[data-cell-index='" + CursorCell + "']").addClass("blahblah")
+      $domCell.addClass(ERROR_CELL_CLASSNAME);
     }
   }
+
+  $domCell
+    .find(".js-pyresult-error")
+    .text(msg)
+    .show();
 }
 
 /**

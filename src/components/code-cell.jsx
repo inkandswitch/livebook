@@ -30,11 +30,12 @@ var CodeCell = React.createClass({
     // - else return text if we find text
 
     var result = this.props.data.outputs.map(output => {
-      return this.html(output.data["text/html"]) ||
+      var output = this.html(output.data["text/html"]) ||
         this.png(output.data["image/png"])  ||
         this.text(output.data["text/plain"]);
+      return output;
     });
-    return (result)
+    return result;
   },
 
  code() {
@@ -49,6 +50,7 @@ var CodeCell = React.createClass({
  },
 
   render() {
+    var hideMe = {display: "none",};
     return (
       <div className="cell" data-cell-index={this.props.index}>
         <div className="switch">
@@ -56,6 +58,8 @@ var CodeCell = React.createClass({
             {this.code()}
             <img src="/yield-arrow.png" className="yield-arrow" />
           </div>
+        </div>
+        <div className="pyresult pyresult-error js-pyresult-error" style={hideMe}>
         </div>
         {this.outputs()}
         <div id={"plot"+this.props.index} className="plot"></div>

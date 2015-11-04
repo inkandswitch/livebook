@@ -352,3 +352,18 @@ div.plot {
     opacity: 0.7;
   }
 }
+
+
+div.ace_editor {
+  border: none;
+}
+
+/* specificity necessary to override injected styles */
+div.ace-github,
+div.ace-content {
+  background: #eee;
+}
+
+div.pyresult-error {
+  background: lightpink;
+}
