@@ -73,13 +73,19 @@ function update_peers () {
 ace.config.set("basePath", "/");
 
 var theData = null;
+var theData2 = null;
 /**
  * [Global Deps]
- * `theData` - Some hard-coded data for the intial example... or CSV data that has been loaded.
+ * `theData` - CSV data that has been loaded.
  */
 window.__load__ = function(name) {
   if (theData) return theData;
   throw new Error("No CSV data loaded");
+}
+
+Sk.builtins["__load_data__"] = function(name) {
+  if (theData2) return theData2;
+  throw new Error("No CSV data loaded (2)");
 }
 
 var Pages = [ "notebook", "upload" ];
@@ -136,8 +142,8 @@ function python_render(result) {
     // - what is tmp here?
     // BOOTS TODO
     // - use `let`
-    var $method = Sk.abstr.gattr(result, 'to_js', true)
-    var tmp = Sk.misceval.callsimOrSuspend($method)
+    let $method = Sk.abstr.gattr(result, 'to_js', true)
+    let tmp = Sk.misceval.callsimOrSuspend($method)
     $result = Sk.ffi.remapToJs(tmp)
   } else {
     $result = Sk.ffi.remapToJs(result)
@@ -147,11 +153,8 @@ function python_render(result) {
   // - if there's a result with rows, cols, and data,
   //   let's render a table and record it to the iPython object
   //   otherwise, let's render it as plaintext to the iPython object
-  if ($result && $result.rows && $result.cols && $result.data) {
-    // BOOTS TODO
-    // - use `let`
-
-    var table = resultToHtml($result);
+  if ($result && ($result.rows && $result.cols && $result.data) || ($result.head && $result.body)) { // TODO - remove legacy
+    let table = resultToHtml($result);
 
     iPython.cells[$cell].outputs = [
       {
@@ -579,7 +582,6 @@ function python_eval() {
 }
 
 function generate_python_ctx(badcells) {
-  console.log("eval python 2")
   var lines = [];
   var lineno = 0;
   var lineno_map = {}; // keeps track of line number on which to print error
@@ -609,20 +611,15 @@ function generate_python_ctx(badcells) {
       }
     }
   })
-  console.log("eval python 3")
   return { map: lineno_map, code: lines.join(""), length: lines.length }
 }
 
 function execute_python_ctx(ctx) {
-  console.log("eval python 4")
   if (ctx.length > 0) {
-  console.log("eval python 5")
     try {
-  console.log("eval python 6")
       console.log(ctx.code)
       console.log(ctx.map)
       eval(Sk.importMainWithBody("<stdin>", false, ctx.code))
-  console.log("eval python 7")
     } catch (e) {
       console.log("Handle Error",e)
       return handle_error(ctx.map,e)
@@ -661,7 +658,7 @@ function handle_error(lineno_map, e) {
       $domCell.addClass(ERROR_CELL_CLASSNAME);
     }
   }
-  
+
   ERRORS[err_at.cell] = Object.assign({message: msg}, err_at);
   return err_at.cell
 }
@@ -713,14 +710,28 @@ var Notebook = React.createClass({
 function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
   iPython.cells.forEach(cell => cell.outputs = [])
-  var header = undefined
+  var header = undefined // legacy
+  var head = undefined
+  var body = {}
+  // legacy format
   var data = d3.csv.parseRows(DataRaw,function(row) {
-  if (!header) { header = row; return }
-    var object = {}
-    row.forEach((d,i) => object[header[i]] = (+d || d)) // BOOTS TODO - this will short-circuit on 0
-    return object
+    if (!header) { header = row; return }
+      var object = {}
+      row.forEach((d,i) => object[header[i]] = (+d || d)) // BOOTS TODO - this will short-circuit on 0
+      return object
+  })
+  // v2 format
+  d3.csv.parseRows(DataRaw,(row) => {
+    if (!head) {
+      head = row;
+      head.forEach((h) => body[h] = [])
+    } else {
+      row.forEach((d,i) => body[head[i]].push(+d || d)) // BOOTS TODO - this will short-circuit on '0'
+    }
   })
   theData = data
+  theData2 = Sk.ffi.remapToPy({ head: head, body: body })
+  console.log(theData2)
 }
 
 // BOOTS TODO
@@ -749,7 +760,6 @@ function post_notebook_to_server() {
  * [Global Deps]
  * `iPythonRaw`
  * `DataRaw`
- * `theData`
  * post_notebook_to_server
  * parse_raw_notebook
  * setCurrentPage

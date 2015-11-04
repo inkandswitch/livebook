@@ -21,6 +21,21 @@ function rawMarkup(lines) {
 }
 
 function resultToHtml(result) {
+  if (result.head && result.body) {
+  var table = "<table><thead><tr><th>&nbsp;</th>";
+  result.head.forEach(h => table += "<th>" + h + "</th>")
+  table += "</tr></thead>"
+  table += "<tbody>"
+  result.head.forEach(h => {
+    table += "<tr><th>" + h + "</th>"
+    result.body[h].forEach(d => table += "<td>" + d.toFixed(6) + "</td>")
+    table += "</tr>"
+  })
+  table += "</tbody>"
+  table += "</table>";
+
+  return table;
+  } else { // TODO - legacy
   var table = "<table><thead><tr><th>&nbsp;</th>";
   result.cols.forEach(col => table += "<th>" + col + "</th>")
   table += "</tr></thead>"
@@ -32,8 +47,9 @@ function resultToHtml(result) {
   })
   table += "</tbody>"
   table += "</table>";
-  
+
   return table;
+  }
 }
 
 /**
@@ -41,7 +57,7 @@ function resultToHtml(result) {
  * If any function errors, we immediately invoke callback with the offending error.
  *
  * @param {array} funcs - An array of functions to be executed in parallel. Each function in this array should pass (error, result) to a callback
- * @param {function} callback - Invoked with results from each 
+ * @param {function} callback - Invoked with results from each
  */
 function asyncRunParallel(funcs, callback) {
   var completedFuncs = 0;
