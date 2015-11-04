@@ -555,10 +555,24 @@ window.onpopstate = function(event) {
  * `render`
  */
 function python_eval() {
+  REMOVE_MARKERS()
+  var bad_cells = []
+  do {
+    var code_ctx = generate_python_ctx(bad_cells)
+    var badcell  = execute_python_ctx(code_ctx)
+    bad_cells.push(badcell)
+  } while(badcell >= 0)
+  render()
+}
+
+function generate_python_ctx(bad_cells) {
+  console.log("eval python 2")
   var lines = [];
   var lineno = 0;
   var lineno_map = {}; // keeps track of line number on which to print error
   iPython.cells.forEach((c, i) => {
+    if (bad_cells.indexOf(i) >= 0) return;
+
     if (c.cell_type == "code") {
 
       lines.push("mark("+i+")\n")
@@ -582,27 +596,26 @@ function python_eval() {
       }
     }
   })
+  console.log("eval python 3")
+  return { map: lineno_map, code: lines.join(""), length: lines.length }
+}
 
-  if (lines.length > 0) {
+function execute_python_ctx(ctx) {
+  console.log("eval python 4")
+  if (ctx.length > 0) {
+  console.log("eval python 5")
     try {
-      var code = lines.join("")
-      console.log(code)
-      console.log(lineno_map)
-      eval(Sk.importMainWithBody("<stdin>", false, code))
+  console.log("eval python 6")
+      console.log(ctx.code)
+      console.log(ctx.map)
+      eval(Sk.importMainWithBody("<stdin>", false, ctx.code))
+  console.log("eval python 7")
     } catch (e) {
-      if (e.nativeError instanceof Promise) {
-        console.log("native promise!",e.nativeError)
-        e.nativeError.then(python_eval, function(err) { // RUH ROH RECURSION
-          console.log("double error",err)
-          handle_error(lineno_map,e) //
-        } )
-      } else {
-        console.log("Handle Error",e)
-        handle_error(lineno_map,e)
-      }
+      console.log("Handle Error",e)
+      return handle_error(ctx.map,e)
     }
   }
-  render()
+  return -1
 }
 
 /**
@@ -620,7 +633,6 @@ function handle_error(lineno_map, e) {
 
   console.log("Hi! err_at:", err_at);
 
-  REMOVE_MARKERS()
   iPython.cells[err_at.cell].outputs = []
 
   if (err_at.cell === CursorCell) {
@@ -636,11 +648,11 @@ function handle_error(lineno_map, e) {
       $domCell.addClass(ERROR_CELL_CLASSNAME);
     }
   }
-
   $domCell
     .find(".js-pyresult-error")
     .text(msg)
     .show();
+  return err_at.cell
 }
 
 /**
