@@ -1,7 +1,7 @@
 var React = require("react");
 
 // webpack was returning an empty object when I required this straight out the gate.
-// had to switch to 
+// had to switch to
 function requireGlobalDeps() {
   return require("../notebook.jsx");
 }
@@ -9,7 +9,6 @@ function requireGlobalDeps() {
  * [Global Deps]
  * `iPython`
  * `setCurrentPage`
- * `resetToStarterNotebook`
  */
 var Collaborators = React.createClass({
 
