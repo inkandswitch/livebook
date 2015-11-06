@@ -584,7 +584,7 @@ function generate_python_ctx(badcells) {
 
     if (c.cell_type == "code") {
 
-      lines.push("mark("+i+")\n")
+      lines.push("mark("+i+")")
       lineno += 1
 
       c.source.forEach((line,line_number) => {
@@ -592,20 +592,21 @@ function generate_python_ctx(badcells) {
             !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline" that skulpt doesn't parse
           lineno += 1
           lineno_map[lineno] = { cell: i, line: line_number }
-          lines.push(line)
+          lines.push(line.replace(/[\r\n]$/,""))
         }
       })
       var line = lines.pop()
       if (!keyword.test(line) && !assignment.test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-        lines.push("render(" + line.trim() + ")\n")
+        lines.push("render(" + line + ")   ## line " + lineno)
       } else {
         lineno += 1
         lines.push(line)
-        lines.push("render(None)\n")
+        lines.push("render(None)    ## line " + lineno)
       }
     }
   })
-  return { map: lineno_map, code: lines.join(""), length: lines.length }
+  lines.push("")
+  return { map: lineno_map, code: lines.join("\n"), length: lines.length }
 }
 
 function execute_python_ctx(ctx) {
