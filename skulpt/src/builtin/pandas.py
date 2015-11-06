@@ -1,9 +1,12 @@
 
 class DataFrame:
     def __init__(self,data):
+        ## we will have problems here if there is a column named head,body,length :(
         self.head   = data["head"]
         self.body   = data["body"]
         self.length = data["length"]
+        for h in self.head:
+            setattr(self, h, self.body[h])
 
     def __getitem__(self,i):
         if (i < 0 or i >= self.length):
@@ -69,7 +72,7 @@ class GroupBy:
 
     def __iter__(self):
         for k in self.groups:
-            yield self.groups[k]
+            yield (k,self.groups[k])
 
 def read_csv(name):
     return DataFrame(__load_data__(name))
