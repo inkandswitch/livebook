@@ -64,7 +64,6 @@ function newPeer(session_id) {
     var old_state = peer.state
     var new_state = peer.calculate_state()
     if (old_state != new_state) {
-      console.log("--DIFF--old/new",old_state,new_state)
       peer.state = new_state
       switch (peer.state) {
         case "connected":
@@ -74,20 +73,16 @@ function newPeer(session_id) {
           if (Depart) { Depart(peer) }
           break
         case "closed":
-          console.log("x - peer is gone - deleting",peer.id)
           if (Depart) { Depart(peer) } // FIXME - doesnt this need its own event type?
           delete Peers[peer.id]
         default:
-          console.log("------ unknown state",peer.state)
       }
     } else {
-      console.log("--SAME--old/new",old_state,new_state)
     }
   }
 
   peer.calculate_state = function() {
     if (peer.data_channel) {
-      console.log("--> data-connected",peer.id)
       return "connected"       // data-connected
     }
 
@@ -99,21 +94,16 @@ function newPeer(session_id) {
         break                  // return 'arriving';
       case 'connected':
       case 'completed':
-        console.log("--> webrtc-connected",peer.id)
         return 'connected'     // webrtc-connected
       default:
         console.log("ICE STATE UNKNOWN: " + peer.webrtc.iceConnectionState)
     }
 
     if (peer.session_record.active || age(peer.session_record.updated_on) < 5) {
-        console.log("--> server-connected",peer.id)
         return 'connected'     // server-connected
     } else if (!peer.session_record.active && age(peer.session_record.updated_on) < 10) {
-        console.log("--> disconnected",peer.id, age(peer.session_record.updated_on))
         return 'disconnected'  // disconnected
     } else {
-        console.log("--> closed",peer.id)
-        console.log("closed active",peer.session_record.active,"age",age(peer.session_record.updated_on))
         return 'closed'
     }
   }
@@ -121,26 +111,21 @@ function newPeer(session_id) {
   peer.setupPeer()
 
   peer.send = function(obj) {
-    console.log("SEND:",obj,"to",peer.data_channel)
     try {
       peer.data_channel.send(JSON.stringify(obj))
     } catch(e) {
-      console.log("error sending message",e)
     }
   }
 
   peer.process = function(signals) {
     signals.forEach(function(signalJSON) {
       var signal = JSON.parse(signalJSON)
-      console.log("processing signal",signal)
       var callback = function() { };
       if (signal.type == "offer") callback = function() {
         peer.state = "answering"
         peer.webrtc.createAnswer(function(answer) {
-          console.log("created answer",answer)
           peer.state = "answering-setlocal"
           peer.webrtc.setLocalDescription(answer,function() {
-            console.log("set local descr")
             put(peer.id,answer)
           },function(e) {
             console.log("Error setting setLocalDescription",e)
@@ -202,7 +187,6 @@ function get() {
         SessionID = data.session_id
         var came_before_me = true
         data.sessions.forEach((session) => {
-          console.log(session)
           if (session.session_id == SessionID) came_before_me = false;
           else if (Peers[session.session_id] == undefined) {
             Peers[session.session_id] = newPeer(session.session_id)
@@ -214,9 +198,7 @@ function get() {
             Peers[session.session_id].set_session(session)
           }
         })
-        console.log("Peers",Peers)
         for (let from in data.messages) {
-          console.log("from",from)
           if (Peers[from]) Peers[from].process(data.messages[from])
         }
         setTimeout(get,500)
@@ -229,16 +211,12 @@ function get() {
 
 module.exports.peers = function() {
   var peers = [ {name:`Me (${SessionID})`, status: "here" }]
-  console.log("Peers",Peers)
   Object.keys(Peers).forEach((key) => {
     if (Peers[key].state == "connected") {
-      console.log("ID",key,"connected")
       peers.push({name:key, status:"here"})
     } else if (Peers[key].state == "disconnected") {
-      console.log("ID",key,"departing")
       peers.push({name:key, status:"departing"})
     } else {
-      console.log("ID",key,"unknown...",Peers[key].state)
     }
   })
   return peers

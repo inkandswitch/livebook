@@ -23,6 +23,9 @@ class DataFrame:
     def __len__(self):
         return self.length
 
+    def from_csv(path,**kwargs):
+        return read_csv(path)
+
     def groupby(self,by):
         return GroupBy(self,by)
 

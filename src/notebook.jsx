@@ -64,7 +64,6 @@ cradle.depart(update_peers);
  * `collaboratorsMount`
  */
 function update_peers () {
-  console.log("---> update FELLOWS", cradle.peers())
   peerPresence = cradle.peers();
   React.render(<Collaborators />, collaboratorsMount);
 }
@@ -77,7 +76,9 @@ var theData = null;
  * `theData` - CSV data that has been loaded.
  */
 
-Sk.builtins["__load_data__"] = function(name) {
+Sk.builtins["__load_data__"] = function(name,metadata) {
+  if (metadata && metadata != theMetadata) {
+  }
   if (theData) return theData;
   throw new Error("No CSV data loaded (2)");
 }
@@ -575,6 +576,14 @@ function python_eval() {
   render()
 }
 
+var assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
+function assignment_test(line) {
+  var a = assignment.test(line)
+  var b = assignment2.test(line)
+  console.log("TEST",line,a,b)
+  return a || b
+}
+
 function generate_python_ctx(badcells) {
   var lines = [];
   var lineno = 0;
@@ -596,7 +605,7 @@ function generate_python_ctx(badcells) {
         }
       })
       var line = lines.pop()
-      if (!keyword.test(line) && !assignment.test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
+      if (!keyword.test(line) && !assignment_test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
         lines.push("render(" + line + ")   ## line " + lineno)
       } else {
         lineno += 1
