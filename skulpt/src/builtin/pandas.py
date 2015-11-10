@@ -1,13 +1,4 @@
 
-#A                def test(i):
-#                    return True
-#                    if result.body[h][i] == None:
-#                        return false
-#                    return true
-#                   for s in kargs["subset"]:
-#A                    1
-#                    print "testing %s got %s" % ("x","x")
-
 class DataFrame:
 
     def __init__(self,data):
