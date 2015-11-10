@@ -11,12 +11,9 @@
 class DataFrame:
 
     def __init__(self,data):
-        ## we will have problems here if there is a column named head,body,length :(
         self.head   = data["head"]
         self.body   = data["body"]
         self.length = data["length"]
-        for h in self.head:
-            setattr(self, h, self.body[h])
 
     def __getitem__(self,i):
         if (type(i) is str):
@@ -28,12 +25,8 @@ class DataFrame:
             data.append(self.body[h][i])
         return tuple(data)
 
-#    def __getattr__(self,attr): for method_missing?
-#       if self.body[attr] == None:
-#           raise error
-#       def _attr():
-#           return self.body[attr]
-#       return _attr
+    def __getattr__(self,attr):
+        return self.body[attr]
 
     def __iter__(self):
         for i in range(0, self.length):

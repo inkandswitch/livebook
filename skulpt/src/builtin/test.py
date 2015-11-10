@@ -19,8 +19,8 @@ def test_dataframe():
     assert df.length == 4
     assert df[0] == (1,10)
     assert df.h1[0] == 1
-    assert df.h1[1] == 2
-    assert df["h1"][0] == 1
+    assert df.h2[2] == 30
+    assert df["h1"][1] == 2
     assert df["h2"][1] == 20
 
 def run():
