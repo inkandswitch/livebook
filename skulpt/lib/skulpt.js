@@ -38,13 +38,15 @@ var COMPILED = false;
  *
  * @const
  */
-var goog = goog || {};
 
+
+var goog = {};
+goog.global = ((typeof global !== 'undefined' && global) || (typeof window !== 'undefined' && window) || this);
+goog.global.goog = goog;
 
 /**
  * Reference to the global context.  In most cases this will be 'window'.
  */
-goog.global = this;
 
 /**
  * A hook for overriding the define values in uncompiled mode.
@@ -2525,11 +2527,11 @@ goog.addDependency('window/window.js', ['goog.window'], ['goog.string', 'goog.us
 goog.provide('goog.string');
 goog.provide('goog.string.Unicode');
 
-
 /**
  * Common Unicode string characters.
  * @enum {string}
  */
+
 goog.string.Unicode = {
   NBSP: '\xa0'
 };

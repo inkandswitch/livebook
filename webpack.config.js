@@ -16,16 +16,16 @@ function load_py(dir) {
 
 function generate_pyload() {
   files = []
-  load_py(["skulpt"])
+  load_py(["skulpt","src"])
 
-  var body = [ "var f = []",""]
+  var body = [ "var Sk = require('./skulpt')","var f = []",""]
   files.forEach((file) => body.push('Sk.builtinFiles["files"]["' + file + '"] = require("raw!' + file  + '");'))
   body.push('')
   files.forEach((file) => body.push('f.push("' + file + '")'))
   body.push('')
   body.push('module.exports = { files: f }')
   fs.writeFileSync("src/pyload.js", body.join("\n"))
-//  console.log("imported skulpt files",files)
+  //console.log("imported skulpt files",files)
 }
 
 generate_pyload()

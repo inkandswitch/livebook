@@ -1,5 +1,5 @@
-
 class DataFrame:
+
     def __init__(self,data):
         ## we will have problems here if there is a column named head,body,length :(
         self.head   = data["head"]
@@ -16,6 +16,13 @@ class DataFrame:
             data.append(self.body[h][i])
         return tuple(data)
 
+#    def __getattr__(self,attr): for method_missing?
+#       if self.body[attr] == None:
+#           raise error
+#       def _attr():
+#           return self.body[attr]
+#       return _attr
+
     def __iter__(self):
         for i in range(0, self.length):
             yield self.__getitem__(i)
@@ -23,7 +30,41 @@ class DataFrame:
     def __len__(self):
         return self.length
 
-    def from_csv(path,**kwargs):
+    def __new_body__(self):
+        new_body = {}
+        for h in self.head:
+            new_body[h] = []
+        return new_body
+
+#    def foo(self,**kargs):
+#        print "------------------3l"
+#        print self
+#        print kargs["subset"]
+#        print "------------------4"
+#        result = self
+#        for key in kargs:
+#            if key == "subset":
+#                new_len  = 0
+#                new_body = result.__new_body__()
+#A                def test(i):
+#                    return True
+#                    if result.body[h][i] == None:
+#                        return false
+#                    return true
+#                   for s in kargs["subset"]:
+#A                    1
+#                    print "testing %s got %s" % ("x","x")
+#            for i in range(0,result.length):
+#                q = 1
+#                if test(i):
+#                    new_len += 1
+#                    for h in result.head:
+#                        new_body[h].append(result.body[h][i])
+#            result = DataFrame({"head":result.head,"body":new_body,"length":new_len})
+#        return result
+#        return true
+
+    def from_csv(path,**kargs):
         return read_csv(path)
 
     def groupby(self,by):

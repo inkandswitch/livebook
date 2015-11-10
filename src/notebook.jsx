@@ -14,6 +14,7 @@ var Range      = ace.acequire('ace/range').Range;
 var React      = require("react")
 var AceEditor  = require("react-ace");
 
+var Sk         = require("./skulpt");
 var cradle     = require("./cradle");
 var pyload     = require("./pyload");
 
@@ -623,7 +624,7 @@ function execute_python_ctx(ctx) {
     try {
       console.log(ctx.code)
       console.log(ctx.map)
-      eval(Sk.importMainWithBody("<stdin>", false, ctx.code))
+      Sk.importMainWithBody("<stdin>", false, ctx.code)
     } catch (e) {
       console.log("Handle Error",e)
       return handle_error(ctx.map,e)
@@ -639,8 +640,9 @@ function execute_python_ctx(ctx) {
  * `Sk`
  */
 function handle_error(lineno_map, e) {
-  console.log("err line-no:",e.traceback[0].lineno)
-  var err_at = lineno_map[e.traceback[0].lineno] || lineno_map[e.traceback[0].lineno - 1] || {cell: CursorCell, line:1}
+  e.traceback.forEach((s) => { console.log("err line-no in " + s.filename + " line " + s.lineno) })
+  var stack = e.traceback.pop()
+  var err_at = lineno_map[stack.lineno] || lineno_map[stack.lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0];
   var $domCell = $("[data-cell-index='" + err_at.cell + "']"),
       markerId;
@@ -856,3 +858,4 @@ module.exports = {
   setCurrentPage         : setCurrentPage,
   setMode                : setMode,
 };
+

@@ -1,3 +1,4 @@
+var Sk  = require("./skulpt")
 var zip = require("./util").zip;
 
 function requireGlobalDeps() {
