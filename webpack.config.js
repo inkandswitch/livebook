@@ -19,7 +19,7 @@ function generate_pyload() {
   load_py(["skulpt","src"])
 
   var body = [ "var Sk = require('./skulpt')","var f = []",""]
-  files.forEach((file) => body.push('Sk.builtinFiles["files"]["' + file + '"] = require("raw!' + file  + '");'))
+  files.forEach((file) => body.push('Sk.builtinFiles["files"]["' + file + '"] = require("!!raw!' + file  + '");'))
   body.push('')
   files.forEach((file) => body.push('f.push("' + file + '")'))
   body.push('')
