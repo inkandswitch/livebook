@@ -1,3 +1,13 @@
+
+#A                def test(i):
+#                    return True
+#                    if result.body[h][i] == None:
+#                        return false
+#                    return true
+#                   for s in kargs["subset"]:
+#A                    1
+#                    print "testing %s got %s" % ("x","x")
+
 class DataFrame:
 
     def __init__(self,data):
@@ -9,6 +19,8 @@ class DataFrame:
             setattr(self, h, self.body[h])
 
     def __getitem__(self,i):
+        if (type(i) is str):
+            return self.body[i]
         if (i < 0 or i >= self.length):
             raise IndexError("DataFrame index out of range")
         data = []
@@ -30,39 +42,26 @@ class DataFrame:
     def __len__(self):
         return self.length
 
-    def __new_body__(self):
-        new_body = {}
+    def __blank_body__(self):
+        body = {}
         for h in self.head:
-            new_body[h] = []
-        return new_body
+            body[h] = []
+        return body
 
-#    def foo(self,**kargs):
-#        print "------------------3l"
-#        print self
-#        print kargs["subset"]
-#        print "------------------4"
-#        result = self
-#        for key in kargs:
-#            if key == "subset":
-#                new_len  = 0
-#                new_body = result.__new_body__()
-#A                def test(i):
-#                    return True
-#                    if result.body[h][i] == None:
-#                        return false
-#                    return true
-#                   for s in kargs["subset"]:
-#A                    1
-#                    print "testing %s got %s" % ("x","x")
-#            for i in range(0,result.length):
-#                q = 1
-#                if test(i):
-#                    new_len += 1
-#                    for h in result.head:
-#                        new_body[h].append(result.body[h][i])
-#            result = DataFrame({"head":result.head,"body":new_body,"length":new_len})
-#        return result
-#        return true
+    def dropna(self,**kargs):
+        result = self
+        for key in kargs:
+            val = kargs[key]
+            if key == "subset":
+                new_len  = 0
+                new_body = result.__blank_body__()
+            for i in range(0,result.length):
+                if all([result[h][i] != None for h in val]):
+                    new_len += 1
+                    for h in result.head:
+                        new_body[h].append(result.body[h][i])
+            result = DataFrame({"head":result.head,"body":new_body,"length":new_len})
+        return result
 
     def from_csv(path,**kargs):
         return read_csv(path)
