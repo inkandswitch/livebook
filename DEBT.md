@@ -18,3 +18,5 @@ goog.global = ((typeof global !== 'undefined' && global) || (typeof window !== '
 goog.global.goog = goog;
 ```
 
+I changed the code by hand in skulpt.js.  If we move to a newer version of Skulpt we will need to hand copy this change over.  Possibly look into getting this change adopted upstream in Skulpt.
+
