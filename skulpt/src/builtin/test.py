@@ -22,6 +22,8 @@ class Test:
     def test_dataframe(self):
         print "testing dataframe..."
         df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
+        assert type(df[0]) == tuple
+        assert type(df["h1"]) == pd.Series
         assert len(df) == 4
         assert df[0] == (1,10)
         assert df.h1[0] == 1

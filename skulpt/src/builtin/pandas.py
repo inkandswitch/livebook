@@ -28,15 +28,22 @@ class DataCore:
         return self.__data__["length"]
 
 
+class Series:
+    def __init__(self, core, column):
+        self.__core__ = core
+        self.__column__ = column
+
+    def __getitem__(self,i):
+        return self.__core__.body()[self.__column__][i]
+
+    def __iter__(self):
+        for i in range(0, len(self)):
+            yield self[i]
+
+    def __len__(self):
+        return len(self.__core__)
 
 class DataFrame:
-
-#    def __init__(self):
-#        self.__core__ = DataCore(data)
-#        self.head   = data["head"]
-#        self.body   = data["body"]
-#        self.length = data["length"]
-#        self.index  = None
 
     def from_data(data):
         d = DataFrame()
@@ -50,7 +57,7 @@ class DataFrame:
 
     def __getitem__(self,i):
         if (type(i) is str):
-            return self.__core__.body()[i]
+            return Series(self.__core__,i)
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
         data = []
@@ -62,8 +69,8 @@ class DataFrame:
         return self[attr]
 
     def __iter__(self):
-        for i in range(0, len(self.__core__)):
-            yield self.__getitem__(i)
+        for i in range(0, len(self)):
+            yield self[i]
 
     def __len__(self):
         return len(self.__core__)
