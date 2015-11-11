@@ -3,6 +3,20 @@ import pandas as pd
 
 
 class Test:
+    def test_resample(self):
+        print "testing resample..."
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["cow","dog","pig"]},"length":4})
+        s1 = df.set_index("h1")["h2"]
+        s2 = df.set_index("h2")["h1"]
+        print "h1,h2 resample"
+        r1 = s1.resample("A")
+        assert r1[0] == 20
+        assert r1[1] == 30
+        print "h2,h1 resample"
+        r2 = s2.resample("A",how="count")
+        assert r2[0] == 1
+        assert r2[1] == 2
+
     def test_set_index(self):
         print "testing index..."
         df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[40,30,20,10]},"length":4})
@@ -45,7 +59,8 @@ def run():
     t = Test()
     print "begin testing"
     do_test(t,"test_dataframe")
-    do_test(t,"test_set_index")
     do_test(t,"test_dropna")
+    do_test(t,"test_set_index")
+    do_test(t,"test_resample")
     print "done"
 

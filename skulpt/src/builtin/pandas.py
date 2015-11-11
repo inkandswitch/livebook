@@ -1,4 +1,7 @@
 
+def mean(nums):
+    return sum(nums)/len(nums)
+
 class DataCore:
     def __init__(self,head,body,index,idx):
         self.head = head
@@ -34,6 +37,40 @@ class Series:
             l.append(i)
         return l
 
+    def flip(self):
+        return Series(DataCore(self.core.head, self.core.body, self.column, self.core.idx), self.core.index)
+
+    def resample(self,rule,**kwargs):
+        keys = []
+        bins = {}
+        how = "mean"
+        _how = mean
+        if "how" in kwargs:
+            how = kwargs["how"]
+            _how = len ## todo
+        for key,val in self.iteritems():
+            if key in bins:
+                bins[key].append(val)
+            else:
+                keys.append(key)
+                bins[key] = [val]
+        new_body = { self.column: [], how: [] }
+        new_head = [ self.column, how ]
+        for k in keys:
+            new_body[self.column].append(k)
+            new_body[how].append(_how(bins[k]))
+        print new_body
+        return Series(DataCore(new_head,new_body,self.column,range(0,len(new_body[how]))), how)
+
+        print bins
+
+    def iteritems(self):
+        ## todo : error if no index
+        return [ ( self.flip()[i], self[i] ) for i in range(0,len(self))].__iter__()
+#        return [ ( self.core.body[self.core.index][self.core.idx[i]], self[i] ) for i in range(0,len(self))].__iter__()
+
+
+
 class DataFrame:
 
     def from_data(data):
@@ -53,7 +90,7 @@ class DataFrame:
             raise IndexError("DataFrame index out of range")
         data = []
         for h in self.columns():
-            data.append(self[h][i]) 
+            data.append(self[h][i])
         return tuple(data)
 
     def __getattr__(self,attr):
@@ -75,6 +112,8 @@ class DataFrame:
     def set_index(self,index):
         seq = self[index]
         idx = sorted(range(0,len(seq)),key=lambda i: seq[i])
+        print "set index: %s" % index
+        print idx
         return DataFrame.from_core(self.__core__.set_index(index,idx))
 
     def dropna(self,**kargs):
