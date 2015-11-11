@@ -5,13 +5,13 @@ import pandas as pd
 class Test:
     def test_index(self):
         print "testing index..."
-        df = pd.DataFrame({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
 #        df2 = df[df["h1"] == "2"]
 #        len(df2)
 
     def test_dropna(self):
         print "testing dropna..."
-        df = pd.DataFrame({"head":["h1","h2"],"body":{"h1":[1,2,None,None],"h2":[10,None,30,40]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,None,None],"h2":[10,None,30,40]},"length":4})
         df2 = df.dropna(subset=["h1"])
         df3 = df.dropna(subset=["h2"])
         df4 = df.dropna(subset=["h2","h1"])
@@ -21,7 +21,7 @@ class Test:
 
     def test_dataframe(self):
         print "testing dataframe..."
-        df = pd.DataFrame({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
         assert len(df) == 4
         assert df[0] == (1,10)
         assert df.h1[0] == 1

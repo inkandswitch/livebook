@@ -19,20 +19,34 @@ class DataCore:
         return self.__data__["body"]
 
     def indexes(self):
-        return self.__data__["indexes"]
+        if 'indexes' in self.__data__:
+            return self.__data__["indexes"]
+        else:
+            return None
 
     def __len__(self):
         return self.__data__["length"]
 
 
+
 class DataFrame:
 
-    def __init__(self,data):
-        self.__core__ = DataCore(data)
+#    def __init__(self):
+#        self.__core__ = DataCore(data)
 #        self.head   = data["head"]
 #        self.body   = data["body"]
 #        self.length = data["length"]
 #        self.index  = None
+
+    def from_data(data):
+        d = DataFrame()
+        d.__core__ = DataCore(data)
+        return d
+
+    def from_core(core):
+        d = DataFrame()
+        d.__core__ = core
+        return d
 
     def __getitem__(self,i):
         if (type(i) is str):
@@ -72,7 +86,7 @@ class DataFrame:
                     new_len += 1
                     for h in result.columns():  ## TODO - need an external method for this
                         new_body[h].append(result[h][i])
-            result = DataFrame({"head":result.columns(),"body":new_body,"length":new_len}) ## TODO use core
+            result = DataFrame.from_data({"head":result.columns(),"body":new_body,"length":new_len}) ## TODO use core
         return result
 
     def from_csv(path,**kargs):
@@ -94,7 +108,7 @@ class DataFrame:
                 for h in self.head:
                     # print "ADD h=%s i=%s d=%s val=%s --=%s" % (h,i,d,val,self.body[h][i])
                     selection["body"][h].append(self[h][i])
-        return DataFrame(selection)
+        return DataFrame.from_data(selection)
 
     def columns(self):
         return self.__core__.head()
@@ -130,5 +144,5 @@ class GroupBy:
             yield (k,self.groups[k])
 
 def read_csv(name):
-    return DataFrame(__load_data__(name))
+    return DataFrame.from_data(__load_data__(name))
 
