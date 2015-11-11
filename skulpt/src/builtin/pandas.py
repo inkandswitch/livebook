@@ -1,53 +1,44 @@
 
-#class Series:
-#    def __init__(self,data,**kwargs):
-#        self.data = data
-#        if kwargs["index"]:
-#            self.index = kwargs["index"]
-#
-#    def __getitem__(self,i):
-#        return self.data[i]
-
 class DataCore:
-    def __init__(self,data):
-        self.__data__ = data
+    def __init__(self,head,body,index,idx):
+        self.head = head
+        self.body = body
+        self.index = index
+        self.idx = idx
 
-    def head(self):
-        return self.__data__["head"]
-
-    def body(self):
-        return self.__data__["body"]
-
-    def indexes(self):
-        if 'indexes' in self.__data__:
-            return self.__data__["indexes"]
-        else:
-            return None
+    def set_index(self,index,idx):
+        return DataCore(self.head,self.body,index,idx)
 
     def __len__(self):
-        return self.__data__["length"]
+        return len(self.idx)
 
 
 class Series:
-    def __init__(self, core, column):
-        self.__core__ = core
-        self.__column__ = column
+    def __init__(self, core, column ):
+        self.core = core
+        self.column = column
 
     def __getitem__(self,i):
-        return self.__core__.body()[self.__column__][i]
+        return self.core.body[self.column][self.core.idx[i]]
 
     def __iter__(self):
         for i in range(0, len(self)):
             yield self[i]
 
     def __len__(self):
-        return len(self.__core__)
+        return len(self.core)
+
+    def _to_list(self):
+        l = []
+        for i in self:
+            l.append(i)
+        return l
 
 class DataFrame:
 
     def from_data(data):
         d = DataFrame()
-        d.__core__ = DataCore(data)
+        d.__core__ = DataCore(data["head"],data["body"],[],range(0,data["length"]))
         return d
 
     def from_core(core):
@@ -80,6 +71,11 @@ class DataFrame:
         for h in self.columns():
             body[h] = []
         return body
+
+    def set_index(self,index):
+        seq = self[index]
+        idx = sorted(range(0,len(seq)),key=lambda i: seq[i])
+        return DataFrame.from_core(self.__core__.set_index(index,idx))
 
     def dropna(self,**kargs):
         result = self
@@ -118,7 +114,7 @@ class DataFrame:
         return DataFrame.from_data(selection)
 
     def columns(self):
-        return self.__core__.head()
+        return self.__core__.head
 
     def describe(self):
         math = {

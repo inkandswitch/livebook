@@ -3,11 +3,14 @@ import pandas as pd
 
 
 class Test:
-    def test_index(self):
+    def test_set_index(self):
         print "testing index..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
-#        df2 = df[df["h1"] == "2"]
-#        len(df2)
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[40,30,20,10]},"length":4})
+        df2 = df.set_index("h1")
+        df3 = df.set_index("h2")
+        assert df2.h1[0] == 1
+        assert df3.h1[0] == 4
+        assert df3.h2[0] == 10
 
     def test_dropna(self):
         print "testing dropna..."
@@ -42,7 +45,7 @@ def run():
     t = Test()
     print "begin testing"
     do_test(t,"test_dataframe")
-    do_test(t,"test_index")
+    do_test(t,"test_set_index")
     do_test(t,"test_dropna")
     print "done"
 
