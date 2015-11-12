@@ -3,16 +3,28 @@ import pandas as pd
 
 
 class Test:
+    def test_select(self):
+        print "testing select..."
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]},"length":4})
+        df2 = df.select("h1",1)
+        assert len(df2) == 3
+        df3 = df2.select("h2",25)
+        assert len(df3) == 2
+        df4 = df3.select("h3","cow")
+        assert len(df4) == 1
+        assert len(df4.h1) == 1
+        assert df4.h1[0] == 1
+        assert df4.h2[0] == 25
+        assert df4.h3[0] == "cow"
+
     def test_resample(self):
         print "testing resample..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["cow","dog","pig"]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]},"length":4})
         s1 = df.set_index("h1")["h2"]
         s2 = df.set_index("h2")["h1"]
-        print "h1,h2 resample"
         r1 = s1.resample("A")
         assert r1[0] == 20
         assert r1[1] == 30
-        print "h2,h1 resample"
         r2 = s2.resample("A",how="count")
         assert r2[0] == 1
         assert r2[1] == 2
@@ -62,5 +74,6 @@ def run():
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
     do_test(t,"test_resample")
+    do_test(t,"test_select")
     print "done"
 

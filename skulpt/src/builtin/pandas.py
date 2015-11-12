@@ -2,34 +2,22 @@
 def mean(nums):
     return sum(nums)/len(nums)
 
-class DataCore:
-    def __init__(self,head,body,index,idx):
-        self.head = head
-        self.body = body
-        self.index = index
+class Series:
+    def __init__(self, data, column, sort, idx):
+        self.data = data
+        self.column = column
+        self.sort = sort
         self.idx = idx
 
-    def set_index(self,index,idx):
-        return DataCore(self.head,self.body,index,idx)
-
-    def __len__(self):
-        return len(self.idx)
-
-
-class Series:
-    def __init__(self, core, column ):
-        self.core = core
-        self.column = column
-
     def __getitem__(self,i):
-        return self.core.body[self.column][self.core.idx[i]]
+        return self.data[self.column][self.idx[i]]
 
     def __iter__(self):
         for i in range(0, len(self)):
             yield self[i]
 
     def __len__(self):
-        return len(self.core)
+        return len(self.idx)
 
     def _to_list(self):
         l = []
@@ -37,8 +25,8 @@ class Series:
             l.append(i)
         return l
 
-    def flip(self):
-        return Series(DataCore(self.core.head, self.core.body, self.column, self.core.idx), self.core.index)
+    def index(self):
+        return Series(self.data, self.sort, None, self.idx)
 
     def resample(self,rule,**kwargs):
         keys = []
@@ -59,39 +47,29 @@ class Series:
         for k in keys:
             new_body[self.column].append(k)
             new_body[how].append(_how(bins[k]))
-        print new_body
-        return Series(DataCore(new_head,new_body,self.column,range(0,len(new_body[how]))), how)
-
-        print bins
+        return Series(new_body, how, self.column, range(0,len(new_body[how])))
 
     def iteritems(self):
-        ## todo : error if no index
-        return [ ( self.flip()[i], self[i] ) for i in range(0,len(self))].__iter__()
-#        return [ ( self.core.body[self.core.index][self.core.idx[i]], self[i] ) for i in range(0,len(self))].__iter__()
-
-
+        return [ ( self.data[self.sort][i], self.data[self.column][i] ) for i in self.idx].__iter__()
 
 class DataFrame:
-
     def from_data(data):
-        d = DataFrame()
-        d.__core__ = DataCore(data["head"],data["body"],[],range(0,data["length"]))
-        return d
+        return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
 
-    def from_core(core):
+    def __new__(data,columns,sort,idx):
         d = DataFrame()
-        d.__core__ = core
+        d._data = data
+        d._columns = columns
+        d._sort = sort
+        d._idx = idx
         return d
 
     def __getitem__(self,i):
         if (type(i) is str):
-            return Series(self.__core__,i)
+            return Series(self._data,i,self._sort,self._idx)
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
-        data = []
-        for h in self.columns():
-            data.append(self[h][i])
-        return tuple(data)
+        return tuple(map(lambda x: self._data[x][i], self._columns))
 
     def __getattr__(self,attr):
         return self[attr]
@@ -101,35 +79,24 @@ class DataFrame:
             yield self[i]
 
     def __len__(self):
-        return len(self.__core__)
+        return len(self._idx)
 
     def __blank_body__(self): ## TODO - need a simpler one here
         body = {}
-        for h in self.columns():
-            body[h] = []
+        for h in self.columns(): body[h] = []
         return body
 
     def set_index(self,index):
-        seq = self[index]
-        idx = sorted(range(0,len(seq)),key=lambda i: seq[i])
-        print "set index: %s" % index
-        print idx
-        return DataFrame.from_core(self.__core__.set_index(index,idx))
+        new_idx = sorted(self._idx,key=lambda i: self._data[index][i])
+        return DataFrame.__new__(self._data, self._columns, index, new_idx)
 
     def dropna(self,**kargs):
-        result = self
+        new_idx = self._idx
         for key in kargs:
-            val = kargs[key]
+            cols = kargs[key]
             if key == "subset":
-                new_len  = 0
-                new_body = result.__blank_body__()
-            for i in range(0,len(result)):
-                if all([result[h][i] != None for h in val]):
-                    new_len += 1
-                    for h in result.columns():  ## TODO - need an external method for this
-                        new_body[h].append(result[h][i])
-            result = DataFrame.from_data({"head":result.columns(),"body":new_body,"length":new_len}) ## TODO use core
-        return result
+                new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
+        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
 
     def from_csv(path,**kargs):
         return read_csv(path)
@@ -138,22 +105,15 @@ class DataFrame:
         return GroupBy(self,by)
 
     def to_js(self):
+        # TODO - this is now broken - need to copy or help js understand
         return { "head":self.head, "body":self.body, "length":len(self) }
 
     def select(self,key,val):
-        selection = { "head": self.columns(), "body": {}, "length": 0 }
-        for h in self.head:
-            selection["body"][h] = []
-        for i, d in enumerate(self[key]):
-            if d == val:
-                selection["length"] += 1
-                for h in self.head:
-                    # print "ADD h=%s i=%s d=%s val=%s --=%s" % (h,i,d,val,self.body[h][i])
-                    selection["body"][h].append(self[h][i])
-        return DataFrame.from_data(selection)
+        new_idx = [i for i in self._idx if self._data[key][i] == val]
+        return DataFrame.__new__(self._data,self._columns,self._sort,new_idx)
 
     def columns(self):
-        return self.__core__.head
+        return self._columns
 
     def describe(self):
         math = {
