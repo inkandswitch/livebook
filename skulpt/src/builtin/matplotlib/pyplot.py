@@ -164,24 +164,8 @@ def figure_real(num=None, # autoincrement if None, else integer from 1-N
     return figManager.canvas.figure
 
 
-def plot(*args, **kwargs):
-#    ax = gca()
-#    # allow callers to override the hold state by passing hold=True|False
-#    washold = ax.ishold()
-#    hold = kwargs.pop('hold', None)
-#    if hold is not None:
-#        ax.hold(hold)
-#    try:
-#        ret = ax.plot(*args, **kwargs)
-#        draw_if_interactive()
-#    finally:
-#        ax.hold(washold)
-#
-#    return ret
-        __plot_js__()
-#    color = kwargs.pop('color', None)
-#    if color != "black":
-#        __plot_js__(args[0],args[1],args[2])
+def plot(data):
+     __plot_js__(data.to_plot_data())
 
 def legend(*args, **kwargs):
 #    ret = gca().legend(*args, **kwargs)

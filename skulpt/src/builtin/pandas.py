@@ -25,6 +25,12 @@ class Series:
             l.append(i)
         return l
 
+    def to_plot_data(self):
+        return { "x": self.sort, "columns": [
+            [self.sort] + [ self.data[self.sort][i] for i in self.idx ],
+            [self.column] + [ self.data[self.column][i] for i in self.idx ]
+        ]}
+
     def to_js(self):
         d1 = [self.data[self.column][i] for i in self.idx]
         if self.sort == None:
@@ -46,8 +52,8 @@ class Series:
             _how = len ## todo
         for key,val in self.iteritems():
             #print "Resample key=%s,val=%s,rule=%s"%(key,val,rule)
-            if rule == "A": key = key[:4]
-            if rule == "M": key = key[:7]
+            if rule == "A": key = key[:4] + "-01-01"
+            if rule == "M": key = key[:7] + "-01"
             if key in bins:
                 bins[key].append(val)
             else:

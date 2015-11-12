@@ -110,11 +110,13 @@ Sk.builtins["__figure_js__"] = function(xmax,ymax) {
   _plot_d3_($xmax,$ymax)
 }
 
-Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
+//Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
+Sk.builtins["__plot_js__"] = function(data) {
+  var $data = Sk.ffi.remapToJs(data)
+  plotForOklahoma($data);
 //  var $X = Sk.ffi.remapToJs(X)
 //  var $Y = Sk.ffi.remapToJs(Y)
 //  var $ColorName = Sk.ffi.remapToJs(ColorName)
-  plotForOklahoma("blue");
 //  _plot_generated_($X,$Y,$ColorName)
 }
 
@@ -126,42 +128,20 @@ function seemsLikeOklahoma(X, Y) {
   return true;
 }
 
-function plotForOklahoma(colorName) {
-  d3.select("svg").attr("id", "oklahoma");
-  d3.csv("/ok_quakes.csv", function(data) {
-    var xData = ["x"].concat(data.map( (d) => new Date(d.time) ));
-    var yData = ["count"].concat(data.map( (d) => +d.count) );
-    var chart = c3.generate({
-        bindto: "#oklahoma",
-        data: {
-            x: 'x',
-    //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
-            columns: [
-                // ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
-    //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
-                xData,
-                yData,
-                // ['data1', 30, 200, 100, 400, 150, 250],
-                // ['data2', 130, 340, 200, 500, 250, 350]
-            ]
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    format: '%Y'
-                }
-            }
-        }
-    });
-
-    // To update a chart with new data:
-    //
-    // chart.load({
-    //     columns: [
-    //         ['otherStatesData', 400, 500, 450, 700, 600, 500]
-    //     ]
-    // });
-  });
+function plotForOklahoma(data) {
+  console.log("CHART",data)
+  let $cell   = requireGlobalDeps().get$cell();
+  let chart = c3.generate({
+      bindto: "#plot" + $cell, //"#oklahoma",
+      data: data,
+      axis: {
+          x: {
+              type: 'timeseries',
+              tick: {
+                  format: '%Y'
+              }
+          }
+      }
+  })
 }
 
