@@ -46,7 +46,8 @@ class Series:
             _how = len ## todo
         for key,val in self.iteritems():
             #print "Resample key=%s,val=%s,rule=%s"%(key,val,rule)
-            if rule == "A": key = key[:7]
+            if rule == "A": key = key[:4]
+            if rule == "M": key = key[:7]
             if key in bins:
                 bins[key].append(val)
             else:

@@ -52,10 +52,12 @@ class Test:
         print "testing monthly resample..."
         df = pd.DataFrame.from_data({"head":["date","bolides"],"body":{"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]},"length":3})
         bb = df.set_index("date")["bolides"]
-        s1 = bb.resample("A",how="count")
-        s2 = bb.resample("A")
+        s1 = bb.resample("M",how="count")
+        s2 = bb.resample("M")
+        s3 = bb.resample("A",how="count")
         assert s1._to_list() == [2,1]
         assert s2._to_list() == [4,150]
+        assert s3._to_list() == [3]
 
     def test_set_index(self):
         print "testing index..."

@@ -111,10 +111,11 @@ Sk.builtins["__figure_js__"] = function(xmax,ymax) {
 }
 
 Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
-  var $X = Sk.ffi.remapToJs(X)
-  var $Y = Sk.ffi.remapToJs(Y)
-  var $ColorName = Sk.ffi.remapToJs(ColorName)
-  _plot_generated_($X,$Y,$ColorName)
+//  var $X = Sk.ffi.remapToJs(X)
+//  var $Y = Sk.ffi.remapToJs(Y)
+//  var $ColorName = Sk.ffi.remapToJs(ColorName)
+  plotForOklahoma("blue");
+//  _plot_generated_($X,$Y,$ColorName)
 }
 
 

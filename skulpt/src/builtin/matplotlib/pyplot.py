@@ -178,9 +178,10 @@ def plot(*args, **kwargs):
 #        ax.hold(washold)
 #
 #    return ret
-    color = kwargs.pop('color', None)
-    if color != "black":
-        __plot_js__(args[0],args[1],args[2])
+        __plot_js__()
+#    color = kwargs.pop('color', None)
+#    if color != "black":
+#        __plot_js__(args[0],args[1],args[2])
 
 def legend(*args, **kwargs):
 #    ret = gca().legend(*args, **kwargs)
