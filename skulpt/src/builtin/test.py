@@ -3,9 +3,30 @@ import pandas as pd
 
 
 class Test:
+    def test_getitem(self):
+        print "testing getitem..."
+        df1 = pd.DataFrame.from_data({"head":["name","age"],"body":{"name":["zak","aaron"],"age":[30,40]},"length":2})
+        df2 = df1.set_index("name")
+        assert df1[0] == ("zak",30)
+        assert df2[0] == ("aaron",40)
+
+    def test_reindex(self):
+        print "testing reindex..."
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,4,8],"h2":[25,25,25,30]},"length":4})
+        df2 = df._reindex([3,2,1,0])
+        df3 = df._reindex([0,4,1,2],sort="h2")
+        assert df.h1[0] == 1
+        assert df.h1[3] == 8
+        assert df2._sort == None
+        assert df2.h1[0] == 8
+        assert df2.h1[3] == 1
+        assert df3._sort == "h2"
+        assert df3.h1[0] == 1
+        assert df3.h1[3] == 4
+
     def test_select(self):
         print "testing select..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2","h3"],"body":{"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]},"length":4})
         df2 = df.select("h1",1)
         assert len(df2) == 3
         df3 = df2.select("h2",25)
@@ -19,7 +40,7 @@ class Test:
 
     def test_resample(self):
         print "testing resample..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]},"length":4})
+        df = pd.DataFrame.from_data({"head":["h1","h2","h3"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]},"length":4})
         s1 = df.set_index("h1")["h2"]
         s2 = df.set_index("h2")["h1"]
         r1 = s1.resample("A")
@@ -75,5 +96,7 @@ def run():
     do_test(t,"test_set_index")
     do_test(t,"test_resample")
     do_test(t,"test_select")
+    do_test(t,"test_reindex")
+    do_test(t,"test_getitem")
     print "done"
 

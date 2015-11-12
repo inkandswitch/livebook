@@ -69,7 +69,7 @@ class DataFrame:
             return Series(self._data,i,self._sort,self._idx)
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
-        return tuple(map(lambda x: self._data[x][i], self._columns))
+        return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))
 
     def __getattr__(self,attr):
         return self[attr]
@@ -86,9 +86,13 @@ class DataFrame:
         for h in self.columns(): body[h] = []
         return body
 
+    def _reindex(self, new_idx, **kwargs):
+        new_sort = kwargs["sort"] if ('sort' in kwargs) else self._sort
+        return DataFrame.__new__(self._data, self._columns, new_sort, new_idx)
+
     def set_index(self,index):
         new_idx = sorted(self._idx,key=lambda i: self._data[index][i])
-        return DataFrame.__new__(self._data, self._columns, index, new_idx)
+        return self._reindex(new_idx,sort=index)
 
     def dropna(self,**kargs):
         new_idx = self._idx
@@ -96,7 +100,7 @@ class DataFrame:
             cols = kargs[key]
             if key == "subset":
                 new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
-        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
+        return self._reindex(new_idx)
 
     def from_csv(path,**kargs):
         return read_csv(path)
@@ -105,12 +109,10 @@ class DataFrame:
         return GroupBy(self,by)
 
     def to_js(self):
-        # TODO - this is now broken - need to copy or help js understand
         return { "head":self.head, "body":self.body, "length":len(self) }
 
     def select(self,key,val):
-        new_idx = [i for i in self._idx if self._data[key][i] == val]
-        return DataFrame.__new__(self._data,self._columns,self._sort,new_idx)
+        return self._reindex([i for i in self._idx if self._data[key][i] == val])
 
     def columns(self):
         return self._columns
