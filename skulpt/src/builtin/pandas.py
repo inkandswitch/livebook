@@ -25,6 +25,14 @@ class Series:
             l.append(i)
         return l
 
+    def to_js(self):
+        d1 = [self.data[self.column][i] for i in self.idx]
+        if self.sort == None:
+            return { "head":[self.column], "body":{self.column:d1}, "length":len(self) }
+        else:
+            d2 = [self.data[self.sort][i] for i in self.idx]
+            return { "head":[self.sort, self.column], "body":{self.column:d1,self.sort:d2}, "length":len(self) }
+
     def index(self):
         return Series(self.data, self.sort, None, self.idx)
 
@@ -37,6 +45,8 @@ class Series:
             how = kwargs["how"]
             _how = len ## todo
         for key,val in self.iteritems():
+            #print "Resample key=%s,val=%s,rule=%s"%(key,val,rule)
+            if rule == "A": key = key[:7]
             if key in bins:
                 bins[key].append(val)
             else:

@@ -43,12 +43,19 @@ class Test:
         df = pd.DataFrame.from_data({"head":["h1","h2","h3"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]},"length":4})
         s1 = df.set_index("h1")["h2"]
         s2 = df.set_index("h2")["h1"]
-        r1 = s1.resample("A")
+        r1 = s1.resample("Q")
         assert r1[0] == 20
         assert r1[1] == 30
-        r2 = s2.resample("A",how="count")
+        r2 = s2.resample("Q",how="count")
         assert r2[0] == 1
         assert r2[1] == 2
+        print "testing monthly resample..."
+        df = pd.DataFrame.from_data({"head":["date","bolides"],"body":{"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]},"length":3})
+        bb = df.set_index("date")["bolides"]
+        s1 = bb.resample("A",how="count")
+        s2 = bb.resample("A")
+        assert s1._to_list() == [2,1]
+        assert s2._to_list() == [4,150]
 
     def test_set_index(self):
         print "testing index..."
