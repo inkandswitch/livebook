@@ -207,7 +207,8 @@ div.pyresult {
 }
 
 div.plot {
-  margin-left: 90px;
+  margin: 0 30px;
+  margin-top: 8pt;
 }
 
 #menu {
