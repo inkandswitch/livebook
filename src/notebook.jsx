@@ -424,7 +424,7 @@ function appendCell(type) {
            "output_type": "execute_result"
          }
        ],
-       "source": [ "type some python" ]
+       "source": [ "" ]
     });
   else if (type === "markdown")
     cell = ({
@@ -858,4 +858,3 @@ module.exports = {
   setCurrentPage         : setCurrentPage,
   setMode                : setMode,
 };
-
