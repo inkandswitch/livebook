@@ -33,11 +33,9 @@ generate_pyload()
 setInterval(generate_pyload,5000)
 
 module.exports = {
-    entry: "./src/index.js",
-    output: {
-        path: "public",
-        filename: "bundle.js"
-    },
+    entry: { notebook: "./src/index.js", worker: "./src/worker.js"},
+    output:
+      { path: "public/js", filename: "[name].js" },
     resolve: {
       modulesDirectories: ["web_modules", "node_modules"],
       fallback: ["skulpt"],

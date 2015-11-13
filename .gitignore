@@ -1,9 +1,8 @@
 node_modules
-example
 npm-debug.log
 src/pyload.js
-bower_components
-bundle.js
+public/js/notebook.js
+public/js/worker.js
 .DS_Store
 db.sql
 .env

@@ -14,9 +14,16 @@ var Range      = ace.acequire('ace/range').Range;
 var React      = require("react")
 var AceEditor  = require("react-ace");
 
-var Sk         = require("./skulpt");
 var cradle     = require("./cradle");
+
+var Sk         = require("./skulpt");
 var pyload     = require("./pyload");
+
+var WORKER     = new Worker("/js/worker.js");
+setInterval(() => WORKER.postMessage("TEST MESSAGE"), 5000)
+WORKER.onmessage = function(e) {
+  console.log("Got message from the worker:",e.data)
+}
 
 console.log("python",pyload.files)
 
