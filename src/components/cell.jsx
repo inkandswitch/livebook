@@ -40,7 +40,7 @@ var Cell = React.createClass({
       return <MarkdownCell data={this.props.data} index={this.props.index}/>      
     }
     else {
-      return <CodeCell data={this.props.data} index={this.props.index} errorObject={this.props.errorObject}/>      
+      return <CodeCell data={this.props.data} cursor={this.props.cursor} typing={this.props.typing} index={this.props.index} errorObject={this.props.errorObject}/>
     }
   },
 

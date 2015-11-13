@@ -66,6 +66,7 @@ var CodeCell = React.createClass({
  },
 
   render() {
+    console.log("TYPING",this.props.typing)
     var hideMe = {display: "none",};
     return (
       <div className="cell" data-cell-index={this.props.index}>

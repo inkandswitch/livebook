@@ -30,6 +30,10 @@ var noop             = require("./util").noop;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
+var LAST_TYPE = new Date()
+var TYPING_SPAN = 500
+function typing() { return new Date() - LAST_TYPE < TYPING_SPAN }
+
 var ERRORS = {
   // expects this format:
   //
@@ -216,6 +220,7 @@ function displayClass(cell) {
 function onChangeFunc(i) { // i is the CursorCell
   var timeout
   return e => {
+    LAST_TYPE = new Date()
     if (timeout) { clearTimeout(timeout) }
     timeout = setTimeout(() => {
       var lines = e.split("\n");
@@ -228,10 +233,14 @@ function onChangeFunc(i) { // i is the CursorCell
         // once evaluation continues past erroneous cell, this approach should work
         // otherwise, let's switch to only clearing error message for current cell
         CLEAR_ERROR_MESSAGES();
-        python_eval();
+        python_eval()
+        if (typing()) {
+          timeout = setTimeout(render,new Date() - LAST_TYPE)
+        }
       }
       timeout = undefined
     },300)
+    render()
 //    if (iPython.cells[i].cell_type === "markdown") render();
   }
 }
@@ -693,9 +702,11 @@ var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
+    var t = typing()
+    console.log("T",t)
     return this.props.data.cells.map((cell,index) => {
       var errorObject = ERRORS[index];
-      return <Cell data={cell} key={index} index={index} errorObject={errorObject}/>;
+      return <Cell data={cell} cursor={CursorCell} typing={t} key={index} index={index} errorObject={errorObject}/>;
     }) // `key` prop stops React warnings in the console
   },
 
