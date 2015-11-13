@@ -113,7 +113,8 @@ Sk.builtins["__figure_js__"] = function(xmax,ymax) {
 //Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
 Sk.builtins["__plot_js__"] = function(data) {
   var $data = Sk.ffi.remapToJs(data)
-  plotForOklahoma($data);
+  let $cell   = requireGlobalDeps().get$cell();
+  plotForOklahoma($cell, $data);
 //  var $X = Sk.ffi.remapToJs(X)
 //  var $Y = Sk.ffi.remapToJs(Y)
 //  var $ColorName = Sk.ffi.remapToJs(ColorName)
@@ -128,11 +129,10 @@ function seemsLikeOklahoma(X, Y) {
   return true;
 }
 
-function plotForOklahoma(data) {
+function plotForOklahoma(cell, data) {
   console.log("CHART",data)
-  let $cell   = requireGlobalDeps().get$cell();
   let chart = c3.generate({
-      bindto: "#plot" + $cell, //"#oklahoma",
+      bindto: "#plot" + cell, //"#oklahoma",
       data: data,
       axis: {
           x: {
