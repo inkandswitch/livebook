@@ -205,6 +205,9 @@ div.pyresult {
   font-size: 10pt;
   overflow: hidden;
 }
+div.pyresult.under-construction {
+  opacity: 0.3;
+}
 
 div.plot {
   margin: 0 30px;

@@ -11,6 +11,10 @@ function requireGlobalDeps() {
  */
 var CodeCell = React.createClass({
 
+  underConstruction() {
+    return (this.props.typing && this.props.index >= this.props.cursor);
+  },
+
   errorMessage() {
     var errorObject = this.props.errorObject,
         line,
@@ -20,8 +24,11 @@ var CodeCell = React.createClass({
 
     message = errorObject.message;
 
+    var klass = "pyresult pyresult-error";
+    if (this.underConstruction()) klass += " under-construction"
+
     return (
-      <div className="pyresult pyresult-error">
+      <div className={klass}>
         {message}
       </div>
     );
@@ -36,7 +43,10 @@ var CodeCell = React.createClass({
   },
 
   text(data) {
-    return (data && <div className="pyresult">{data.join("")}</div>);
+    var klass = "pyresult"
+    if (this.underConstruction()) klass += " under-construction"
+
+    return (data && <div className={klass}>{data.join("")}</div>);
   },
 
   outputs() {
@@ -66,7 +76,6 @@ var CodeCell = React.createClass({
  },
 
   render() {
-    console.log("TYPING",this.props.typing)
     var hideMe = {display: "none",};
     return (
       <div className="cell" data-cell-index={this.props.index}>
