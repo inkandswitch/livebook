@@ -22,7 +22,6 @@ function rawMarkup(lines) {
 
 function resultToHtml(result) {
   if (result.head && result.body) { // this is DataFrame
-    console.log("RENDER",result)
     var table = "<table><thead><tr><th>&nbsp;</th>";
     result.head.forEach(h => {
       if (h == result.sort) return;
@@ -47,25 +46,6 @@ function resultToHtml(result) {
     table += "</tbody>"
     table += "</table>";
 
-    return table;
-  } else { // this is DataFrame.describe()
-    var table = "<table><thead><tr><th>&nbsp;</th>";
-    result.cols.forEach(col => table += "<th>" + col + "</th>")
-    table += "</tr></thead>"
-    table += "<tbody>"
-    result.rows.forEach(row => {
-      table += "<tr><th>" + row + "</th>"
-      result.cols.forEach(col => {
-        var cellContent = result.data[row][col];
-        if (cellContent.toFixed) {
-          cellContent = cellContent.toFixed(6);
-        }
-        table += "<td>" + cellContent + "</td>";
-      })
-      table += "</tr>"
-    })
-    table += "</tbody>"
-    table += "</table>";
     return table;
   }
 }

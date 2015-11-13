@@ -141,32 +141,22 @@ function python_mark(cell) {
  */
 function python_render(result) {
   if (result === undefined) return;
-  var $result;
-  // BOOTS ???
+  var text;
+  var html;
   // Duck type result... if it has `to_js` method, proceed
   if (result.to_js) {
-    // BOOTS ???
-    // - what is tmp here?
-    // BOOTS TODO
-    // - use `let`
     let $method = Sk.abstr.gattr(result, 'to_js', true)
-    let tmp = Sk.misceval.callsimOrSuspend($method)
-    $result = Sk.ffi.remapToJs(tmp)
+    let $result = Sk.misceval.callsimOrSuspend($method)
+    html = resultToHtml(Sk.ffi.remapToJs($result))
   } else {
-    $result = Sk.ffi.remapToJs(result)
+    text = String(Sk.ffi.remapToJs(result)) + "\n";
   }
 
-  // BOOTS ???
-  // - if there's a result with rows, cols, and data,
-  //   let's render a table and record it to the iPython object
-  //   otherwise, let's render it as plaintext to the iPython object
-  if ($result && (($result.rows && $result.cols && $result.data) || ($result.head && $result.body))) {
-    let table = resultToHtml($result);
-
+  if (html) {
     iPython.cells[$cell].outputs = [
       {
        "data": {
-         "text/html": [ table ]
+         "text/html": [ html ]
        },
        "execution_count": 1,
        "metadata": {},
@@ -177,7 +167,7 @@ function python_render(result) {
     iPython.cells[$cell].outputs = [
       {
        "data": {
-         "text/plain": [$result]
+         "text/plain": [text]
        },
        "execution_count": 1,
        "metadata": {},
