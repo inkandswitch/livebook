@@ -32,7 +32,7 @@ var zip              = require("./util").zip;
 
 var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
-function typing() { return new Date() - LAST_TYPE < TYPING_SPAN }
+function typing(when) { return when - LAST_TYPE < TYPING_SPAN }
 
 var ERRORS = {
   // expects this format:
@@ -233,8 +233,8 @@ function onChangeFunc(i) { // i is the CursorCell
         // once evaluation continues past erroneous cell, this approach should work
         // otherwise, let's switch to only clearing error message for current cell
         CLEAR_ERROR_MESSAGES();
-        python_eval()
-        if (typing()) {
+        let render_time = python_eval()
+        if (typing(render_time)) {
           timeout = setTimeout(render,new Date() - LAST_TYPE)
         }
       }
@@ -378,10 +378,12 @@ function cellPosition() {
  * `setup_drag_drop`
  */
 function render() {
-  React.render(<Notebook data={iPython} />, notebookMount);
+  let render_time = new Date()
+  React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu />, menuMount);
   React.render(<Collaborators />, collaboratorsMount);
   setup_drag_drop()
+  return render_time
 }
 
 // BOOTS ??? !!! (on the next many functions)
@@ -588,7 +590,7 @@ function python_eval() {
     var badcell  = execute_python_ctx(code_ctx)
     badcells.push(badcell)
   } while(keepgoing && badcell >= 0)
-  render()
+  return render()
 }
 
 var assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
@@ -702,11 +704,9 @@ var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
-    var t = typing()
-    console.log("T",t)
     return this.props.data.cells.map((cell,index) => {
       var errorObject = ERRORS[index];
-      return <Cell data={cell} cursor={CursorCell} typing={t} key={index} index={index} errorObject={errorObject}/>;
+      return <Cell data={cell} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
     }) // `key` prop stops React warnings in the console
   },
 
