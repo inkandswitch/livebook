@@ -24,7 +24,7 @@ var CodeCell = React.createClass({
 
     message = errorObject.message;
 
-    var klass = "pyresult pyresult-error";
+    var klass = "pyresult pyresult-error"
     if (this.underConstruction()) klass += " under-construction"
 
     return (

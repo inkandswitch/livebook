@@ -48,7 +48,6 @@ var ERRORS = {
 };
 
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
-var ERROR_CELL_CLASSNAME = "cell-syntax-error";
 function REMOVE_ERRORS() {
   REMOVE_MARKERS();
   CLEAR_ERROR_MESSAGES();
@@ -645,8 +644,7 @@ function handle_error(lineno_map, e) {
   var stack = e.traceback.pop()
   var err_at = lineno_map[stack.lineno] || lineno_map[stack.lineno - 1] || {cell: CursorCell, line:1}
   var msg = Sk.ffi.remapToJs(e.args)[0];
-  var $domCell = $("[data-cell-index='" + err_at.cell + "']"),
-      markerId;
+  var markerId;
 
   console.log("Hi! err_at:", err_at);
 
@@ -660,9 +658,6 @@ function handle_error(lineno_map, e) {
 
       console.log("ADD MARKER", markerId)
       ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
-
-      // highlight the offending rendered cell
-      $domCell.addClass(ERROR_CELL_CLASSNAME);
     }
   }
 
