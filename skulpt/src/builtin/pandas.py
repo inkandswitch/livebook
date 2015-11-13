@@ -26,10 +26,8 @@ class Series:
         return len(self.idx)
 
     def _to_list(self):
-        l = []
-        for i in self:
-            l.append(i)
-        return l
+        c = self.data[self.column]
+        return [ c[i] for i in self.idx]
 
     def to_plot_data(self):
         return { "x": self.sort, "columns": [
@@ -159,14 +157,14 @@ class DataFrame:
 
     def describe(self):
         math = {
-            "count": lambda x: len(x),
-            "mean":  lambda x: do_math(lambda y: sum(y) / len(y),x),
-            "std":   lambda x: 1,
-            "min":   lambda x: min(x),
-            "25":    lambda x: do_math(lambda y: sorted(y)[len(y) / 4],x),
-            "50":    lambda x: do_math(lambda y: sorted(y)[len(y) / 2],x),
-            "75":    lambda x: do_math(lambda y: sorted(y)[len(y) * 3 / 4],x),
-            "max":   lambda x: max(x),
+            "count": lambda d,l,n: l,
+            "mean":  lambda d,l,n: sum(d)/l if n else None,
+            "std":   lambda d,l,n: 1,
+            "min":   lambda d,l,n: d[0],
+            "25":    lambda d,l,n: d[l / 4],
+            "50":    lambda d,l,n: d[l / 2],
+            "75":    lambda d,l,n: d[l * 3 / 4],
+            "max":   lambda d,l,n: d[l - 1]
         }
         #summary = { "rows": ["count","mean","std","min","25","50","75","max"], "cols": self.columns(), "data": {} }
         funcs = ["count","mean","std","min","25","50","75","max"]
@@ -175,7 +173,10 @@ class DataFrame:
         sort = "_id"
         idx = range(0,len(funcs))
         for c in self.columns():
-            data[c] = [ math[f](self[c]) for f in funcs ]
+            d = sorted(self[c]._to_list())
+            l = len(d)
+            n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
+            data[c] = [ math[f](d,l,n) for f in funcs ]
         return DataFrame.__new__(data,columns,sort,idx)
 
 class GroupBy:
