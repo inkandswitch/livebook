@@ -1,4 +1,10 @@
 
+def do_math(func,data):
+    if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
+        return func(data)
+    else:
+        return None
+
 def mean(nums):
     return sum(nums)/len(nums)
 
@@ -31,13 +37,22 @@ class Series:
             [self.column] + [ self.data[self.column][i] for i in self.idx ]
         ]}
 
+    def describe(self):
+        return self.to_df().describe()
+
+    def to_df(self):
+        if self.sort == None:
+            return DataFrame.__new__(self.data,[self.column],None,self.idx)
+        else:
+            return DataFrame.__new__(self.data,[self.sort, self.column],self.sort,self.idx)
+
     def to_js(self):
         d1 = [self.data[self.column][i] for i in self.idx]
         if self.sort == None:
             return { "head":[self.column], "body":{self.column:d1}, "length":len(self) }
         else:
             d2 = [self.data[self.sort][i] for i in self.idx]
-            return { "head":[self.sort, self.column], "body":{self.column:d1,self.sort:d2}, "length":len(self) }
+            return { "sort": self.sort, "head":[self.sort, self.column], "body":{self.column:d1,self.sort:d2}, "length":len(self) }
 
     def index(self):
         return Series(self.data, self.sort, None, self.idx)
@@ -126,7 +141,15 @@ class DataFrame:
         return GroupBy(self,by)
 
     def to_js(self):
-        return { "head":self.head, "body":self.body, "length":len(self) }
+        body = {}
+        print "BEGIN"
+        print self._idx
+        for c in self._columns:
+            print "COL %s" % c
+            print self._data[c]
+            body[c] = [self._data[c][i] for i in self._idx]
+        print "DONE"
+        return { "head":self._columns, "body":body, "length":len(self._idx), "sort": self._sort }
 
     def select(self,key,val):
         return self._reindex([i for i in self._idx if self._data[key][i] == val])
@@ -137,20 +160,23 @@ class DataFrame:
     def describe(self):
         math = {
             "count": lambda x: len(x),
-            "mean":  lambda x: sum(x) / len(x),
-            "std":   lambda x: 0,
+            "mean":  lambda x: do_math(lambda y: sum(y) / len(y),x),
+            "std":   lambda x: 1,
             "min":   lambda x: min(x),
-            "25":    lambda x: sorted(x)[len(x) / 4],
-            "50":    lambda x: sorted(x)[len(x) / 2],
-            "75":    lambda x: sorted(x)[len(x) * 3 / 4],
+            "25":    lambda x: do_math(lambda y: sorted(y)[len(y) / 4],x),
+            "50":    lambda x: do_math(lambda y: sorted(y)[len(y) / 2],x),
+            "75":    lambda x: do_math(lambda y: sorted(y)[len(y) * 3 / 4],x),
             "max":   lambda x: max(x),
         }
-        summary = { "rows": ["count","mean","std","min","25","50","75","max"], "cols": self.columns(), "data": {} }
-        for func in summary["rows"]:
-            summary["data"][func] = {}
-            for h in summary["cols"]:
-                summary["data"][func][h] = math[func](self.body[h])
-        return summary
+        #summary = { "rows": ["count","mean","std","min","25","50","75","max"], "cols": self.columns(), "data": {} }
+        funcs = ["count","mean","std","min","25","50","75","max"]
+        data = { "_id": funcs }
+        columns = ["_id"] + self.columns()
+        sort = "_id"
+        idx = range(0,len(funcs))
+        for c in self.columns():
+            data[c] = [ math[f](self[c]) for f in funcs ]
+        return DataFrame.__new__(data,columns,sort,idx)
 
 class GroupBy:
     def __init__(self, data, by):

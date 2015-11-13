@@ -20,7 +20,7 @@ var Sk         = require("./skulpt");
 var pyload     = require("./pyload");
 
 var WORKER     = new Worker("/js/worker.js");
-setInterval(() => WORKER.postMessage("TEST MESSAGE"), 5000)
+WORKER.postMessage("TEST MESSAGE")
 WORKER.onmessage = function(e) {
   console.log("Got message from the worker:",e.data)
 }
@@ -854,7 +854,6 @@ function initializeEditor() {
 
 module.exports = {
   appendCell             : appendCell,
-  cursor                 : cursor,
   deleteCell             : deleteCell,
   displayClass           : displayClass,
   get$cell               : () => $cell,

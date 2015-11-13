@@ -24,15 +24,23 @@ function resultToHtml(result) {
   if (result.head && result.body) { // this is DataFrame
     console.log("RENDER",result)
     var table = "<table><thead><tr><th>&nbsp;</th>";
-    result.head.forEach(h => table += "<th>" + h + "</th>")
+    result.head.forEach(h => {
+      if (h == result.sort) return;
+      table += "<th>" + h + "</th>"
+    })
     table += "</tr></thead>"
     table += "<tbody>"
     for (let i = 0; i < result.length; i++) {
-      table += "<tr><th>" + i + "</th>"
+      if (result.sort) {
+        table += "<tr><th>" + result.body[result.sort][i] + "</th>"
+      } else {
+        table += "<tr><th>" + i + "</th>"
+      }
       result.head.forEach(h => {
+        if (h == result.sort) return;
         var cellContent = result.body[h][i];
-        if (cellContent.toFixed) { cellContent = cellContent.toFixed(6); }
-        table += "<td>" + cellContent + "</td>"
+        if (cellContent && cellContent.toFixed) { cellContent = cellContent.toFixed(6); }
+        table += "<td>" + (cellContent||"&nbsp;") + "</td>"
       })
       table += "</tr>"
     }
