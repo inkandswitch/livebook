@@ -252,19 +252,6 @@ function onChangeFunc(i) { // i is the CursorCell
   }
 }
 
-// BOOTS ???
-/**
- * [Global Deps]
- * `Mode`
- */
-function cursor(i) {
-  if (i != CursorCell) return ""
-  if (Mode == "view")  return ""
-  if (Mode == "nav")   return "cursor"
-  if (Mode == "edit")  return "cursor-edit"
-  else                 throw  new Error("Invalid mode: " + Mode);
-}
-
 /**
  * [Global Deps]
  * `Mode`
@@ -385,6 +372,7 @@ function cellPosition() {
  * `setup_drag_drop`
  */
 function render() {
+  console.log("render!",CurrentPage)
   let render_time = new Date()
   React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu />, menuMount);
@@ -713,7 +701,7 @@ var Notebook = React.createClass({
   cells: function() {
     return this.props.data.cells.map((cell,index) => {
       var errorObject = ERRORS[index];
-      return <Cell data={cell} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
+      return <Cell data={cell} mode={Mode} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
     }) // `key` prop stops React warnings in the console
   },
 

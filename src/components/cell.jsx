@@ -7,6 +7,15 @@ function requireGlobalDeps() {
   return require("../notebook.jsx");
 }
 
+function cursor(mode, cursor_cell, i) {
+  if (i != cursor_cell) return ""
+  if (mode == "view")  return ""
+  if (mode == "nav")   return "cursor"
+  if (mode == "edit")  return "cursor-edit"
+  else                 throw  new Error("Invalid mode: " + mode);
+}
+
+
 /**
  * [Global Deps]
  * `cursor`
@@ -45,8 +54,7 @@ var Cell = React.createClass({
   },
 
   render() {
-    var cursor = requireGlobalDeps().cursor;
-    return <div className={cursor(this.props.index)} onClick={this.enterEditMode}> {this.subcell()} </div>
+    return <div className={cursor(this.props.mode, this.props.cursor, this.props.index)} onClick={this.enterEditMode}> {this.subcell()} </div>
   },
 
 });
