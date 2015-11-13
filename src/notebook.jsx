@@ -214,20 +214,25 @@ function displayClass(cell) {
  * `python_eval` -
  */
 function onChangeFunc(i) { // i is the CursorCell
+  var timeout
   return e => {
-    var lines = e.split("\n");
-    var newSource = lines.map((s, i) => {
-        return (i !== lines.length -1) ? s + "\n" : s; // don't add a trailing newline to last line
-    })
-    iPython.cells[i].source = newSource;
-    if (iPython.cells[i].cell_type === "code") {
-      // should we clear error lines here?
-      // once evaluation continues past erroneous cell, this approach should work
-      // otherwise, let's switch to only clearing error message for current cell
-      CLEAR_ERROR_MESSAGES();
-      python_eval();
-    }
-    if (iPython.cells[i].cell_type === "markdown") render();
+    if (timeout) { clearTimeout(timeout) }
+    timeout = setTimeout(() => {
+      var lines = e.split("\n");
+      var newSource = lines.map((s, i) => {
+          return (i !== lines.length -1) ? s + "\n" : s; // don't add a trailing newline to last line
+      })
+      iPython.cells[i].source = newSource;
+      if (iPython.cells[i].cell_type === "code") {
+        // should we clear error lines here?
+        // once evaluation continues past erroneous cell, this approach should work
+        // otherwise, let's switch to only clearing error message for current cell
+        CLEAR_ERROR_MESSAGES();
+        python_eval();
+      }
+      timeout = undefined
+    },300)
+//    if (iPython.cells[i].cell_type === "markdown") render();
   }
 }
 
