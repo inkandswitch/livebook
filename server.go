@@ -197,7 +197,9 @@ func getIndex(user string, w http.ResponseWriter, r *http.Request) {
 func main() {
 	DB = connectToDatabase()
 	DB.Debug()
-	addr := "127.0.0.1:8888"
+	port := os.Getenv("PORT")
+	addr := ":"+port
+	fmt.Printf("port=%v\n",port)
 
 	http.NewServeMux()
 
