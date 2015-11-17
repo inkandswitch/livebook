@@ -1,2 +1,2 @@
-web: go run server.go
+web: ./server
 watcher: $(npm bin)/webpack --watch
