@@ -364,7 +364,7 @@ function render() {
   console.log("render!",CurrentPage)
   let render_time = new Date()
   React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
-  React.render(<Menu />, menuMount);
+  React.render(<Menu notebook={exports}/>, menuMount);
   React.render(<Collaborators />, collaboratorsMount);
   setup_drag_drop()
   return render_time
@@ -811,33 +811,13 @@ function setup_drag_drop() {
   }
 }
 
-if (/[/]d[/](\d*)$/.test(document.location)) {
-  $.get(document.location + ".json",function(data) {
-    iPythonRaw = data.Notebook.Body;
-    DataRaw = data.DataFile.Body;
-    parse_raw_notebook();
-    setCurrentPage("notebook");
-    cradle.join(document.location + ".rtc");
-    initializeEditor();
-  }, "json")
-} else {
-  setCurrentPage("upload");
-  initializeEditor();
-}
-
-
 function initializeEditor() {
   setMode("nav");
   moveCursor(0);
   python_eval(); // draws charts
 }
 
-// BOOTS
-//
-// The following is an (exported) interface
-// for other files to access state from this module.
-
-module.exports = {
+var exports =  {
   appendCell             : appendCell,
   deleteCell             : deleteCell,
   displayClass           : displayClass,
@@ -853,3 +833,23 @@ module.exports = {
   setCurrentPage         : setCurrentPage,
   setMode                : setMode,
 };
+
+
+if (/[/]d[/](\d*)$/.test(document.location)) {
+  $.get(document.location + ".json",function(data) {
+    iPythonRaw = data.Notebook.Body;
+    DataRaw = data.DataFile.Body;
+    parse_raw_notebook();
+    setCurrentPage("notebook");
+    cradle.join(document.location + ".rtc");
+    initializeEditor();
+  }, "json")
+} else {
+  setCurrentPage("upload");
+  initializeEditor();
+}
+// BOOTS
+//
+// The following is an (exported) interface
+// for other files to access state from this module.
+module.exports = exports;

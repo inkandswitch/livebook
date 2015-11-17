@@ -417,7 +417,7 @@
 	  console.log("render!", CurrentPage);
 	  var render_time = new Date();
 	  React.render(React.createElement(Notebook, { data: iPython, typing: typing(render_time) }), notebookMount);
-	  React.render(React.createElement(Menu, null), menuMount);
+	  React.render(React.createElement(Menu, { notebook: _exports }), menuMount);
 	  React.render(React.createElement(Collaborators, null), collaboratorsMount);
 	  setup_drag_drop();
 	  return render_time;
@@ -884,32 +884,13 @@
 	  };
 	}
 
-	if (/[/]d[/](\d*)$/.test(document.location)) {
-	  $.get(document.location + ".json", function (data) {
-	    iPythonRaw = data.Notebook.Body;
-	    DataRaw = data.DataFile.Body;
-	    parse_raw_notebook();
-	    setCurrentPage("notebook");
-	    cradle.join(document.location + ".rtc");
-	    initializeEditor();
-	  }, "json");
-	} else {
-	  setCurrentPage("upload");
-	  initializeEditor();
-	}
-
 	function initializeEditor() {
 	  setMode("nav");
 	  moveCursor(0);
 	  python_eval(); // draws charts
 	}
 
-	// BOOTS
-	//
-	// The following is an (exported) interface
-	// for other files to access state from this module.
-
-	module.exports = {
+	var _exports = {
 	  appendCell: appendCell,
 	  deleteCell: deleteCell,
 	  displayClass: displayClass,
@@ -939,6 +920,25 @@
 	  setCurrentPage: setCurrentPage,
 	  setMode: setMode
 	};
+
+	if (/[/]d[/](\d*)$/.test(document.location)) {
+	  $.get(document.location + ".json", function (data) {
+	    iPythonRaw = data.Notebook.Body;
+	    DataRaw = data.DataFile.Body;
+	    parse_raw_notebook();
+	    setCurrentPage("notebook");
+	    cradle.join(document.location + ".rtc");
+	    initializeEditor();
+	  }, "json");
+	} else {
+	  setCurrentPage("upload");
+	  initializeEditor();
+	}
+	// BOOTS
+	//
+	// The following is an (exported) interface
+	// for other files to access state from this module.
+	module.exports = _exports;
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -50999,18 +50999,12 @@
 
 	var React = __webpack_require__(6);
 
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
-	}
-
-	/**
-	 * [Global Deps]
-	 * `iPython`
-	 * `setCurrentPage`
-	 */
 	var Menu = React.createClass({
 	  displayName: "Menu",
 
+	  notebook: function notebook() {
+	    return this.props.notebook;
+	  },
 	  getInitialState: function getInitialState() {
 	    return {
 	      active: false,
@@ -51027,13 +51021,12 @@
 	  },
 
 	  downloadPayload: function downloadPayload() {
-	    if (requireGlobalDeps().getiPython == undefined) return ""; // FIXME - circular dependancy
-	    var iPython = requireGlobalDeps().getiPython();
+	    var iPython = this.notebook().getiPython();
 	    return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
 	  },
 
 	  handleUpload: function handleUpload(event) {
-	    var setCurrentPage = requireGlobalDeps().setCurrentPage;
+	    var setCurrentPage = this.notebook().setCurrentPage;
 	    this.setState({ active: false });
 	    window.history.pushState({}, "Upload", "/upload");
 	    setCurrentPage("upload");

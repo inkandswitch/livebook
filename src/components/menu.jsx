@@ -1,15 +1,9 @@
 var React = require("react");
 
-function requireGlobalDeps() {
-  return require("../notebook.jsx");
-}
-
-/**
- * [Global Deps]
- * `iPython`
- * `setCurrentPage`
- */
 var Menu = React.createClass({
+  notebook() {
+    return this.props.notebook 
+  },
   getInitialState() {
     return {
       active: false,
@@ -26,13 +20,12 @@ var Menu = React.createClass({
   },
 
   downloadPayload() {
-    if (requireGlobalDeps().getiPython == undefined) return ""; // FIXME - circular dependancy
-    var iPython = requireGlobalDeps().getiPython();
+    var iPython = this.notebook().getiPython();
     return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
   },
 
   handleUpload(event) {
-    var setCurrentPage = requireGlobalDeps().setCurrentPage
+    var setCurrentPage = this.notebook().setCurrentPage
     this.setState({active: false});
     window.history.pushState({}, "Upload", "/upload");
     setCurrentPage("upload");
