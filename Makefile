@@ -1,0 +1,3 @@
+
+livebook:
+	godep go install -v ./...
