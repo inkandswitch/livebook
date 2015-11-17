@@ -1,8 +1,6 @@
 node_modules
 npm-debug.log
 src/pyload.js
-public/js/notebook.js
-public/js/worker.js
 .DS_Store
 db.sql
 .env
