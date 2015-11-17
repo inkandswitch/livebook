@@ -6,5 +6,3 @@ public/js/worker.js
 .DS_Store
 db.sql
 .env
-Godeps/Readme
-Godeps/_workspace/
