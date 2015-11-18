@@ -1,20 +1,9 @@
 var React = require("react");
 
-// webpack was returning an empty object when I required this straight out the gate.
-// had to switch to
-function requireGlobalDeps() {
-  return require("../notebook.jsx");
-}
-/**
- * [Global Deps]
- * `iPython`
- * `setCurrentPage`
- */
 var Collaborators = React.createClass({
 
   renderAvatars() {
-    if (requireGlobalDeps().getPeerPresence == undefined) return [] // FIXME - circular deps
-    var peerPresence = requireGlobalDeps().getPeerPresence();
+    var peerPresence = this.props.notebook.getPeerPresence();
     // var avatars = []
     // for (var i = 0; i < peerPresence.length; i++) {
     //   var f = peerPresence[i]

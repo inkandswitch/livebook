@@ -76,7 +76,7 @@ cradle.depart(update_peers);
  */
 function update_peers () {
   peerPresence = cradle.peers();
-  React.render(<Collaborators />, collaboratorsMount);
+  React.render(<Collaborators notebook={exports}/>, collaboratorsMount);
 }
 
 ace.config.set("basePath", "/");
@@ -365,7 +365,7 @@ function render() {
   let render_time = new Date()
   React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu notebook={exports}/>, menuMount);
-  React.render(<Collaborators />, collaboratorsMount);
+  React.render(<Collaborators notebook={exports}/>, collaboratorsMount);
   setup_drag_drop()
   return render_time
 }
@@ -686,7 +686,7 @@ var Notebook = React.createClass({
   cells: function() {
     return this.props.data.cells.map((cell,index) => {
       var errorObject = ERRORS[index];
-      return <Cell data={cell} mode={Mode} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
+      return <Cell data={cell} notebook={exports} mode={Mode} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
     }) // `key` prop stops React warnings in the console
   },
 

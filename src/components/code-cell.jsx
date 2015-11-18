@@ -1,14 +1,5 @@
 var React = require("react");
 
-function requireGlobalDeps() {
-  return require("../notebook.jsx");
-}
-
-/**
- * [Global Deps]
- * `CODE`
- * `displayClass`
- */
 var CodeCell = React.createClass({
 
   underConstruction() {
@@ -65,8 +56,8 @@ var CodeCell = React.createClass({
   },
 
  code() {
-    var displayClass = requireGlobalDeps().displayClass;
-    var CODE         = requireGlobalDeps().getCODE();
+    var displayClass = this.props.notebook.displayClass;
+    var CODE         = this.props.notebook.getCODE();
 
     return (
       <div className={"code " + displayClass(this)}>

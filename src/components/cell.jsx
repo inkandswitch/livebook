@@ -3,10 +3,6 @@ var React = require("react");
 var CodeCell     = require("./code-cell.jsx");
 var MarkdownCell = require("./markdown-cell.jsx");
 
-function requireGlobalDeps() {
-  return require("../notebook.jsx");
-}
-
 function cursor(mode, cursor_cell, i) {
   if (i != cursor_cell) return ""
   if (mode == "view")  return ""
@@ -16,21 +12,17 @@ function cursor(mode, cursor_cell, i) {
 }
 
 
-/**
- * [Global Deps]
- * `cursor`
- */
 var Cell = React.createClass({
 
   enterEditMode() {
-    var moveCursor  = requireGlobalDeps().moveCursor;
+    var moveCursor  = this.props.notebook.moveCursor;
 
-    var currentMode = requireGlobalDeps().getMode();
-    var setMode     = requireGlobalDeps().setMode;
+    var currentMode = this.props.notebook.getMode();
+    var setMode     = this.props.notebook.setMode;
 
     // move cursor to the clicked cell
     var clickedCell = this.props.index;
-    var cursorCell  = requireGlobalDeps().getCursorCell();
+    var cursorCell  = this.props.notebook.getCursorCell();
     var delta       = clickedCell - cursorCell;
 
     if (currentMode === "edit") {
@@ -46,10 +38,10 @@ var Cell = React.createClass({
 
   subcell() {
     if (this.props.data.cell_type === "markdown") {
-      return <MarkdownCell data={this.props.data} index={this.props.index}/>      
+      return <MarkdownCell data={this.props.data} notebook={this.props.notebook} index={this.props.index}/>      
     }
     else {
-      return <CodeCell data={this.props.data} cursor={this.props.cursor} typing={this.props.typing} index={this.props.index} errorObject={this.props.errorObject}/>
+      return <CodeCell data={this.props.data} notebook={this.props.notebook} cursor={this.props.cursor} typing={this.props.typing} index={this.props.index} errorObject={this.props.errorObject}/>
     }
   },
 

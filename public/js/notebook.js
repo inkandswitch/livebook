@@ -132,7 +132,7 @@
 	 */
 	function update_peers() {
 	  peerPresence = cradle.peers();
-	  React.render(React.createElement(Collaborators, null), collaboratorsMount);
+	  React.render(React.createElement(Collaborators, { notebook: _exports }), collaboratorsMount);
 	}
 
 	ace.config.set("basePath", "/");
@@ -418,7 +418,7 @@
 	  var render_time = new Date();
 	  React.render(React.createElement(Notebook, { data: iPython, typing: typing(render_time) }), notebookMount);
 	  React.render(React.createElement(Menu, { notebook: _exports }), menuMount);
-	  React.render(React.createElement(Collaborators, null), collaboratorsMount);
+	  React.render(React.createElement(Collaborators, { notebook: _exports }), collaboratorsMount);
 	  setup_drag_drop();
 	  return render_time;
 	}
@@ -742,7 +742,7 @@
 
 	    return this.props.data.cells.map(function (cell, index) {
 	      var errorObject = ERRORS[index];
-	      return React.createElement(Cell, { data: cell, mode: Mode, cursor: CursorCell, typing: _this.props.typing, key: index, index: index, errorObject: errorObject });
+	      return React.createElement(Cell, { data: cell, notebook: _exports, mode: Mode, cursor: CursorCell, typing: _this.props.typing, key: index, index: index, errorObject: errorObject });
 	    }); // `key` prop stops React warnings in the console
 	  },
 
@@ -51079,22 +51079,11 @@
 
 	var React = __webpack_require__(6);
 
-	// webpack was returning an empty object when I required this straight out the gate.
-	// had to switch to
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
-	}
-	/**
-	 * [Global Deps]
-	 * `iPython`
-	 * `setCurrentPage`
-	 */
 	var Collaborators = React.createClass({
 	  displayName: "Collaborators",
 
 	  renderAvatars: function renderAvatars() {
-	    if (requireGlobalDeps().getPeerPresence == undefined) return []; // FIXME - circular deps
-	    var peerPresence = requireGlobalDeps().getPeerPresence();
+	    var peerPresence = this.props.notebook.getPeerPresence();
 	    // var avatars = []
 	    // for (var i = 0; i < peerPresence.length; i++) {
 	    //   var f = peerPresence[i]
@@ -51147,10 +51136,6 @@
 	var CodeCell = __webpack_require__(180);
 	var MarkdownCell = __webpack_require__(181);
 
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
-	}
-
 	function cursor(mode, cursor_cell, i) {
 	  if (i != cursor_cell) return "";
 	  if (mode == "view") return "";
@@ -51158,22 +51143,18 @@
 	  if (mode == "edit") return "cursor-edit";else throw new Error("Invalid mode: " + mode);
 	}
 
-	/**
-	 * [Global Deps]
-	 * `cursor`
-	 */
 	var Cell = React.createClass({
 	  displayName: "Cell",
 
 	  enterEditMode: function enterEditMode() {
-	    var moveCursor = requireGlobalDeps().moveCursor;
+	    var moveCursor = this.props.notebook.moveCursor;
 
-	    var currentMode = requireGlobalDeps().getMode();
-	    var setMode = requireGlobalDeps().setMode;
+	    var currentMode = this.props.notebook.getMode();
+	    var setMode = this.props.notebook.setMode;
 
 	    // move cursor to the clicked cell
 	    var clickedCell = this.props.index;
-	    var cursorCell = requireGlobalDeps().getCursorCell();
+	    var cursorCell = this.props.notebook.getCursorCell();
 	    var delta = clickedCell - cursorCell;
 
 	    if (currentMode === "edit") {
@@ -51188,9 +51169,9 @@
 
 	  subcell: function subcell() {
 	    if (this.props.data.cell_type === "markdown") {
-	      return React.createElement(MarkdownCell, { data: this.props.data, index: this.props.index });
+	      return React.createElement(MarkdownCell, { data: this.props.data, notebook: this.props.notebook, index: this.props.index });
 	    } else {
-	      return React.createElement(CodeCell, { data: this.props.data, cursor: this.props.cursor, typing: this.props.typing, index: this.props.index, errorObject: this.props.errorObject });
+	      return React.createElement(CodeCell, { data: this.props.data, notebook: this.props.notebook, cursor: this.props.cursor, typing: this.props.typing, index: this.props.index, errorObject: this.props.errorObject });
 	    }
 	  },
 
@@ -51216,15 +51197,6 @@
 
 	var React = __webpack_require__(6);
 
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
-	}
-
-	/**
-	 * [Global Deps]
-	 * `CODE`
-	 * `displayClass`
-	 */
 	var CodeCell = React.createClass({
 	  displayName: "CodeCell",
 
@@ -51286,8 +51258,8 @@
 	  },
 
 	  code: function code() {
-	    var displayClass = requireGlobalDeps().displayClass;
-	    var CODE = requireGlobalDeps().getCODE();
+	    var displayClass = this.props.notebook.displayClass;
+	    var CODE = this.props.notebook.getCODE();
 
 	    return React.createElement(
 	      "div",
@@ -51330,19 +51302,11 @@
 
 	var rawMarkup = __webpack_require__(175).rawMarkup;
 
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
-	}
-
-	/**
-	 * [Global Deps]
-	 * `displayClass`
-	 */
 	var MarkdownCell = React.createClass({
 	  displayName: "MarkdownCell",
 
 	  render: function render() {
-	    var displayClass = requireGlobalDeps().displayClass;
+	    var displayClass = this.props.notebook.displayClass;
 	    return React.createElement(
 	      "div",
 	      { className: "cell switch" },
