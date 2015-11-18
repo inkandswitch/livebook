@@ -1,6 +1,21 @@
 var $ = require("jquery")
 
 function setup(notebook) {
+  $('body').keydown(function(e) {
+    if (notebook.getMode() === "edit") return;
+    switch (e.which) {
+      case 40:
+        notebook.moveCursor(1);
+        e.preventDefault()
+        break;
+      case 38:
+        notebook.moveCursor(-1);
+        e.preventDefault()
+        break;
+    }
+  })
+
+
   $('body').keyup(function(evt) {
     var Mode       = notebook.getMode();
     var setMode    = notebook.setMode;
@@ -10,14 +25,6 @@ function setup(notebook) {
       case 27: // esc
         if (Mode === "edit") setMode("nav")
         else                 setMode("view")
-        break;
-      case 38: // up
-        if (Mode === "edit") break;
-        moveCursor(-1);
-        break;
-      case 40: // down
-        if (Mode === "edit") break;
-        moveCursor(1);
         break;
     }
   });
