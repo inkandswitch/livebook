@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "node src/test.js",
-    "start": "forego start"
+    "start": "forego start",
     "build": "webpack --progress --colors"
   },
   "repository": {
