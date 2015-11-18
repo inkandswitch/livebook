@@ -5,3 +5,4 @@ src/pyload.js
 db.sql
 .env
 public/js/notebook.js
+public/js/worker.js

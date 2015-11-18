@@ -29,10 +29,6 @@ Install needed modules
 
     $ ./setup
 
-Build the go binary
-
-    $ make
-
 Start the server
 
-    $ npm start
+    $ forego start

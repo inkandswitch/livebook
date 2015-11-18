@@ -20,11 +20,3 @@ goog.global.goog = goog;
 
 I changed the code by hand in skulpt.js.  If we move to a newer version of Skulpt we will need to hand copy this change over.  Possibly look into getting this change adopted upstream in Skulpt.
 
-## Compiled JS 
-
-Checked compiled js into the repo.  Shouldn't this be part of the buildpack?  Look into options.
-
-## Go needs a Make command
-
-In dev it's nice to use go run so we dont need a make command.  Had to drop that to work on heroku.  Custom build pack?
-
