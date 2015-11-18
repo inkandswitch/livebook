@@ -6,7 +6,13 @@ Setup Go Tools:
 
     $ go get -u github.com/tools/godep
     $ go get github.com/aordlab/livebook
-    $ ln -s $GOPATH/src/github.com/aordlab/livebook/ DESIRED_PROJECT_DIR
+
+
+Now `$GOPATH/src/github.com/aordlab/livebook/` is your working project
+directory.  Delete any other copies you have to avoid confusion.  If you want
+your folder to be somewhere else make a symlink.
+
+    $ ln -s $GOPATH/src/github.com/aordlab/livebook/ ~/livebook
 
 Make sure Livebook is installed in $GOHOME
 
