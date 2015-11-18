@@ -7,6 +7,7 @@ Setup Go Tools:
     $ go get -u github.com/tools/godep
     $ go get github.com/aordlab/livebook
 
+Make sure `$GOPATH/bin` is in your path
 
 Now `$GOPATH/src/github.com/aordlab/livebook/` is your working project
 directory.  Delete any other copies you have to avoid confusion.  If you want

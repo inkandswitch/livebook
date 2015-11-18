@@ -27,8 +27,7 @@ WORKER.onmessage = function(e) {
 
 console.log("python",pyload.files)
 
-require("./hotkeys"); // Assigns the keyboard commands
-require("./charts");  // Assigns the charts
+var charts = require("./charts");  // Assigns the charts
 
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
@@ -620,10 +619,10 @@ function generate_python_ctx(badcells) {
 }
 
 function execute_python_ctx(ctx) {
-  if (ctx.length > 0) {
+  if (ctx.length > 1) {
     try {
-      console.log(ctx.code)
-      console.log(ctx.map)
+      console.log("CODE",ctx.code)
+      console.log("MAP",ctx.map)
       Sk.importMainWithBody("<stdin>", false, ctx.code)
     } catch (e) {
       console.log("Handle Error",e)
@@ -675,7 +674,6 @@ var CODE = {
   clear: (i) => delete CODE[i],
   read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
 }
-
 
 var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
@@ -798,6 +796,7 @@ function setup_drag_drop() {
           post_notebook_to_server()
           parse_raw_notebook()
           setCurrentPage("notebook")
+          initializeEditor();
         }
       }
       reader.readAsText(file);
@@ -834,6 +833,7 @@ var exports =  {
   setMode                : setMode,
 };
 
+charts.setup(exports)
 
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {

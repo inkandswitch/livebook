@@ -46,7 +46,10 @@
 
 	"use strict";
 
-	var notebookState = __webpack_require__(1);
+	var notebook = __webpack_require__(1);
+	var hotkeys = __webpack_require__(173);
+
+	hotkeys.setup(notebook);
 
 /***/ },
 /* 1 */
@@ -83,8 +86,7 @@
 
 	console.log("python", pyload.files);
 
-	__webpack_require__(173); // Assigns the keyboard commands
-	__webpack_require__(174); // Assigns the charts
+	var charts = __webpack_require__(174); // Assigns the charts
 
 	// Utils
 	var asyncRunParallel = __webpack_require__(175).asyncRunParallel;
@@ -667,10 +669,10 @@
 	}
 
 	function execute_python_ctx(ctx) {
-	  if (ctx.length > 0) {
+	  if (ctx.length > 1) {
 	    try {
-	      console.log(ctx.code);
-	      console.log(ctx.map);
+	      console.log("CODE", ctx.code);
+	      console.log("MAP", ctx.map);
 	      Sk.importMainWithBody("<stdin>", false, ctx.code);
 	    } catch (e) {
 	      console.log("Handle Error", e);
@@ -867,6 +869,7 @@
 	          post_notebook_to_server();
 	          parse_raw_notebook();
 	          setCurrentPage("notebook");
+	          initializeEditor();
 	        }
 	      };
 	      reader.readAsText(file);
@@ -920,6 +923,8 @@
 	  setCurrentPage: setCurrentPage,
 	  setMode: setMode
 	};
+
+	charts.setup(_exports);
 
 	if (/[/]d[/](\d*)$/.test(document.location)) {
 	  $.get(document.location + ".json", function (data) {
@@ -49387,89 +49392,82 @@
 
 	var $ = __webpack_require__(2);
 
-	function requireGlobalDeps() {
-	  return __webpack_require__(1);
+	function setup(notebook) {
+	  $('body').keyup(function (evt) {
+	    var Mode = notebook.getMode();
+	    var setMode = notebook.setMode;
+	    var moveCursor = notebook.moveCursor;
+
+	    switch (evt.which) {
+	      case 27:
+	        // esc
+	        if (Mode === "edit") setMode("nav");else setMode("view");
+	        break;
+	      case 38:
+	        // up
+	        if (Mode === "edit") break;
+	        moveCursor(-1);
+	        break;
+	      case 40:
+	        // down
+	        if (Mode === "edit") break;
+	        moveCursor(1);
+	        break;
+	    }
+	  });
+
+	  /**
+	   * [Global Deps]
+	   * `Mode`
+	   * `setMode`
+	   * `moveCursor`
+	   * `appendCell`
+	   * `deleteCell`
+	   */
+	  $('body').keypress(function (e) {
+	    var Mode = notebook.getMode();
+
+	    if (Mode === "edit") return;
+
+	    var setMode = notebook.setMode;
+	    var moveCursor = notebook.moveCursor;
+	    var appendCell = notebook.appendCell;
+	    var deleteCell = notebook.deleteCell;
+
+	    switch (e.which) {
+	      case 13:
+	        //enter
+	        setMode("edit");
+	        break;
+	      case 107: //k
+	      case 113:
+	        //q
+	        moveCursor(-1);
+	        break;
+	      case 106: //j
+	      case 97:
+	        //a
+	        moveCursor(1);
+	        break;
+	      case 99:
+	        //c
+	        appendCell('code');
+	        break;
+	      case 109:
+	        //m
+	        appendCell('markdown');
+	        break;
+	      case 120:
+	        //x
+	        deleteCell();
+	        break;
+	    }
+
+	    return false; // prevents default + bubbling
+	  });
 	}
 
-	/**
-	 * [Global Deps]
-	 * `Mode`
-	 * `setMode`
-	 * `moveCursor`
-	 */
-	$('body').keyup(function (evt) {
-	  var Mode = requireGlobalDeps().getMode();
-	  var setMode = requireGlobalDeps().setMode;
-	  var moveCursor = requireGlobalDeps().moveCursor;
-
-	  switch (evt.which) {
-	    case 27:
-	      // esc
-	      if (Mode === "edit") setMode("nav");else setMode("view");
-	      break;
-	    case 38:
-	      // up
-	      if (Mode === "edit") break;
-	      moveCursor(-1);
-	      break;
-	    case 40:
-	      // down
-	      if (Mode === "edit") break;
-	      moveCursor(1);
-	      break;
-	  }
-	});
-
-	/**
-	 * [Global Deps]
-	 * `Mode`
-	 * `setMode`
-	 * `moveCursor`
-	 * `appendCell`
-	 * `deleteCell`
-	 */
-	$('body').keypress(function (e) {
-	  var deps = requireGlobalDeps();
-	  var Mode = deps.getMode();
-
-	  if (Mode === "edit") return;
-
-	  var setMode = deps.setMode;
-	  var moveCursor = deps.moveCursor;
-	  var appendCell = deps.appendCell;
-	  var deleteCell = deps.deleteCell;
-
-	  switch (e.which) {
-	    case 13:
-	      //enter
-	      setMode("edit");
-	      break;
-	    case 107: //k
-	    case 113:
-	      //q
-	      moveCursor(-1);
-	      break;
-	    case 106: //j
-	    case 97:
-	      //a
-	      moveCursor(1);
-	      break;
-	    case 99:
-	      //c
-	      appendCell('code');
-	      break;
-	    case 109:
-	      //m
-	      appendCell('markdown');
-	      break;
-	    case 120:
-	      //x
-	      deleteCell();
-	      break;
-	  }
-
-	  return false; // prevents default + bubbling
-	});
+	module.exports = { setup: setup };
 
 /***/ },
 /* 174 */
@@ -49480,16 +49478,18 @@
 	var Sk = __webpack_require__(164);
 	var zip = __webpack_require__(175).zip;
 
-	function requireGlobalDeps() {
-	    return __webpack_require__(1);
+	var notebook;
+
+	function setup(n) {
+	    notebook = n;
 	}
 
 	var _plot_generated_ = function _plot_generated_() {};
 
 	var _plot_d3_ = function _plot_d3_(xmax, ymax) {
 	    console.log("PLOT1", xmax, ymax);
-	    var iPython = requireGlobalDeps().getiPython(),
-	        $cell = requireGlobalDeps().get$cell();
+	    var iPython = notebook.getiPython(),
+	        $cell = notebook.get$cell();
 
 	    iPython.cells[$cell].outputs = [];
 
@@ -49556,7 +49556,7 @@
 	//Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
 	Sk.builtins["__plot_js__"] = function (data) {
 	    var $data = Sk.ffi.remapToJs(data);
-	    var $cell = requireGlobalDeps().get$cell();
+	    var $cell = notebook.get$cell();
 	    plotForOklahoma($cell, $data);
 	    //  var $X = Sk.ffi.remapToJs(X)
 	    //  var $Y = Sk.ffi.remapToJs(Y)
@@ -49588,6 +49588,8 @@
 	        }
 	    });
 	}
+
+	module.exports = { setup: setup };
 
 /***/ },
 /* 175 */

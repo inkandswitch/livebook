@@ -1,16 +1,18 @@
 var Sk  = require("./skulpt")
 var zip = require("./util").zip;
 
-function requireGlobalDeps() {
-  return require("./notebook");
+var notebook
+
+function setup(n) {
+  notebook = n
 }
 
 var _plot_generated_ = function() {}
 
 var _plot_d3_ = function(xmax,ymax) {
   console.log("PLOT1",xmax,ymax)
-  var iPython = requireGlobalDeps().getiPython(),
-      $cell   = requireGlobalDeps().get$cell();
+  var iPython = notebook.getiPython(),
+      $cell   = notebook.get$cell();
 
   iPython.cells[$cell].outputs = [];
 
@@ -113,7 +115,7 @@ Sk.builtins["__figure_js__"] = function(xmax,ymax) {
 //Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
 Sk.builtins["__plot_js__"] = function(data) {
   var $data = Sk.ffi.remapToJs(data)
-  let $cell   = requireGlobalDeps().get$cell();
+  let $cell   = notebook.get$cell();
   plotForOklahoma($cell, $data);
 //  var $X = Sk.ffi.remapToJs(X)
 //  var $Y = Sk.ffi.remapToJs(Y)
@@ -145,3 +147,4 @@ function plotForOklahoma(cell, data) {
   })
 }
 
+module.exports = { setup: setup }
