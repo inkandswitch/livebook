@@ -4,3 +4,4 @@ src/pyload.js
 .DS_Store
 db.sql
 .env
+public/js/notebook.js
