@@ -613,7 +613,7 @@
 	 */
 	function python_eval() {
 	  REMOVE_MARKERS();
-	  var keepgoing = false;
+	  var keepgoing = true;
 	  var badcells = [];
 	  setTimeout(function () {
 	    keepgoing = false;

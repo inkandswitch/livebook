@@ -565,7 +565,7 @@ window.onpopstate = function(event) {
  */
 function python_eval() {
   REMOVE_MARKERS()
-  var keepgoing = false
+  var keepgoing = true
   var badcells  = []
   setTimeout(() => { keepgoing = false }, 500)
   do {
