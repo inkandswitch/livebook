@@ -1,2 +1,3 @@
 web: livebook
-watcher: $(npm bin)/webpack --watch
+webpack: $(npm bin)/webpack --watch
+pypack: ./pypack --watch
