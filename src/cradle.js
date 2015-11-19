@@ -7,8 +7,6 @@ var SessionID = ""
 var Arrival
 var Depart
 
-var vals = (obj) => Object.keys(obj).map((k) => obj[k])
-
 // peer list (server [live:dead], webrtc [live:dead] )
 // peer.live = () => server.live() || webrtc.live()
 
@@ -209,7 +207,7 @@ function get() {
     });
 }
 
-module.exports.peers = function() {
+function peers() {
   var peers = [ {name:`Me (${SessionID})`, status: "here" }]
   Object.keys(Peers).forEach((key) => {
     if (Peers[key].state == "connected") {
@@ -221,26 +219,28 @@ module.exports.peers = function() {
   })
   return peers
 }
-//() => Object.keys(Connected).map((key) => Connected[key])
 
-module.exports.arrive = function(func) {
-  Arrival = func
+function update_peers() {
+  for (var k in Peers)
+    Peers[k].update_state()
 }
 
-module.exports.depart = function(func) {
-  Depart = func
-}
 
-module.exports.join = function(url) {
+function join(url) {
+  // TODO - join called twice?
+  Peers = {}
+  Connected = {}
+  WebRTCServers = null
+  SessionID = ""
   URL = url
   get()
 }
 
-setInterval(function() {
-  //console.log("checking (n) peers",Object.keys(Peers).length)
-  for (let session_id in Peers) {
-    Peers[session_id].update_state()
-  }
-},3000)
+setInterval(update_peers,3000) // this is basically a no-op when not connected
 
-module.exports.hello = "World"
+module.exports = {
+  peers:  peers,
+  join:   join,
+  arrive: (func) => Arrival = func,
+  depart: (func) => Depart = func
+}

@@ -22,10 +22,8 @@ var pyload     = require("./pyload");
 var WORKER     = new Worker("/js/worker.js");
 WORKER.postMessage("TEST MESSAGE")
 WORKER.onmessage = function(e) {
-  console.log("Got message from the worker:",e.data)
+  // console.log("Got message from the worker:",e.data)
 }
-
-console.log("python",pyload.files)
 
 var charts = require("./charts");  // Assigns the charts
 
@@ -110,10 +108,8 @@ var indent = /^\s+/
  */
 function pyLoad(x) {
   if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
-    console.log("LOAD",x,"not found")
     throw new Error("File not found: '" + x + "'");
   }
-  console.log("LOAD",x,"success!")
   return Sk.builtinFiles["files"][x];
 }
 
@@ -360,7 +356,6 @@ function cellPosition() {
  * `setup_drag_drop`
  */
 function render() {
-  console.log("render!",CurrentPage)
   let render_time = new Date()
   React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu notebook={exports}/>, menuMount);
@@ -580,7 +575,6 @@ var assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
 function assignment_test(line) {
   var a = assignment.test(line)
   var b = assignment2.test(line)
-  console.log("TEST",line,a,b)
   return a || b
 }
 
@@ -621,11 +615,9 @@ function generate_python_ctx(badcells) {
 function execute_python_ctx(ctx) {
   if (ctx.length > 1) {
     try {
-      console.log("CODE",ctx.code)
-      console.log("MAP",ctx.map)
+      // console.log("CODE",ctx.code)
       Sk.importMainWithBody("<stdin>", false, ctx.code)
     } catch (e) {
-      console.log("Handle Error",e)
       return handle_error(ctx.map,e)
     }
   }
@@ -645,8 +637,6 @@ function handle_error(lineno_map, e) {
   var msg = Sk.ffi.remapToJs(e.args)[0];
   var markerId;
 
-  console.log("Hi! err_at:", err_at);
-
   iPython.cells[err_at.cell].outputs = []
 
   if (err_at.cell === CursorCell) {
@@ -655,7 +645,6 @@ function handle_error(lineno_map, e) {
         .getSession()
         .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
 
-      console.log("ADD MARKER", markerId)
       ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
     }
   }
@@ -723,7 +712,6 @@ function parse_raw_notebook() {
     }
   })
   theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
-  console.log(theData)
 }
 
 // BOOTS TODO
@@ -737,9 +725,7 @@ function parse_raw_notebook() {
 function post_notebook_to_server() {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
   $.post("/d/", doc, function(response) {
-    console.log("responsee",response)
     window.history.pushState({}, "Notebook", response);
-    console.log("location", document.location)
     cradle.join(document.location + ".rtc")
   })
 }
