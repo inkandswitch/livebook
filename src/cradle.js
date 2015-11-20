@@ -4,7 +4,7 @@ var Connected = {}
 var URL
 var WebRTCServers = null
 var SessionID = ""
-var Arrival
+var User = ""
 var Depart
 
 // peer list (server [live:dead], webrtc [live:dead] )
@@ -23,8 +23,11 @@ function notice(desc) {
   return function(event) { console.log("notice:" + desc,event) }
 }
 
-function newPeer(session_id) {
-  var peer = {id: session_id, state: "new"}
+function Peer(session_id) {
+  var peer = this
+
+  peer.id = session_id
+  peer.state =  "new"
 
   peer.set_session = function(s) {
     peer.session_record = s
@@ -65,13 +68,13 @@ function newPeer(session_id) {
       peer.state = new_state
       switch (peer.state) {
         case "connected":
-          if (Arrival) Arrival(peer)
+          exports.onarrive(peer)
           break
         case "disconnected":
-          if (Depart) { Depart(peer) }
+          exports.ondepart(peer)
           break
         case "closed":
-          if (Depart) { Depart(peer) } // FIXME - doesnt this need its own event type?
+          exports.ondepart(peer)
           delete Peers[peer.id]
         default:
       }
@@ -112,6 +115,7 @@ function newPeer(session_id) {
     try {
       peer.data_channel.send(JSON.stringify(obj))
     } catch(e) {
+      console.log("Error sending data",e)
     }
   }
 
@@ -162,6 +166,17 @@ function newPeer(session_id) {
   return peer
 }
 
+function process_message(webrtc, message) {
+  console.log("GOT MESSAGE",message)
+}
+
+function broadcast(message) {
+  for (let key in Peers) {
+    let p = Peers[key]
+    p.send(message)
+  }
+}
+
 function put(target, message) {
   $.ajax(URL, {
     method: "put",
@@ -181,13 +196,15 @@ function get() {
       method: "get",
       dataType: "json",
       success: function(data) {
-//        console.log("GOT",data)
         SessionID = data.session_id
+        User = data.user
         var came_before_me = true
         data.sessions.forEach((session) => {
+          console.log("SESSION",session)
           if (session.session_id == SessionID) came_before_me = false;
           else if (Peers[session.session_id] == undefined) {
-            Peers[session.session_id] = newPeer(session.session_id)
+//            Peers[session.session_id] = newPeer(session.session_id)
+            Peers[session.session_id] = new Peer(session.session_id)
             Peers[session.session_id].set_session(session)
 
             // TODO - make cleaner - Im deleting from Peers on close - can happen in set_session() for defunct connections
@@ -208,12 +225,13 @@ function get() {
 }
 
 function peers() {
-  var peers = [ {name:`Me (${SessionID})`, status: "here" }]
+  var peers = [ { session: SessionID, user: User, status: "here" }]
   Object.keys(Peers).forEach((key) => {
-    if (Peers[key].state == "connected") {
-      peers.push({name:key, status:"here"})
-    } else if (Peers[key].state == "disconnected") {
-      peers.push({name:key, status:"departing"})
+    let p = Peers[key]
+    if (p.state == "connected") {
+      peers.push({session:key, user: p.user,  status:"here"})
+    } else if (p.state == "disconnected") {
+      peers.push({session:key, user: p.user, status:"departing"})
     } else {
     }
   })
@@ -238,9 +256,12 @@ function join(url) {
 
 setInterval(update_peers,3000) // this is basically a no-op when not connected
 
-module.exports = {
-  peers:  peers,
-  join:   join,
-  arrive: (func) => Arrival = func,
-  depart: (func) => Depart = func
+var exports = {
+  join:       join,
+  peers:      peers,
+  broadcast:  broadcast,
+  onarrive: () => {},
+  ondepart: () => {},
 }
+
+module.exports = exports

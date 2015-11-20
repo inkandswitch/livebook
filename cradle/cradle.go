@@ -15,6 +15,7 @@ import (
 
 type Session struct {
 	SessionID SessionID `json:"session_id"`
+	User      string    `json:"user"`
 	UpdatedOn int64     `json:"updated_on"`
 	CreatedOn int64     `json:"created_on"`
 	Active    bool      `json:"active"`
@@ -40,6 +41,7 @@ type Cradle struct {
 type get struct {
 	group_id   GroupID
 	session_id SessionID
+	user       string
 	closer     <-chan bool
 	reply      chan *CradleState
 }
@@ -53,6 +55,7 @@ type put struct {
 
 type CradleState struct {
 	SessionID SessionID              `json:"session_id"`
+	User      string                 `json:"user"`
 	Sessions  []*Session             `json:"sessions"`
 	Messages  map[SessionID][]string `json:"messages"`
 }
@@ -94,13 +97,13 @@ func (c *Cradle) cleanup() {
 	}
 }
 
-func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID) (*Session, bool) {
+func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user string) (*Session, bool) {
 	session := c.session(group_id, session_id)
 	now := time.Now().Unix()
 	init := false
 	if session == nil {
 		session_id = SessionID(randomString(6)[0:4])
-		session = &Session{SessionID: session_id, CreatedOn: now, messages: map[SessionID][]string{}}
+		session = &Session{SessionID: session_id, User: user, CreatedOn: now, messages: map[SessionID][]string{}}
 		c.Sessions[group_id] = append(c.Sessions[group_id], session)
 		init = true
 	}
@@ -139,7 +142,7 @@ func (c *Cradle) handlePut(put put) {
 }
 
 func (c *Cradle) Get(group_id string, name string, session_id string, closer <-chan bool) *CradleState {
-	get := get{group_id: GroupID(group_id), session_id: SessionID(session_id), closer: closer, reply: make(chan *CradleState)}
+	get := get{group_id: GroupID(group_id), user: name, session_id: SessionID(session_id), closer: closer, reply: make(chan *CradleState)}
 	c.events <- func() { c.handleGet(get) }
 	return <-get.reply
 }
@@ -147,13 +150,15 @@ func (c *Cradle) Get(group_id string, name string, session_id string, closer <-c
 func (c *Cradle) handleGet(get get) {
 	fmt.Printf("handle get %v\n", get)
 
-	session, init := c.sessionTouch(get.group_id, get.session_id)
+	session, init := c.sessionTouch(get.group_id, get.session_id, get.user)
 	session.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
-		update := &CradleState{Sessions: c.Sessions[get.group_id][:], Messages: session.messages, SessionID: session.SessionID}
+		fmt.Printf("Setting Active to False %s\n",get.session_id)
+		session.Active = false
+		update := &CradleState{Sessions: c.Sessions[get.group_id][:], User: get.user, Messages: session.messages, SessionID: session.SessionID}
 		session.messages = map[SessionID][]string{}
 		success <- true
 		get.reply <- update
@@ -161,7 +166,6 @@ func (c *Cradle) handleGet(get get) {
 
 	go func() {
 		session.UpdatedOn = time.Now().Unix()
-		session.Active = false
 		select {
 		case <-get.closer:
 			c.events <- func() {
@@ -170,6 +174,7 @@ func (c *Cradle) handleGet(get get) {
 					session.reply = nil
 				}
 				get.reply <- nil
+				session.Active = false
 			}
 		case <-success:
 		}
@@ -178,7 +183,8 @@ func (c *Cradle) handleGet(get get) {
 	if len(session.messages) > 0 || init {
 		reply()
 	} else {
-		session.Active = false
+		fmt.Printf("Setting Active to True %s\n",get.session_id)
+		session.Active = true
 		session.reply = &reply
 	}
 }

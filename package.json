@@ -22,6 +22,7 @@
     "raw-loader": "^0.5.1",
     "react": "^0.13.3",
     "react-ace": "^2.5.0",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.2",
+    "webrtc": "^1.14.1"
   }
 }

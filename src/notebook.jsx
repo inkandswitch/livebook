@@ -1,6 +1,5 @@
 /**
  * [Global State]
- * `peerPresence`
  * `Mode`
  * `$cell`
  * `CurrentCursor`
@@ -60,20 +59,16 @@ function CLEAR_ERROR_MESSAGES() {
   // $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
 }
 
-var peerPresence = [
-  { name: "Me", status: "here", },
-];
-
-cradle.arrive(update_peers);
-cradle.depart(update_peers);
+cradle.onarrive = update_peers;
+cradle.ondepart = update_peers;
 /**
  * [Global Deps]
  * `cradle`
  * `collaboratorsMount`
  */
+
 function update_peers () {
-  peerPresence = cradle.peers();
-  React.render(<Collaborators notebook={exports}/>, collaboratorsMount);
+  React.render(<Collaborators peers={cradle.peers()} />, collaboratorsMount);
 }
 
 ace.config.set("basePath", "/");
@@ -359,7 +354,7 @@ function render() {
   let render_time = new Date()
   React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu notebook={exports}/>, menuMount);
-  React.render(<Collaborators notebook={exports}/>, collaboratorsMount);
+  update_peers()
   setup_drag_drop()
   return render_time
 }
@@ -391,6 +386,8 @@ function moveCursor(delta, options) {
   if (!options.noScroll) {
     $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
   }
+
+  cradle.broadcast({ cursor: CursorCell })
 }
 
 /**
@@ -812,7 +809,6 @@ var exports =  {
   getEditor              : () => editor,
   getiPython             : () => iPython,
   getMode                : () => Mode,
-  getPeerPresence        : () => peerPresence,
   moveCursor             : moveCursor,
   renderEditor           : renderEditor,
   setCurrentPage         : setCurrentPage,
