@@ -156,7 +156,7 @@ func (c *Cradle) handleGet(get get) {
 	success := make(chan bool)
 
 	reply := func() {
-		fmt.Printf("Setting Active to False %s\n",get.session_id)
+		fmt.Printf("Setting Active to False (%s)\n",get.session_id)
 		session.Active = false
 		update := &CradleState{Sessions: c.Sessions[get.group_id][:], User: get.user, Messages: session.messages, SessionID: session.SessionID}
 		session.messages = map[SessionID][]string{}
@@ -183,7 +183,7 @@ func (c *Cradle) handleGet(get get) {
 	if len(session.messages) > 0 || init {
 		reply()
 	} else {
-		fmt.Printf("Setting Active to True %s\n",get.session_id)
+		fmt.Printf("Setting Active to True (%s)\n",get.session_id)
 		session.Active = true
 		session.reply = &reply
 	}
