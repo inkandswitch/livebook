@@ -33,14 +33,14 @@ function create_webrtc() {
   }
 
   webrtc.oniceconnectionstatechange = function(event) {
-    console.log("notice:statechange",webrtc.iceConnectionState, event)
+    console.log("notice:statechange",self.id,webrtc.iceConnectionState, event)
     self.update_state()
   }
 
-  webrtc.onconnecting   = notice("onconnecting")
-  webrtc.onopen         = notice("onopen")
-  webrtc.onaddstream    = notice("onaddstream")
-  webrtc.onremovestream = notice("onremovestream")
+  webrtc.onconnecting   = notice(self,"onconnecting")
+  webrtc.onopen         = notice(self,"onopen")
+  webrtc.onaddstream    = notice(self,"onaddstream")
+  webrtc.onremovestream = notice(self,"onremovestream")
   webrtc.ondatachannel  = function(event) {
     console.log("new data channel") // receiver sees this!
     self.data_channel = event.channel
@@ -69,6 +69,7 @@ function calculate_state() {
       console.log("ICE STATE UNKNOWN: " + self.webrtc.iceConnectionState)
   }
 
+  // TODO - fix this logic
   if (self.session_record.active || age(self.session_record.updated_on) < 5) {
       return 'connected'     // server-connected
   } else if (!self.session_record.active && age(self.session_record.updated_on) < 10) {
@@ -156,7 +157,7 @@ function offer() {
     self.data_channel = data
     self.update_state()
   }
-//  console.log("OFFER",self.id)
+  console.log("OFFER",self.id)
   self.webrtc.createOffer(desc => {
 //    console.log("SETLOCAL",self.id,desc)
     self.webrtc.setLocalDescription(desc,
@@ -214,44 +215,24 @@ function put(target, message) {
   });
 }
 
-function process_incoming_sessions(incoming) {
-  var sessions = [];
-
-  var came_after_me = false;
-
-  incoming.forEach((s) => {
-    s.me = s.session_id == SessionID;
-    s.age = now() - s.updated_on;
-    s.active = s.active;
-    s.offer = came_after_me;
-
-    if (s.me) came_after_me = true;
-
-//    console.log("SESSION",{id: s.session_id, age: s.age, me: s.me, offer: s.offer, a: s.active } );
-
-    if (!s.me && (s.active || s.age <= 5)) sessions.push(s);
-  })
-
-  return sessions
-}
+var came_after_me = false;
 
 function process_session_data_from_server(data) {
   SessionID = data.session_id
   User = data.user
 
-//  console.log("ME",SessionID)
-
-  var sessions = process_incoming_sessions(data.sessions)
-
-  sessions.forEach((s) => {
-    let peer = Peers[s.session_id]
-    if (peer == undefined) {
-      peer = new Peer(s)
-      if (s.offer) peer.offer()
-    } else {
-      peer.set_session(s)
-    }
+  data.updates.forEach((s) => {
+    let peer = Peers[s.session_id] || new Peer(s)
+    peer.set_session(s)
+    console.log("Update " + s.session_id + " active=" + s.active)
   })
+
+  data.arrivals.forEach((s) => {
+    console.log("Create " + s.session_id + " active=" + s.active)
+    let peer = new Peer(s)
+    peer.offer()
+  })
+
   for (let from in data.messages) {
     if (Peers[from]) Peers[from].process(data.messages[from])
   }
@@ -259,14 +240,15 @@ function process_session_data_from_server(data) {
 
 
 function get() {
-    $.ajax(URL + "?session=" + SessionID, {
-      contentType: "application/json; charset=UTF-8",
-      method:      "get",
-      dataType:    "json",
-      success:     process_session_data_from_server,
-      error:       (e) => console.log("Fail to get",URL,e),
-      complete:    () => setTimeout(get,500)
-    });
+  console.log("GET()")
+  $.ajax(URL + "?session=" + encodeURIComponent(SessionID), {
+    contentType: "application/json; charset=UTF-8",
+    method:      "get",
+    dataType:    "json",
+    success:     process_session_data_from_server,
+    error:       (e) => console.log("Fail to get",URL,e),
+    complete:    () => setTimeout(get,500)
+  });
 }
 
 function peers() {

@@ -2,17 +2,19 @@ var $ = require("jquery")
 
 function setup(notebook) {
   $('body').keydown(function(e) {
-    if (notebook.getMode() === "edit") return;
     switch (e.which) {
       case 40:
+        if (notebook.getMode() === "edit") return;
         notebook.moveCursor(1);
         e.preventDefault()
         break;
       case 38:
+        if (notebook.getMode() === "edit") return;
         notebook.moveCursor(-1);
         e.preventDefault()
         break;
     }
+    return true
   })
 
 
@@ -27,6 +29,7 @@ function setup(notebook) {
         else                 setMode("view")
         break;
     }
+    return true
   });
 
 
@@ -71,7 +74,8 @@ function setup(notebook) {
         break;
     }
 
-    return false; // prevents default + bubbling
+    //return false; // prevents default + bubbling
+    return true // why did we do that?  cant CMD-Reload in firefox
   });
 }
 
