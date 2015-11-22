@@ -830,8 +830,5 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
   setCurrentPage("upload");
   initializeEditor();
 }
-// BOOTS
-//
-// The following is an (exported) interface
-// for other files to access state from this module.
+
 module.exports = exports;

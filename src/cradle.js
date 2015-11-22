@@ -5,6 +5,14 @@ var WebRTCServers = null
 var SessionID = ""
 var User = ""
 var Depart
+var ServerError
+var ServerErrorHandler
+
+// When we cant reach the server - the following are set :
+//   ServerError = Date.now() + TIMEOUT
+//   ServerErrorHandler = setInterval(update,TIMEOUT)
+// These are reset on connection start
+// This way we know not to trust state=active coming from the server if we cant get webrtc working
 
 // TODO
 
@@ -13,8 +21,6 @@ var Depart
 // rejecting aged out sessions happens in two places - fix
 // where do I do local ageing out?
 // send message through server
-// handle server reset
-// live == server active || webrtc active
 // works properly when server is cut - just no one new can join
 
 var now    = () => Math.round(Date.now() / 1000)
@@ -49,58 +55,57 @@ function create_webrtc() {
   self.webrtc = webrtc
 }
 
-function calculate_state() {
-  let self = this;
-  if (self.data_channel) {
-    return "connected"       // data-connected
-  }
-
-  switch (self.webrtc.iceConnectionState) {
-    case 'new':
-    case 'checking':
-    case 'disconnected':
-    case 'failed':
-      break                  // return 'arriving';
-    case 'connected':
-    case 'completed':
-      return 'connected'     // webrtc-connected
-    default:
-      console.log("ICE STATE UNKNOWN: " + self.webrtc.iceConnectionState)
-  }
-
-  // TODO - fix this logic
-  if (self.session_record.active || age(self.session_record.updated_on) < 5) {
-      return 'connected'     // server-connected
-  } else if (!self.session_record.active && age(self.session_record.updated_on) < 10) {
-      return 'disconnected'  // disconnected
-  } else {
-      return 'closed'
-  }
-}
-
 function set_session(s) {
   let self = this;
   self.session_record = s
   self.update_state()
 }
 
+function is_webrtc_connected() {
+  let self = this;
+
+  switch (self.webrtc.iceConnectionState) {
+    case 'new':
+    case 'checking':
+    case 'disconnected':
+    case 'failed':
+      return false
+    case 'connected':
+    case 'completed':
+      return true
+    default:
+      console.log("ICE STATE UNKNOWN: " + self.webrtc.iceConnectionState)
+      return false
+  }
+}
+
+
+function server_responding() {
+  return ServerError === undefined || ServerError > Date.now()
+}
+
+function is_server_connected() {
+  let self = this
+  return server_responding() && self.session_record.active
+}
+
+function is_connected() {
+  let self = this
+  console.log("checking ",self.id, " last=", self.last_connected, " web=", self.is_webrtc_connected(), " serv=", self.is_server_connected())
+  return self.is_webrtc_connected() || self.is_server_connected()
+}
+
 function update_state() {
   let self = this
-  let old_state = self.state
-  let new_state = self.calculate_state()
-  if (old_state != new_state) {
-    self.state = new_state
-    switch (self.state) {
-      case "connected":
-        Exports.onarrive(self)
-        break
-      case "disconnected":
-        Exports.ondepart(self)
-        break
-      case "closed":
-        evict(self.id)
-      default:
-    }
+  let connected = self.is_connected()
+  if (self.last_connected && !connected) {
+    // disconnected
+    self.last_connected = false
+    Exports.onarrive(self)
+  } else if (!self.last_connected && connected) {
+    // connected
+    self.last_connected = true
+    Exports.ondepart(self)
   }
 }
 
@@ -115,13 +120,11 @@ function send(obj) {
 
 function process(signals) {
   let self = this
-//  console.log("PROCESS",this.id,signals)
   signals.forEach(function(signalJSON) {
     var signal = JSON.parse(signalJSON)
     var callback = function() { };
     if (signal.type == "offer") callback = function() {
       self.state = "answering"
-//      console.log("CREATE ANSWER",self)
       self.webrtc.createAnswer(function(answer) {
         self.state = "answering-setlocal"
         self.webrtc.setLocalDescription(answer,function() {
@@ -134,7 +137,6 @@ function process(signals) {
       });
     }
     if (signal.sdp) {
-//      console.log("SETREMOTE",self.id)
       self.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
         console.log("Error setRemoteDescription",e)
       })
@@ -155,12 +157,9 @@ function offer() {
     self.data_channel = data
     self.update_state()
   }
-  console.log("OFFER",self.id)
   self.webrtc.createOffer(desc => {
-//    console.log("SETLOCAL",self.id,desc)
     self.webrtc.setLocalDescription(desc,
       () => {
-//          console.log("DONE SETLOCAL",self.id)
           put(self.id,desc)
       },
       e  => console.log("error on setLocalDescription",e))
@@ -173,8 +172,12 @@ function Peer(session) {
   self.id             = session.session_id
   self.state          = "new"
   self.session_record = session
+  self.last_connected = false
 
-  self.calculate_state = calculate_state
+  self.is_webrtc_connected = is_webrtc_connected
+  self.is_server_connected = is_server_connected
+  self.is_connected        = is_connected
+
   self.create_webrtc   = create_webrtc
   self.update_state    = update_state
   self.set_session     = set_session
@@ -256,30 +259,39 @@ function process_session_data_from_server(data) {
   }
 }
 
-
 function get() {
   console.log("GET()")
   $.ajax(URL + "?session=" + encodeURIComponent(SessionID), {
     contentType: "application/json; charset=UTF-8",
     method:      "get",
     dataType:    "json",
-    success:     process_session_data_from_server,
-    error:       (e) => console.log("Fail to get",URL,e),
-    complete:    () => setTimeout(get,500)
+    success:     (data) => {
+      process_session_data_from_server(data)
+      if (ServerError) {
+        console.log("Connected - clearing timer")
+        ServerError = undefined
+        clearTimeout(ServerErrorHandler)
+      }
+    },
+    error:       (e) => {
+      console.log("Fail to get",URL,e)
+      if (!ServerError) {
+        ServerError = Date.now() + 5000
+        ServerErrorHandler = setTimeout(update_peers,5001)
+      }
+    },
+    complete:    () => setTimeout(get,1000)
   });
 }
 
 function peers() {
   var peers = [ { session: SessionID, user: User, status: "here" }]
-  Object.keys(Peers).forEach((key) => {
-    let p = Peers[key]
-    if (p.state == "connected") {
-      peers.push({session:key, user: p.user,  status:"here"})
-    } else if (p.state == "disconnected") {
-      peers.push({session:key, user: p.user, status:"departing"})
-    } else {
+  for (let id in Peers) {
+    let p = Peers[id]
+    if (p.last_connected) {
+      peers.push({session:id, user: p.user,  status:"here"})
     }
-  })
+  }
   return peers
 }
 
@@ -290,13 +302,10 @@ function update_peers() {
 
 
 function join(url) {
-  WebRTCServers = null
   reset_state()
   URL = url
   get()
 }
-
-setInterval(update_peers,3000) // this is basically a no-op when not connected
 
 var Exports = {
   join:       join,
