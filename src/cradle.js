@@ -1,6 +1,5 @@
 var $ = require('jquery')
 var Peers = {}
-var Connected = {}
 var URL
 var WebRTCServers = null
 var SessionID = ""
@@ -99,8 +98,7 @@ function update_state() {
         Exports.ondepart(self)
         break
       case "closed":
-        Exports.ondepart(self)
-        delete Peers[self.id]
+        evict(self.id)
       default:
     }
   }
@@ -217,9 +215,29 @@ function put(target, message) {
 
 var came_after_me = false;
 
+function evict(id) {
+  var peer = Peers[id]
+  delete Peers[id]
+  Exports.ondepart(peer)
+}
+
+function reset_state() {
+  if (Peers) {
+    for (let id in Peer) {
+      evict(id)
+    }
+  }
+  Peers = {}
+  SessionID = ""
+  User = ""
+}
+
 function process_session_data_from_server(data) {
-  SessionID = data.session_id
-  User = data.user
+  if (SessionID != data.session_id) {
+    reset_state()
+    SessionID = data.session_id
+    User = data.user
+  }
 
   data.updates.forEach((s) => {
     let peer = Peers[s.session_id] || new Peer(s)
@@ -272,10 +290,8 @@ function update_peers() {
 
 
 function join(url) {
-  Peers = {}
-  Connected = {}
   WebRTCServers = null
-  SessionID = ""
+  reset_state()
   URL = url
   get()
 }
