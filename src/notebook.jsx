@@ -59,16 +59,23 @@ function CLEAR_ERROR_MESSAGES() {
   // $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
 }
 
-cradle.onarrive = update_peers;
+cradle.onarrive = function() {
+  update_peers()
+  cradle.broadcast({ cursor: CursorCell })
+}
 cradle.ondepart = update_peers;
+cradle.onmessage = update_peers;
 /**
  * [Global Deps]
  * `cradle`
  * `collaboratorsMount`
  */
 
-function update_peers () {
-  React.render(<Collaborators peers={cradle.peers()} />, collaboratorsMount);
+function update_peers() {
+  let p = cradle.peers()
+  p[0].cursor = CursorCell // hack since I dont know - FIXME
+  console.log("render_peers",p)
+  React.render(<Collaborators peers={p} />, collaboratorsMount);
 }
 
 ace.config.set("basePath", "/");

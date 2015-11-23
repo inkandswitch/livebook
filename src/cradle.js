@@ -49,8 +49,9 @@ function create_webrtc() {
   webrtc.ondatachannel  = function(event) {
     console.log("new data channel") // receiver sees this!
     self.data_channel = event.channel
-    self.data_channel.onmessage = msg => process_message(webrtc,JSON.parse(msg.data))
+    self.data_channel.onmessage = msg => process_message(self,JSON.parse(msg.data))
     self.update_state()
+    self.flush()
   }
   self.webrtc = webrtc
 }
@@ -91,7 +92,7 @@ function is_server_connected() {
 
 function is_connected() {
   let self = this
-  console.log("checking ",self.id, " last=", self.last_connected, " web=", self.is_webrtc_connected(), " serv=", self.is_server_connected())
+//  console.log("checking ",self.id, " last=", self.last_connected, " web=", self.is_webrtc_connected(), " serv=", self.is_server_connected())
   return self.is_webrtc_connected() || self.is_server_connected()
 }
 
@@ -109,10 +110,24 @@ function update_state() {
   }
 }
 
+function flush(obj) {
+  let self = this
+  console.log("Flushing")
+  for (let i in self.queue) {
+    let obj = queue[i]
+    console.log("Flush", obj)
+    self.data_channel.send(JSON.stringify(obj))
+  }
+  self.queue = []
+}
+
 function send(obj) {
   let self = this
   try {
-    self.data_channel.send(JSON.stringify(obj))
+    if (self.data_channel)
+      self.data_channel.send(JSON.stringify(obj))
+    else
+      self.queue.push(obj)
   } catch(e) {
     console.log("Error sending data",e)
   }
@@ -149,13 +164,14 @@ function process(signals) {
 function offer() {
   let self = this;
   let data = self.webrtc.createDataChannel("datachannel",{reliable: false});
-  data.onmessage = notice(self,"data:message")
+  data.onmessage = msg => process_message(self,JSON.parse(msg.data))
   data.onclose   = notice(self,"data:onclose")
   data.onerror   = notice(self,"data:error")
   data.onopen    = function(event) {
     console.log("data channel open")
     self.data_channel = data
     self.update_state()
+    self.flush()
   }
   self.webrtc.createOffer(desc => {
     self.webrtc.setLocalDescription(desc,
@@ -173,6 +189,7 @@ function Peer(session) {
   self.state          = "new"
   self.session_record = session
   self.last_connected = false
+  self.queue          = []
 
   self.is_webrtc_connected = is_webrtc_connected
   self.is_server_connected = is_server_connected
@@ -181,6 +198,7 @@ function Peer(session) {
   self.create_webrtc   = create_webrtc
   self.update_state    = update_state
   self.set_session     = set_session
+  self.flush           = flush
 
   self.process = process
   self.offer   = offer
@@ -192,14 +210,18 @@ function Peer(session) {
   self.update_state()
 }
 
-function process_message(webrtc, message) {
-  console.log("GOT MESSAGE",message)
+function process_message(peer, message) {
+  console.log("GOT MESSAGE FOR ", peer.id, "--" ,message)
+  if (message.cursor !== undefined) {
+    peer.cursor = message.cursor
+  }
+  Exports.onmessage()
 }
 
 function broadcast(message) {
   for (let key in Peers) {
     let p = Peers[key]
-    p.send(message)
+    if (p.last_connected) p.send(message)
   }
 }
 
@@ -245,11 +267,11 @@ function process_session_data_from_server(data) {
   data.updates.forEach((s) => {
     let peer = Peers[s.session_id] || new Peer(s)
     peer.set_session(s)
-    console.log("Update " + s.session_id + " active=" + s.active)
+//    console.log("Update " + s.session_id + " active=" + s.active)
   })
 
   data.arrivals.forEach((s) => {
-    console.log("Create " + s.session_id + " active=" + s.active)
+//    console.log("Create " + s.session_id + " active=" + s.active)
     let peer = new Peer(s)
     peer.offer()
   })
@@ -285,11 +307,11 @@ function get() {
 }
 
 function peers() {
-  var peers = [ { session: SessionID, user: User, status: "here" }]
+  var peers = [ { session: SessionID, user: User, cursor: -1 }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, user: p.user,  status:"here"})
+      peers.push({session:id, user: p.user,  cursor: p.cursor})
     }
   }
   return peers
@@ -311,8 +333,9 @@ var Exports = {
   join:       join,
   peers:      peers,
   broadcast:  broadcast,
-  onarrive: () => {},
-  ondepart: () => {},
+  onarrive:   () => {},
+  ondepart:   () => {},
+  onmessage:  () => {},
 }
 
 module.exports = Exports
