@@ -51,6 +51,7 @@ function create_webrtc() {
     self.data_channel = event.channel
     self.data_channel.onmessage = msg => self.process_usergram(JSON.parse(msg.data))
     self.update_state()
+    Exports.onupdate()
   }
   self.webrtc = webrtc
 }
@@ -174,6 +175,7 @@ function offer() {
     console.log("data channel open")
     self.data_channel = data
     self.update_state()
+    Exports.onupdate()
   }
   self.webrtc.createOffer(desc => {
     self.webrtc.setLocalDescription(desc,
@@ -322,11 +324,11 @@ function get() {
 }
 
 function peers() {
-  var peers = [ { session: SessionID, user: User, cursor: -1 }]
+  var peers = [ { session: SessionID, user: User, cursor: -1, connected: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, user: p.user,  cursor: p.cursor})
+      peers.push({session:id, user: p.user,  cursor: p.cursor, connected: p.data_channel != undefined })
     }
   }
   return peers
@@ -350,7 +352,8 @@ var Exports = {
   broadcast:  broadcast,
   onarrive:   () => {},
   ondepart:   () => {},
-  onusergram:  () => {},
+  onusergram: () => {},
+  onupdate:   () => {},
 }
 
 module.exports = Exports

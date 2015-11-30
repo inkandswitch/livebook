@@ -60,11 +60,15 @@ function CLEAR_ERROR_MESSAGES() {
 }
 
 cradle.onarrive = function() {
-  update_peers()
-  cradle.broadcast({ cursor: CursorCell })
+  update_peers();
+  cradle.broadcast({ cursor: CursorCell });
 }
 cradle.ondepart = update_peers;
-cradle.onusergram = update_peers;
+cradle.onupdate = update_peers;
+cradle.onusergram = function() {
+  console.log("on usergram")
+  update_peers();
+}
 /**
  * [Global Deps]
  * `cradle`
@@ -74,6 +78,7 @@ cradle.onusergram = update_peers;
 function update_peers() {
   let p = cradle.peers()
   p[0].cursor = CursorCell // hack since I dont know - FIXME
+  console.log("Peers",p)
   React.render(<Collaborators peers={p} />, collaboratorsMount);
 }
 
