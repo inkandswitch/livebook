@@ -20,7 +20,7 @@ var ServerErrorHandler
 // why do I sometimes get setlocal errors
 // rejecting aged out sessions happens in two places - fix
 // where do I do local ageing out?
-// send message through server
+// send usergram through server
 // works properly when server is cut - just no one new can join
 
 var now    = () => Math.round(Date.now() / 1000)
@@ -33,7 +33,7 @@ function create_webrtc() {
 
   webrtc.onicecandidate = function(event) {
     if (event.candidate) {
-      put(self.id, event.candidate) // FIXME
+      self.send_signal(event.candidate)
     }
   }
 
@@ -49,9 +49,8 @@ function create_webrtc() {
   webrtc.ondatachannel  = function(event) {
     console.log("new data channel") // receiver sees this!
     self.data_channel = event.channel
-    self.data_channel.onmessage = msg => process_message(self,JSON.parse(msg.data))
+    self.data_channel.onmessage = msg => self.process_usergram(JSON.parse(msg.data))
     self.update_state()
-    self.flush()
   }
   self.webrtc = webrtc
 }
@@ -110,73 +109,76 @@ function update_state() {
   }
 }
 
-function flush(obj) {
-  let self = this
-  console.log("Flushing")
-  for (let i in self.queue) {
-    let obj = queue[i]
-    console.log("Flush", obj)
-    self.data_channel.send(JSON.stringify(obj))
-  }
-  self.queue = []
-}
-
 function send(obj) {
   let self = this
   try {
+    console.log("Sending",obj)
     if (self.data_channel)
       self.data_channel.send(JSON.stringify(obj))
     else
-      self.queue.push(obj)
+      self.send_usergram(obj)
   } catch(e) {
-    console.log("Error sending data",e)
+    console.log("Error sending data - deleting data channel",e)
+    delete self.data_channel
   }
 }
 
-function process(signals) {
+//  Terminology
+//  message => [ signal || usergram ]
+
+function process(messages) {
   let self = this
-  signals.forEach(function(signalJSON) {
-    var signal = JSON.parse(signalJSON)
-    var callback = function() { };
-    if (signal.type == "offer") callback = function() {
-      self.state = "answering"
-      self.webrtc.createAnswer(function(answer) {
-        self.state = "answering-setlocal"
-        self.webrtc.setLocalDescription(answer,function() {
-          put(self.id,answer)
-        },function(e) {
-          console.log("Error setting setLocalDescription",e)
-        })
-      }, function(e) {
-        console.log("Error creating answer",e)
-      });
-    }
-    if (signal.sdp) {
-      self.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
-        console.log("Error setRemoteDescription",e)
-      })
-    } else if (signal.candidate) {
-      self.webrtc.addIceCandidate(new RTCIceCandidate(signal));
+  messages.forEach((messageJSON) => {
+    var message = JSON.parse(messageJSON)
+    console.log("processing message",message)
+    if (message.type == "signal") {
+      self.process_signal(message.payload)
+    } else if (message.type == "usergram") {
+      self.process_usergram(message.payload)
     }
   })
+}
+
+function process_signal(signal) {
+  let self = this
+  var callback = function() { };
+  if (signal.type == "offer") callback = function() {
+    self.state = "answering"
+    self.webrtc.createAnswer(function(answer) {
+      self.state = "answering-setlocal"
+      self.webrtc.setLocalDescription(answer,function() {
+        self.send_signal(answer)
+      },function(e) {
+        console.log("Error setting setLocalDescription",e)
+      })
+    }, function(e) {
+      console.log("Error creating answer",e)
+    });
+  }
+  if (signal.sdp) {
+    self.webrtc.setRemoteDescription(new RTCSessionDescription(signal), callback, function(e) {
+      console.log("Error setRemoteDescription",e)
+    })
+  } else if (signal.candidate) {
+    self.webrtc.addIceCandidate(new RTCIceCandidate(signal));
+  }
 }
 
 function offer() {
   let self = this;
   let data = self.webrtc.createDataChannel("datachannel",{reliable: false});
-  data.onmessage = msg => process_message(self,JSON.parse(msg.data))
+  data.onmessage = msg => self.process_usergram(JSON.parse(msg.data))
   data.onclose   = notice(self,"data:onclose")
   data.onerror   = notice(self,"data:error")
   data.onopen    = function(event) {
     console.log("data channel open")
     self.data_channel = data
     self.update_state()
-    self.flush()
   }
   self.webrtc.createOffer(desc => {
     self.webrtc.setLocalDescription(desc,
       () => {
-          put(self.id,desc)
+          self.send_signal(desc)
       },
       e  => console.log("error on setLocalDescription",e))
   }, e => console.log("error with createOffer",e));
@@ -189,7 +191,6 @@ function Peer(session) {
   self.state          = "new"
   self.session_record = session
   self.last_connected = false
-  self.queue          = []
 
   self.is_webrtc_connected = is_webrtc_connected
   self.is_server_connected = is_server_connected
@@ -198,7 +199,11 @@ function Peer(session) {
   self.create_webrtc   = create_webrtc
   self.update_state    = update_state
   self.set_session     = set_session
-  self.flush           = flush
+
+  self.process_signal   = process_signal
+  self.process_usergram = process_usergram
+  self.send_usergram    = send_usergram
+  self.send_signal      = send_signal
 
   self.process = process
   self.offer   = offer
@@ -210,19 +215,30 @@ function Peer(session) {
   self.update_state()
 }
 
-function process_message(peer, message) {
-  console.log("GOT MESSAGE FOR ", peer.id, "--" ,message)
-  if (message.cursor !== undefined) {
-    peer.cursor = message.cursor
+function process_usergram(usergram) {
+  let self = this
+  console.log("GOT MESSAGE FOR ", self.id, "--" ,usergram)
+  if (usergram.cursor !== undefined) {
+    self.cursor = usergram.cursor
   }
-  Exports.onmessage()
+  Exports.onusergram()
 }
 
-function broadcast(message) {
+function broadcast(usergram) {
   for (let key in Peers) {
     let p = Peers[key]
-    if (p.last_connected) p.send(message)
+    if (p.last_connected) p.send(usergram)
   }
+}
+
+function send_signal(payload) {
+  let self = this
+  put(self.id, { type: "signal", payload: payload } )
+}
+
+function send_usergram(payload) {
+  let self = this
+  put(self.id, { type: "usergram", payload: payload } )
 }
 
 function put(target, message) {
@@ -282,7 +298,6 @@ function process_session_data_from_server(data) {
 }
 
 function get() {
-  console.log("GET()")
   $.ajax(URL + "?session=" + encodeURIComponent(SessionID), {
     contentType: "application/json; charset=UTF-8",
     method:      "get",
@@ -335,7 +350,7 @@ var Exports = {
   broadcast:  broadcast,
   onarrive:   () => {},
   ondepart:   () => {},
-  onmessage:  () => {},
+  onusergram:  () => {},
 }
 
 module.exports = Exports

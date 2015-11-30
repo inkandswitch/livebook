@@ -64,7 +64,7 @@ cradle.onarrive = function() {
   cradle.broadcast({ cursor: CursorCell })
 }
 cradle.ondepart = update_peers;
-cradle.onmessage = update_peers;
+cradle.onusergram = update_peers;
 /**
  * [Global Deps]
  * `cradle`
@@ -74,7 +74,6 @@ cradle.onmessage = update_peers;
 function update_peers() {
   let p = cradle.peers()
   p[0].cursor = CursorCell // hack since I dont know - FIXME
-  console.log("render_peers",p)
   React.render(<Collaborators peers={p} />, collaboratorsMount);
 }
 
