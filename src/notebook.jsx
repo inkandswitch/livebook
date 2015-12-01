@@ -78,7 +78,7 @@ cradle.onusergram = function() {
 function update_peers() {
   let p = cradle.peers()
   p[0].cursor = CursorCell // hack since I dont know - FIXME
-  console.log("Peers",p)
+  console.log("Peers", p)
   React.render(<Collaborators peers={p} />, collaboratorsMount);
 }
 

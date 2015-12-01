@@ -162,7 +162,7 @@ var Collaborator = React.createClass({
     let peer = this.props.peer;
     let connected = (peer.connected) ? "!!" : "";
     let cursor = (peer.cursor == undefined) ? "?" : peer.cursor;
-    let name = this.state.name;
+    let name = this.props.peer.name;
 
     if (peer.cursor == undefined) cursor = "?";
 
@@ -183,6 +183,7 @@ var Collaborator = React.createClass({
   }
 });
 
+
 var Collaborators = React.createClass({
 
   renderAvatars() {
@@ -195,6 +196,7 @@ var Collaborators = React.createClass({
   },
 
   render() {
+    console.log(this.props.peers, "peers in collabs");
     return (
       <div className="collaborators">
         <ul>{this.renderAvatars()}</ul>
