@@ -3,12 +3,14 @@ var $ = require("jquery")
 function setup(notebook) {
   $('body').keydown(function(e) {
     switch (e.which) {
-      case 40:
+      case 40: // down arrow
+        if (notebook.getMode() === "meta") return;
         if (notebook.getMode() === "edit") return;
         notebook.moveCursor(1);
         e.preventDefault()
         break;
-      case 38:
+      case 38: // up arrow
+        if (notebook.getMode() === "meta") return;
         if (notebook.getMode() === "edit") return;
         notebook.moveCursor(-1);
         e.preventDefault()
@@ -25,6 +27,7 @@ function setup(notebook) {
 
     switch (evt.which) {
       case 27: // esc
+        if (Mode === "meta") return;
         if (Mode === "edit") setMode("nav")
         else                 setMode("view")
         break;
@@ -44,6 +47,7 @@ function setup(notebook) {
   $('body').keypress(function(e) {
     var Mode       = notebook.getMode();
 
+    if (Mode === "meta") return;
     if (Mode === "edit") return;
 
     var setMode    = notebook.setMode;

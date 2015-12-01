@@ -1,12 +1,44 @@
+var $      = require("jquery");
 var React  = require("react");
 var extend = require("jquery").extend;
 var cradle = require("../cradle");
 
+var setMode;
+
+var ModalBackground = React.createClass({
+  getStyles() {
+    let result = {
+      background: "hsla(0, 0%, 0%,.2)",
+      position: "fixed",
+      height: "100%",
+      left: 0,
+      top: 0,
+      width: "100%",
+    };
+
+    if (this.props.isHidden) {
+      result.display = "none";
+    }
+
+    return result;
+  },
+
+  render() {
+    return (
+      <div style={this.getStyles()} onClick={this.props.handleClick} />
+    );
+  }
+});
+
 var CollaboratorNameForm = React.createClass({
-  componentDidUpdate() {
-    if (this.props.shouldFocus) {
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.shouldFocus && this.props.shouldFocus) {
       let input = this.refs.nameInput.getDOMNode();
-      input.focus();
+      input.select();
+      setMode("meta");
+    }
+    if (prevProps.shouldFocus && !this.props.shouldFocus) {
+      setMode("nav");
     }
   },
 
@@ -55,7 +87,7 @@ var CollaboratorNameForm = React.createClass({
     handleNameChange(newName)
   },
 
-  onTextChange(evt) {
+  handleTextChange(evt) {
     let name = evt.target.value;
     this.setState({
       inputValue: name,
@@ -66,26 +98,36 @@ var CollaboratorNameForm = React.createClass({
     let inputValue = this.state.inputValue;
     let styles = this.getStyles();
     return (
-      <div className="collaborators-name-change-form-wrap"
-        style={styles}>
-        <form className="collaborators-name-change-form"
-          ref="nameForm"
-          onSubmit={this.onSubmit}>
-          <p>
-            What's your name?
-          </p>
-          <input type="text" ref="nameInput" value={inputValue} 
-              onChange={this.onTextChange} />
-          <button>
-            Save
-          </button>
-        </form>
+      <div>
+        <ModalBackground handleClick={this.props.exitModal} isHidden={this.props.isHidden} />
+        <div className="collaborators-name-change-form-wrap"
+          style={styles}>
+          <form className="collaborators-name-change-form"
+            ref="nameForm"
+            onSubmit={this.onSubmit}>
+            <p>
+              What's your name?
+            </p>
+            <input class="js-user-name-input" type="text" ref="nameInput" value={inputValue} 
+                onChange={this.handleTextChange} />
+            <button>
+              Save
+            </button>
+          </form>
+        </div>
       </div>
     )
   }
 });
 
 var Collaborator = React.createClass({
+
+  exitModal(event) {
+    this.setState({
+      isEditingName: false,
+    });
+    event.stopPropagation();
+  },
 
   getInitialState() {
     let peer = this.props.peer; // possible react anti-pattern
@@ -132,6 +174,7 @@ var Collaborator = React.createClass({
           </span>
           <CollaboratorNameForm 
             username={this.state.name}
+            exitModal={this.exitModal}
             handleNameChange={this.handleNameChange}
             shouldFocus={this.state.isEditingName}
             isHidden={!this.state.isEditingName} />
@@ -160,5 +203,10 @@ var Collaborators = React.createClass({
   }
 });
 
+function injectSetMode(injectedSetMode) {
+  setMode = injectedSetMode;
+  return Collaborators;
+}
 
-module.exports = Collaborators;
+
+module.exports = injectSetMode;

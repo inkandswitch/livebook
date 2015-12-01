@@ -673,7 +673,7 @@ var CODE = {
 }
 
 var Menu = require("./components/menu.jsx");
-var Collaborators = require("./components/collaborators.jsx");
+var Collaborators = require("./components/collaborators.jsx")(setMode);
 var Cell = require("./components/cell.jsx");
 var Uploader = require("./components/uploader.jsx");
 

@@ -352,7 +352,7 @@ div.plot {
   padding: 0;
   position: absolute;
   right: 0;
-  top: 52px; // magic number
+  top: 55px; // magic number
 }
 
 .collaborators-name-change-form {
@@ -370,23 +370,26 @@ div.plot {
   border-left: solid 2px #959595;
   border-top: solid 2px #959595;
   content: ' ';
-  height: 10px;
+  height: 15px;
   position: absolute;
-  right: 10px;
+  right: 7px;
   top: 0;
-  transform: translateY(-7px) rotate(45deg);
-  width: 10px;
+  transform: translateY(-10.6px) rotate(45deg);
+  width: 15px;
 }
 
 .collaborators-name-change-form p {
   font-size: .85em;
+  margin: .3em;
 }
 
 .collaborators-name-change-form input {
-  width: 75%;
+  width: 72%;
 }
 
 .collaborators-name-change-form button {
+  display: inline-block;
+  margin-left: 4pt;
   width: 20%;
 }
 

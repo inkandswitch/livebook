@@ -5,7 +5,7 @@ var MarkdownCell = require("./markdown-cell.jsx");
 
 function cursor(mode, cursor_cell, i) {
   if (i != cursor_cell) return ""
-  if (mode == "view")  return ""
+  if (mode == "view" || mode === "meta")  return ""
   if (mode == "nav")   return "cursor"
   if (mode == "edit")  return "cursor-edit"
   else                 throw  new Error("Invalid mode: " + mode);
