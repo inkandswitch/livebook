@@ -8,7 +8,7 @@ var setMode;
 var ModalBackground = React.createClass({
   getStyles() {
     let result = {
-      background: "hsla(0, 0%, 0%,.2)",
+      background: "hsla(0, 0%, 0%, .3)",
       position: "fixed",
       height: "100%",
       left: 0,
@@ -31,20 +31,27 @@ var ModalBackground = React.createClass({
 });
 
 var CollaboratorNameForm = React.createClass({
+
   componentDidUpdate(prevProps, prevState) {
+    // We are showing the form
     if (!prevProps.shouldFocus && this.props.shouldFocus) {
       let input = this.refs.nameInput.getDOMNode();
       input.select();
       setMode("meta");
+      this.setState({ showForm: true });
     }
+
+    // We are hiding the form
     if (prevProps.shouldFocus && !this.props.shouldFocus) {
       setMode("nav");
+      this.setState({ showForm: false });
     }
   },
 
   getInitialState() {
     return {
       inputValue: this.props.username, // NOT a react anti-pattern; this only needs to be sync'd at first
+      showForm: false,
     }
   },
 
@@ -61,20 +68,8 @@ var CollaboratorNameForm = React.createClass({
     return {};
   },
 
-  getPosition() {
-    return {
-      // background: "white",
-      // border: "solid 2px #222",
-      // padding: ".8em",
-      // position: "absolute",
-      // right: 0,
-      // top: 48, // magic number
-      // zIndex: 1,
-    }
-  },
-
   getStyles() {
-    return extend({}, this.getPosition(), this.getDisplay());
+    return extend({}, this.getDisplay());
   },
 
   onSubmit(evt) {
@@ -94,16 +89,24 @@ var CollaboratorNameForm = React.createClass({
     })
   },
 
+  getTransitionClassName() {
+    if (!this.state.showForm) {
+      return "collaborators-name-change-form-wrap-hidden";
+    }
+    return "";
+  },
+
   render() {
     let inputValue = this.state.inputValue;
     let styles = this.getStyles();
+    let transitionClass = this.getTransitionClassName();
+
     return (
       <div>
         <ModalBackground handleClick={this.props.exitModal} isHidden={this.props.isHidden} />
-        <div className="collaborators-name-change-form-wrap"
+        <div className={"collaborators-name-change-form-wrap " + transitionClass}
           style={styles}>
           <form className="collaborators-name-change-form"
-            ref="nameForm"
             onSubmit={this.onSubmit}>
             <p>
               What's your name?
@@ -130,17 +133,15 @@ var Collaborator = React.createClass({
   },
 
   getInitialState() {
-    let peer = this.props.peer; // possible react anti-pattern
-    let name = peer.name || peer.session;
-
     return {
       isEditingName: false,
-      name: name,
     }
   },
 
   handleClick() {
-    this.setState({ isEditingName: true });
+    if (this.props.isEditable) {
+      this.setState({ isEditingName: true });
+    }
   },
 
   handleNameChange(name) {
@@ -148,7 +149,6 @@ var Collaborator = React.createClass({
 
     this.setState({
       isEditingName: false,
-      name: name,
     });
 
     // send user name to server
@@ -162,7 +162,7 @@ var Collaborator = React.createClass({
     let peer = this.props.peer;
     let connected = (peer.connected) ? "!!" : "";
     let cursor = (peer.cursor == undefined) ? "?" : peer.cursor;
-    let name = this.props.peer.name;
+    let name = this.props.peer.name || this.props.peer.session;
 
     if (peer.cursor == undefined) cursor = "?";
 
@@ -187,16 +187,15 @@ var Collaborator = React.createClass({
 var Collaborators = React.createClass({
 
   renderAvatars() {
-    let avatars = this.props.peers.map((peer) => {
+    let avatars = this.props.peers.map((peer, index) => {
       return (
-        <Collaborator peer={peer} />
+        <Collaborator peer={peer} isEditable={index === 0} />
       );
     })
     return avatars
   },
 
   render() {
-    console.log(this.props.peers, "peers in collabs");
     return (
       <div className="collaborators">
         <ul>{this.renderAvatars()}</ul>

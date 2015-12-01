@@ -352,7 +352,19 @@ div.plot {
   padding: 0;
   position: absolute;
   right: 0;
-  top: 55px; // magic number
+  max-height: 1000px;
+  opacity: 1;
+  overflow: inherit; 
+  top: 55px; /* magic number */
+
+  transition: all .5s ease-out;
+}
+
+.collaborators-name-change-form-wrap-hidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all .5s ease-in;
 }
 
 .collaborators-name-change-form {
@@ -364,6 +376,8 @@ div.plot {
   position: relative;
   z-index: 2;
 }
+
+
 
 .collaborators-name-change-form::after {
   background: #ddd;
@@ -391,6 +405,14 @@ div.plot {
   display: inline-block;
   margin-left: 4pt;
   width: 20%;
+}
+
+.observer:first-of-type {
+  cursor: pointer;
+}
+
+.observer:not(:first-of-type) {
+  opacity: .82;
 }
 
 

@@ -1,9 +1,12 @@
 var marked = require("marked")
 
+var randomColor = randomColorGenerator();
+
 module.exports = {
   asyncRunParallel: asyncRunParallel,
   deepClone       : deepClone,
   noop            : () => {},
+  randomColor     : randomColor,
   rawMarkup       : rawMarkup,
   resultToHtml    : resultToHtml,
   zip             : zip,
@@ -88,6 +91,20 @@ function asyncRunParallel(funcs, callback) {
 
   });
 }
+
+function randomColorGenerator() {
+  var lastIndex = 0;
+  var colors = ['#ffa995', '#fd8a71', '#f7694f', '#ef412d'];
+
+  return function(i) {
+    if (i === undefined) {
+      lastIndex++ % colors.length;
+      return colors[lastIndex];
+    }
+    return colors[i % colors.length];
+  };
+}
+
 
 function zip(a, b) {
   return a.map((v, i) => [v, b[i]]);
