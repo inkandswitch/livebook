@@ -130,17 +130,27 @@ func updateDocument(user string, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func putFellowship(user string, w http.ResponseWriter, r *http.Request) {
+func putMessageCradle(user string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
 	to := r.Form["to"][0]
-	session_id := r.Form["session_id"][0]
+	session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
 	message := r.Form["message"][0]
 	CRADLE.Put(vars["id"], session_id, to, message)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
-func getFellowship(user string, w http.ResponseWriter, r *http.Request) {
+func putConfigCradle(user string, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	r.ParseForm()
+	name := r.Form["name"][0]
+	session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
+	fmt.Printf(" ---- Setting Config Name %s\n", name)
+	CRADLE.Config(vars["id"], session_id, name)
+	w.Write([]byte("{\"ok\":true}"))
+}
+
+func getCradle(user string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session"][0]
@@ -205,8 +215,9 @@ func main() {
 
 	mux := mux.NewRouter()
 	mux.HandleFunc("/d/", newDocument).Methods("POST")
-	mux.HandleFunc("/d/{id}.rtc", auth(getFellowship)).Methods("GET")
-	mux.HandleFunc("/d/{id}.rtc", auth(putFellowship)).Methods("PUT")
+	mux.HandleFunc("/d/{id}.rtc", auth(getCradle)).Methods("GET")
+	mux.HandleFunc("/d/{id}.rtc/message", auth(putMessageCradle)).Methods("PUT")
+	mux.HandleFunc("/d/{id}.rtc/config", auth(putConfigCradle)).Methods("PUT")
 	mux.HandleFunc("/d/{id}.json", auth(getDocument)).Methods("GET")
 	mux.HandleFunc("/d/{id}.json", auth(updateDocument)).Methods("PUT")
 	mux.HandleFunc("/d/{id}", auth(getIndex)).Methods("GET")

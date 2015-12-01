@@ -22,6 +22,7 @@ import (
 type Session struct {
 	SessionID SessionID `json:"session_id"`
 	User      string    `json:"user"`
+	Name      string    `json:"name"`
 	UpdatedOn int64     `json:"updated_on"`
 	CreatedOn int64     `json:"created_on"`
 	Active    bool      `json:"active"`
@@ -94,6 +95,16 @@ func (c *Cradle) handler() {
 		case event := <-c.events:
 			event()
 		}
+	}
+}
+
+func (c *Cradle) Config(group_id string, session_id string, name string) {
+	c.events <- func() {
+		c.sessionDo(GroupID(group_id), SessionID(session_id), func(session *Session) {
+			session.Name = name
+			session.updated_tick = c.tick
+			c.update(GroupID(group_id))
+		})
 	}
 }
 

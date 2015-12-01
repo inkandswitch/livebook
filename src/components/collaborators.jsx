@@ -152,7 +152,7 @@ var Collaborator = React.createClass({
     });
 
     // send user name to server
-    cradle.config({
+    cradle.configure({
       name: name,
     });
   },

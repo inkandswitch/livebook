@@ -4,6 +4,7 @@ var URL
 var WebRTCServers = null
 var SessionID = ""
 var User = ""
+var Name = ""
 var Depart
 var ServerError
 var ServerErrorHandler
@@ -107,6 +108,10 @@ function update_state() {
     // connected
     self.last_connected = true
     Exports.ondepart(self)
+  }
+  if (self.last_name != self.session_record.name) {
+    self.last_name = self.session_record.name
+    Exports.onupdate(self)
   }
 }
 
@@ -233,21 +238,31 @@ function broadcast(usergram) {
   }
 }
 
+// note to self - two levels of types might be confusing - need better terminology?
+
 function send_signal(payload) {
   let self = this
-  put(self.id, { type: "signal", payload: payload } )
+  put_message(self.id, { type: "signal", payload: payload } )
 }
 
 function send_usergram(payload) {
   let self = this
-  put(self.id, { type: "usergram", payload: payload } )
+  put_message(self.id, { type: "usergram", payload: payload } )
 }
 
-function put(target, message) {
-  $.ajax(URL, {
+function put_message(target, message) {
+    put("message",{ to: target, session_id: SessionID, message: JSON.stringify(message) })
+}
+
+function put_config(name) {
+    put("config",{ session_id: SessionID, name: name})
+}
+
+function put(handler,payload) {
+  $.ajax(URL + "/" + handler, {
     method: "put",
     dataType: "json",
-    data: { to: target, session_id: SessionID, message: JSON.stringify(message) },
+    data: payload,
     success: function(data) {
     },
     error: function(e) {
@@ -276,6 +291,7 @@ function reset_state() {
 }
 
 function process_session_data_from_server(data) {
+  console.log(" ---- data from server", data)
   if (SessionID != data.session_id) {
     reset_state()
     SessionID = data.session_id
@@ -323,12 +339,12 @@ function get() {
   });
 }
 
-function peers() {
-  var peers = [ { session: SessionID, user: User, cursor: -1, connected: true }]
+function peers() { // CAUTION
+  var peers = [ { session: SessionID, name: Name, user: User, cursor: -1, connected: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, user: p.user,  cursor: p.cursor, connected: p.data_channel != undefined })
+      peers.push({session:id, name: p.last_name, user: p.user,  cursor: p.cursor, connected: p.data_channel != undefined })
     }
   }
   return peers
@@ -347,15 +363,20 @@ function join(url) {
 }
 
 // send {name: "Iassac"}
-function config(config) {
-  console.log("cradle.config with config: ", config);
+function configure(config) {
+  if (config.name) {
+    Name = config.name
+    put_config(config.name)
+  } else {
+    console.log("config has no name - need to implement")
+  }
 }
 
 var Exports = {
   join:       join,
   peers:      peers,
   broadcast:  broadcast,
-  config:     config,
+  configure:  configure,
   onarrive:   () => {},
   ondepart:   () => {},
   onusergram: () => {},
