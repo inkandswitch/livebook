@@ -346,10 +346,15 @@ function join(url) {
   get()
 }
 
+// send {name: "Iassac"}
+function config(config) {
+}
+
 var Exports = {
   join:       join,
   peers:      peers,
   broadcast:  broadcast,
+  config:     config,
   onarrive:   () => {},
   ondepart:   () => {},
   onusergram: () => {},
