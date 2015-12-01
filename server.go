@@ -12,13 +12,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/aordlab/livebook/Godeps/_workspace/src/github.com/gorilla/context"
-	"github.com/aordlab/livebook/Godeps/_workspace/src/github.com/gorilla/mux"
-	"github.com/aordlab/livebook/Godeps/_workspace/src/github.com/gorilla/sessions"
-	"github.com/aordlab/livebook/Godeps/_workspace/src/github.com/jinzhu/gorm"
-	_ "github.com/aordlab/livebook/Godeps/_workspace/src/github.com/lib/pq"
-	_ "github.com/aordlab/livebook/Godeps/_workspace/src/github.com/mattn/go-sqlite3"
 	"github.com/aordlab/livebook/cradle"
+	"github.com/gorilla/context"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -57,13 +58,6 @@ func randomString(length int) (str string) {
 	b := make([]byte, length)
 	rand.Read(b)
 	return base64.StdEncoding.EncodeToString(b)
-}
-
-func noStore(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", "no-store")
-		h.ServeHTTP(w, r)
-	})
 }
 
 func connectToDatabase() (DB gorm.DB) {
@@ -208,10 +202,12 @@ func main() {
 	DB = connectToDatabase()
 	DB.Debug()
 	port := os.Getenv("PORT")
-	addr := ":"+port
-	fmt.Printf("port=%v\n",port)
+	addr := ":" + port
+	fmt.Printf("port=%v\n", port)
 
 	http.NewServeMux()
+
+	compress := handlers.CompressHandler
 
 	mux := mux.NewRouter()
 	mux.HandleFunc("/d/", newDocument).Methods("POST")
@@ -221,7 +217,7 @@ func main() {
 	mux.HandleFunc("/d/{id}.json", auth(getDocument)).Methods("GET")
 	mux.HandleFunc("/d/{id}.json", auth(updateDocument)).Methods("PUT")
 	mux.HandleFunc("/d/{id}", auth(getIndex)).Methods("GET")
-	mux.PathPrefix("/").Handler(noStore(http.FileServer(http.Dir("./public/"))))
+	mux.PathPrefix("/").Handler(compress(http.FileServer(http.Dir("./public/"))))
 	http.Handle("/", mux)
 
 	fmt.Printf("Running on %s\n", addr)

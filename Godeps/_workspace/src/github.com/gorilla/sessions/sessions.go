@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aordlab/livebook/Godeps/_workspace/src/github.com/gorilla/context"
+	"github.com/gorilla/context"
 )
 
 // Default flashes key.
