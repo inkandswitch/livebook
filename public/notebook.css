@@ -348,6 +348,49 @@ div.plot {
   animation-direction: alternate;
 }
 
+.collaborators-name-change-form-wrap {
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 52px; // magic number
+}
+
+.collaborators-name-change-form {
+  background: #ddd;
+  border: solid 2px #959595;
+  border-radius: 4px;
+  min-width: 200px;
+  padding: .4em .5em .8em .5em;
+  position: relative;
+  z-index: 2;
+}
+
+.collaborators-name-change-form::after {
+  background: #ddd;
+  border-left: solid 2px #959595;
+  border-top: solid 2px #959595;
+  content: ' ';
+  height: 10px;
+  position: absolute;
+  right: 10px;
+  top: 0;
+  transform: translateY(-7px) rotate(45deg);
+  width: 10px;
+}
+
+.collaborators-name-change-form p {
+  font-size: .85em;
+}
+
+.collaborators-name-change-form input {
+  width: 75%;
+}
+
+.collaborators-name-change-form button {
+  width: 20%;
+}
+
+
 @keyframes pulse {
   from {
     opacity: 0.3;

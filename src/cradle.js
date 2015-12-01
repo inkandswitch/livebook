@@ -348,6 +348,7 @@ function join(url) {
 
 // send {name: "Iassac"}
 function config(config) {
+  console.log("cradle.config with config: ", config);
 }
 
 var Exports = {

@@ -1,5 +1,6 @@
-var React = require("react");
-var $     = require("jquery");
+var React  = require("react");
+var extend = require("jquery").extend;
+var cradle = require("../cradle");
 
 var CollaboratorNameForm = React.createClass({
   componentDidUpdate() {
@@ -11,7 +12,7 @@ var CollaboratorNameForm = React.createClass({
 
   getInitialState() {
     return {
-      inputValue: this.props.username,
+      inputValue: this.props.username, // NOT a react anti-pattern; this only needs to be sync'd at first
     }
   },
 
@@ -29,35 +30,33 @@ var CollaboratorNameForm = React.createClass({
   },
 
   getPosition() {
-    let form = this.refs.nameForm
-
-    if (!form) return {};
-
     return {
-      border: "solid 2px black",
-      padding: ".8em",
-      position: "fixed",
-      right: 0,
-      top: 0,
+      // background: "white",
+      // border: "solid 2px #222",
+      // padding: ".8em",
+      // position: "absolute",
+      // right: 0,
+      // top: 48, // magic number
+      // zIndex: 1,
     }
   },
 
   getStyles() {
-    return $.extend({}, this.getPosition(), this.getDisplay());
+    return extend({}, this.getPosition(), this.getDisplay());
   },
 
   onSubmit(evt) {
-    let changeName = this.props.changeName;
-    let newName = this.getName();
-
-    changeName(newName)
-
     evt.stopPropagation();
     evt.preventDefault();
+
+    let handleNameChange = this.props.handleNameChange;
+    let newName = this.getName();
+
+    handleNameChange(newName)
   },
 
   onTextChange(evt) {
-    let name = this.getName();
+    let name = evt.target.value;
     this.setState({
       inputValue: name,
     })
@@ -67,15 +66,21 @@ var CollaboratorNameForm = React.createClass({
     let inputValue = this.state.inputValue;
     let styles = this.getStyles();
     return (
-      <form style={styles}
-        ref="nameForm"
-        onSubmit={this.onSubmit}>
-        <input type="text" ref="nameInput" value={inputValue} 
-            onChange={this.onTextChange} />
-        <button>
-          Change my name
-        </button>
-      </form>
+      <div className="collaborators-name-change-form-wrap"
+        style={styles}>
+        <form className="collaborators-name-change-form"
+          ref="nameForm"
+          onSubmit={this.onSubmit}>
+          <p>
+            What's your name?
+          </p>
+          <input type="text" ref="nameInput" value={inputValue} 
+              onChange={this.onTextChange} />
+          <button>
+            Save
+          </button>
+        </form>
+      </div>
     )
   }
 });
@@ -83,43 +88,51 @@ var CollaboratorNameForm = React.createClass({
 var Collaborator = React.createClass({
 
   getInitialState() {
-    let f = this.props.f;
-    let name = f.session;
+    let peer = this.props.peer; // possible react anti-pattern
+    let name = peer.name || peer.session;
+
     return {
       isEditingName: false,
       name: name,
     }
   },
 
-  onclick() {
+  handleClick() {
     this.setState({ isEditingName: true });
   },
 
-  changeName(name) {
+  handleNameChange(name) {
+    let oldName = this.state.name;
+
     this.setState({
       isEditingName: false,
+      name: name,
+    });
+
+    // send user name to server
+    cradle.config({
       name: name,
     });
   },
 
   render() {
 
-    let f = this.props.f;
-    let connected = (f.connected) ? "!!" : "";
-    let cursor = (f.cursor == undefined) ? "?" : f.cursor;
+    let peer = this.props.peer;
+    let connected = (peer.connected) ? "!!" : "";
+    let cursor = (peer.cursor == undefined) ? "?" : peer.cursor;
     let name = this.state.name;
 
-    if (f.cursor == undefined) cursor = "?";
+    if (peer.cursor == undefined) cursor = "?";
 
       return (
-        <li className={"observer " + f.status}
-            onClick={this.onclick}>
+        <li className={"observer " + peer.status}
+            onClick={this.handleClick}>
           <span>
             {name + ":" + cursor + connected}
           </span>
           <CollaboratorNameForm 
             username={this.state.name}
-            changeName={this.changeName}
+            handleNameChange={this.handleNameChange}
             shouldFocus={this.state.isEditingName}
             isHidden={!this.state.isEditingName} />
         </li>
@@ -130,9 +143,9 @@ var Collaborator = React.createClass({
 var Collaborators = React.createClass({
 
   renderAvatars() {
-    let avatars = this.props.peers.map((f) => {
+    let avatars = this.props.peers.map((peer) => {
       return (
-        <Collaborator f={f} />
+        <Collaborator peer={peer} />
       );
     })
     return avatars
