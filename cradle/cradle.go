@@ -34,7 +34,6 @@ type Session struct {
 
 func (s *Session) Reply() {
 	if s.reply != nil {
-		fmt.Printf("Reply() called - (%v)\n",s.SessionID)
 		(*s.reply)()
 		s.reply = nil
 	}
@@ -122,7 +121,6 @@ func (c *Cradle) cleanup() {
 }
 
 func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user string) (*Session) {
-	fmt.Printf("touch id='%s'\n",session_id)
 	session := c.session(group_id, session_id)
 	now := time.Now().Unix()
 	if session == nil {
@@ -180,16 +178,16 @@ func (c *Cradle) Get(group_id string, name string, session_id string, closer <-c
 	return <-get.reply
 }
 
+/*
 func debug3(s *Session, name string) {
 	fmt.Printf("%s=%s cr=%d up=%d sy=%d\n",name,s.SessionID,s.created_tick,s.updated_tick,s.synced_tick)
 }
+*/
 
 func sessionActivity(sessions []*Session, observer *Session) ([]*Session,[]*Session) {
 	updates := make([]*Session,0,len(sessions))
 	arrivals := make([]*Session,0,len(sessions))
 	for _, s := range sessions {
-//		debug3(observer,"observer")
-//		debug3(s,"session")
 		if s.SessionID == observer.SessionID {
 			continue
 		} else if observer.created_tick < s.created_tick && observer.synced_tick < s.created_tick {
@@ -260,11 +258,9 @@ func (c *Cradle) handleGet(get get) {
 	}()
 
 	if session.updated_tick == c.tick {
-		fmt.Printf("session updated - reply (%v)\n",session.SessionID)
 		reply()
 		c.update(get.group_id)
 	} else if len(session.messages) > 0 {
-		fmt.Printf("messages waiting - reply (%v)\n",session.SessionID)
 		reply()
 	} else {
 		session.reply = &reply

@@ -8,6 +8,7 @@ package main
 
 import (
 	"crypto/rand"
+	srand "math/rand"
 	_ "database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -53,6 +54,12 @@ type Document struct {
 }
 
 var CRADLE = cradle.New()
+
+var NAMES = []string{"Albert", "Marie", "Issac", "Charles", "Ada", "Niels", "Nikola", "Lise", "Louis", "Grace", "Gregor", "Rosalind", "Carl"}
+
+func randomName() string {
+	return NAMES[srand.Int() % len(NAMES)]
+}
 
 func randomString(length int) (str string) {
 	b := make([]byte, length)
@@ -181,7 +188,7 @@ func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := SESSION.Get(r, "sessionName")
 		if session.Values["ID"] == nil {
-			session.Values["ID"] = randomString(16)
+			session.Values["ID"] = randomName()
 			session.Save(r, w)
 		}
 		id := session.Values["ID"].(string)
