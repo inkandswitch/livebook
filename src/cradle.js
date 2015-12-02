@@ -3,7 +3,6 @@ var Peers = {}
 var URL
 var WebRTCServers = null
 var SessionID = ""
-var User = ""
 var Name = ""
 var Depart
 var ServerError
@@ -109,8 +108,8 @@ function update_state() {
     self.last_connected = true
     Exports.ondepart(self)
   }
-  if (self.last_name != self.session_record.name) {
-    self.last_name = self.session_record.name
+  if (self.last_user != self.session_record.user) {
+    self.last_user = self.session_record.user
     Exports.onupdate(self)
   }
 }
@@ -287,7 +286,7 @@ function reset_state() {
   }
   Peers = {}
   SessionID = ""
-  User = ""
+  Name = ""
 }
 
 function process_session_data_from_server(data) {
@@ -295,7 +294,7 @@ function process_session_data_from_server(data) {
   if (SessionID != data.session_id) {
     reset_state()
     SessionID = data.session_id
-    User = data.user
+    Name = data.user
   }
 
   data.updates.forEach((s) => {
@@ -340,11 +339,11 @@ function get() {
 }
 
 function peers() { // CAUTION
-  var peers = [ { session: SessionID, name: Name, user: User, cursor: -1, connected: true }]
+  var peers = [ { session: SessionID, name: Name, cursor: -1, connected: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, name: p.last_name, user: p.user,  cursor: p.cursor, connected: p.data_channel != undefined })
+      peers.push({session:id, name: p.last_user,  cursor: p.cursor, connected: p.data_channel != undefined })
     }
   }
   return peers

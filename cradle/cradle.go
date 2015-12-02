@@ -22,7 +22,6 @@ import (
 type Session struct {
 	SessionID SessionID `json:"session_id"`
 	User      string    `json:"user"`
-	Name      string    `json:"name"`
 	UpdatedOn int64     `json:"updated_on"`
 	CreatedOn int64     `json:"created_on"`
 	Active    bool      `json:"active"`
@@ -98,16 +97,6 @@ func (c *Cradle) handler() {
 	}
 }
 
-func (c *Cradle) Config(group_id string, session_id string, name string) {
-	c.events <- func() {
-		c.sessionDo(GroupID(group_id), SessionID(session_id), func(session *Session) {
-			session.Name = name
-			session.updated_tick = c.tick
-			c.update(GroupID(group_id))
-		})
-	}
-}
-
 func (c *Cradle) Put(group_id string, from string, to string, message string) {
 	p := put{group_id: GroupID(group_id), from: SessionID(from), to: SessionID(to), message: message}
 	c.events <- func() { c.handlePut(p) }
@@ -132,22 +121,23 @@ func (c *Cradle) cleanup() {
 	}
 }
 
-func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user string) (*Session, bool) {
+func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user string) (*Session) {
 	fmt.Printf("touch id='%s'\n",session_id)
 	session := c.session(group_id, session_id)
 	now := time.Now().Unix()
-	init := false
 	if session == nil {
 		session_id = SessionID(randomString(6)[0:4])
 		session = &Session{SessionID: session_id, User: user, CreatedOn: now, messages: map[SessionID][]string{}}
 		session.created_tick = c.tick
 		session.updated_tick = c.tick
 		c.Sessions[group_id] = append(c.Sessions[group_id], session)
-		init = true
+	} else if session.User != user {
+		session.User = user
+		session.updated_tick = c.tick
 	}
 	session.Active = true
 	session.UpdatedOn = now
-	return session, init
+	return session
 }
 
 func (c *Cradle) session(group_id GroupID, session_id SessionID) *Session {
@@ -238,7 +228,7 @@ func debug(s1,s2 []*Session,active bool) []SessionID {
 }
 
 func (c *Cradle) handleGet(get get) {
-	session, init := c.sessionTouch(get.group_id, get.session_id, get.user)
+	session := c.sessionTouch(get.group_id, get.session_id, get.user)
 	session.Reply()
 
 	success := make(chan bool)
@@ -269,8 +259,8 @@ func (c *Cradle) handleGet(get get) {
 		}
 	}()
 
-	if init {
-		fmt.Printf("new - session reply (%v)\n",session.SessionID)
+	if session.updated_tick == c.tick {
+		fmt.Printf("session updated - reply (%v)\n",session.SessionID)
 		reply()
 		c.update(get.group_id)
 	} else if len(session.messages) > 0 {

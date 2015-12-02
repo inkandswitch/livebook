@@ -135,12 +135,12 @@ func putMessageCradle(user string, w http.ResponseWriter, r *http.Request) {
 }
 
 func putConfigCradle(user string, w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
 	r.ParseForm()
 	name := r.Form["name"][0]
-	session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
+	session, _ := SESSION.Get(r, "sessionName")
 	fmt.Printf(" ---- Setting Config Name %s\n", name)
-	CRADLE.Config(vars["id"], session_id, name)
+	session.Values["ID"] = name
+	session.Save(r, w)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
