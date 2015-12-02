@@ -347,7 +347,7 @@ function peers() { // CAUTION
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, name: p.last_name, color: p.color, cursor: p.cursor, connected: p.data_channel != undefined })
+      peers.push({session:id, name: p.last_user, color: p.color, cursor: p.cursor, connected: p.data_channel != undefined })
     }
   }
   return peers
