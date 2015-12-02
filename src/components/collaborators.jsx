@@ -170,7 +170,7 @@ var Collaborator = React.createClass({
         <li className={"observer " + peer.status}
             onClick={this.handleClick}>
           <span>
-            {name + ":" + cursor + connected}
+            {name}
           </span>
           <CollaboratorNameForm 
             username={this.state.name}
