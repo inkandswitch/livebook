@@ -408,7 +408,9 @@ function moveCursor(delta, options) {
   // allows us to disable auto scrolling on the click events
   if (!options.noScroll) {
     // FIX
-    // $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
+    let $currentUserCursor = $('[data-current-user-cursor]');
+    let $currenUserCellWrap = $currentUserCursor.parents(".cell-wrap");
+    $('body').animate({ scrollTop: $currenUserCellWrap.offset().top - 80 });
   }
 
   cradle.broadcast({ cursor: CursorCell })
