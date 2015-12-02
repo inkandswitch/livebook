@@ -199,6 +199,10 @@ var Collaborator = React.createClass({
 
 var Collaborators = React.createClass({
 
+  shouldShow() {
+    return this.props.getCurrentPage() !== "upload";
+  },
+
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
       return (
@@ -208,12 +212,17 @@ var Collaborators = React.createClass({
           getMode={this.props.getMode} />
       );
     })
-    return avatars
+    return avatars;
   },
 
   render() {
+    let styles = {};
+    if (!this.shouldShow()) {
+      styles.display = "none";
+    };
+
     return (
-      <div className="collaborators">
+      <div className="collaborators" style={styles}>
         <ul>{this.renderAvatars()}</ul>
       </div>
     )

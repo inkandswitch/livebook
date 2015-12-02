@@ -81,7 +81,7 @@ function update_peers_and_render() {
   let peers = cradle.peers()
   peers[0].cursor = CursorCell // hack since I dont know - FIXME
   console.log("Peers", peers)
-  React.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} />, collaboratorsMount);
+  React.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.cursor === undefined ? 0 : peer.cursor; // FIXME
@@ -843,6 +843,7 @@ var exports =  {
   displayClass           : displayClass,
   get$cell               : () => $cell,
   getCODE                : () => CODE,
+  getCurrentPage         : () => CurrentPage,
   getCursorCell          : () => CursorCell,
   getEditor              : () => editor,
   getiPython             : () => iPython,
