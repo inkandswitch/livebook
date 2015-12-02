@@ -3,8 +3,6 @@ var React  = require("react");
 var extend = require("jquery").extend;
 var cradle = require("../cradle");
 
-var setMode;
-
 var ModalBackground = React.createClass({
   getStyles() {
     let result = {
@@ -37,18 +35,29 @@ var CollaboratorNameForm = React.createClass({
     if (!prevProps.shouldFocus && this.props.shouldFocus) {
       let input = this.refs.nameInput.getDOMNode();
       input.select();
-      setMode("meta");
+      this.props.setMode("meta");
       this.setState({ showForm: true });
-      $("#notebook,#editor").addClass("blur");
+      this.showFormAnimations();
     }
 
     // We are hiding the form
     if (prevProps.shouldFocus && !this.props.shouldFocus) {
-      setMode("nav");
+      this.props.setMode("nav");
       this.setState({ showForm: false });
-      $("#notebook,#editor").removeClass("blur");      
+      this.hideFormAnimations();
     }
   },
+
+  showFormAnimations() {
+    $("#notebook,#editor").addClass("blur");
+    $(".observer:not(:first-of-type)").slideUp(150);
+  },
+
+  hideFormAnimations() {
+    $("#notebook,#editor").removeClass("blur");
+    $(".observer:not(:first-of-type)").slideDown(150);  
+  },
+
 
   getInitialState() {
     return {
@@ -179,7 +188,9 @@ var Collaborator = React.createClass({
             exitModal={this.exitModal}
             handleNameChange={this.handleNameChange}
             shouldFocus={this.state.isEditingName}
-            isHidden={!this.state.isEditingName} />
+            isHidden={!this.state.isEditingName}
+            setMode={this.props.setMode}
+            getMode={this.props.getMode} />
         </li>
       );
   }
@@ -191,7 +202,10 @@ var Collaborators = React.createClass({
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
       return (
-        <Collaborator peer={peer} isEditable={index === 0} />
+        <Collaborator 
+          peer={peer} isEditable={index === 0} 
+          setMode={this.props.setMode}
+          getMode={this.props.getMode} />
       );
     })
     return avatars
@@ -206,10 +220,5 @@ var Collaborators = React.createClass({
   }
 });
 
-function injectSetMode(injectedSetMode) {
-  setMode = injectedSetMode;
-  return Collaborators;
-}
 
-
-module.exports = injectSetMode;
+module.exports = Collaborators;

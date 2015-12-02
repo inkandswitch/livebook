@@ -158,6 +158,10 @@ div.notebook hr {
   border-color: #820E8A;
 }
 
+.cursor {
+  transition: all .15s ease-out;
+}
+
 /*div.cursor {
   margin-left: -24pt;
   padding-left: 12pt;
@@ -453,8 +457,9 @@ div.pyresult-error {
 }
 
 .blur {
-  -webkit-filter: blur(3px);
-  filter: blur(3px);
+  -webkit-filter: blur(5px);
+  filter: blur(5px);
 
-  transition: filter .3s ease-in;
+  transition: -webkit-filter .25s ease-in-out,
+              filter .25s ease-in-out;
 }

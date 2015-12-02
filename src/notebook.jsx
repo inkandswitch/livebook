@@ -81,7 +81,7 @@ function update_peers_and_render() {
   let peers = cradle.peers()
   peers[0].cursor = CursorCell // hack since I dont know - FIXME
   console.log("Peers", peers)
-  React.render(<Collaborators peers={peers} />, collaboratorsMount);
+  React.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.cursor === undefined ? 0 : peer.cursor; // FIXME
@@ -688,7 +688,7 @@ var CODE = {
 }
 
 var Menu = require("./components/menu.jsx");
-var Collaborators = require("./components/collaborators.jsx")(setMode);
+var Collaborators = require("./components/collaborators.jsx");
 var Cell = require("./components/cell.jsx");
 var Uploader = require("./components/uploader.jsx");
 
