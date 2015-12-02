@@ -94,7 +94,7 @@ function asyncRunParallel(funcs, callback) {
 
 function randomColorGenerator() {
   var lastIndex = 0;
-  var colors = ['#ffa995', '#fd8a71', '#f7694f', '#ef412d'];
+  var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
 
   return function(i) {
     if (i === undefined) {

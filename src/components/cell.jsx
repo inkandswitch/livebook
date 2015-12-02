@@ -15,10 +15,10 @@ var Cursor = React.createClass({
   render() {
     let style = {
       background:  this.props.color, //"#2A64C7",
-      left: -20 * this.props.index,
+      left: -10 * this.props.index + (-2 * (this.props.index - 1)),
       position: "absolute",
       height: "100%",
-      width: 20,
+      width: 10,
     };
 
     if (this.props.isHidden) {
