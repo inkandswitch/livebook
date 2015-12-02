@@ -10,7 +10,8 @@
 var $          = require("jquery")
 var ace        = require("brace")
 var Range      = ace.acequire('ace/range').Range;
-var React      = require("react")
+var React      = require("react");
+var ReactDOM   = require("react-dom");
 var AceEditor  = require("react-ace");
 
 var cradle     = require("./cradle");
@@ -27,11 +28,8 @@ WORKER.onmessage = function(e) {
 var charts = require("./charts");  // Assigns the charts
 
 // Utils
-var asyncRunParallel = require("./util").asyncRunParallel;
-var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
 var resultToHtml     = require("./util").resultToHtml;
-var zip              = require("./util").zip;
 
 var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
@@ -56,7 +54,6 @@ function REMOVE_MARKERS() {
 }
 function CLEAR_ERROR_MESSAGES() {
   ERRORS = {};
-  // $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
 }
 
 cradle.onarrive = function() {
@@ -79,7 +76,7 @@ function update_peers() {
   let p = cradle.peers()
   p[0].cursor = CursorCell // hack since I dont know - FIXME
   console.log("Peers", p)
-  React.render(<Collaborators peers={p} />, collaboratorsMount);
+  ReactDOM.render(<Collaborators peers={p} />, collaboratorsMount);
 }
 
 ace.config.set("basePath", "/");
@@ -281,7 +278,7 @@ function renderEditor() {
     onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
 
-  React.render(createAceEditor(editorOptions), editorMount);
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
 
   // Position editor
   var pos = cellPosition();
@@ -363,8 +360,8 @@ function cellPosition() {
  */
 function render() {
   let render_time = new Date()
-  React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
-  React.render(<Menu notebook={exports}/>, menuMount);
+  ReactDOM.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
+  ReactDOM.render(<Menu notebook={exports}/>, menuMount);
   update_peers()
   setup_drag_drop()
   return render_time
@@ -821,6 +818,7 @@ var exports =  {
   getiPython             : () => iPython,
   getMode                : () => Mode,
   moveCursor             : moveCursor,
+  Notebook: Notebook,
   renderEditor           : renderEditor,
   setCurrentPage         : setCurrentPage,
   setMode                : setMode,

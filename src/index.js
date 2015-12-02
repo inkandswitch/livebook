@@ -1,4 +1,6 @@
 var notebook = require("./notebook");
 var hotkeys = require("./hotkeys");
 
-hotkeys.setup(notebook)
+// hotkeys.setup(notebook);
+
+require("./app");

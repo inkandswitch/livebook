@@ -1,9 +1,8 @@
 var $      = require("jquery");
 var React  = require("react");
+var ReactDOM = require("react-dom");
 var extend = require("jquery").extend;
 var cradle = require("../cradle");
-
-var setMode;
 
 var ModalBackground = React.createClass({
   getStyles() {
@@ -35,15 +34,15 @@ var CollaboratorNameForm = React.createClass({
   componentDidUpdate(prevProps, prevState) {
     // We are showing the form
     if (!prevProps.shouldFocus && this.props.shouldFocus) {
-      let input = this.refs.nameInput.getDOMNode();
+      let input = ReactDOM.findDOMNode(this.refs.nameInput);
       input.select();
-      setMode("meta");
+      this.props.setMode("meta");
       this.setState({ showForm: true });
     }
 
     // We are hiding the form
     if (prevProps.shouldFocus && !this.props.shouldFocus) {
-      setMode("nav");
+      this.props.setMode("nav");
       this.setState({ showForm: false });
     }
   },
@@ -57,7 +56,7 @@ var CollaboratorNameForm = React.createClass({
 
   getName() {
     let input = this.refs.nameInput;
-    let name  = input.getDOMNode().value;
+    let name  = ReactDOM.findDOMNode(input).value;
     return name;
   },
 
@@ -145,16 +144,11 @@ var Collaborator = React.createClass({
   },
 
   handleNameChange(name) {
-    let oldName = this.state.name;
-
     this.setState({
       isEditingName: false,
     });
 
-    // send user name to server
-    cradle.configure({
-      name: name,
-    });
+    this.props.handleNameChange(name);
   },
 
   render() {
@@ -177,7 +171,8 @@ var Collaborator = React.createClass({
             exitModal={this.exitModal}
             handleNameChange={this.handleNameChange}
             shouldFocus={this.state.isEditingName}
-            isHidden={!this.state.isEditingName} />
+            isHidden={!this.state.isEditingName}
+            setMode={this.props.setMode} />
         </li>
       );
   }
@@ -188,8 +183,14 @@ var Collaborators = React.createClass({
 
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
+      let isCurrentUser = index === 0;
+      let setMode = isCurrentUser ? this.props.setMode : () => {};
       return (
-        <Collaborator peer={peer} isEditable={index === 0} />
+        <Collaborator 
+          peer={peer} 
+          isEditable={isCurrentUser}
+          setMode={setMode}
+          handleNameChange={this.props.handleNameChange} />
       );
     })
     return avatars
@@ -204,10 +205,5 @@ var Collaborators = React.createClass({
   }
 });
 
-function injectSetMode(injectedSetMode) {
-  setMode = injectedSetMode;
-  return Collaborators;
-}
 
-
-module.exports = injectSetMode;
+module.exports = Collaborators;
