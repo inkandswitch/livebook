@@ -18,6 +18,7 @@ var cradle     = require("./cradle");
 var Sk         = require("./skulpt");
 var pyload     = require("./pyload");
 
+
 var WORKER     = new Worker("/js/worker.js");
 WORKER.postMessage("TEST MESSAGE")
 WORKER.onmessage = function(e) {
@@ -30,6 +31,7 @@ var charts = require("./charts");  // Assigns the charts
 var asyncRunParallel = require("./util").asyncRunParallel;
 var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
+var randomColor      = require("./util").randomColor;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
@@ -60,14 +62,14 @@ function CLEAR_ERROR_MESSAGES() {
 }
 
 cradle.onarrive = function() {
-  update_peers();
+  update_peers_and_render();
   cradle.broadcast({ cursor: CursorCell });
 }
-cradle.ondepart = update_peers;
-cradle.onupdate = update_peers;
+cradle.ondepart = update_peers_and_render;
+cradle.onupdate = update_peers_and_render;
 cradle.onusergram = function() {
   console.log("on usergram")
-  update_peers();
+  update_peers_and_render();
 }
 /**
  * [Global Deps]
@@ -75,11 +77,22 @@ cradle.onusergram = function() {
  * `collaboratorsMount`
  */
 
-function update_peers() {
-  let p = cradle.peers()
-  p[0].cursor = CursorCell // hack since I dont know - FIXME
-  console.log("Peers", p)
-  React.render(<Collaborators peers={p} />, collaboratorsMount);
+function update_peers_and_render() {
+  let peers = cradle.peers()
+  peers[0].cursor = CursorCell // hack since I dont know - FIXME
+  console.log("Peers", peers)
+  React.render(<Collaborators peers={peers} />, collaboratorsMount);
+
+  let cursorPositions = peers.map((peer) => {
+    let cursorPosition = peer.cursor === undefined ? 0 : peer.cursor; // FIXME
+    return {
+      position: cursorPosition,
+      color: peer.color,
+    };
+  });
+
+  let render_time = new Date();
+  React.render(<Notebook peerCursorCells={cursorPositions} data={iPython} typing={typing(render_time)}/>, notebookMount);
 }
 
 ace.config.set("basePath", "/");
@@ -363,9 +376,8 @@ function cellPosition() {
  */
 function render() {
   let render_time = new Date()
-  React.render(<Notebook data={iPython} typing={typing(render_time)}/>, notebookMount);
   React.render(<Menu notebook={exports}/>, menuMount);
-  update_peers()
+  update_peers_and_render()
   setup_drag_drop()
   return render_time
 }
@@ -395,7 +407,8 @@ function moveCursor(delta, options) {
 
   // allows us to disable auto scrolling on the click events
   if (!options.noScroll) {
-    $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
+    // FIX
+    // $('body').animate({ scrollTop: $('.cursor').offset().top - 80 });
   }
 
   cradle.broadcast({ cursor: CursorCell })
@@ -679,9 +692,21 @@ var Uploader = require("./components/uploader.jsx");
 
 var Notebook = React.createClass({
   cells: function() {
-    return this.props.data.cells.map((cell,index) => {
+    return this.props.data.cells.map((cell, index) => {
+
       var errorObject = ERRORS[index];
-      return <Cell data={cell} notebook={exports} mode={Mode} cursor={CursorCell} typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>;
+
+      var cursorCells = this.props.peerCursorCells.filter((cursorCell) => { return cursorCell.position === index; });
+
+      return (
+        <Cell data={cell} 
+          notebook={exports} 
+          mode={Mode} 
+          cellIndex={index} 
+          cursor={CursorCell}
+          cursors={cursorCells}
+          typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>
+      );
     }) // `key` prop stops React warnings in the console
   },
 

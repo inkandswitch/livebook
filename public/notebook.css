@@ -158,7 +158,7 @@ div.notebook hr {
   border-color: #820E8A;
 }
 
-div.cursor {
+/*div.cursor {
   margin-left: -24pt;
   padding-left: 12pt;
   border-left: 12pt solid #2A64C7;
@@ -171,7 +171,7 @@ div.cursor-edit {
   border-left: 12pt solid #2A64C7;
   margin-left: -12pt;
   margin-bottom: 9pt;
-}
+}*/
 
 div.ace_editor {
   box-sizing: border-box;

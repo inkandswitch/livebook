@@ -111,7 +111,7 @@ var CollaboratorNameForm = React.createClass({
             <p>
               What's your name?
             </p>
-            <input class="js-user-name-input" type="text" ref="nameInput" value={inputValue} 
+            <input className="js-user-name-input" type="text" ref="nameInput" value={inputValue} 
                 onChange={this.handleTextChange} />
             <button>
               Save

@@ -98,7 +98,7 @@ function randomColorGenerator() {
 
   return function(i) {
     if (i === undefined) {
-      lastIndex++ % colors.length;
+      lastIndex = (lastIndex+1) % colors.length;
       return colors[lastIndex];
     }
     return colors[i % colors.length];

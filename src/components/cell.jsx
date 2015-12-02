@@ -11,6 +11,24 @@ function cursor(mode, cursor_cell, i) {
   else                 throw  new Error("Invalid mode: " + mode);
 }
 
+var Cursor = React.createClass({
+  render() {
+    let style = {
+      background:  this.props.color, //"#2A64C7",
+      left: -20 * this.props.index,
+      position: "absolute",
+      height: "100%",
+      width: 20,
+    };
+
+    if (this.props.isHidden) {
+      style.display = "none";
+    }
+    return (
+      <div className="cursor" style={style} />
+    );
+  }
+});
 
 var Cell = React.createClass({
 
@@ -46,7 +64,24 @@ var Cell = React.createClass({
   },
 
   render() {
-    return <div className={cursor(this.props.mode, this.props.cursor, this.props.index)} onClick={this.enterEditMode}> {this.subcell()} </div>
+    let cursorClass = cursor(this.props.mode, this.props.cursor, this.props.index);
+    let hasCursor = cursorClass === "cursor";
+
+    if (this.props.cursors) {
+      console.log("We have cursors in cell ", this.props.cellIndex, "they look like", this.props.cursors);
+    }
+
+    let cursors = this.props.cursors.map((cursor, i) => { return <Cursor key={i} isHidden={false} index={i+1} color={cursor.color} /> });
+    // debugger;
+    // if (this.props.cursors) debugger;
+    // if (this.props.cursors && this.props.cursors.length) debugger;
+
+    return (
+      <div className="cell-wrap" onClick={this.enterEditMode} style={{position: "relative"}}>
+        {cursors}
+        {this.subcell()}
+      </div>
+    );
   },
 
 });

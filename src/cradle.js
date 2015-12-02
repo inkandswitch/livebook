@@ -8,6 +8,8 @@ var Depart
 var ServerError
 var ServerErrorHandler
 
+var randomColor = require("./util").randomColor;
+
 // When we cant reach the server - the following are set :
 //   ServerError = Date.now() + TIMEOUT
 //   ServerErrorHandler = setInterval(update,TIMEOUT)
@@ -194,6 +196,7 @@ function Peer(session) {
   let self   = this
 
   self.id             = session.session_id
+  self.color          = randomColor();
   self.state          = "new"
   self.session_record = session
   self.last_connected = false
@@ -339,11 +342,12 @@ function get() {
 }
 
 function peers() { // CAUTION
-  var peers = [ { session: SessionID, name: Name, cursor: -1, connected: true }]
+
+  var peers = [ { session: SessionID, name: Name, color: "blue", cursor: -1, connected: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, name: p.last_user,  cursor: p.cursor, connected: p.data_channel != undefined })
+      peers.push({session:id, name: p.last_name, color: p.color, cursor: p.cursor, connected: p.data_channel != undefined })
     }
   }
   return peers
