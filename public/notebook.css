@@ -451,3 +451,10 @@ div.pyresult-error {
   padding-left: 32pt;
   box-shadow: inset 2pt 4pt 6pt 0 rgba(0,0,0,0.1);
 }
+
+.blur {
+  -webkit-filter: blur(3px);
+  filter: blur(3px);
+
+  transition: filter .3s ease-in;
+}

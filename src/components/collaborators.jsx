@@ -8,7 +8,7 @@ var setMode;
 var ModalBackground = React.createClass({
   getStyles() {
     let result = {
-      background: "hsla(0, 0%, 0%, .3)",
+      background: "hsla(0, 0%, 100%, .25)",
       position: "fixed",
       height: "100%",
       left: 0,
@@ -39,12 +39,14 @@ var CollaboratorNameForm = React.createClass({
       input.select();
       setMode("meta");
       this.setState({ showForm: true });
+      $("#notebook,#editor").addClass("blur");
     }
 
     // We are hiding the form
     if (prevProps.shouldFocus && !this.props.shouldFocus) {
       setMode("nav");
       this.setState({ showForm: false });
+      $("#notebook,#editor").removeClass("blur");      
     }
   },
 
