@@ -12,20 +12,54 @@ function cursor(mode, cursor_cell, i) {
 }
 
 var Cursor = React.createClass({
+
+  cursorWidth() {
+    return 10;
+  },
+
+  calculateLeftOffset() {
+    let marginFromCell = 6;
+    let marginBetweenCursors = 2;
+
+    let leftOffset = -1 * this.cursorWidth() * this.props.index;
+    leftOffset -= marginBetweenCursors * this.props.index;
+    leftOffset -= marginFromCell;
+
+    if (this.isEditing() && this.isCurrentUserCursor()) {
+      leftOffset += marginFromCell;
+    }
+
+    return leftOffset;
+  },
+
+  isCurrentUserCursor() {
+    let isCurrentUserCell = this.props.getCurrentUserCursorCell() === this.props.cellIndex;
+    let isCursorFirst = this.props.index === 1;
+    return isCurrentUserCell && isCursorFirst;
+  },
+
+  isEditing() {
+    return this.props.getMode() === "edit";
+  },
+
   render() {
     let style = {
-      background:  this.props.color, //"#2A64C7",
-      left: -10 * this.props.index + (-2 * (this.props.index - 1)),
+      background:  this.props.color, // originally "#2A64C7",
+      left: this.calculateLeftOffset(),
       position: "absolute",
       height: "100%",
-      width: 10,
+      width: this.cursorWidth(),
     };
+
+    if (this.isEditing() && this.isCurrentUserCursor()) {
+      style.boxShadow = "-1px 0 1px 0 rgba(170, 170, 170, .72)";
+    }
 
     if (this.props.isHidden) {
       style.display = "none";
     }
 
-    if (this.props.isCurrentUser) {
+    if (this.isCurrentUserCursor()) {
       return (
         <div className="cursor" data-current-user-cursor style={style} />
       );      
@@ -75,7 +109,12 @@ var Cell = React.createClass({
     let hasCursor = cursorClass === "cursor";
     let cursors = this.props.cursors.map((cursor, i) => {
       return (
-        <Cursor key={i} isHidden={false} index={i+1} color={cursor.color} isCurrentUser={i === 0} />
+        <Cursor key={i} isHidden={false} 
+          index={i+1} color={cursor.color} 
+          isCurrentUser={i === 0} 
+          getMode={this.props.notebook.getMode}
+          getCurrentUserCursorCell={this.props.notebook.getCursorCell}
+          cellIndex={this.props.index} />
       );
     });
 
