@@ -343,7 +343,7 @@ function get() {
 
 function peers() { // CAUTION
 
-  var peers = [ { session: SessionID, name: Name, color: "#2A64C7", cursor: -1, connected: true }]
+  var peers = [ { session: SessionID, name: Name, color: "#1E52AA", cursor: -1, connected: true }]; // The former blue: #2A64C7
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {

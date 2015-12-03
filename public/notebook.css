@@ -333,11 +333,11 @@ div.plot {
   width: 100%;
 }
 .collaborators li.author {
-  background: url('avatar-author.png') center center no-repeat;
+  /*background: url('avatar-author.png') center center no-repeat;*/
   background-size: contain;
 }
 .collaborators li.observer {
-  background: url('avatar-observer.png') center center no-repeat;
+  /*background: url('avatar-observer.png') center center no-repeat;*/
   background-size: contain;
 }
 .collaborators li.here {

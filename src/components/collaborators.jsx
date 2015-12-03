@@ -1,7 +1,28 @@
 var $      = require("jquery");
 var React  = require("react");
-var extend = require("jquery").extend;
+var extend = $.extend;
 var cradle = require("../cradle");
+
+var Avatar = React.createClass({
+  componentDidMount() {
+    let avatarElement = this.refs.avatarSVG;
+    avatarElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    avatarElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    avatarElement.setAttribute("enable-background", "new -255 347 100 100");
+  },
+
+  render() {
+    return (
+      <svg ref="avatarSVG" 
+        height="40" width="40" 
+        version="1.1" x="0px" y="0px" 
+        viewBox="-255 347 100 100" 
+        xmlSpace="preserve">
+          <path fill={this.props.color} d="M-205,352c-24.9,0-45,20.1-45,45c0,24.9,20.1,45,45,45c24.9,0,45-20.1,45-45C-160,372.1-180.1,352-205,352z M-231,424.4  c1.8-0.8,3.6-1.4,5.5-1.9c5.2-1.2,8.3-2.9,9.3-5.1c0.8-1.7,0.3-4-1.2-6.9c-9.6-17.7-7.9-27.7-4.8-32.9c3.1-5.3,9.1-8.2,16.7-8.2  c7.6,0,13.5,2.9,16.6,8.1c3.1,5.2,4.8,15.2-4.7,33c-1.6,3-2,5.3-1.2,7c1,2.1,4.1,3.8,9.3,5c1.8,0.4,4,1.1,6.3,2.1  c-6.7,6.3-15.8,10.1-25.7,10.1C-215.1,434.8-224.2,430.8-231,424.4z"></path>
+      </svg>
+    );
+  }
+});
 
 var ModalBackground = React.createClass({
   getStyles() {
@@ -177,22 +198,27 @@ var Collaborator = React.createClass({
 
     if (peer.cursor == undefined) cursor = "?";
 
-      return (
-        <li className={"observer " + peer.status}
-            onClick={this.handleClick}>
-          <span>
-            {name}
-          </span>
-          <CollaboratorNameForm 
-            username={this.state.name}
-            exitModal={this.exitModal}
-            handleNameChange={this.handleNameChange}
-            shouldFocus={this.state.isEditingName}
-            isHidden={!this.state.isEditingName}
-            setMode={this.props.setMode}
-            getMode={this.props.getMode} />
-        </li>
-      );
+    return (
+      <li className={"observer " + peer.status}
+          data-user-color={this.props.color}
+          onClick={this.handleClick}>
+
+        <Avatar color={this.props.color} />
+
+        <span>
+          {name}
+        </span>
+
+        <CollaboratorNameForm 
+          username={this.state.name}
+          exitModal={this.exitModal}
+          handleNameChange={this.handleNameChange}
+          shouldFocus={this.state.isEditingName}
+          isHidden={!this.state.isEditingName}
+          setMode={this.props.setMode}
+          getMode={this.props.getMode} />
+      </li>
+    );
   }
 });
 
@@ -207,7 +233,10 @@ var Collaborators = React.createClass({
     let avatars = this.props.peers.map((peer, index) => {
       return (
         <Collaborator 
-          peer={peer} isEditable={index === 0} 
+          key={index}
+          peer={peer} 
+          color={peer.color}
+          isEditable={index === 0} 
           setMode={this.props.setMode}
           getMode={this.props.getMode} />
       );
@@ -223,7 +252,9 @@ var Collaborators = React.createClass({
 
     return (
       <div className="collaborators" style={styles}>
-        <ul>{this.renderAvatars()}</ul>
+        <ul>
+          {this.renderAvatars()}
+        </ul>
       </div>
     )
   }
