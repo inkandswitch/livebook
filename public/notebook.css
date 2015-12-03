@@ -6,19 +6,29 @@ body {
   padding: 0;
 }
 
-div.notebook {
-  margin: 0 auto;
-  width: 55em;
-  padding: 32pt 64pt;
-  min-height: 400pt;
+.livebook-nav {
+  background: #f4f4f4;
+  height: 0;
+  position: fixed;
+  top: 0;
+  max-width: 1200px;
+  width: 100%;
+
+  transition: all .2s ease-in;
 }
 
-@media only screen and (max-width: 800px) {
-  div.notebook {
-    padding: 0;
-    width: 100%;
-    border: none;
-  }
+.app-container {
+  position: relative;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding-top: 4.2em;
+}
+
+div.notebook {
+  margin: 0 auto;
+  max-width: 1000px;
+  min-height: 400pt;
+  width: 90%;
 }
 
 a {
@@ -242,6 +252,8 @@ div.plot {
   visibility: hidden;
   opacity: 0;
   position: absolute;
+  background: #f4f4f4;
+  padding: .6em .6em .8em;
   top: 100%;
   left: 0;
   transform: translateZ(0);
@@ -250,6 +262,7 @@ div.plot {
 }
 
 #menu.active .menu-content {
+
   visibility: visible;
   opacity: 1;
   transform: translateX(0%);
@@ -266,63 +279,26 @@ div.plot {
   border-radius: 2pt;
 }
 
-#upload {
-  box-sizing: border-box;
-  border: 6pt dashed #ccc;
-  border-radius: 24pt;
-  width: 300pt;
-  min-height: 200pt;
-  margin: 20pt auto;
-  padding: 16pt;
-  padding-left: 32pt;
-  padding-top: 28pt;
-  background: rgba(0,0,0,0.03);
-  color: #888;
-  font-size: 16pt;
-  font-weight: bold;
-}
-#upload ul {
-  padding-left: 16pt;
-}
-#upload h1 {
-  font-size: 28pt;
-  color: #aaa;
-  border: 0;
-}
-#upload li {
-  list-style-type: none;
-  padding-left: 28pt;
-  margin-bottom: 16pt;
-}
-#upload li.ipynb {
-  background: url('file-ipynb.png') left center no-repeat;
-  background-size: 15pt;
-}
-#upload li.csv {
-  background: url('file-csv.png') left center no-repeat;
-  background-size: 15pt;
-}
-
-#upload.hover {
-  border: 6pt dashed #B1CD14;
-}
-
 .collaborators {
-  position: fixed;
-  top: 16pt;
-  right: 16pt;
+  position: absolute;
+  right: 6pt;
+  top: 4pt;
 }
 
 .collaborators ul {
   list-style-type: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  /*width: ;*/
 }
 
 .collaborators li {
-  padding: 8pt;
-  margin-bottom: 4pt;
+  /*padding: 8pt;*/
+  /*margin-bottom: 4pt;*/
+  margin-top: 16px;
   position: relative;
+
+  transition: all .3s ease-in-out;
 }
 
 .collaborators li span {
@@ -453,10 +429,91 @@ div.pyresult-error {
   box-shadow: inset 2pt 4pt 6pt 0 rgba(0,0,0,0.1);
 }
 
+
+
+#upload {
+  box-sizing: border-box;
+  border: 6pt dashed #ccc;
+  border-radius: 24pt;
+  width: 300pt;
+  min-height: 200pt;
+  margin: 20pt auto;
+  padding: 16pt;
+  padding-left: 32pt;
+  padding-top: 28pt;
+  background: rgba(0,0,0,0.03);
+  color: #888;
+  font-size: 16pt;
+  font-weight: bold;
+}
+#upload ul {
+  padding-left: 16pt;
+}
+#upload h1 {
+  font-size: 28pt;
+  color: #aaa;
+  border: 0;
+}
+#upload li {
+  list-style-type: none;
+  padding-left: 28pt;
+  margin-bottom: 16pt;
+}
+#upload li.ipynb {
+  background: url('file-ipynb.png') left center no-repeat;
+  background-size: 15pt;
+}
+#upload li.csv {
+  background: url('file-csv.png') left center no-repeat;
+  background-size: 15pt;
+}
+
+#upload.hover {
+  border: 6pt dashed #B1CD14;
+}
+
 .blur {
   -webkit-filter: blur(5px);
   filter: blur(5px);
 
   transition: -webkit-filter .25s ease-in-out,
               filter .25s ease-in-out;
+}
+
+@media only screen and (max-width: 800px) {
+
+  .app-container {
+    padding-top: 70px;
+  }
+
+  .livebook-nav {
+    box-shadow: 0 1px 2px #ccc;
+    height: 68px;
+    position: fixed;
+  }
+
+  .collaborators {
+    right: 4pt;
+    top: 0;
+  }
+
+  .collaborators ul {
+    overflow: auto;
+  }
+
+  .collaborators li {
+    float: left;
+    margin-bottom: 0;
+    margin-left: 2pt;
+    margin-top: 0;
+    padding: 6pt;
+  }
+
+  div.notebook {
+    padding: 0;
+    margin-left: 7%;
+    margin-top: 10px;
+    width: 91%;
+    border: none;
+  }
 }
