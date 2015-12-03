@@ -10,7 +10,8 @@
 var $          = require("jquery")
 var ace        = require("brace")
 var Range      = ace.acequire('ace/range').Range;
-var React      = require("react")
+var React      = require("react");
+var ReactDOM   = require("react-dom");
 var AceEditor  = require("react-ace");
 
 var cradle     = require("./cradle");
@@ -81,7 +82,7 @@ function update_peers_and_render() {
   let peers = cradle.peers()
   peers[0].cursor = CursorCell // hack since I dont know - FIXME
   console.log("Peers", peers)
-  React.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
+  ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.cursor === undefined ? 0 : peer.cursor; // FIXME
@@ -92,7 +93,7 @@ function update_peers_and_render() {
   });
 
   let render_time = new Date();
-  React.render(<Notebook peerCursorCells={cursorPositions} data={iPython} typing={typing(render_time)}/>, notebookMount);
+  ReactDOM.render(<Notebook peerCursorCells={cursorPositions} data={iPython} typing={typing(render_time)}/>, notebookMount);
 }
 
 ace.config.set("basePath", "/");
@@ -294,7 +295,7 @@ function renderEditor() {
     onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
 
-  React.render(createAceEditor(editorOptions), editorMount);
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
 
   // Position editor
   var pos = cellPosition();
@@ -376,7 +377,7 @@ function cellPosition() {
  */
 function render() {
   let render_time = new Date()
-  React.render(<Menu notebook={exports}/>, menuMount);
+  ReactDOM.render(<Menu notebook={exports}/>, menuMount);
   update_peers_and_render()
   setup_drag_drop()
   return render_time
