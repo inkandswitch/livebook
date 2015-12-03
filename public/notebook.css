@@ -312,33 +312,30 @@ div.plot {
   top: 16pt;
   right: 16pt;
 }
+
 .collaborators ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
+
 .collaborators li {
-  padding: 12pt;
-  margin-bottom: 16pt;
+  padding: 8pt;
+  margin-bottom: 4pt;
   position: relative;
 }
+
 .collaborators li span {
+  display: block;
   font-size: 7pt;
   font-weight: bold;
   color: #555;
-  position: absolute;
-  bottom: -8pt;
-  left: 0;
   text-align: center;
   width: 100%;
 }
-.collaborators li.author {
-  /*background: url('avatar-author.png') center center no-repeat;*/
-  background-size: contain;
-}
+
 .collaborators li.observer {
-  /*background: url('avatar-observer.png') center center no-repeat;*/
-  background-size: contain;
+  text-align: center;
 }
 .collaborators li.here {
   opacity: 1;
