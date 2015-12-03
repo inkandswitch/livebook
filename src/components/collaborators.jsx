@@ -1,5 +1,7 @@
 var $      = require("jquery");
 var React  = require("react");
+var VelocityComponent = require('velocity-react').VelocityComponent;
+
 var extend = $.extend;
 var cradle = require("../cradle");
 
@@ -192,11 +194,7 @@ var Collaborator = React.createClass({
   render() {
 
     let peer = this.props.peer;
-    let connected = (peer.connected) ? "!!" : "";
-    let cursor = (peer.cursor == undefined) ? "?" : peer.cursor;
     let name = this.props.peer.name || this.props.peer.session;
-
-    if (peer.cursor == undefined) cursor = "?";
 
     return (
       <li className={"observer " + peer.status}
@@ -205,9 +203,9 @@ var Collaborator = React.createClass({
 
         <Avatar color={this.props.color} />
 
-        <span>
-          {name}
-        </span>
+        <VelocityComponent animation={{ opacity: [1, 0], }} duration={600} runOnMount={true}>
+          <span>{name}</span>
+        </VelocityComponent>
 
         <CollaboratorNameForm 
           username={this.state.name}

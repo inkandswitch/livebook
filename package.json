@@ -23,6 +23,7 @@
     "react": "^0.14.3",
     "react-ace": "^2.5.0",
     "react-dom": "^0.14.3",
+    "velocity-react": "^1.1.1",
     "webpack": "^1.12.2",
     "webrtc": "^1.14.1"
   }
