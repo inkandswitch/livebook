@@ -15,7 +15,9 @@ var Avatar = React.createClass({
 
   render() {
     return (
-      <svg ref="avatarSVG" 
+      <svg 
+        className="livebook-avatar"
+        ref="avatarSVG" 
         height="40" width="40" 
         version="1.1" x="0px" y="0px" 
         viewBox="-255 347 100 100" 

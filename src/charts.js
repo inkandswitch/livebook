@@ -34,7 +34,7 @@ var _plot_d3_ = function(xmax,ymax) {
       .scale(y)
       .orient("left");
 
-  d3.select("svg").remove()
+  d3.select("svg:not(.livebook-avatar)").remove(); // FIXME - this was removing avatars, hence the ridiculous selector
 
   var svg = d3.select(selector).append("svg")
       .attr("width", width + margin.left + margin.right)
