@@ -3,7 +3,6 @@ var Peers = {}
 var URL
 var WebRTCServers = null
 var SessionID = ""
-var Name = ""
 var Depart
 var ServerError
 var ServerErrorHandler
@@ -110,8 +109,16 @@ function update_state() {
     self.last_connected = true
     Exports.ondepart(self)
   }
+  console.log("record",self.session_record)
   if (self.last_user != self.session_record.user) {
     self.last_user = self.session_record.user
+    self.last_user_obj = parse(self.session_record.user)
+    console.log("user_obj",self.last_user_obj)
+    Exports.onupdate(self)
+  }
+  if (self.last_state != self.session_record.state) {
+    self.last_state = self.session_record.state
+    self.last_state_obj = parse(self.session_record.state)
     Exports.onupdate(self)
   }
 }
@@ -200,6 +207,8 @@ function Peer(session) {
   self.state          = "new"
   self.session_record = session
   self.last_connected = false
+  self.last_user_obj  = {}
+  self.last_state_obj = {}
 
   self.is_webrtc_connected = is_webrtc_connected
   self.is_server_connected = is_server_connected
@@ -226,11 +235,9 @@ function Peer(session) {
 
 function process_usergram(usergram) {
   let self = this
-  console.log("GOT MESSAGE FOR ", self.id, "--" ,usergram)
-  if (usergram.cursor !== undefined) {
-    self.cursor = usergram.cursor
-  }
-  Exports.onusergram()
+  console.log("GOT MESSAGE FROM ", self.id, "--" ,usergram)
+  console.log("Sending usergram")
+  Exports.onusergram(self.id, usergram)
 }
 
 function broadcast(usergram) {
@@ -240,28 +247,35 @@ function broadcast(usergram) {
   }
 }
 
-// note to self - two levels of types might be confusing - need better terminology?
-
 function send_signal(payload) {
   let self = this
-  put_message(self.id, { type: "signal", payload: payload } )
+  post_message(self.id, { type: "signal", payload: payload } )
 }
 
 function send_usergram(payload) {
   let self = this
-  put_message(self.id, { type: "usergram", payload: payload } )
+  post_message(self.id, { type: "usergram", payload: payload } )
 }
 
-function put_message(target, message) {
-    put("message",{ to: target, session_id: SessionID, message: JSON.stringify(message) })
+function post_message(target, message) {
+    post({ to: target, session_id: SessionID, message: JSON.stringify(message) })
 }
 
-function put_config(name) {
-    put("config",{ session_id: SessionID, name: name})
+function post(payload) {
+  $.ajax(URL, {
+    method: "post",
+    dataType: "json",
+    data: payload,
+    success: function(data) {
+    },
+    error: function(e) {
+      console.log("Fail to POST",URL,e)
+    }
+  });
 }
 
-function put(handler,payload) {
-  $.ajax(URL + "/" + handler, {
+function put(payload) {
+  $.ajax(URL, {
     method: "put",
     dataType: "json",
     data: payload,
@@ -289,25 +303,37 @@ function reset_state() {
   }
   Peers = {}
   SessionID = ""
-  Name = ""
+  Exports.user = {}
+  Exports.state = {}
 }
 
-function process_session_data_from_server(data) {
+function parse(data) {
+  try {
+    return JSON.parse(data)
+  } catch(e) {
+    console.log("Error parsing",data)
+    return {}
+  }
+}
+
+function process_session_data_from_server(data, handler) {
   console.log(" ---- data from server", data)
   if (SessionID != data.session_id) {
     reset_state()
     SessionID = data.session_id
-    Name = data.user
   }
+
+  Exports.user = parse(data.user)
+  Exports.state = parse(data.state)
+
+  if (handler) handler()
 
   data.updates.forEach((s) => {
     let peer = Peers[s.session_id] || new Peer(s)
     peer.set_session(s)
-//    console.log("Update " + s.session_id + " active=" + s.active)
   })
 
   data.arrivals.forEach((s) => {
-//    console.log("Create " + s.session_id + " active=" + s.active)
     let peer = new Peer(s)
     peer.offer()
   })
@@ -317,13 +343,13 @@ function process_session_data_from_server(data) {
   }
 }
 
-function get() {
+function get(handler) {
   $.ajax(URL + "?session=" + encodeURIComponent(SessionID), {
     contentType: "application/json; charset=UTF-8",
     method:      "get",
     dataType:    "json",
     success:     (data) => {
-      process_session_data_from_server(data)
+      process_session_data_from_server(data, handler)
       if (ServerError) {
         console.log("Connected - clearing timer")
         ServerError = undefined
@@ -341,13 +367,13 @@ function get() {
   });
 }
 
+// USER = 1E52AA
 function peers() { // CAUTION
-
-  var peers = [ { session: SessionID, name: Name, color: "#1E52AA", cursor: -1, connected: true }]; // The former blue: #2A64C7
+  var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session:id, name: p.last_user, color: p.color, cursor: p.cursor, connected: p.data_channel != undefined })
+      peers.push({session_id:id, state: p.last_state_obj, user: p.last_user_obj, connected: p.data_channel != undefined })
     }
   }
   return peers
@@ -359,31 +385,40 @@ function update_peers() {
 }
 
 
-function join(url) {
+function join(url, handler) {
   reset_state()
   URL = url
-  get()
+  get(handler)
 }
 
-// send {name: "Iassac"}
-function configure(config) {
-  if (config.name) {
-    Name = config.name
-    put_config(config.name)
-  } else {
-    console.log("config has no name - need to implement")
-  }
+function delSessionVar(key) {
+  delete Exports.state[key]
+  put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
+}
+
+function setSessionVar(key,val) {
+  Exports.state[key] = val
+  put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
+}
+
+function setUserVar(key,val) {
+  Exports.user[key] = val
+  put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
 }
 
 var Exports = {
-  join:       join,
-  peers:      peers,
-  broadcast:  broadcast,
-  configure:  configure,
-  onarrive:   () => {},
-  ondepart:   () => {},
-  onusergram: () => {},
-  onupdate:   () => {},
+  join:          join,
+  peers:         peers,
+  broadcast:     broadcast,
+  onarrive:      () => {},
+  ondepart:      () => {},
+  onusergram:    () => {},
+  onupdate:      () => {},
+  state:         {},
+  user:          {},
+  setSessionVar: setSessionVar,
+  delSessionVar: delSessionVar,
+  setUserVar:    setUserVar,
 }
 
 module.exports = Exports

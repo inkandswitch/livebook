@@ -188,15 +188,15 @@ var Collaborator = React.createClass({
     });
 
     // send user name to server
-    cradle.configure({
-      name: name,
-    });
+    cradle.setUserVar("name",name)
   },
 
   render() {
 
     let peer = this.props.peer;
-    let name = this.props.peer.name || this.props.peer.session;
+    let name = peer.user.name || peer.session;
+    let connected = (peer.connected) ? "!!" : "";
+    let cursor = (peer.state.cursor == undefined) ? "?" : peer.state.cursor;
 
     return (
       <li className={"observer " + peer.status}

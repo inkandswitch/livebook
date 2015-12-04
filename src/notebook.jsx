@@ -33,6 +33,7 @@ var asyncRunParallel = require("./util").asyncRunParallel;
 var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
 var randomColor      = require("./util").randomColor;
+var randomName       = require("./util").randomName;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
@@ -64,13 +65,19 @@ function CLEAR_ERROR_MESSAGES() {
 
 cradle.onarrive = function() {
   update_peers_and_render();
-  cradle.broadcast({ cursor: CursorCell });
 }
 cradle.ondepart = update_peers_and_render;
 cradle.onupdate = update_peers_and_render;
-cradle.onusergram = function() {
+cradle.onusergram = function(from,message) {
   console.log("on usergram")
-  update_peers_and_render();
+  if (message && message.type == "update") {
+    console.log("Got a new document... is it new?")
+    if (message.time > iPythonUpdated) {
+      iPythonUpdated = message.time
+      iPython = message.document
+      render()
+    }
+  }
 }
 /**
  * [Global Deps]
@@ -80,15 +87,15 @@ cradle.onusergram = function() {
 
 function update_peers_and_render() {
   let peers = cradle.peers()
-  peers[0].cursor = CursorCell // hack since I dont know - FIXME
+//  peers[0].cursor = CursorCell // hack since I dont know - FIXME
   console.log("Peers", peers)
   ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
-    let cursorPosition = peer.cursor === undefined ? 0 : peer.cursor; // FIXME
+    let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
     return {
       position: cursorPosition,
-      color: peer.color,
+      color: peer.state.color,
     };
   });
 
@@ -204,6 +211,7 @@ var CursorCell = 0;
 var DataRaw = ""
 var iPythonRaw = ""
 var iPython = { cells:[] }
+var iPythonUpdated = 0
 
 // React mount points
 var notebookMount      = document.getElementById('notebook')
@@ -404,17 +412,18 @@ function moveCursor(delta, options) {
     return;
   }
   CursorCell = newCursor;
+  cradle.setSessionVar("cursor",CursorCell)
   render();
 
   // allows us to disable auto scrolling on the click events
   if (!options.noScroll) {
     // FIX
+/*
     let $currentUserCursor = $('[data-current-user-cursor]');
     let $currenUserCellWrap = $currentUserCursor.parents(".cell-wrap");
     $('body').animate({ scrollTop: $currenUserCellWrap.offset().top - 80 });
+*/
   }
-
-  cradle.broadcast({ cursor: CursorCell })
 }
 
 /**
@@ -512,6 +521,8 @@ function save_notebook() {
       console.log("Saving notebook failed:", textStatus);
     },
   });
+  iPythonUpdated = Date.now()
+  cradle.broadcast({type: "update", time: iPythonUpdated, document: iPython})
 };
 
 /**
@@ -524,6 +535,10 @@ function setMode(m) {
   if (Mode === m) return false;
   var old = Mode;
   Mode = m;
+
+  if (m == "edit") cradle.setSessionVar("editing",CursorCell)
+  else if (old == "edit") cradle.delSessionVar("editing")
+
   switch (m) {
     case "edit":
       CODE.cache(CursorCell);
@@ -735,6 +750,7 @@ var Notebook = React.createClass({
 function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
   iPython.cells.forEach(cell => cell.outputs = [])
+  iPythonUpdated = Date.now()
   var head = undefined
   var body = {}
   var length = 0
@@ -762,7 +778,22 @@ function post_notebook_to_server() {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
   $.post("/d/", doc, function(response) {
     window.history.pushState({}, "Notebook", response);
-    cradle.join(document.location + ".rtc")
+    start_peer_to_peer()
+  })
+}
+
+function start_peer_to_peer() {
+  console.log("START peer to peer")
+  cradle.join(document.location + ".rtc", function() {
+    console.log("-- CALLBACK --")
+    cradle.setSessionVar("cursor",0)
+    cradle.setSessionVar("color",randomColor())
+    if (cradle.user.name == undefined) {
+      cradle.setUserVar("name", randomName())
+      console.log("Make random name", cradle.user.name)
+    } else {
+      console.log("Using preexisting name", cradle.user.name)
+    }
   })
 }
 
@@ -863,7 +894,7 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     DataRaw = data.DataFile.Body;
     parse_raw_notebook();
     setCurrentPage("notebook");
-    cradle.join(document.location + ".rtc");
+    start_peer_to_peer()
     initializeEditor();
   }, "json")
 } else {

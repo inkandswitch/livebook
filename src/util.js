@@ -7,6 +7,7 @@ module.exports = {
   deepClone       : deepClone,
   noop            : () => {},
   randomColor     : randomColor,
+  randomName      : randomName,
   rawMarkup       : rawMarkup,
   resultToHtml    : resultToHtml,
   zip             : zip,
@@ -90,6 +91,11 @@ function asyncRunParallel(funcs, callback) {
     })
 
   });
+}
+
+function randomName() {
+  let names = [ "Albert", "Marie", "Issac", "Charles", "Ada", "Niels", "Nikola", "Lise", "Louis", "Grace", "Gregor", "Rosalind", "Carl" ]
+  return names[Math.floor((Math.random() * names.length))]
 }
 
 function randomColorGenerator() {

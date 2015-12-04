@@ -8,7 +8,6 @@ package main
 
 import (
 	"crypto/rand"
-	srand "math/rand"
 	_ "database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -54,12 +53,6 @@ type Document struct {
 }
 
 var CRADLE = cradle.New()
-
-var NAMES = []string{"Albert", "Marie", "Issac", "Charles", "Ada", "Niels", "Nikola", "Lise", "Louis", "Grace", "Gregor", "Rosalind", "Carl"}
-
-func randomName() string {
-	return NAMES[srand.Int() % len(NAMES)]
-}
 
 func randomString(length int) (str string) {
 	b := make([]byte, length)
@@ -110,7 +103,7 @@ func newDocument(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
 }
 
-func updateDocument(user string, w http.ResponseWriter, r *http.Request) {
+func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id, _ = strconv.Atoi(vars["id"])
 
@@ -131,38 +124,53 @@ func updateDocument(user string, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func putMessageCradle(user string, w http.ResponseWriter, r *http.Request) {
+func postMessageCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
 	to := r.Form["to"][0]
 	session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
 	message := r.Form["message"][0]
-	CRADLE.Put(vars["id"], session_id, to, message)
+	CRADLE.Post(vars["id"], session_id, to, message)
 	w.Write([]byte("{\"ok\":true}"))
 }
 
-func putConfigCradle(user string, w http.ResponseWriter, r *http.Request) {
+func putConfigCradle(user_id string, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 	r.ParseForm()
-	name := r.Form["name"][0]
-	session, _ := SESSION.Get(r, "sessionName")
-	fmt.Printf(" ---- Setting Config Name %s\n", name)
-	session.Values["ID"] = name
-	session.Save(r, w)
+	fmt.Printf("Got a PUT action %v\n",r.Form)
+	if (r.Form["user"] != nil) {
+		userState := r.Form["user"][0]
+		session, _ := SESSION.Get(r, "sessionName")
+		session.Values["state"] = userState
+		session.Save(r, w)
+		CRADLE.UpdateUser(vars["id"], user_id, userState)
+	}
+	if (r.Form["state"] != nil) {
+		fmt.Printf("UpdateState %v\n",r.Form["state"])
+		session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
+		sessionState := r.Form["state"][0]
+		CRADLE.UpdateState(vars["id"], session_id, sessionState)
+	}
 	w.Write([]byte("{\"ok\":true}"))
 }
 
-func getCradle(user string, w http.ResponseWriter, r *http.Request) {
+func getCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session"][0]
-	sessions := CRADLE.Get(vars["id"], user, session_id, w.(http.CloseNotifier).CloseNotify())
+	session, _ := SESSION.Get(r, "sessionName")
+	oldUserState := "{}"
+	if session.Values["state"] != nil {
+		oldUserState = session.Values["state"].(string)
+	}
+	sessions := CRADLE.Get(vars["id"], user_id, oldUserState, session_id, w.(http.CloseNotifier).CloseNotify())
 	if sessions != nil {
 		json, _ := json.Marshal(sessions)
 		w.Write(json)
 	}
 }
 
-func getDocument(user string, w http.ResponseWriter, r *http.Request) {
+func getDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var document = Document{}
 	DB.First(&document, vars["id"])
@@ -184,11 +192,12 @@ func base64Decode(s string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(s)
 }
 
-func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
+func auth(f func(user_id string, w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := SESSION.Get(r, "sessionName")
 		if session.Values["ID"] == nil {
-			session.Values["ID"] = randomName()
+			session.Values["ID"] = randomString(8)
+			session.Values["state"] = "{}"
 			session.Save(r, w)
 		}
 		id := session.Values["ID"].(string)
@@ -196,7 +205,7 @@ func auth(f func(user string, w http.ResponseWriter, r *http.Request)) func(http
 	}
 }
 
-func getIndex(user string, w http.ResponseWriter, r *http.Request) {
+func getIndex(user_id string, w http.ResponseWriter, r *http.Request) {
 	if r.URL.String() == "/d/deps.js" {
 		w.Write([]byte(""))
 	} else {
@@ -219,8 +228,8 @@ func main() {
 	mux := mux.NewRouter()
 	mux.HandleFunc("/d/", newDocument).Methods("POST")
 	mux.HandleFunc("/d/{id}.rtc", auth(getCradle)).Methods("GET")
-	mux.HandleFunc("/d/{id}.rtc/message", auth(putMessageCradle)).Methods("PUT")
-	mux.HandleFunc("/d/{id}.rtc/config", auth(putConfigCradle)).Methods("PUT")
+	mux.HandleFunc("/d/{id}.rtc", auth(postMessageCradle)).Methods("POST")
+	mux.HandleFunc("/d/{id}.rtc", auth(putConfigCradle)).Methods("PUT")
 	mux.HandleFunc("/d/{id}.json", auth(getDocument)).Methods("GET")
 	mux.HandleFunc("/d/{id}.json", auth(updateDocument)).Methods("PUT")
 	mux.HandleFunc("/d/{id}", auth(getIndex)).Methods("GET")
