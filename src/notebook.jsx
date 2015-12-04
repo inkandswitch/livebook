@@ -93,8 +93,12 @@ cradle.onusergram = function(from,message) {
 
 function update_peers_and_render() {
   let peers = cradle.peers()
+
+  if (peers.length > 1 && cradle.state.color == "black") {
+    cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
+    peers = cradle.peers()
+  }
 //  peers[0].cursor = CursorCell // hack since I dont know - FIXME
-  console.log("Peers", peers)
   ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
@@ -787,17 +791,12 @@ function post_notebook_to_server() {
 }
 
 function start_peer_to_peer() {
-  console.log("START peer to peer")
   cradle.join(document.location + ".rtc", function() {
-    console.log("-- CALLBACK --")
     cradle.setSessionVar("cursor",0)
-    cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
+    cradle.setSessionVar("color", "black")
     if (cradle.user.name == undefined) {
       cradle.setUserVar("name", randomName())
-      console.log("Make random name", cradle.user.name)
-    } else {
-      console.log("Using preexisting name", cradle.user.name)
-    }
+    } // else use old name
   })
 }
 

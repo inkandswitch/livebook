@@ -109,11 +109,9 @@ function update_state() {
     self.last_connected = true
     Exports.ondepart(self)
   }
-  console.log("record",self.session_record)
   if (self.last_user != self.session_record.user) {
     self.last_user = self.session_record.user
     self.last_user_obj = parse(self.session_record.user)
-    console.log("user_obj",self.last_user_obj)
     Exports.onupdate(self)
   }
   if (self.last_state != self.session_record.state) {
@@ -275,7 +273,6 @@ function post(payload) {
 }
 
 function put(payload) {
-  console.log("PUT",payload)
   $.ajax(URL, {
     method: "put",
     dataType: "json",
@@ -318,14 +315,13 @@ function parse(data) {
 }
 
 function process_session_data_from_server(data, handler) {
-  console.log(" ---- data from server", data)
+  //console.log(" ---- data from server", data)
   if (SessionID != data.session_id) {
     reset_state()
     SessionID = data.session_id
   }
 
   Exports.user = parse(data.user)
-//  Exports.state = parse(data.state)
 
   if (handler) handler()
 
