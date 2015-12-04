@@ -32,8 +32,9 @@ var Menu = React.createClass({
   },
 
   render() {
+    let activeClass = this.state.active ? "active" : "";
     return (
-      <div id="menu" className={this.state.active ? "active" : ""}>
+      <div className={"menu " + activeClass}>
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
           <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>

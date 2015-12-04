@@ -228,27 +228,28 @@ div.plot {
   margin-top: 8pt;
 }
 
-#menu {
-  position: fixed;
-  top: 16pt;
-  left: 16pt;
+.menu {
   cursor: pointer;
+  left: 16pt;
+  position: absolute;
+  top: 16pt;
+  width: 5%;
 }
-#menu ul {
+.menu ul {
   list-style-type: none;
   font-size: 9pt;
   padding: 0;
 }
-#menu li {
+.menu li {
   padding: 2pt 4pt;
 }
-#menu img {
+.menu img {
   width: 16pt;
   height: 16pt;
   opacity: 0.5;
 }
 
-#menu .menu-content {
+.menu .menu-content {
   visibility: hidden;
   opacity: 0;
   position: absolute;
@@ -261,7 +262,7 @@ div.plot {
   transition: all 0.5s;
 }
 
-#menu.active .menu-content {
+.menu.active .menu-content {
 
   visibility: visible;
   opacity: 1;
@@ -269,11 +270,11 @@ div.plot {
   transition-delay: 0s;
 }
 
-#menu a {
+.menu a {
   color: #333;
   text-decoration: none;
 }
-#menu li:hover {
+.menu li:hover {
   background: #ddd;
   color: #000;
   border-radius: 2pt;
