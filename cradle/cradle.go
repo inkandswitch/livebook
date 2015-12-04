@@ -19,8 +19,6 @@ import (
 	"time"
 )
 
-var x = map[interface{}]interface{}{}
-
 type Session struct {
 	SessionID     SessionID         `json:"session_id"`
 	UpdatedOn     int64             `json:"updated_on"`
@@ -207,6 +205,17 @@ func debug3(s *Session, name string) {
 }
 */
 
+func needsUpdate(sessions []*Session, observer *Session) bool {
+	for _, s := range sessions {
+		if s.SessionID == observer.SessionID {
+			continue
+		} else if observer.synced_tick < s.updated_tick {
+			return true
+		}
+	}
+	return false
+}
+
 func sessionActivity(sessions []*Session, observer *Session) ([]*Session,[]*Session) {
 	updates := make([]*Session,0,len(sessions))
 	arrivals := make([]*Session,0,len(sessions))
@@ -286,6 +295,8 @@ func (c *Cradle) handleGet(get get) {
 		reply()
 		c.update(get.group_id)
 	} else if len(session.messages) > 0 {
+		reply()
+	} else if needsUpdate(c.Sessions[get.group_id],session) {
 		reply()
 	} else {
 		session.reply = &reply

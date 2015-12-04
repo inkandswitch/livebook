@@ -355,6 +355,7 @@ function get(handler) {
         ServerError = undefined
         clearTimeout(ServerErrorHandler)
       }
+      get()
     },
     error:       (e) => {
       console.log("Fail to get",URL,e)
@@ -362,8 +363,8 @@ function get(handler) {
         ServerError = Date.now() + 5000
         ServerErrorHandler = setTimeout(update_peers,5001)
       }
+      setTimeout(get,1000)
     },
-    complete:    () => setTimeout(get,1000)
   });
 }
 

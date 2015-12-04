@@ -158,12 +158,14 @@ func getCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session"][0]
+	fmt.Printf("GET INPUT session=%v\n",session_id)
 	session, _ := SESSION.Get(r, "sessionName")
 	oldUserState := "{}"
 	if session.Values["state"] != nil {
 		oldUserState = session.Values["state"].(string)
 	}
 	sessions := CRADLE.Get(vars["id"], user_id, oldUserState, session_id, w.(http.CloseNotifier).CloseNotify())
+	fmt.Printf("GET OUTPUT session=%v %v\n",session_id,sessions)
 	if sessions != nil {
 		json, _ := json.Marshal(sessions)
 		w.Write(json)
