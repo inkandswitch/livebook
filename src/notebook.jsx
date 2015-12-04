@@ -94,11 +94,13 @@ cradle.onusergram = function(from,message) {
 function update_peers_and_render() {
   let peers = cradle.peers()
 
-  if (peers.length > 1 && cradle.state.color == "black") {
+  // FIXME - why are colors coming in blank the first time?
+  if (peers.length > 1 && cradle.state.color == "black" && peers[1].state.color) {
+    console.log("Peers",peers)
+    setTimeout(() => { console.log("Peers2",cradle.peers()) }, 5000)
     cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
     peers = cradle.peers()
   }
-//  peers[0].cursor = CursorCell // hack since I dont know - FIXME
   ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
 
   let cursorPositions = peers.map((peer) => {
