@@ -275,6 +275,7 @@ function post(payload) {
 }
 
 function put(payload) {
+  console.log("PUT",payload)
   $.ajax(URL, {
     method: "put",
     dataType: "json",
