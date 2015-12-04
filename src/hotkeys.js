@@ -2,7 +2,14 @@ var $ = require("jquery")
 
 function setup(notebook) {
   $('body').keydown(function(e) {
+    var setMode    = notebook.setMode;
     switch (e.which) {
+      case 13:  //enter
+        if (notebook.getMode() === "meta") return;
+        if (notebook.getMode() === "edit") return;
+        setMode("edit");
+        e.preventDefault()
+        break;
       case 40: // down arrow
         if (notebook.getMode() === "meta") return;
         if (notebook.getMode() === "edit") return;
@@ -56,9 +63,6 @@ function setup(notebook) {
     var deleteCell = notebook.deleteCell;
 
     switch (e.which) {
-      case 13:  //enter
-        setMode("edit");
-        break;
       case 107: //k
       case 113: //q
         moveCursor(-1);
