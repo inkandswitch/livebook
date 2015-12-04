@@ -80,6 +80,7 @@ cradle.onusergram = function(from,message) {
     if (message.time > iPythonUpdated) {
       iPythonUpdated = message.time
       iPython = message.document
+      python_eval();
       render()
     }
   }
