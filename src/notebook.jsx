@@ -52,9 +52,12 @@ function getPeerColors() {
 var getPeerEditing = (peer) => peer.state.editing;
 var isPeerEditing = (peer) => { return (typeof getPeerEditing(peer)) === "number"; }
 function getPeerEditingCells() {
-  return cradle.peers().reduce((result, peer) => {
+  let otherPeers = cradle.peers().slice(1);
+  return otherPeers.reduce((result, peer) => {
     if (isPeerEditing(peer)) {
-      result.push(peer);
+      let peerClone = Object.assign({}, peer);
+      peerClone.state = Object.assign({}, peer.state)
+      result.push(peerClone);
     }
     return result;
   }, []);
