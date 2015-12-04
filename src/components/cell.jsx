@@ -16,6 +16,7 @@ var EditIcon = React.createClass({
 
   componentDidMount() {
     let element = this.refs.editIconSVG;
+    if (!element) return;
     element.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     element.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
     element.setAttribute("enable-background", "new 0 0 100 100");
@@ -35,22 +36,6 @@ var EditIcon = React.createClass({
 });
 
 var PeerEditOverlay = React.createClass({
-  componentDidMount() {
-    this.blurSiblings();
-  },
-
-  componentWillUnmount() {
-    this.unblurSiblings();
-  },
-
-  blurSiblings() {
-    $(this.refs.overlay).siblings().addClass("blur");
-  },
-
-  unblurSiblings() {
-    $(this.refs.overlay).siblings().removeClass("blur");
-  },
-
   render() {
     let overlayStyles = {
       background: "hsla(0, 0%, 100%, .7)",
@@ -66,7 +51,7 @@ var PeerEditOverlay = React.createClass({
     // };
 
     return (
-      <div style={overlayStyles} refs="overlay">
+      <div style={overlayStyles}>
           <EditIcon color={this.props.peerColor} />
           <p style={ {textAlign: "center",} }>
             <i><b>{this.props.peerName}</b> is editing...</i>
@@ -193,10 +178,12 @@ var Cell = React.createClass({
     if (this.isBeingEdited()) {
       let peerColor = this.peerEditorColor();
       let peerName = this.peerEditorName();
+      // debugger;
       return (
         <PeerEditOverlay peerColor={peerColor} peerName={peerName} />
       );
     }
+    return (<div style={ {display: "none", } }/>); // fixme
   },
 
   subcell() {
