@@ -235,7 +235,7 @@ var Collaborators = React.createClass({
         <Collaborator 
           key={index}
           peer={peer} 
-          color={peer.color}
+          color={peer.state.color}
           isEditable={index === 0} 
           setMode={this.props.setMode}
           getMode={this.props.getMode} />
