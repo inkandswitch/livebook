@@ -49,6 +49,17 @@ function getPeerColors() {
   return cradle.peers().slice(1).map(getPeerColor);
 };
 
+var getPeerEditing = (peer) => peer.state.editing;
+var isPeerEditing = (peer) => { return (typeof getPeerEditing(peer)) === "number"; }
+function getPeerEditingCells() {
+  return cradle.peers().reduce((result, peer) => {
+    if (isPeerEditing(peer)) {
+      result.push(peer);
+    }
+    return result;
+  }, []);
+}
+
 var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
 function typing(when) { return when - LAST_TYPE < TYPING_SPAN }
@@ -117,8 +128,19 @@ function update_peers_and_render() {
     };
   });
 
+  let peerEditingCells = getPeerEditingCells();
+
   let render_time = new Date();
-  ReactDOM.render(<Notebook peerCursorCells={cursorPositions} data={iPython} typing={typing(render_time)}/>, notebookMount);
+
+
+
+  ReactDOM.render(
+    <Notebook 
+        peerCursorCells={cursorPositions} 
+        peerEditingCells={peerEditingCells} 
+        data={iPython} 
+        typing={typing(render_time)}/>, 
+    notebookMount);
 }
 
 ace.config.set("basePath", "/");
@@ -728,9 +750,9 @@ var Notebook = React.createClass({
   cells: function() {
     return this.props.data.cells.map((cell, index) => {
 
-      var errorObject = ERRORS[index];
-
-      var cursorCells = this.props.peerCursorCells.filter((cursorCell) => { return cursorCell.position === index; });
+      let errorObject = ERRORS[index];
+      let cursorCells = this.props.peerCursorCells.filter((cursorCell) => { return cursorCell.position === index; });
+      let peerEditor = this.props.peerEditingCells.find((peer) => { return getPeerEditing(peer) === index; });
 
       return (
         <Cell data={cell} 
@@ -739,7 +761,10 @@ var Notebook = React.createClass({
           cellIndex={index} 
           cursor={CursorCell}
           cursors={cursorCells}
-          typing={this.props.typing} key={index} index={index} errorObject={errorObject}/>
+          peerEditor={peerEditor}
+          typing={this.props.typing} 
+          key={index} index={index} 
+          errorObject={errorObject}/>
       );
     }) // `key` prop stops React warnings in the console
   },

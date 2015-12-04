@@ -103,18 +103,22 @@ function randomColorGenerator() {
   var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
 
   return function(options) {
+
     options = Object.assign({}, options);
     var not = options.not || [];
+
     var filteredColors = colors.filter(c1 => not.every(c2 => c1 !== c2));
+
     if (filteredColors.length) {
       return randomPick(filteredColors);      
     }
     return randomPick(colors);
+
   };
 }
 
 function randomPick(ary) {
-  return ary[Math.floor((Math.random() * ary.length))]
+  return ary[Math.floor((Math.random() * ary.length))];
 }
 
 
