@@ -20,23 +20,18 @@ import (
 )
 
 type Session struct {
-	SessionID SessionID `json:"session_id"`
-	User      string    `json:"user"`
-	UpdatedOn int64     `json:"updated_on"`
-	CreatedOn int64     `json:"created_on"`
-	Active    bool      `json:"active"`
-	updated_tick     int64
-	created_tick     int64
-	synced_tick      int64
-	messages  map[SessionID][]string
-	reply     *func()
-}
-
-func (s *Session) Reply() {
-	if s.reply != nil {
-		(*s.reply)()
-		s.reply = nil
-	}
+	SessionID     SessionID         `json:"session_id"`
+	UpdatedOn     int64             `json:"updated_on"`
+	CreatedOn     int64             `json:"created_on"`
+	Active        bool              `json:"active"`
+	State         string            `json:"state"`
+	User          string            `json:"user"`
+	user_id       string
+	updated_tick  int64
+	created_tick  int64
+	synced_tick   int64
+	messages      map[SessionID][]string
+	reply         *func()
 }
 
 type GroupID string
@@ -51,7 +46,8 @@ type Cradle struct {
 type get struct {
 	group_id   GroupID
 	session_id SessionID
-	user       string
+	user_id    string
+	user_data  string
 	closer     <-chan bool
 	reply      chan *CradleState
 }
@@ -66,9 +62,17 @@ type put struct {
 type CradleState struct {
 	SessionID SessionID              `json:"session_id"`
 	User      string                 `json:"user"`
+	State     string                 `json:"state"`
 	Updates   []*Session             `json:"updates"`
 	Arrivals  []*Session             `json:"arrivals"`
 	Messages  map[SessionID][]string `json:"messages"`
+}
+
+func (s *Session) Reply() {
+	if s.reply != nil {
+		(*s.reply)()
+		s.reply = nil
+	}
 }
 
 func New() *Cradle {
@@ -96,9 +100,36 @@ func (c *Cradle) handler() {
 	}
 }
 
-func (c *Cradle) Put(group_id string, from string, to string, message string) {
-	p := put{group_id: GroupID(group_id), from: SessionID(from), to: SessionID(to), message: message}
-	c.events <- func() { c.handlePut(p) }
+func (c *Cradle) Post(group_id string, from string, to string, message string) {
+	c.events <- func() {
+		c.sessionDo(GroupID(group_id), SessionID(to), func(session *Session) {
+			session.messages[SessionID(from)] = append(session.messages[SessionID(from)], message)
+			session.Reply()
+		})
+	}
+}
+
+func (c *Cradle) UpdateState(group_id string, session_id string, State string) {
+	c.events <- func() {
+		c.sessionDo(GroupID(group_id), SessionID(session_id), func(session *Session) {
+			session.State = State
+			session.updated_tick = c.tick
+		})
+		c.update(GroupID(group_id))
+	}
+}
+
+func (c *Cradle) UpdateUser(group_id string, user_id string, User string) {
+	c.events <- func() {
+		for _, session := range c.Sessions[GroupID(group_id)] {
+			if session.user_id == user_id {
+				fmt.Printf("Updating user: %v\n",User)
+				session.User = User
+				session.updated_tick = c.tick
+			}
+		}
+		c.update(GroupID(group_id))
+	}
 }
 
 func (c *Cradle) cleanup() {
@@ -120,18 +151,15 @@ func (c *Cradle) cleanup() {
 	}
 }
 
-func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user string) (*Session) {
+func (c *Cradle) sessionTouch(group_id GroupID, session_id SessionID, user_id string, user_data string) (*Session) {
 	session := c.session(group_id, session_id)
 	now := time.Now().Unix()
 	if session == nil {
 		session_id = SessionID(randomString(6)[0:4])
-		session = &Session{SessionID: session_id, User: user, CreatedOn: now, messages: map[SessionID][]string{}}
+		session = &Session{SessionID: session_id, user_id: user_id, State: "{}", User: user_data, CreatedOn: now, messages: map[SessionID][]string{}}
 		session.created_tick = c.tick
 		session.updated_tick = c.tick
 		c.Sessions[group_id] = append(c.Sessions[group_id], session)
-	} else if session.User != user {
-		session.User = user
-		session.updated_tick = c.tick
 	}
 	session.Active = true
 	session.UpdatedOn = now
@@ -165,15 +193,8 @@ func (c *Cradle) update(group_id GroupID) {
 	}
 }
 
-func (c *Cradle) handlePut(put put) {
-	c.sessionDo(put.group_id, put.to, func(session *Session) {
-		session.messages[put.from] = append(session.messages[put.from], put.message)
-		session.Reply()
-	})
-}
-
-func (c *Cradle) Get(group_id string, name string, session_id string, closer <-chan bool) *CradleState {
-	get := get{group_id: GroupID(group_id), user: name, session_id: SessionID(session_id), closer: closer, reply: make(chan *CradleState)}
+func (c *Cradle) Get(group_id string, user_id string, user_data string, session_id string, closer <-chan bool) *CradleState {
+	get := get{group_id: GroupID(group_id), user_id: user_id, user_data: user_data, session_id: SessionID(session_id), closer: closer, reply: make(chan *CradleState)}
 	c.events <- func() { c.handleGet(get) }
 	return <-get.reply
 }
@@ -183,6 +204,17 @@ func debug3(s *Session, name string) {
 	fmt.Printf("%s=%s cr=%d up=%d sy=%d\n",name,s.SessionID,s.created_tick,s.updated_tick,s.synced_tick)
 }
 */
+
+func needsUpdate(sessions []*Session, observer *Session) bool {
+	for _, s := range sessions {
+		if s.SessionID == observer.SessionID {
+			continue
+		} else if observer.synced_tick < s.updated_tick {
+			return true
+		}
+	}
+	return false
+}
 
 func sessionActivity(sessions []*Session, observer *Session) ([]*Session,[]*Session) {
 	updates := make([]*Session,0,len(sessions))
@@ -201,6 +233,7 @@ func sessionActivity(sessions []*Session, observer *Session) ([]*Session,[]*Sess
 	return updates,arrivals
 }
 
+/*
 func debug2(s1 []*Session) []SessionID {
 	q := []SessionID{}
 	for _, v := range s1 {
@@ -224,17 +257,18 @@ func debug(s1,s2 []*Session,active bool) []SessionID {
 	}
 	return q
 }
+*/
 
 func (c *Cradle) handleGet(get get) {
-	session := c.sessionTouch(get.group_id, get.session_id, get.user)
+	session := c.sessionTouch(get.group_id, get.session_id, get.user_id, get.user_data)
 	session.Reply()
 
 	success := make(chan bool)
 
 	reply := func() {
 		updates,arrivals := sessionActivity(c.Sessions[get.group_id],session)
-		fmt.Printf("id='%s' a=%v active=%v mia=%v\n",session.SessionID, session.Active, debug(updates,arrivals,true), debug(updates,arrivals,false))
-		update := &CradleState{Updates: updates, Arrivals: arrivals, User: get.user, Messages: session.messages, SessionID: session.SessionID}
+//		fmt.Printf("id='%s' a=%v active=%v mia=%v\n",session.SessionID, session.Active, debug(updates,arrivals,true), debug(updates,arrivals,false))
+		update := &CradleState{Updates: updates, Arrivals: arrivals, User: session.User, State: session.State, Messages: session.messages, SessionID: session.SessionID}
 		session.messages = map[SessionID][]string{}
 		session.UpdatedOn = time.Now().Unix()
 		session.synced_tick = c.tick
@@ -261,6 +295,8 @@ func (c *Cradle) handleGet(get get) {
 		reply()
 		c.update(get.group_id)
 	} else if len(session.messages) > 0 {
+		reply()
+	} else if needsUpdate(c.Sessions[get.group_id],session) {
 		reply()
 	} else {
 		session.reply = &reply
