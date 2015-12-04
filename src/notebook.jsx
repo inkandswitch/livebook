@@ -363,10 +363,11 @@ function getEditorWidth() {
  * `$`
  */
 function cellPosition() {
-  var bodyRect = document.body.getBoundingClientRect()
+  var bodyRect = document.body.getBoundingClientRect();
+  var notebookRect = document.querySelector("#notebook").getBoundingClientRect();
   var elemRect = $(".switch")[CursorCell].getBoundingClientRect()
-  var t        = Math.round(elemRect.top  - bodyRect.top) + 2 + "px";
-  var l        = Math.round(elemRect.left - bodyRect.left) + 3 + "px";
+  var t        = Math.round(elemRect.top  - bodyRect.top) + "px";
+  var l        = Math.round(elemRect.left - notebookRect.left) + "px";
   return {
     top: t,
     left: l,
