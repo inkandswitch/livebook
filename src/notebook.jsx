@@ -37,6 +37,11 @@ var randomName       = require("./util").randomName;
 var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
+var getPeerColor     = (peer) => peer.state.color ;
+function getPeerColors() {
+  return cradle.peers().map(getPeerColor);
+};
+
 var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
 function typing(when) { return when - LAST_TYPE < TYPING_SPAN }
@@ -95,7 +100,7 @@ function update_peers_and_render() {
     let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
     return {
       position: cursorPosition,
-      color: peer.state.color,
+      color: getPeerColor(peer),
     };
   });
 
@@ -788,7 +793,7 @@ function start_peer_to_peer() {
   cradle.join(document.location + ".rtc", function() {
     console.log("-- CALLBACK --")
     cradle.setSessionVar("cursor",0)
-    cradle.setSessionVar("color",randomColor())
+    cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
     if (cradle.user.name == undefined) {
       cradle.setUserVar("name", randomName())
       console.log("Make random name", cradle.user.name)

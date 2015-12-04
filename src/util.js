@@ -95,20 +95,26 @@ function asyncRunParallel(funcs, callback) {
 
 function randomName() {
   let names = [ "Albert", "Marie", "Issac", "Charles", "Ada", "Niels", "Nikola", "Lise", "Louis", "Grace", "Gregor", "Rosalind", "Carl" ]
-  return names[Math.floor((Math.random() * names.length))]
+  return randomPick(names);
 }
 
 function randomColorGenerator() {
   var lastIndex = 0;
-  var colors = ['#9E11A8', '#FF8018', '#D6F717'];
+  var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
 
-  return function(i) {
-    if (i === undefined) {
-      lastIndex = (lastIndex+1) % colors.length;
-      return colors[lastIndex];
+  return function(options) {
+    options = Object.assign({}, options);
+    var not = options.not || [];
+    var filteredColors = colors.filter(c1 => not.every(c2 => c1 !== c2));
+    if (filteredColors.length) {
+      return randomPick(filteredColors);      
     }
-    return colors[i % colors.length];
+    return randomPick(colors);
   };
+}
+
+function randomPick(ary) {
+  return ary[Math.floor((Math.random() * ary.length))]
 }
 
 
