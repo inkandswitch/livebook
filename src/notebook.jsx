@@ -326,9 +326,6 @@ function renderEditor() {
   // TEMP for testing
   global.EDITOR = editor;
   REMOVE_MARKERS();
-
-  // TODO if type==code?
-  python_eval()
 }
 
 function createAceEditor(options) {
