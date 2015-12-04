@@ -325,7 +325,7 @@ function process_session_data_from_server(data, handler) {
   }
 
   Exports.user = parse(data.user)
-  Exports.state = parse(data.state)
+//  Exports.state = parse(data.state)
 
   if (handler) handler()
 
