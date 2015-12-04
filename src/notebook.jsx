@@ -19,6 +19,8 @@ var cradle     = require("./cradle");
 var Sk         = require("./skulpt");
 var pyload     = require("./pyload");
 
+var colorChange = false
+
 
 var WORKER     = new Worker("/js/worker.js");
 WORKER.postMessage("TEST MESSAGE")
@@ -38,8 +40,13 @@ var resultToHtml     = require("./util").resultToHtml;
 var zip              = require("./util").zip;
 
 var getPeerColor     = (peer) => peer.state.color ;
+
+function getSeniorPeerColors() {
+  return cradle.peers().slice(1).filter((p) => p.senior).map(getPeerColor);
+}
+
 function getPeerColors() {
-  return cradle.peers().map(getPeerColor);
+  return cradle.peers().slice(1).map(getPeerColor);
 };
 
 var LAST_TYPE = new Date()
@@ -94,11 +101,10 @@ cradle.onusergram = function(from,message) {
 function update_peers_and_render() {
   let peers = cradle.peers()
 
-  // FIXME - why are colors coming in blank the first time?
-  if (peers.length > 1 && cradle.state.color == "black" && peers[1].state.color) {
-    console.log("Peers",peers)
-    setTimeout(() => { console.log("Peers2",cradle.peers()) }, 5000)
+  if (colorChange === false && getSeniorPeerColors().indexOf(cradle.state.color) !== -1) {
+    console.log("changing color once b/c someone else has seniority")
     cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
+    colorChange = true
     peers = cradle.peers()
   }
   ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
@@ -795,7 +801,7 @@ function post_notebook_to_server() {
 function start_peer_to_peer() {
   cradle.join(document.location + ".rtc", function() {
     cradle.setSessionVar("cursor",0)
-    cradle.setSessionVar("color", "black")
+    cradle.setSessionVar("color", '#1E52AA')
     if (cradle.user.name == undefined) {
       cradle.setUserVar("name", randomName())
     } // else use old name

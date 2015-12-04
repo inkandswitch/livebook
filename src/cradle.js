@@ -324,11 +324,13 @@ function process_session_data_from_server(data, handler) {
 
   data.updates.forEach((s) => {
     let peer = Peers[s.session_id] || new Peer(s)
+    if (peer.senior === undefined) peer.senior = true
     peer.set_session(s)
   })
 
   data.arrivals.forEach((s) => {
     let peer = new Peer(s)
+    peer.senior = false
     peer.offer()
   })
 
@@ -364,11 +366,11 @@ function get(handler) {
 
 // USER = 1E52AA
 function peers() { // CAUTION
-  var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true }]
+  var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true, senior: false }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session_id:id, state: p.last_state_obj, user: p.last_user_obj, connected: p.data_channel != undefined })
+      peers.push({session_id:id, state: p.last_state_obj, user: p.last_user_obj, connected: p.data_channel != undefined, senior: p.senior })
     }
   }
   return peers
