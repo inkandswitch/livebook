@@ -165,7 +165,15 @@ def figure_real(num=None, # autoincrement if None, else integer from 1-N
 
 
 def plot(data):
-     __plot_js__(data.to_plot_data())
+    __plot_js__(data.to_plot_data())
+
+
+def scatter(x, y):
+    print "sup duder"
+    xData = [x.column] + x.data[x.column]
+    yData = [y.column] + y.data[y.column]
+    __plot_js__(xData, yData)
+
 
 def legend(*args, **kwargs):
 #    ret = gca().legend(*args, **kwargs)

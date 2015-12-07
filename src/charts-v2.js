@@ -44,10 +44,22 @@ Sk.builtins["__figure_js__"] = function(xmax, ymax) {
 }
 
 //Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
-Sk.builtins["__plot_js__"] = function(data) {
-  var $data = Sk.ffi.remapToJs(data)
-  let $cell = notebook.get$cell();
-  _livebookPlot($cell, $data);
+Sk.builtins["__plot_js__"] = function() {
+  let $plotCell = notebook.get$cell();
+
+  if (arguments.length === 1) {
+    let data = arguments[0];
+    let $data = Sk.ffi.remapToJs(data);
+
+    _livebookPlot($plotCell, $data);
+  }
+  else if (arguments.length === 2) {
+    let x = arguments[0];
+    let y = arguments[1];
+    let $x = Sk.ffi.remapToJs(x);
+    let $y = Sk.ffi.remapToJs(y);
+    _livebookPlot($plotCell, { columns: [$x, $y], } );
+  }
 //  var $X = Sk.ffi.remapToJs(X)
 //  var $Y = Sk.ffi.remapToJs(Y)
 //  var $ColorName = Sk.ffi.remapToJs(ColorName)
@@ -74,7 +86,7 @@ function _livebookPlot(cell, data) {
 
   if (isTimeSeries(data)) {
     let chart = c3.generate({
-        bindto: "#plot" + cell, //"#oklahoma",
+        bindto: "#plot" + cell,
         data: data,
         axis: {
             x: {
@@ -87,6 +99,33 @@ function _livebookPlot(cell, data) {
     });    
   }
   else {
+    debugger;
+    let columns = data.columns;
+    let xName = columns[0][0];
+    let yName = columns[1][0];
+    let xs = {};
+    xs[yName] = xName;
+
+    let chart = c3.generate({
+        bindto: "#plot" + cell,
+
+        data: {
+            xs: xs,
+            columns: columns,
+            type: 'scatter',
+        },
+        axis: {
+            x: {
+                label: xName,
+                tick: {
+                    fit: false
+                }
+            },
+            y: {
+                label: yName,
+            }
+        }
+    });
 
   }
 
