@@ -481,6 +481,12 @@ div.pyresult-error {
               filter .25s ease-in-out;
 }
 
+/* C3 STYLES - move to separate file */
+/* yargh specificity hell */
+div.notebook .c3-tooltip-container th {
+  background: #363636;
+}
+
 @media only screen and (max-width: 800px) {
 
   .app-container {
