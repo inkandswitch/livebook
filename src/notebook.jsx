@@ -151,10 +151,17 @@ var theData = null;
  * `theData` - CSV data that has been loaded.
  */
 
-Sk.builtins["__load_data__"] = function(name,metadata) {
-  if (metadata && metadata != theMetadata) {
-  }
+Sk.builtins["__load_data__"] = function(filename, header, names) {
+
+  var $filename = (filename === undefined) ? undefined : Sk.ffi.remapToJs(filename)
+  var $header = (header === undefined) ? undefined : Sk.ffi.remapToJs(header)
+  var $names = (names === undefined) ? undefined : Sk.ffi.remapToJs(names)
+
+  // FIXME - we are reparsing raw csv every time...
+  return parse_raw_data({ headerRow: $header, names: $names });
+
   if (theData) return theData;
+
   throw new Error("No CSV data loaded (2)");
 }
 
@@ -792,11 +799,26 @@ function parse_raw_notebook() {
   iPython = JSON.parse(iPythonRaw)
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
+
+  parse_raw_data({ headerRow: 0, });
+}
+
+function parse_raw_data(options) {
+  options = Object.assign({}, options);
+
+  var headerRow = options.headerRow;
+  var names = options.names;
   var head = undefined
   var body = {}
   var length = 0
-  d3.csv.parseRows(DataRaw,(row) => {
-    if (!head) {
+
+  if (names) {
+    head = names;
+    head.forEach((h) => body[h] = [])
+  }
+
+  d3.csv.parseRows(DataRaw, (row, i) => {
+    if (headerRow !== undefined && headerRow === i) {
       head = row;
       head.forEach((h) => body[h] = [])
     } else {
@@ -805,6 +827,7 @@ function parse_raw_notebook() {
     }
   })
   theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
+  return theData;
 }
 
 // BOOTS TODO

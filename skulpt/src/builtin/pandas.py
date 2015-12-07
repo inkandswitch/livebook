@@ -38,6 +38,9 @@ class Series:
     def describe(self):
         return self.to_df().describe()
 
+    def head(self):
+        return self.to_df().describe()
+
     def to_df(self):
         if self.sort == None:
             return DataFrame.__new__(self.data,[self.column],None,self.idx)
@@ -177,7 +180,16 @@ class DataFrame:
             l = len(d)
             n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
             data[c] = [ math[f](d,l,n) for f in funcs ]
-        return DataFrame.__new__(data,columns,sort,idx)
+        return DataFrame.__new__(data, columns, sort, idx)
+
+    def head(self, n=5):
+        data = {}
+        idx = range(n)
+        for col in self.columns():
+            data[col] = [ self._data[col][i] for i in idx]
+
+        result = DataFrame.__new__(data, self._columns, self._sort, idx)
+        return result
 
 class GroupBy:
     def __init__(self, data, by):
@@ -191,6 +203,14 @@ class GroupBy:
         for k in self.groups:
             yield (k,self.groups[k])
 
-def read_csv(name):
-    return DataFrame.from_data(__load_data__(name))
+def read_csv(filename, header=None, names=None):
+    # pandas defaults `header` to 0 (row to be treated as a header)
+    # if `names` is specified, however, we use that
+    if header is None and names is None:
+        header = 0
+
+    if header is None and names is not None:
+        header = names
+
+    return DataFrame.from_data(__load_data__(filename, header, names))
 
