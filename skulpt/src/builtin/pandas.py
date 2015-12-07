@@ -33,7 +33,7 @@ class Series:
         return { "x": self.sort, "columns": [
             [self.sort] + [ self.data[self.sort][i] for i in self.idx ],
             [self.column] + [ self.data[self.column][i] for i in self.idx ]
-        ]}
+        ], "original_type": "series", }
 
     def describe(self):
         return self.to_df().describe()

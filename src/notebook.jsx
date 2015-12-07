@@ -28,16 +28,13 @@ WORKER.onmessage = function(e) {
   // console.log("Got message from the worker:",e.data)
 }
 
-var charts = require("./charts");  // Assigns the charts
+var charts = require("./charts-v2");  // Assigns the charts
 
 // Utils
-var asyncRunParallel = require("./util").asyncRunParallel;
-var deepClone        = require("./util").deepClone;
 var noop             = require("./util").noop;
 var randomColor      = require("./util").randomColor;
 var randomName       = require("./util").randomName;
 var resultToHtml     = require("./util").resultToHtml;
-var zip              = require("./util").zip;
 
 var getPeerColor     = (peer) => peer.state.color ;
 
