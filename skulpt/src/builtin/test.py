@@ -90,6 +90,14 @@ class Test:
         assert df["h1"][1] == 2
         assert df["h2"][1] == 20
 
+    def test_head(self):
+        print "testing head..."
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]},"length":8})
+        assert len(df.head()) == 5
+        assert len(df.head(7)) == 7
+        assert df.head().columns() == df.columns()
+
+
 def do_test(t,name):
     try:
         getattr(t,name)()
@@ -101,6 +109,7 @@ def run():
     t = Test()
     print "begin testing"
     do_test(t,"test_dataframe")
+    do_test(t,"test_head")
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
     do_test(t,"test_resample")

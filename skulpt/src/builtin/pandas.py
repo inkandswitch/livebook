@@ -184,7 +184,7 @@ class DataFrame:
 
     def head(self, n=5):
         data = {}
-        idx = range(n)
+        idx = range(min(len(self), n))
         for col in self.columns():
             data[col] = [ self._data[col][i] for i in idx]
 
