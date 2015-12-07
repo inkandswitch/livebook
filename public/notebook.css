@@ -482,9 +482,18 @@ div.pyresult-error {
 }
 
 /* C3 STYLES - move to separate file */
-/* yargh specificity hell */
+/* side note: yargh we are in specificity hell */
 div.notebook .c3-tooltip-container th {
   background: #363636;
+}
+
+div.notebook-plot {
+  background: white;
+  margin: 0;
+  margin-top: -1.05em; /* MAGICK NUMBER - used to obscure `null` return value */
+}
+div.notebook-plot:empty {
+  display: none;
 }
 
 @media only screen and (max-width: 800px) {

@@ -925,7 +925,6 @@ function setup_drag_drop() {
 function initializeEditor() {
   setMode("nav");
   moveCursor(0);
-  python_eval(); // draws charts
 }
 
 var exports =  {
@@ -955,10 +954,15 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     setCurrentPage("notebook");
     start_peer_to_peer()
     initializeEditor();
+    python_eval();
+    python_eval(); // the second call is necessary to draw charts on load
+
   }, "json")
 } else {
   setCurrentPage("upload");
   initializeEditor();
+  python_eval();
+  python_eval(); // the second call is necessary to draw charts on load
 }
 
 module.exports = exports;

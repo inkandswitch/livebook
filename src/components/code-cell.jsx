@@ -26,7 +26,7 @@ var CodeCell = React.createClass({
   },
 
   html(data) {
-    return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }} />);
+    return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }}></div>);
   },
 
   png(data) {
@@ -34,10 +34,15 @@ var CodeCell = React.createClass({
   },
 
   text(data) {
-    var klass = "pyresult"
+    var klass = "pyresult";
     if (this.underConstruction()) klass += " under-construction"
-
-    return (data && <div className={klass}>{data.join("")}</div>);
+    if (!data) return false;
+    return (
+      <div className={klass}>
+        {data.join("")}
+        <div id={"plot" + this.props.index} className='plot notebook-plot'></div>
+      </div>
+    );
   },
 
   outputs() {
@@ -78,7 +83,6 @@ var CodeCell = React.createClass({
         </div>
         {this.errorMessage()}
         {this.outputs()}
-        <div id={"plot"+this.props.index} className="plot"></div>
       </div>
     );
   }

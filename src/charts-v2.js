@@ -40,6 +40,7 @@ var _plot_d3_ = function(xmax,ymax) {
 Sk.builtins["__figure_js__"] = function(xmax, ymax) {
   var $xmax = Sk.ffi.remapToJs(xmax)
   var $ymax = Sk.ffi.remapToJs(ymax)
+  debugger;
   _plot_d3_($xmax,$ymax)
 }
 
@@ -83,10 +84,10 @@ function isTimeSeries(data) {
 
 function _livebookPlot(cell, data) {
   console.log("Chart data:", data);
-
+  let chartSelector = "#plot" + cell;
   if (isTimeSeries(data)) {
     let chart = c3.generate({
-        bindto: "#plot" + cell,
+        bindto: chartSelector,
         data: data,
         axis: {
             x: {
@@ -99,7 +100,6 @@ function _livebookPlot(cell, data) {
     });    
   }
   else {
-    debugger;
     let columns = data.columns;
     let xName = columns[0][0];
     let yName = columns[1][0];
@@ -107,7 +107,7 @@ function _livebookPlot(cell, data) {
     xs[yName] = xName;
 
     let chart = c3.generate({
-        bindto: "#plot" + cell,
+        bindto: chartSelector,
 
         data: {
             xs: xs,
