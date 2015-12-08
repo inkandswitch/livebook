@@ -29,15 +29,15 @@ let ForkButtons = React.createClass({
   render() {
     return (
       <ul>
-        <ForkButton csvURL="" ipynbURL="" onClick={this.clickHandler}>
+        <ForkButton csvURL="/forkable/waldo.csv" ipynbURL="/forkable/waldo.ipynb" clickHandler={this.clickHandler}>
           Here's Waldo
         </ForkButton>
 
-        <ForkButton csvURL="" ipynbURL="" onClick={this.clickHandler}>
+        <ForkButton csvURL="" ipynbURL="" clickHandler={this.clickHandler}>
           Linear regression
         </ForkButton>
 
-        <ForkButton csvURL="" ipynbURL="" onClick={this.clickHandler}>
+        <ForkButton csvURL="" ipynbURL="" clickHandler={this.clickHandler}>
           Earthquakes in the midwest
         </ForkButton>
       </ul>
@@ -49,7 +49,7 @@ let ForkButtons = React.createClass({
 let LandingPage = React.createClass({
 
   clickHandler(urls) {
-    // this.props.fork(urls);
+    this.props.fork(urls);
   },
 
   render() {
@@ -65,18 +65,3 @@ let LandingPage = React.createClass({
 });
 
 module.exports = LandingPage;
-
-
-function createFetch(url) {
-
-  return fetch;
-
-  function fetch(callback) {
-    $.get(url, function(data) {
-      callback(null, data);
-    }).fail(function() {
-      callback(new Error("Ajax request failed"));
-    })
-  }
-}
-

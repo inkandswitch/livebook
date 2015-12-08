@@ -31,6 +31,7 @@ WORKER.onmessage = function(e) {
 var charts = require("./charts-v2");  // Assigns the charts
 
 // Utils
+var asyncRunParallel = require("./util").asyncRunParallel;
 var getPixelsBeyondFold = require("./util").getPixelsBeyondFold;
 var noop          = require("./util").noop;
 var randomColor   = require("./util").randomColor;
@@ -774,6 +775,22 @@ var Uploader = require("./components/uploader.jsx");
 var LandingPage = require("./components/landing-page.jsx")
 
 var Notebook = React.createClass({
+  forkNotebook (urls) {
+    let fetchCSV = createFetcher(urls.csv);
+    let fetchIPYNB = createFetcher(urls.ipynb);
+
+    asyncRunParallel([fetchCSV, fetchIPYNB], function(err, livebookData) {
+      if (err) {
+        console.log("Error forking data! csv url was", urls.csv, "and ipynb url was", urls.ipynb);
+        return;
+      }
+      let csv = livebookData[0];
+      let ipynb = JSON.parse(livebookData[1]);
+      
+    });
+
+  },
+
   cells: function() {
     return this.props.data.cells.map((cell, index) => {
 
@@ -799,7 +816,7 @@ var Notebook = React.createClass({
   render: function() {
     switch (CurrentPage) {
       case "landing":
-        return <div className="notebook"><LandingPage /></div>
+        return <div className="notebook"><LandingPage fork={this.forkNotebook} /></div>
       case "upload":
         return <div className="notebook"><Uploader /></div>
       case "notebook":
@@ -808,6 +825,19 @@ var Notebook = React.createClass({
   },
 })
 
+
+function createFetcher(url) {
+
+  return fetch;
+
+  function fetch(callback) {
+    $.get(url, function(data) {
+      callback(null, data);
+    }).fail(function() {
+      callback(new Error("Ajax request failed"));
+    })
+  }
+}
 
 /**
  * [Global Deps]
