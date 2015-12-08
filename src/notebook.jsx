@@ -471,6 +471,7 @@ function moveCursor(delta, options) {
 }
 
 function wordProcessorScroll($activeCell) {
+  let margin = 8;
   let {above, below} = getPixelsBeyondFold($activeCell)
   let isAboveFold = above > 0;
   let isBelowFold = below > 0;
@@ -478,11 +479,11 @@ function wordProcessorScroll($activeCell) {
   // NB: If the entire cell is larger than the viewport,
   //     We give precedence to scrolling to the top
   if (isAboveFold) {
-    scrollXPixels(-above);
+    scrollXPixels(-above - 8);
     return;
   }
   if (isBelowFold) {
-    scrollXPixels(below);
+    scrollXPixels(below + 8);
     return;
   }
 }
