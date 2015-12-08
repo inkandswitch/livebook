@@ -23,9 +23,14 @@ var colorChange = false
 
 
 var WORKER     = new Worker("/js/worker.js");
-WORKER.postMessage("TEST MESSAGE")
 WORKER.onmessage = function(e) {
-  // console.log("Got message from the worker:",e.data)
+  console.log("Got message from the worker:",e.data)
+  if (e.data.error) handle_error(e.data.error)
+  for (let cell in e.data.results) {
+    console.log("KEY",cell)
+    python_render(cell,e.data.results[cell])
+  }
+  render()
 }
 
 var charts = require("./charts-v2");  // Assigns the charts
@@ -179,42 +184,14 @@ var keyword = /^(assert|pass|del|print|return|yield|raise|break|continue|import|
 var indent = /^\s+/
 
 /**
- * Custom file loader for Skulpt
  * [Global Deps]
- * `Sk`
- */
-function pyLoad(x) {
-  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
-    throw new Error("File not found: '" + x + "'");
-  }
-  return Sk.builtinFiles["files"][x];
-}
-
-// BOOTS ???
-var $cell = undefined;
-
-/**
- * ??? No idea when this is called
- *
- * [Global Deps]
- * `Sk`
- * `$cell` - javascript equivalent of `cell` (presumably python code)
- */
-function python_mark(cell) {
-  $cell = Sk.ffi.remapToJs(cell)
-}
-
-/**
- * [Global Deps]
- * `Sk`
- * `$cell`   - Index of the current cell
  * `iPython` - Object that is stringified into .ipynb file
  */
-function python_render(result) {
-  if (result === undefined) return;
-  var text;
+function python_render(cell,text) {
+  if (text === undefined) return;
   var html;
   // Duck type result... if it has `to_js` method, proceed
+/*
   if (result.to_js) {
     let $method = Sk.abstr.gattr(result, 'to_js', true)
     let $result = Sk.misceval.callsimOrSuspend($method)
@@ -222,9 +199,10 @@ function python_render(result) {
   } else {
     text = String(Sk.ffi.remapToJs(Sk.builtin.str(result))) + "\n"
   }
+*/
 
   if (html) {
-    iPython.cells[$cell].outputs = [
+    iPython.cells[cell].outputs = [
       {
        "data": {
          "text/html": [ html ]
@@ -235,7 +213,7 @@ function python_render(result) {
       },
     ]
   } else {
-    iPython.cells[$cell].outputs = [
+    iPython.cells[cell].outputs = [
       {
        "data": {
          "text/plain": [text]
@@ -247,13 +225,6 @@ function python_render(result) {
     ]
   }
 }
-
-Sk.builtins["mark"] = python_mark
-Sk.builtins["render"] = python_render
-Sk.configure({
-  output: text => { console.log("STDOUT:",text) },
-  read: pyLoad,
-});
 
 // All The Globals
 var Mode = "view";
@@ -667,31 +638,25 @@ window.onpopstate = function(event) {
  */
 function python_eval() {
   REMOVE_MARKERS()
-  var keepgoing = true
-  var badcells  = []
-  setTimeout(() => { keepgoing = false }, 500)
-  do {
-    var code_ctx = generate_python_ctx(badcells)
-    var badcell  = execute_python_ctx(code_ctx)
-    badcells.push(badcell)
-  } while(keepgoing && badcell >= 0)
-  return render()
+//  var code_ctx = generate_python_ctx()
+  WORKER.postMessage({ type: "exec", doc: iPython})
+//  var badcell  = execute_python_ctx(code_ctx)
+//  return render()
 }
 
 var assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
+/*
 function assignment_test(line) {
   var a = assignment.test(line)
   var b = assignment2.test(line)
   return a || b
 }
 
-function generate_python_ctx(badcells) {
+function generate_python_ctx() {
   var lines = [];
   var lineno = 0;
   var lineno_map = {}; // keeps track of line number on which to print error
   iPython.cells.forEach((c, i) => {
-    if (badcells.indexOf(i) >= 0) return;
-
     if (c.cell_type == "code") {
 
       lines.push("mark("+i+")")
@@ -731,33 +696,28 @@ function execute_python_ctx(ctx) {
   return -1
 }
 
+*/
+
 /**
  * [Global Deps]
  * `CursorCell`
  * `editor`
  * `Sk`
  */
-function handle_error(lineno_map, e) {
-  e.traceback.forEach((s) => { console.log("err line-no in " + s.filename + " line " + s.lineno) })
-  var stack = e.traceback.pop()
-  var err_at = lineno_map[stack.lineno] || lineno_map[stack.lineno - 1] || {cell: CursorCell, line:1}
-  var msg = Sk.ffi.remapToJs(e.args)[0];
-  var markerId;
-
-  iPython.cells[err_at.cell].outputs = []
-
-  if (err_at.cell === CursorCell) {
+function handle_error(e) {
+  console.log("ERROR:",e)
+  iPython.cells[e.cell].outputs = []
+  if (e.cell === CursorCell) {
     if (editor && editor.getSession()) {
-      markerId = editor
+      let markerId = editor
         .getSession()
-        .addMarker(new Range(err_at.line, 0, err_at.line, 1), "ace_error-marker", "fullLine");
-
+        .addMarker(new Range(e.line, 0, e.line, 1), "ace_error-marker", "fullLine");
       ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
     }
   }
 
-  ERRORS[err_at.cell] = Object.assign({message: msg}, err_at);
-  return err_at.cell
+  ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
+  return e.cell
 }
 
 /**
