@@ -780,6 +780,7 @@ var Notebook = React.createClass({
     asyncRunParallel([fetchCSV, fetchIPYNB], function(err, livebookData) {
       if (err) {
         console.log("Error forking data! csv url was", urls.csv, "and ipynb url was", urls.ipynb);
+        console.log("Oh yeah. Here is the error:", err);
         return;
       }
       let csv = livebookData[0];
