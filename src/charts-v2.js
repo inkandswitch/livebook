@@ -83,9 +83,13 @@ function isTimeSeries(data) {
 }
 
 function _livebookPlot(cell, data) {
+  var CLICK_TOOLTIP_SHOWING = false;           // sloppy as helllll but gets the job done
+  var C3_SHOW_TOOLTIP_FUNCTION = function() {};
+
   console.log("Chart data:", data);
   let chartSelector = "#plot" + cell;
   if (isTimeSeries(data)) {
+    data.onclick = clickHandler;
     let chart = c3.generate({
         bindto: chartSelector,
         data: data,
@@ -96,7 +100,10 @@ function _livebookPlot(cell, data) {
                     format: '%Y'
                 }
             }
-        }
+        },
+        tooltip: {
+          show: false,
+        },
     });    
   }
   else {
@@ -113,6 +120,7 @@ function _livebookPlot(cell, data) {
             xs: xs,
             columns: columns,
             type: 'scatter',
+            onclick: clickHandler,
         },
         axis: {
             x: {
@@ -124,11 +132,47 @@ function _livebookPlot(cell, data) {
             y: {
                 label: yName,
             }
-        }
+        },
+        tooltip: {
+          show: false,
+        },
     });
 
   }
 
+  function clickHandler(d, element) {
+    let event = d3.event;
+    // don't enter edit mode on cell
+    event.stopPropagation();
+    event.preventDefault();
+
+    //
+    let internalAPI = this.internal.api;
+    let internalConfig = this.internal.config;
+    let isTooltipHidden = !internalConfig.tooltip_show;
+    
+    if (isTooltipHidden) {
+      internalConfig.tooltip_show = true;
+      CLICK_TOOLTIP_SHOWING = true;
+
+      this.tooltip.show({
+        data: d,
+        mouse: d3.mouse(element),
+      });
+
+      C3_SHOW_TOOLTIP_FUNCTION = internalConfig.tooltip_onshow;
+      internalConfig.tooltip_onshow = function() {};
+    }
+    else {
+      internalConfig.tooltip_show = false;
+      CLICK_TOOLTIP_SHOWING = false;
+
+      this.tooltip.hide();
+
+      C3_SHOW_TOOLTIP_FUNCTION = function() {};
+      internalConfig.tooltip_onshow = C3_SHOW_TOOLTIP_FUNCTION;
+    }
+  }
 }
 
 module.exports = { setup: setup }
