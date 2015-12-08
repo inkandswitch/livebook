@@ -235,7 +235,10 @@ func main() {
 	mux.HandleFunc("/d/{id}.json", auth(getDocument)).Methods("GET")
 	mux.HandleFunc("/d/{id}.json", auth(updateDocument)).Methods("PUT")
 	mux.HandleFunc("/d/{id}", auth(getIndex)).Methods("GET")
+	mux.HandleFunc("/upload", auth(getIndex)).Methods("GET")	
+	mux.HandleFunc("/upload/", auth(getIndex)).Methods("GET")	
 	mux.PathPrefix("/").Handler(compress(http.FileServer(http.Dir("./public/"))))
+
 	http.Handle("/", mux)
 
 	fmt.Printf("Running on %s\n", addr)

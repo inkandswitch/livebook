@@ -814,7 +814,7 @@ var Notebook = React.createClass({
           key={index} index={index} 
           errorObject={errorObject}/>
       );
-    }) // `key` prop stops React warnings in the console
+    })
   },
 
   render: function() {
