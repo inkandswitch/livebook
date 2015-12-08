@@ -167,7 +167,7 @@ Sk.builtins["__load_data__"] = function(filename, header, names) {
   throw new Error("No CSV data loaded (2)");
 }
 
-var Pages = [ "notebook", "upload" ];
+var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
 
 // these three lines came from skulpt repl.js codebase
@@ -641,7 +641,9 @@ function setCurrentPage(page) {
  */
 window.onpopstate = function(event) {
   var path = document.location.pathname;
-  if (path === "/upload")
+  if (path === "/")
+    setCurrentPage("landing");
+  else if (path === "/upload")
     setCurrentPage("upload")
   else
     setCurrentPage("notebook")
@@ -769,6 +771,7 @@ var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
 var Cell = require("./components/cell.jsx");
 var Uploader = require("./components/uploader.jsx");
+var LandingPage = require("./components/landing-page.jsx")
 
 var Notebook = React.createClass({
   cells: function() {
@@ -795,6 +798,8 @@ var Notebook = React.createClass({
 
   render: function() {
     switch (CurrentPage) {
+      case "landing":
+        return <div className="notebook"><LandingPage /></div>
       case "upload":
         return <div className="notebook"><Uploader /></div>
       case "notebook":
@@ -976,7 +981,8 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
 
   }, "json")
 } else {
-  setCurrentPage("upload");
+  let isUploadPage = document.location.pathname.indexOf("upload") !== -1;
+  isUploadPage ? setCurrentPage("upload") : setCurrentPage("landing");
   initializeEditor();
   python_eval();
   python_eval(); // the second call is necessary to draw charts on load
