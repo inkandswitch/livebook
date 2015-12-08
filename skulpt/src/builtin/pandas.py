@@ -14,7 +14,6 @@ class Record:
         self._i = i
 
     def __getattr__(self,attr):
-        print "getattr %s" % attr
         return self._df[attr][self._i]
 
 class Series:
@@ -152,13 +151,8 @@ class DataFrame:
 
     def to_js(self):
         body = {}
-        print "BEGIN"
-        print self._idx
         for c in self._columns:
-            print "COL %s" % c
-            print self._data[c]
             body[c] = [self._data[c][i] for i in self._idx]
-        print "DONE"
         return { "head":self._columns, "body":body, "length":len(self._idx), "sort": self._sort }
 
     def select(self,key,val):
