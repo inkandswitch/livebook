@@ -10,6 +10,16 @@ class Test:
         assert df1[0] == ("zak",30)
         assert df2[0] == ("aaron",40)
 
+    def test_record(self):
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2],"h2":[25,35]},"length":2})
+        for i,r in df.iterrows():
+            if i == 0:
+                assert r.h1 == 1
+                assert r.h2 == 25
+            if i == 1:
+                assert r.h1 == 2
+                assert r.h2 == 35
+
     def test_reindex(self):
         print "testing reindex..."
         df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,4,8],"h2":[25,25,25,30]},"length":4})
@@ -116,5 +126,6 @@ def run():
     do_test(t,"test_select")
     do_test(t,"test_reindex")
     do_test(t,"test_getitem")
+    do_test(t,"test_record")
     print "done"
 

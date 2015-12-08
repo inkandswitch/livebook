@@ -8,6 +8,15 @@ def do_math(func,data):
 def mean(nums):
     return sum(nums)/len(nums)
 
+class Record:
+    def __init__(self, df, i):
+        self._df = df
+        self._i = i
+
+    def __getattr__(self,attr):
+        print "getattr %s" % attr
+        return self._df[attr][self._i]
+
 class Series:
     def __init__(self, data, column, sort, idx):
         self.data = data
@@ -190,6 +199,12 @@ class DataFrame:
 
         result = DataFrame.__new__(data, self._columns, self._sort, idx)
         return result
+
+    def record(self, i):
+        return Record(self,i)
+
+    def iterrows(self):
+        return [ (i, Record(self,i)) for i in range(0,len(self))].__iter__()
 
 class GroupBy:
     def __init__(self, data, by):
