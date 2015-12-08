@@ -786,7 +786,7 @@ var Notebook = React.createClass({
       }
       let csv = livebookData[0];
       let ipynb = JSON.parse(livebookData[1]);
-      
+
     });
 
   },
@@ -921,57 +921,93 @@ function start_peer_to_peer() {
  */
 function setup_drag_drop() {
   var upload = document.getElementById('notebook')
-  upload.ondrop = function(e) {
-    $('#upload').removeClass('hover');
-    e.stopPropagation();
-    e.preventDefault();
-    var is_notebook = /[.]ipynb$/
-    var is_csv = /[.]csv$/
-    var files = e.dataTransfer.files
-    if (files.length != 2) {
-      alert("You must drop 2 files!")
-      return
-    }
-    if (!(is_notebook.test(files[0].name) || is_notebook.test(files[1].name))) {
-      alert("one of the dropped files must be an ipynb")
-      return
-    }
-    if (!(is_csv.test(files[0].name) || is_csv.test(files[1].name))) {
-      alert("one of the dropped files must be a csv")
-      return
-    }
-    var notebook_loaded = false
-    var csv_loaded      = false
+  upload.ondrop = uploadOnDrop;
 
-    for (var i = 0; i < files.length; i++) {
-      let file = files[i]
-      let reader = new FileReader();
-      reader.onload = function(e2) {
-        if (is_notebook.test(file.name)) {
-          iPythonRaw= e2.target.result;
-          notebook_loaded = true
-
-          document.title = file.name.slice(0, -6) + " notebook"
-        } else {
-          DataRaw = e2.target.result;
-          csv_loaded = true
-        }
-        if (notebook_loaded && csv_loaded) {
-          post_notebook_to_server()
-          parse_raw_notebook()
-          setCurrentPage("notebook")
-          initializeEditor();
-        }
-      }
-      reader.readAsText(file);
-    }
-  }
   upload.ondragover = function(e) {
     $('#upload').addClass('hover');
     e.stopPropagation();
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   }
+}
+
+function uploadOnDrop(event) {
+
+  $('#upload').removeClass('hover');
+
+  event.stopPropagation();
+  event.preventDefault();
+
+  var files = event.dataTransfer.files
+
+  if (!areFilesValid(files)) {
+    console.log("%cInvalid files.", "color: darkred;");
+    return;
+  }
+
+  loadFilesIntoLivebook(files);
+}
+
+function loadFilesIntoLivebook(files) {
+  var isNotebookLoaded = false;
+  var isCSVLoaded      = false;
+
+  [].forEach.call(files, readFile);
+
+  function readFile(file) {
+    let reader = new FileReader();
+    reader.onload = onReaderLoad;
+    reader.readAsText(file);
+
+    function onReaderLoad(event) {
+      if (isNotebook(file.name)) {
+        iPythonRaw = event.target.result;
+        isNotebookLoaded = true
+
+        document.title = file.name.slice(0, -6) + " notebook"
+      }
+      else {
+        DataRaw = event.target.result;
+        isCSVLoaded = true
+      }
+      if (isNotebookLoaded && isCSVLoaded) {
+        debugger;
+        post_notebook_to_server()
+        parse_raw_notebook()
+        setCurrentPage("notebook")
+        initializeEditor();
+      }
+    }
+  }
+}
+
+function areFilesValid(files) {
+  if (files.length !== 2) {
+    alert("You must drop 2 files!")
+    return false;
+  }
+
+  let file1 = files[0];
+  let file2 = files[1];
+
+  if (!(isNotebook(file1.name) || isNotebook(file2.name))) {
+    alert("One of the dropped files must have .ipynb extension")
+    return false;
+  }
+  if (!(isCSV(file1.name) || isCSV(file2.name))) {
+    alert("One of the dropped files must have .csv extension")
+    return false;
+  }
+
+  return true;
+}
+
+function isNotebook(filename) {
+  return /[.]ipynb$/.test(filename)
+}
+
+function isCSV(filename) {
+  return /[.]csv$/.test(filename);
 }
 
 function initializeEditor() {
