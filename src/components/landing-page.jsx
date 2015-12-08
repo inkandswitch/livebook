@@ -29,15 +29,21 @@ let ForkButtons = React.createClass({
   render() {
     return (
       <ul>
-        <ForkButton csvURL="/forkable/waldo.csv" ipynbURL="/forkable/waldo.ipynb" clickHandler={this.clickHandler}>
+        <ForkButton csvURL="/forkable/waldo.csv" 
+            ipynbURL="/forkable/waldo.ipynb" 
+            clickHandler={this.clickHandler}>
           Here's Waldo
         </ForkButton>
 
-        <ForkButton csvURL="" ipynbURL="" clickHandler={this.clickHandler}>
+        <ForkButton csvURL="/forkable/linear-regression.csv" 
+            ipynbURL="/forkable/linear-regression.ipynb" 
+            clickHandler={this.clickHandler}>
           Linear regression
         </ForkButton>
 
-        <ForkButton csvURL="" ipynbURL="" clickHandler={this.clickHandler}>
+        <ForkButton csvURL="/forkable/quakes.csv" 
+            ipynbURL="/forkable/quakes.ipynb" 
+            clickHandler={this.clickHandler}>
           Earthquakes in the midwest
         </ForkButton>
       </ul>

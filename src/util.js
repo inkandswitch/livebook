@@ -4,6 +4,7 @@ var randomColor = randomColorGenerator();
 
 module.exports = {
   asyncRunParallel: asyncRunParallel,
+  createAsyncDataFetcher: createAsyncDataFetcher,
   deepClone       : deepClone,
   getPixelsBeyondFold: getPixelsBeyondFold,
   noop            : () => {},
@@ -14,6 +15,8 @@ module.exports = {
   scrollXPixels   : scrollXPixels,
   zip             : zip,
 };
+
+
 
 function deepClone(o) {
   // Hack
@@ -84,10 +87,10 @@ function resultToHtml(result) {
  */
 function asyncRunParallel(funcs, callback) {
   var completedFuncs = 0;
-  var results = [];
+  var results = new Array(funcs.length);
   var errorEncountered = false;
 
-  funcs.forEach((func) => {
+  funcs.forEach((func, index) => {
 
     func((error, result) => {
       // Has the callback already been called with an error?
@@ -102,7 +105,7 @@ function asyncRunParallel(funcs, callback) {
         return
       }
       // Huzzah! We have a result.
-      results.push(result);
+      results[index] = result;
       completedFuncs++;
 
       // Is this the last function to complete?
@@ -112,6 +115,19 @@ function asyncRunParallel(funcs, callback) {
     })
 
   });
+}
+
+function createAsyncDataFetcher(url) {
+
+  return fetch;
+
+  function fetch(callback) {
+    $.get(url, function(data) {
+      callback(null, data);
+    }).fail(function() {
+      callback(new Error("Ajax request failed"));
+    })
+  }
 }
 
 function randomName() {

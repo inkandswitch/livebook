@@ -7,8 +7,8 @@
  * `ERROR_CELL_CLASSNAME`
  */
 
-var $          = require("jquery")
-var ace        = require("brace")
+var $          = require("jquery");
+var ace        = require("brace");
 var Range      = ace.acequire('ace/range').Range;
 var React      = require("react");
 var ReactDOM   = require("react-dom");
@@ -29,9 +29,9 @@ WORKER.onmessage = function(e) {
 }
 
 var charts = require("./charts-v2");  // Assigns the charts
-
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
+var createAsyncDataFetcher = require("./util").createAsyncDataFetcher;
 var getPixelsBeyondFold = require("./util").getPixelsBeyondFold;
 var noop          = require("./util").noop;
 var randomColor   = require("./util").randomColor;
@@ -774,8 +774,8 @@ var LandingPage = require("./components/landing-page.jsx")
 
 var Notebook = React.createClass({
   forkNotebook (urls) {
-    let fetchCSV = createFetcher(urls.csv);
-    let fetchIPYNB = createFetcher(urls.ipynb);
+    let fetchCSV = createAsyncDataFetcher(urls.csv);
+    let fetchIPYNB = createAsyncDataFetcher(urls.ipynb);
 
     asyncRunParallel([fetchCSV, fetchIPYNB], function(err, livebookData) {
       if (err) {
@@ -783,7 +783,12 @@ var Notebook = React.createClass({
         return;
       }
       let csv = livebookData[0];
-      let ipynb = JSON.parse(livebookData[1]);
+      let ipynb = livebookData[1];
+
+      startNewNotebook({
+        csv: csv,
+        ipynb: ipynb,
+      });
 
     });
 
@@ -822,20 +827,6 @@ var Notebook = React.createClass({
     }
   },
 })
-
-
-function createFetcher(url) {
-
-  return fetch;
-
-  function fetch(callback) {
-    $.get(url, function(data) {
-      callback(null, data);
-    }).fail(function() {
-      callback(new Error("Ajax request failed"));
-    })
-  }
-}
 
 /**
  * [Global Deps]
@@ -907,10 +898,12 @@ function start_peer_to_peer() {
 }
 
 function startNewNotebook(data) {
+  debugger;
   iPythonRaw = data.ipynb;
   DataRaw = data.csv;
 
-  // Question - how do we start peer to peer in this process?
+  // FIXME - how do we start peer to peer after making a new notebook?
+  // (I'm getting a PUT error connecting to new url + .rtc; the error originates from the cradle code)
   post_notebook_to_server()
   parse_raw_notebook()
   setCurrentPage("notebook")
