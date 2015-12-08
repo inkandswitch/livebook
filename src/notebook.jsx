@@ -429,13 +429,11 @@ function cellPosition() {
  * `notebookMount`
  * `menuMount`
  * `collaboratorsMount`
- * `setup_drag_drop`
  */
 function render() {
   let render_time = new Date()
   ReactDOM.render(<Menu notebook={exports}/>, menuMount);
   update_peers_and_render()
-  setup_drag_drop()
   return render_time
 }
 
@@ -818,7 +816,7 @@ var Notebook = React.createClass({
       case "landing":
         return <div className="notebook"><LandingPage fork={this.forkNotebook} /></div>
       case "upload":
-        return <div className="notebook"><Uploader /></div>
+        return <div className="notebook"><Uploader startNewNotebook={startNewNotebook} /></div>
       case "notebook":
         return <div className="notebook">{this.cells()}</div>
     }
@@ -908,106 +906,15 @@ function start_peer_to_peer() {
   })
 }
 
-// BOOTS TODO
-// - separate into another file
-// - pass iPython
-/**
- * [Global Deps]
- * `iPythonRaw`
- * `DataRaw`
- * post_notebook_to_server
- * parse_raw_notebook
- * setCurrentPage
- */
-function setup_drag_drop() {
-  var upload = document.getElementById('notebook')
-  upload.ondrop = uploadOnDrop;
+function startNewNotebook(data) {
+  iPythonRaw = data.ipynb;
+  DataRaw = data.csv;
 
-  upload.ondragover = function(e) {
-    $('#upload').addClass('hover');
-    e.stopPropagation();
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  }
-}
-
-function uploadOnDrop(event) {
-
-  $('#upload').removeClass('hover');
-
-  event.stopPropagation();
-  event.preventDefault();
-
-  var files = event.dataTransfer.files
-
-  if (!areFilesValid(files)) {
-    console.log("%cInvalid files.", "color: darkred;");
-    return;
-  }
-
-  loadFilesIntoLivebook(files);
-}
-
-function loadFilesIntoLivebook(files) {
-  var isNotebookLoaded = false;
-  var isCSVLoaded      = false;
-
-  [].forEach.call(files, readFile);
-
-  function readFile(file) {
-    let reader = new FileReader();
-    reader.onload = onReaderLoad;
-    reader.readAsText(file);
-
-    function onReaderLoad(event) {
-      if (isNotebook(file.name)) {
-        iPythonRaw = event.target.result;
-        isNotebookLoaded = true
-
-        document.title = file.name.slice(0, -6) + " notebook"
-      }
-      else {
-        DataRaw = event.target.result;
-        isCSVLoaded = true
-      }
-      if (isNotebookLoaded && isCSVLoaded) {
-        debugger;
-        post_notebook_to_server()
-        parse_raw_notebook()
-        setCurrentPage("notebook")
-        initializeEditor();
-      }
-    }
-  }
-}
-
-function areFilesValid(files) {
-  if (files.length !== 2) {
-    alert("You must drop 2 files!")
-    return false;
-  }
-
-  let file1 = files[0];
-  let file2 = files[1];
-
-  if (!(isNotebook(file1.name) || isNotebook(file2.name))) {
-    alert("One of the dropped files must have .ipynb extension")
-    return false;
-  }
-  if (!(isCSV(file1.name) || isCSV(file2.name))) {
-    alert("One of the dropped files must have .csv extension")
-    return false;
-  }
-
-  return true;
-}
-
-function isNotebook(filename) {
-  return /[.]ipynb$/.test(filename)
-}
-
-function isCSV(filename) {
-  return /[.]csv$/.test(filename);
+  // Question - how do we start peer to peer in this process?
+  post_notebook_to_server()
+  parse_raw_notebook()
+  setCurrentPage("notebook")
+  initializeEditor();
 }
 
 function initializeEditor() {
