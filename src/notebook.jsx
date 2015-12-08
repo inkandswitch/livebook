@@ -31,10 +31,12 @@ WORKER.onmessage = function(e) {
 var charts = require("./charts-v2");  // Assigns the charts
 
 // Utils
-var noop             = require("./util").noop;
-var randomColor      = require("./util").randomColor;
-var randomName       = require("./util").randomName;
-var resultToHtml     = require("./util").resultToHtml;
+var getPixelsBeyondFold = require("./util").getPixelsBeyondFold;
+var noop          = require("./util").noop;
+var randomColor   = require("./util").randomColor;
+var randomName    = require("./util").randomName;
+var resultToHtml  = require("./util").resultToHtml;
+var scrollXPixels = require("./util").scrollXPixels;
 
 var getPeerColor     = (peer) => peer.state.color ;
 
@@ -462,12 +464,23 @@ function moveCursor(delta, options) {
 
   // allows us to disable auto scrolling on the click events
   if (!options.noScroll) {
-    // FIX
-/*
     let $currentUserCursor = $('[data-current-user-cursor]');
-    let $currenUserCellWrap = $currentUserCursor.parents(".cell-wrap");
-    $('body').animate({ scrollTop: $currenUserCellWrap.offset().top - 80 });
-*/
+    let $currentUserCellWrap = $currentUserCursor.parents(".cell-wrap");
+    let {above, below} = getPixelsBeyondFold($currentUserCellWrap)
+    let isAboveFold = above > 0;
+    let isBelowFold = below > 0;
+
+    console.log("pixelsBeyondFold: above, below", above, below);
+
+    // NB: Gives precedence to scrolling to top of cell if the cell is larger than the viewport
+    if (isAboveFold) {
+      scrollXPixels(-above);
+      return;
+    }
+    if (isBelowFold) {
+      scrollXPixels(below);
+      return;
+    }
   }
 }
 

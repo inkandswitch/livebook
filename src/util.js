@@ -1,21 +1,42 @@
+var $ = require("jquery");
 var marked = require("marked")
-
 var randomColor = randomColorGenerator();
 
 module.exports = {
   asyncRunParallel: asyncRunParallel,
   deepClone       : deepClone,
+  getPixelsBeyondFold: getPixelsBeyondFold,
   noop            : () => {},
   randomColor     : randomColor,
   randomName      : randomName,
   rawMarkup       : rawMarkup,
   resultToHtml    : resultToHtml,
+  scrollXPixels   : scrollXPixels,
   zip             : zip,
 };
 
 function deepClone(o) {
   // Hack
   return JSON.parse(JSON.stringify(o));
+}
+
+function getPixelsBeyondFold($elt) {
+  let viewportHeight = window.innerHeight;
+  let scrollTop = $("body").scrollTop();
+  let topOffset = $elt.offset().top
+  let bottomOffset = topOffset + $elt.height();
+
+  let above = scrollTop - topOffset;
+  let below = (bottomOffset - scrollTop) - viewportHeight;
+
+  return {
+    above: above,
+    below: below,
+  };
+}
+
+function scrollXPixels(x) {
+  $('body').animate({ scrollTop: $(window).scrollTop() + x }, 200); 
 }
 
 function rawMarkup(lines) {
