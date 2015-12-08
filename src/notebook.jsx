@@ -466,21 +466,24 @@ function moveCursor(delta, options) {
   if (!options.noScroll) {
     let $currentUserCursor = $('[data-current-user-cursor]');
     let $currentUserCellWrap = $currentUserCursor.parents(".cell-wrap");
-    let {above, below} = getPixelsBeyondFold($currentUserCellWrap)
-    let isAboveFold = above > 0;
-    let isBelowFold = below > 0;
+    wordProcessorScroll($currentUserCellWrap);
+  }
+}
 
-    console.log("pixelsBeyondFold: above, below", above, below);
+function wordProcessorScroll($activeCell) {
+  let {above, below} = getPixelsBeyondFold($activeCell)
+  let isAboveFold = above > 0;
+  let isBelowFold = below > 0;
 
-    // NB: Gives precedence to scrolling to top of cell if the cell is larger than the viewport
-    if (isAboveFold) {
-      scrollXPixels(-above);
-      return;
-    }
-    if (isBelowFold) {
-      scrollXPixels(below);
-      return;
-    }
+  // NB: If the entire cell is larger than the viewport,
+  //     We give precedence to scrolling to the top
+  if (isAboveFold) {
+    scrollXPixels(-above);
+    return;
+  }
+  if (isBelowFold) {
+    scrollXPixels(below);
+    return;
   }
 }
 
