@@ -219,7 +219,7 @@ function python_render(result) {
     let $result = Sk.misceval.callsimOrSuspend($method)
     html = resultToHtml(Sk.ffi.remapToJs($result))
   } else {
-    text = String(Sk.ffi.remapToJs(result)) + "\n";
+    text = String(Sk.ffi.remapToJs(Sk.builtin.str(result))) + "\n"
   }
 
   if (html) {
