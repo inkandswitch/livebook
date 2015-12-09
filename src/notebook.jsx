@@ -899,7 +899,6 @@ function start_peer_to_peer() {
 }
 
 function startNewNotebook(data) {
-  debugger;
   iPythonRaw = data.ipynb;
   DataRaw = data.csv;
 
@@ -909,6 +908,7 @@ function startNewNotebook(data) {
   parse_raw_notebook()
   setCurrentPage("notebook")
   initializeEditor();
+  python_eval();
 }
 
 function initializeEditor() {
