@@ -1,7 +1,10 @@
-var Sk  = require("./skulpt")
+
+var Sk  = require("./skulpt");
+
+var noop = require("./util").noop;
 var zip = require("./util").zip;
 
-var notebook
+var notebook;
 
 function setup(n) {
   notebook = n
@@ -10,7 +13,7 @@ function setup(n) {
 var _plot_generated_ = function() {}
 
 var _plot_d3_ = function(xmax,ymax) {
-  console.log("PLOT1",xmax,ymax)
+  console.log("PLOT1", xmax, ymax)
   var iPython = notebook.getiPython(),
       $cell   = notebook.get$cell();
 
@@ -40,7 +43,6 @@ var _plot_d3_ = function(xmax,ymax) {
 Sk.builtins["__figure_js__"] = function(xmax, ymax) {
   var $xmax = Sk.ffi.remapToJs(xmax)
   var $ymax = Sk.ffi.remapToJs(ymax)
-  debugger;
   _plot_d3_($xmax,$ymax)
 }
 
@@ -83,9 +85,9 @@ function isTimeSeries(data) {
 }
 
 function _livebookPlot(cell, data) {
-  var CLICK_TOOLTIP_SHOWING = false;           // sloppy as helllll but gets the job done
-  var C3_SHOW_TOOLTIP_FUNCTION = function() {};
-
+  var CLICK_TOOLTIP_SHOWING = false;  // sloppy as helllll 
+  var TOOLTIP_POSITION;
+ 
   console.log("Chart data:", data);
   let chartSelector = "#plot" + cell;
   if (isTimeSeries(data)) {
@@ -141,16 +143,24 @@ function _livebookPlot(cell, data) {
   }
 
   function clickHandler(d, element) {
+
+    /* IDEAS */
+    // - Freeze position
+    // - Fuck with the "mousemove" event
+
     let event = d3.event;
     // don't enter edit mode on cell
     event.stopPropagation();
     event.preventDefault();
 
     //
+    let chart = this;
     let internalAPI = this.internal.api;
     let internalConfig = this.internal.config;
+
     let isTooltipHidden = !internalConfig.tooltip_show;
     
+
     if (isTooltipHidden) {
       internalConfig.tooltip_show = true;
       CLICK_TOOLTIP_SHOWING = true;
@@ -159,19 +169,59 @@ function _livebookPlot(cell, data) {
         data: d,
         mouse: d3.mouse(element),
       });
-
-      C3_SHOW_TOOLTIP_FUNCTION = internalConfig.tooltip_onshow;
-      internalConfig.tooltip_onshow = function() {};
+      getCurrentTooltipPosition();
+      freezeTooltipPosition();
     }
     else {
       internalConfig.tooltip_show = false;
       CLICK_TOOLTIP_SHOWING = false;
 
+      unfreezeTooltipPosition();
       this.tooltip.hide();
-
-      C3_SHOW_TOOLTIP_FUNCTION = function() {};
-      internalConfig.tooltip_onshow = C3_SHOW_TOOLTIP_FUNCTION;
     }
+
+    function getCurrentTooltipPosition() {
+      // TODO
+      // debugger;
+      let top = parseInt(chart.internal.tooltip.style("top").replace("px", ""));
+      let left = parseInt(chart.internal.tooltip.style("left").replace("px", ""));
+      TOOLTIP_POSITION = {
+        top: top,
+        left: left,
+      }
+    }
+
+    function freezeTooltipPosition() {
+
+      internalConfig.tooltip_position = function() {
+        return TOOLTIP_POSITION;
+      }
+    }
+
+    function unfreezeTooltipPosition() {
+      internalConfig.tooltip_position = null;
+    }
+
+    /******* BEGIN INTERNAL MOUSEOVER *******/ 
+    // var $$ = this.internal,
+    //     d3 = $$.d3,
+    //     config = $$.config,
+    //     CLASS = $$.CLASS 
+
+    // var index = d.index;
+
+    // if ($$.dragging || $$.flowing) { return; } // do nothing while dragging/flowing
+    // if ($$.hasArcType()) { return; }
+
+    // // Expand shapes for selection
+    // if (config.point_focus_expand_enabled) { $$.expandCircles(index, null, true); }
+    // $$.expandBars(index, null, true);
+
+    // // Call event handler
+    // $$.main.selectAll('.' + CLASS.shape + '-' + index).each(function (d) {
+    //     config.data_onmouseover.call($$.api, d);
+    // });
+    /******* END INTERNAL MOUSEOVER *******/ 
   }
 }
 
