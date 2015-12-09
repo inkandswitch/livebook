@@ -24,7 +24,7 @@ body {
   padding-top: 4.2em;
 }
 
-div.notebook {
+.notebook {
   margin: 0 auto;
   max-width: 1000px;
   min-height: 400pt;
@@ -39,35 +39,35 @@ a:hover {
   text-decoration: underline;
 }
 
-div.notebook h1,
-div.notebook h2,
-div.notebook h3 {
+.notebook h1,
+.notebook h2,
+.notebook h3 {
   font-weight: bold;
   margin: 0;
   padding: 0;
 }
 
-div.notebook h1 {
+.notebook h1 {
   font-size: 28pt;
   margin-bottom: 12pt;
   padding-bottom: 4pt;
   border-bottom: 3px solid rgba(0,0,0,0.125);
 }
 
-div.notebook h2 {
+.notebook h2 {
   font-size: 22pt;
   margin-bottom: 10pt;
   padding-bottom: 3pt;
   border-bottom: 2px solid rgba(0,0,0,0.125);
 }
 
-div.notebook h3 {
+.notebook h3 {
   font-size: 16pt;
   margin-bottom: 8pt;
   padding-bottom: 2pt;
 }
 
-div.notebook p {
+.notebook p {
   font-size: 12pt;
   line-height: 19pt;
   margin: 0;
@@ -75,7 +75,7 @@ div.notebook p {
   text-align: justify;
 }
 
-div.notebook div.codewrap {
+.notebook div.codewrap {
   border: 1px solid #ddd;
   border-radius: 2px;
   background: #eee;
@@ -86,45 +86,45 @@ div.notebook div.codewrap {
   margin-bottom: -1pt;
   position: relative;
 }
-div.notebook .yield-arrow {
+.notebook .yield-arrow {
   position: absolute;
   left: 48%;
   bottom: -10pt;
   width: 20pt;
 }
-div.notebook div.code {
+.notebook div.code {
   font-family: Menlo, monospace;
   white-space: pre;
   overflow: hidden;
 }
 
-div.notebook table {
+.notebook table {
   border-collapse: collapse;
   width: 100%;
   margin: 0;
   background: white;
 }
-div.notebook th,
-div.notebook td {
+.notebook th,
+.notebook td {
   border: 1px solid #ddd;
   padding: 4pt 8pt;
   text-align: left;
   line-height: 19pt;
 }
-div.notebook th {
+.notebook th {
   font-size: 10pt;
   background: #f8f8f8;
 }
-div.notebook td {
+.notebook td {
   font-size: 12pt;
 }
 
-div.notebook div.cell {
+.notebook div.cell {
   position: relative;
   margin-bottom: 12pt;
 }
 
-div.notebook img {
+.notebook img {
   max-width: 100%;
 }
 
@@ -134,7 +134,7 @@ div.editor {
   display: none;
 }
 
-div.notebook hr {
+.notebook hr {
   border: 0;
   height: 3px;
   background: #ccc;
@@ -483,16 +483,16 @@ div.pyresult-error {
 
 /* C3 STYLES - move to separate file */
 /* side note: yargh we are in specificity hell */
-div.notebook .c3-tooltip-container th {
+.notebook .c3-tooltip-container th {
   background: #363636;
 }
 
-div.notebook-plot {
+.notebook-plot {
   background: white;
   margin: 0;
   margin-top: -1.05em; /* MAGICK NUMBER - used to obscure `null` return value */
 }
-div.notebook-plot:empty {
+.notebook-plot:empty {
   display: none;
 }
 
@@ -525,7 +525,7 @@ div.notebook-plot:empty {
     padding: 6pt;
   }
 
-  div.notebook {
+  .notebook {
     padding: 0;
     margin-left: 7%;
     margin-top: 10px;
