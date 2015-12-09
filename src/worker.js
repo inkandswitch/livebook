@@ -127,6 +127,7 @@ function generate_python_ctx(iPython) {
 }
 
 self.parse_raw_data = function(filename,headerRow,names) {
+  console.log("PARSE",filename,headerRow,names)
   var head = undefined
   var body = {}
   var length = 0
