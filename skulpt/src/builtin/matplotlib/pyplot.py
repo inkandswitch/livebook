@@ -167,11 +167,11 @@ def figure_real(num=None, # autoincrement if None, else integer from 1-N
 def plot(*args):
     if (len(args) == 1):
         data = args[0]
-        __plot_js__(data.to_plot_data()) # how to duck-type this data format?
+        __plot_js__(data.to_plot_data())
     elif (len(args) == 2):
         x = args[0]
         y = args[1]
-        __plot_js__(["x"] + x, ["y"] + y, { "chart_type": "line" })
+        __plot_js__(["x"] + x, ["y"] + y, { "chart_type": "special_line" })
     elif (len(args) == 3):
         pass
 

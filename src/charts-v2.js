@@ -6,8 +6,19 @@ var zip = require("./util").zip;
 
 var notebook;
 
+var FIGURE_CACHE = {};
+
+
 function setup(n) {
   notebook = n
+}
+
+function getChartSelector(cellNumber) {
+  return "#plot" + cellNumber;
+}
+
+Sk.builtins["__figure_js__"] = function() {
+  // TODO
 }
 
 Sk.builtins["__plot_js__"] = function() {
@@ -63,7 +74,7 @@ function _livebookPlot(cell, data, options) {
   var type = options.chart_type;
   console.log("Chart data:", data);
 
-  let chartSelector = "#plot" + cell;
+  let chartSelector = getChartSelector(cell);
   if (isTimeSeries(data)) {
     data.onclick = clickHandler;
     let chart = c3.generate({
@@ -120,7 +131,6 @@ function _livebookPlot(cell, data, options) {
     let yName = columns[1][0];
     let xs = {};
     xs[yName] = xName;
-    debugger;
     let chart = c3.generate({
         bindto: chartSelector,
         data: {
@@ -141,6 +151,35 @@ function _livebookPlot(cell, data, options) {
             }
         },
     });
+  }
+  else if (type === "special_line") {
+
+    let chartNode = d3.select(chartSelector).node();
+    if (!chartNode) {
+      console.log("%cCould not find the chart node... short circuiting!", "color: darkred;")
+      return;
+    }
+    let {width, height} = chartNode.getBoundingClientRect();
+
+    let columns = data.columns;
+
+    let x = columns[0].slice(1);
+    let y = columns[1].slice(1);
+
+    plotSpecialLine({
+      x: x,
+      y: y,
+      height: height,
+      width: width,
+      selector: chartSelector,
+      margin: {
+        top: 20,
+        right: 30,
+        bottom: 25,
+        left: 30,
+      }
+    });
+
   }
 
   function clickHandler(d, element) {
@@ -223,6 +262,51 @@ function _livebookPlot(cell, data, options) {
     // });
     /******* END INTERNAL MOUSEOVER *******/ 
   }
+}
+
+function plotSpecialLine(options) {
+  options = Object.assign({}, options);
+
+  let svgHeight = options.height,
+      svgWidth = options.width,
+      height = svgHeight - options.margin.top - options.margin.bottom,
+      width = svgWidth - options.margin.left - options.margin.right,
+      marginLeftTop = [options.margin.left, options.margin.top],
+      x = options.x,
+      y = options.y,
+      chartSelector = options.selector;
+
+  let xScale = d3.scale.linear().domain(d3.extent(x)).range([0, width])
+  let yScale = d3.scale.linear().domain(d3.extent(y)).range([0, height])
+
+  let linedata = zip(x.map(xScale), y.map(yScale));
+
+  let lineFunction = d3.svg.line()
+    .x((d) => d[0])
+    .y((d) => d[1])
+    .interpolate("linear");
+
+  // clear old charts
+  d3.select(chartSelector)
+    .classed("c3", false) // to stop those silly c3 styles from overriding ours...
+    .select("*")
+    .remove();
+
+  let svgContainer = d3.select(chartSelector)
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .append("g")
+    .attr("transform", "translate(" + marginLeftTop + ")")
+
+  let lineGraph = svgContainer.append("path")
+    .attr("d", lineFunction(linedata))
+    .attr("stroke", "blue")
+    .attr("stroke-width", 2)
+    .attr("fill", "none");
+
+    // debugger;
+
 }
 
 module.exports = { setup: setup }
