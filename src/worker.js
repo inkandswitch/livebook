@@ -15,10 +15,21 @@ function assignment_test(line) {
   return a || b
 }
 
+let RAW_DATA = undefined 
+
 onmessage = function(e) {
   console.log("worker got message:",e)
-  work_queue.push(e.data)
-  do_work()
+  switch(e.data.type) {
+    case "exec":
+      work_queue.push(e.data)
+      do_work()
+      break;
+    case "data":
+      RAW_DATA = e.data.data
+      break
+    default:
+      console.log("unknown message for worker",e)
+  }
 }
 
 function execute_work() {
@@ -39,7 +50,7 @@ function do_work() {
   }
 }
 
-self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js")
+self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js", "/d3/d3.js")
 
 pypyjs.stdout = function(data) {
   console.log("STDOUT::" , data)
@@ -113,4 +124,35 @@ function generate_python_ctx(iPython) {
   let code = lines.join("\n") + "\n"
   console.log(code)
   return { map: lineno_map, code: code, length: lines.length }
+}
+
+self.parse_raw_data = function(filename,headerRow,names) {
+  var head = undefined
+  var body = {}
+  var length = 0
+
+  if (names) {
+    head = names;
+    head.forEach((h) => body[h] = [])
+  }
+
+  d3.csv.parseRows(RAW_DATA, (row, i) => {
+    if (headerRow !== undefined && headerRow === i) {
+      head = row;
+      head.forEach((h) => body[h] = [])
+    } else {
+      length++;
+      row.forEach((d,i) => {
+        if (d == "") {
+          body[head[i]].push(undefined)
+        } else if (d == "0") {
+          body[head[i]].push(0)
+        } else {
+          body[head[i]].push(+d || d)
+        }
+      })
+    }
+  })
+
+  return { head: head, body: body, length: length }
 }

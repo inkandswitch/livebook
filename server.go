@@ -137,16 +137,16 @@ func postMessageCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 func putConfigCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
-	fmt.Printf("Got a PUT action %v\n",r.Form)
-	if (r.Form["user"] != nil) {
+	fmt.Printf("Got a PUT action %v\n", r.Form)
+	if r.Form["user"] != nil {
 		userState := r.Form["user"][0]
 		session, _ := SESSION.Get(r, "sessionName")
 		session.Values["state"] = userState
 		session.Save(r, w)
 		CRADLE.UpdateUser(vars["id"], user_id, userState)
 	}
-	if (r.Form["state"] != nil) {
-		fmt.Printf("UpdateState %v\n",r.Form["state"])
+	if r.Form["state"] != nil {
+		fmt.Printf("UpdateState %v\n", r.Form["state"])
 		session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
 		sessionState := r.Form["state"][0]
 		CRADLE.UpdateState(vars["id"], session_id, sessionState)
@@ -158,14 +158,14 @@ func getCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	vars := mux.Vars(r)
 	session_id := r.Form["session"][0]
-	fmt.Printf("GET INPUT session=%v\n",session_id)
+	fmt.Printf("GET INPUT session=%v\n", session_id)
 	session, _ := SESSION.Get(r, "sessionName")
 	oldUserState := "{}"
 	if session.Values["state"] != nil {
 		oldUserState = session.Values["state"].(string)
 	}
 	sessions := CRADLE.Get(vars["id"], user_id, oldUserState, session_id, w.(http.CloseNotifier).CloseNotify())
-	fmt.Printf("GET OUTPUT session=%v %v\n",session_id,sessions)
+	fmt.Printf("GET OUTPUT session=%v %v\n", session_id, sessions)
 	if sessions != nil {
 		json, _ := json.Marshal(sessions)
 		w.Write(json)
@@ -216,6 +216,13 @@ func getIndex(user_id string, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func noStore(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "no-store")
+		h.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	DB = connectToDatabase()
 	DB.Debug()
@@ -235,9 +242,9 @@ func main() {
 	mux.HandleFunc("/d/{id}.json", auth(getDocument)).Methods("GET")
 	mux.HandleFunc("/d/{id}.json", auth(updateDocument)).Methods("PUT")
 	mux.HandleFunc("/d/{id}", auth(getIndex)).Methods("GET")
-	mux.HandleFunc("/upload", auth(getIndex)).Methods("GET")	
-	mux.HandleFunc("/upload/", auth(getIndex)).Methods("GET")	
-	mux.PathPrefix("/").Handler(compress(http.FileServer(http.Dir("./public/"))))
+	mux.HandleFunc("/upload", auth(getIndex)).Methods("GET")
+	mux.HandleFunc("/upload/", auth(getIndex)).Methods("GET")
+	mux.PathPrefix("/").Handler(noStore(compress(http.FileServer(http.Dir("./public/")))))
 
 	http.Handle("/", mux)
 
