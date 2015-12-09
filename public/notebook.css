@@ -347,7 +347,7 @@ div.plot {
 
 .collaborators-name-change-form {
   background: #ddd;
-  border: solid 2px #959595;
+  border: solid 2px #ccc;
   border-radius: 4px;
   min-width: 200px;
   padding: .4em .5em .8em .5em;
@@ -359,8 +359,8 @@ div.plot {
 
 .collaborators-name-change-form::after {
   background: #ddd;
-  border-left: solid 2px #959595;
-  border-top: solid 2px #959595;
+  border-left: solid 2px #ccc;
+  border-top: solid 2px #ccc;
   content: ' ';
   height: 15px;
   position: absolute;
@@ -474,11 +474,11 @@ div.pyresult-error {
 }
 
 .blur {
-  -webkit-filter: blur(5px);
-  filter: blur(5px);
+  -webkit-filter: blur(3px);
+  filter: blur(3px);
 
-  transition: -webkit-filter .25s ease-in-out,
-              filter .25s ease-in-out;
+  transition: -webkit-filter .2s ease-in-out,
+              filter .2s ease-in-out;
 }
 
 /* C3 STYLES - move to separate file */
@@ -514,7 +514,7 @@ div.notebook-plot:empty {
   }
 
   .collaborators ul {
-    overflow: auto;
+    overflow: visible; /* solves the issue of name change form being hidden on mobile */
   }
 
   .collaborators li {
