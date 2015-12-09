@@ -16,7 +16,6 @@ var AceEditor  = require("react-ace");
 
 var cradle     = require("./cradle");
 
-var Sk         = require("./skulpt");
 var pyload     = require("./pyload");
 
 var colorChange = false
@@ -153,26 +152,6 @@ function update_peers_and_render() {
 
 ace.config.set("basePath", "/");
 
-var theData = null;
-/**
- * [Global Deps]
- * `theData` - CSV data that has been loaded.
- */
-
-Sk.builtins["__load_data__"] = function(filename, header, names) {
-
-  var $filename = (filename === undefined) ? undefined : Sk.ffi.remapToJs(filename)
-  var $header = (header === undefined) ? undefined : Sk.ffi.remapToJs(header)
-  var $names = (names === undefined) ? undefined : Sk.ffi.remapToJs(names)
-
-  // FIXME - we are reparsing raw csv every time...
-  return parse_raw_data({ headerRow: $header, names: $names });
-
-  if (theData) return theData;
-
-  throw new Error("No CSV data loaded (2)");
-}
-
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
 
@@ -229,8 +208,6 @@ function python_render(cell,text) {
 // All The Globals
 var Mode = "view";
 var CursorCell = 0;
-var DataRaw = ""
-var iPythonRaw = ""
 var iPython = { cells:[] }
 var iPythonUpdated = 0
 
@@ -525,7 +502,6 @@ function deleteCell() {
 /**
  * [Global Deps]
  * `iPython`
- * `iPythonRaw`
  */
 function save_notebook() {
   if (document.location ===  "/") {
@@ -533,12 +509,12 @@ function save_notebook() {
     return;
   }
   console.log("Saving notebook...");
-  iPythonRaw = JSON.stringify(iPython);
+  var raw_notebook = JSON.stringify(iPython);
   var data = {
     name: "Hello",
     notebook: {
       name: "NotebookName",
-      body: iPythonRaw,
+      body: raw_notebook,
     },
   };
   $.ajax({
@@ -792,56 +768,24 @@ var Notebook = React.createClass({
 /**
  * [Global Deps]
  * `iPython`
- * `iPythonRaw`
  * `d3`
- * `DataRaw`
- * `theData`
  */
-function parse_raw_notebook() {
-  iPython = JSON.parse(iPythonRaw)
+function parse_raw_notebook(raw_notebook,raw_csv) {
+  iPython = JSON.parse(raw_notebook)
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
 
-  parse_raw_data({ headerRow: 0, });
-}
-
-function parse_raw_data(options) {
-  options = Object.assign({}, options);
-
-  var headerRow = options.headerRow;
-  var names = options.names;
-  var head = undefined
-  var body = {}
-  var length = 0
-
-  if (names) {
-    head = names;
-    head.forEach((h) => body[h] = [])
-  }
-
-  d3.csv.parseRows(DataRaw, (row, i) => {
-    if (headerRow !== undefined && headerRow === i) {
-      head = row;
-      head.forEach((h) => body[h] = [])
-    } else {
-      length++;
-      row.forEach((d,i) => body[head[i]].push(+d || d)) // BOOTS TODO - this will short-circuit on '0'
-    }
-  })
-  theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
-  return theData;
+  WORKER.postMessage({ type: "data", doc: raw_csv })
 }
 
 // BOOTS TODO
 // - put in separate file
 /**
  * [Global Deps]
- * `iPythonRaw`
  * `d3`
- * `DataRaw`
  */
-function post_notebook_to_server() {
-  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: iPythonRaw } , datafile: { name: "DataName", body: DataRaw }})
+function post_notebook_to_server(raw_notebook,raw_csv) {
+  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
   $.post("/d/", doc, function(response) {
     window.history.pushState({}, "Notebook", response);
     start_peer_to_peer()
@@ -859,13 +803,10 @@ function start_peer_to_peer() {
 }
 
 function startNewNotebook(data) {
-  iPythonRaw = data.ipynb;
-  DataRaw = data.csv;
-
   // FIXME - how do we start peer to peer after making a new notebook?
   // (I'm getting a PUT error connecting to new url + .rtc; the error originates from the cradle code)
   post_notebook_to_server()
-  parse_raw_notebook()
+  parse_raw_notebook(data.ipynb, data.csv)
   setCurrentPage("notebook")
   initializeEditor();
   python_eval();
@@ -897,9 +838,7 @@ charts.setup(exports)
 
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
-    iPythonRaw = data.Notebook.Body;
-    DataRaw = data.DataFile.Body;
-    parse_raw_notebook();
+    parse_raw_notebook(data.Notebook.Body, data.DataFile.Body);
     setCurrentPage("notebook");
     start_peer_to_peer()
     initializeEditor();
