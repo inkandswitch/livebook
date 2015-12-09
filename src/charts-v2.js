@@ -10,43 +10,6 @@ function setup(n) {
   notebook = n
 }
 
-var _plot_generated_ = function() {}
-
-var _plot_d3_ = function(xmax,ymax) {
-  console.log("PLOT1", xmax, ymax)
-  var iPython = notebook.getiPython(),
-      $cell   = notebook.get$cell();
-
-  iPython.cells[$cell].outputs = [];
-
-  var selector = "#plot" + $cell;
-  var margin   = {top: 20, right: 20, bottom: 30, left: 40},
-      width    = 500 - margin.left - margin.right,
-      height   = 300 - margin.top - margin.bottom;
-
-  var x = d3.scale.linear().range([0, width]);
-  var y = d3.scale.linear().range([height, 0]);
-
-  var color = d3.scale.category10();
-
-  d3.select("svg.livebook-chart").remove();
-
-  var svg = d3.select(selector).append("svg")
-      .classed("livebook-chart", true)
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-}
-
-Sk.builtins["__figure_js__"] = function(xmax, ymax) {
-  var $xmax = Sk.ffi.remapToJs(xmax)
-  var $ymax = Sk.ffi.remapToJs(ymax)
-  _plot_d3_($xmax,$ymax)
-}
-
-//Sk.builtins["__plot_js__"] = function(X,Y,ColorName) {
 Sk.builtins["__plot_js__"] = function() {
   let $plotCell = notebook.get$cell();
 
@@ -63,10 +26,18 @@ Sk.builtins["__plot_js__"] = function() {
     let $y = Sk.ffi.remapToJs(y);
     _livebookPlot($plotCell, { columns: [$x, $y], } );
   }
-//  var $X = Sk.ffi.remapToJs(X)
-//  var $Y = Sk.ffi.remapToJs(Y)
-//  var $ColorName = Sk.ffi.remapToJs(ColorName)
-//  _plot_generated_($X,$Y,$ColorName)
+  else if (arguments.length === 3) {
+
+    // assume the third argument is options object
+    let options = arguments[2];
+    let $options = Sk.ffi.remapToJs(options);
+    let x = arguments[0];
+    let y = arguments[1];
+    let $x = Sk.ffi.remapToJs(x);
+    let $y = Sk.ffi.remapToJs(y);
+
+    _livebookPlot($plotCell, { columns: [$x, $y], }, $options );
+  }
 }
 
 // Fixme
@@ -84,11 +55,14 @@ function isTimeSeries(data) {
   return result;
 }
 
-function _livebookPlot(cell, data) {
+function _livebookPlot(cell, data, options) {
   var CLICK_TOOLTIP_SHOWING = false;  // sloppy as helllll 
   var TOOLTIP_POSITION;
  
+  options = Object.assign({ chart_type: "scatter" }, options)
+  var type = options.chart_type;
   console.log("Chart data:", data);
+
   let chartSelector = "#plot" + cell;
   if (isTimeSeries(data)) {
     data.onclick = clickHandler;
@@ -108,7 +82,7 @@ function _livebookPlot(cell, data) {
         },
     });    
   }
-  else {
+  else if (type === "scatter") {
     let columns = data.columns;
     let xName = columns[0][0];
     let yName = columns[1][0];
@@ -121,7 +95,7 @@ function _livebookPlot(cell, data) {
         data: {
             xs: xs,
             columns: columns,
-            type: 'scatter',
+            type: "scatter",
             onclick: clickHandler,
         },
         axis: {
@@ -139,7 +113,34 @@ function _livebookPlot(cell, data) {
           show: false,
         },
     });
-
+  }
+  else if (type === "line") {
+    let columns = data.columns;
+    let xName = columns[0][0];
+    let yName = columns[1][0];
+    let xs = {};
+    xs[yName] = xName;
+    debugger;
+    let chart = c3.generate({
+        bindto: chartSelector,
+        data: {
+            x: xName,
+            columns: columns,
+            type: "line",
+            // onclick: clickHandler,
+        },
+        axis: {
+            x: {
+                label: xName,
+                tick: {
+                    fit: false
+                }
+            },
+            y: {
+                label: yName,
+            }
+        },
+    });
   }
 
   function clickHandler(d, element) {
@@ -182,7 +183,6 @@ function _livebookPlot(cell, data) {
 
     function getCurrentTooltipPosition() {
       // TODO
-      // debugger;
       let top = parseInt(chart.internal.tooltip.style("top").replace("px", ""));
       let left = parseInt(chart.internal.tooltip.style("left").replace("px", ""));
       TOOLTIP_POSITION = {

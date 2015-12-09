@@ -1,6 +1,6 @@
 
 import sys
-
+import pandas
 #import matplotlib
 #from matplotlib.figure import Figure, figaspect
 #from matplotlib.figure import Figure
@@ -164,15 +164,26 @@ def figure_real(num=None, # autoincrement if None, else integer from 1-N
     return figManager.canvas.figure
 
 
-def plot(data):
-    __plot_js__(data.to_plot_data())
+def plot(*args):
+    if (len(args) == 1):
+        data = args[0]
+        __plot_js__(data.to_plot_data()) # how to duck-type this data format?
+    elif (len(args) == 2):
+        x = args[0]
+        y = args[1]
+        __plot_js__(["x"] + x, ["y"] + y, { "chart_type": "line" })
+    elif (len(args) == 3):
+        pass
 
 
 def scatter(x, y):
-    print "sup duder"
-    xData = [x.column] + x.data[x.column]
-    yData = [y.column] + y.data[y.column]
-    __plot_js__(xData, yData)
+    try:
+        xData = [x.column] + x.data[x.column]
+        yData = [y.column] + y.data[y.column]
+        __plot_js__(xData, yData)
+    except:
+        __plot_js__(["x"] + x, ["y"] + y)
+
 
 
 def legend(*args, **kwargs):
