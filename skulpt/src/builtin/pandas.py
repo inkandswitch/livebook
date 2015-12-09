@@ -102,12 +102,15 @@ class Series:
         return [ ( self.data[self.sort][i], self.data[self.column][i] ) for i in self.idx].__iter__()
 
 class DataFrame:
+    @staticmethod
     def from_data(data):
         return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
 
+    @staticmethod
     def from_dict(data):
         return DataFrame.__new__(data,data.keys(),None,range(0,len(data[data.keys()[0]])))
 
+    @staticmethod
     def __new__(data,columns,sort,idx):
         d = DataFrame()
         d._data = data
@@ -247,5 +250,7 @@ def read_csv(filename, header=None, names=None):
     if header is None and names is not None:
         header = names
 
-    return DataFrame.from_data(__load_data__(filename, header, names))
+    data = js.globals.parse_raw_data(filename,header,names)
+
+    return DataFrame.from_data(data)
 
