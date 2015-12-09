@@ -783,7 +783,7 @@ function parse_raw_notebook(raw_notebook,raw_csv) {
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
 
-  WORKER.postMessage({ type: "data", doc: raw_csv })
+  WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
 function post_notebook_to_server(raw_notebook,raw_csv) {

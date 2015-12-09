@@ -1,4 +1,6 @@
 
+import js
+
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
         return func(data)
