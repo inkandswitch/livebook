@@ -24,8 +24,8 @@ var colorChange = false
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   console.log("Got message from the worker:",e.data)
-  if (e.data.error) handle_error(e.data.error)
   iPython = e.data.doc
+  if (e.data.error) handle_error(e.data.error)
   console.log("New Doc",iPython)
 //  for (let cell in e.data.results) {
 //    console.log("KEY",cell)
