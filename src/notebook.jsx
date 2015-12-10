@@ -878,9 +878,14 @@ function parse_raw_data(options) {
       head.forEach((h) => body[h] = [])
     } else {
       length++;
-      row.forEach((d,i) => body[head[i]].push(+d || d)) // BOOTS TODO - this will short-circuit on '0'
+      row.forEach((d,i) => {
+        if (d === "") {
+          body[head[i]].push(undefined)
+        } else {
+          body[head[i]].push(+d || d)
+        }
+      })
     }
-  })
   theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
   return theData;
 }
