@@ -886,6 +886,7 @@ function parse_raw_data(options) {
         }
       })
     }
+  })
   theData = Sk.ffi.remapToPy({ head: head, body: body, length: length })
   return theData;
 }
