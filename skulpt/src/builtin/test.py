@@ -78,6 +78,12 @@ class Test:
         assert df3.h1[0] == 4
         assert df3.h2[0] == 10
 
+    def test_series_equality(self):
+        print "series equality..."
+        df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,10,20,10]})
+        eq = (df["h2"] == 10)
+        print eq.to_js()
+
     def test_dropna(self):
         print "testing dropna..."
         df = pd.DataFrame.from_dict({"h1":[1,2,None,None],"h2":[10,None,30,40]})
@@ -136,5 +142,6 @@ def run():
     do_test(t,"test_getitem")
     do_test(t,"test_record")
     do_test(t,"test_value_counts")
+#    do_test(t,"test_series_equality")
     print "done"
 
