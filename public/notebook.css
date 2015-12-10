@@ -1,13 +1,25 @@
 body {
   font-family: 'Helvetica Neue', sans-serif;
-  color: #333;
-  background: white;
+  color: #363636;
+  background: #fff;
   margin: 0;
   padding: 0;
 }
 
+a {
+  color: #2A64C7;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.cursor {
+  transition: all .15s ease-out;
+}
+
 .livebook-nav {
-  background: #f4f4f4;
+  background: #fdfdfd;
   height: 0;
   position: fixed;
   top: 0;
@@ -31,282 +43,257 @@ body {
   width: 90%;
 }
 
-a {
-  color: #2A64C7;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-
 .notebook h1,
 .notebook h2,
 .notebook h3 {
-  font-weight: bold;
+  font-weight: 700;
   margin: 0;
   padding: 0;
 }
 
 .notebook h1 {
-  font-size: 28pt;
-  margin-bottom: 12pt;
-  padding-bottom: 4pt;
-  border-bottom: 3px solid rgba(0,0,0,0.125);
+  border-bottom: .1em solid rgba(0,0,0,0.125);
+  font-size: 2.4em;
+  margin-bottom: .4em;
+  padding-bottom: .1em;
 }
 
 .notebook h2 {
-  font-size: 22pt;
-  margin-bottom: 10pt;
-  padding-bottom: 3pt;
-  border-bottom: 2px solid rgba(0,0,0,0.125);
+  border-bottom: .07em solid rgba(0,0,0,0.125);
+  font-size: 1.9em;
+  margin-bottom: .4em;
+  padding-bottom: .1em;
 }
 
 .notebook h3 {
-  font-size: 16pt;
-  margin-bottom: 8pt;
-  padding-bottom: 2pt;
+  font-size: 1.4em;
+  margin-bottom: .5em;
+  padding-bottom: .15em;
 }
 
 .notebook p {
-  font-size: 12pt;
-  line-height: 19pt;
+  font-size: 1em;
+  line-height: 1.55;
   margin: 0;
-  margin-bottom: 12pt;
+  margin-bottom: 1em;
   text-align: justify;
 }
 
-.notebook div.codewrap {
-  border: 1px solid #ddd;
-  border-radius: 2px;
+.notebook .codewrap {
+  border: .1em solid #ddd;
+  border-radius: .15em;
   background: #eee;
-  padding: 8pt;
-  font-size: 10pt;
-  color: #000;
-  margin: 0;
-  margin-bottom: -1pt;
+  color: #222;
+  font-size: .85em;
+  padding: .8em .85em 1em .8em;
   position: relative;
+  margin: 0;
+  margin-bottom: -.1em;
 }
-.notebook .yield-arrow {
+
+.notebook .codewrap::after {
+  background: #eee;
+  border-bottom: .1em solid #ddd;
+  border-right: .1em solid #ddd;
+  content: " ";
+  height: 18px;
+  left: 50%;
+  opacity: inherit;
   position: absolute;
-  left: 48%;
-  bottom: -10pt;
-  width: 20pt;
+  transform: translateX(-50%) rotate(45deg) translateY(7px);
+  width: 18px;
 }
-.notebook div.code {
+
+.notebook .code {
   font-family: Menlo, monospace;
-  white-space: pre;
   overflow: hidden;
+  white-space: pre;
 }
 
 .notebook table {
+  background: #fff;
   border-collapse: collapse;
-  width: 100%;
   margin: 0;
-  background: white;
-}
-.notebook th,
-.notebook td {
-  border: 1px solid #ddd;
-  padding: 4pt 8pt;
-  text-align: left;
-  line-height: 19pt;
-}
-.notebook th {
-  font-size: 10pt;
-  background: #f8f8f8;
-}
-.notebook td {
-  font-size: 12pt;
+  width: 100%;
 }
 
-.notebook div.cell {
+.notebook th,
+.notebook td {
+  border: .07em solid #ddd;
+  text-align: left;
+  line-height: 1.55;
+}
+
+.notebook th {
+  background: #f8f8f8;
+  font-size: .85em;
+  padding: .55em .9em;
+}
+
+.notebook td {
+  font-size: 1em;
+  padding: .4em .8em;
+}
+
+.notebook .cell {
+  margin-bottom: 1em;
   position: relative;
-  margin-bottom: 12pt;
 }
 
 .notebook img {
   max-width: 100%;
 }
 
-div.editor {
-  position: absolute;
-  z-index: 2;
-  display: none;
-}
-
 .notebook hr {
   border: 0;
-  height: 3px;
+  height: .2em;
   background: #ccc;
 }
 
-#addbar {
-  padding-right: 12pt;
-  padding-bottom: 12pt;
-}
-#add-prose,
-#add-code {
-  float: right;
-  margin-left: 4pt;
-  padding: 3pt 6pt;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  box-shadow: 0 1px 0 0 rgba(0,0,0,0.2);
-  font-weight: bold;
-  font-size: 10pt;
-  color: white;
-}
-#addbar a:hover {
-  text-decoration: none;
-}
-#add-prose {
-  background: #2A64C7;
-  border-color: #19448C;
-}
-#add-code {
-  background: #BA1BC5;
-  border-color: #820E8A;
+.pyresult {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-bottom-left-radius: .15em;
+  border-bottom-right-radius: .15em;
+  font-family: Menlo, monospace;
+  font-size: .85em;
+  overflow: hidden;
+  padding: .8em .85em 1em .85em;
+  white-space: pre;
 }
 
-.cursor {
-  transition: all .15s ease-out;
+.pyresult::before {
+  content: "→ ";
+  display: inline-block;
+  margin-top: -1em; /* lift it slightly above the x-height... kind of a magick number here, but looks nicer */
 }
 
-/*div.cursor {
-  margin-left: -24pt;
-  padding-left: 12pt;
-  border-left: 12pt solid #2A64C7;
+.pyresult-error {
+  background-color: #FC212C;
+  background-image: url('/bang.png');
+  background-repeat: no-repeat;
+  background-position: .75em .5em;
+  background-size: 2em;
+
+  box-shadow: inset .25em .5em .75em 0 rgba(0,0,0,0.1);
+  color: #fff;
+  padding-left: 3.5em;
 }
 
-div.cursor-edit {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  border-left: 12pt solid #2A64C7;
-  margin-left: -12pt;
-  margin-bottom: 9pt;
-}*/
+.pyresult-error::before {
+  content: '';
+}
+
+div.editor { /* !!! this is necessary specificity */
+  display: none;
+  position: absolute;
+  z-index: 2;
+}
 
 div.ace_editor {
   box-sizing: border-box;
-  border: 1px solid #D6F717;
-  font-size: 10pt;
+  font-size: .82em; /* slightly reduced font size relative to codecell becuase of font differences */
   margin: 0;
 }
+
 .ace-github .ace_gutter {
   background: #D6F717 !important;
 }
+
 div.ace_content {
-  padding-top: 6pt;
-  padding-left: 5pt;
-  padding-right: 8pt;
+  padding: .8em .85em 1em .8em
 }
 
 div.ace_error-marker {
   background-color: #FC212C;
 }
 
-div.pyresult:before {
-  content: "→ ";
-}
-div.pyresult {
-  font-family: Menlo, monospace;
-  white-space: pre;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  background: #fff;
-  padding: 8pt;
-  font-size: 10pt;
-  overflow: hidden;
-}
-div.pyresult.under-construction {
-  opacity: 0.3;
-}
-
-div.plot {
-  margin: 0 30px;
-  margin-top: 8pt;
-}
-
 .menu {
   cursor: pointer;
-  left: 16pt;
+  left: 1.3em;
   position: absolute;
-  top: 16pt;
+  top: 1.3em;
   width: 5%;
 }
+
 .menu ul {
+  font-size: .75em;
   list-style-type: none;
-  font-size: 9pt;
   padding: 0;
 }
+
 .menu li {
-  padding: 2pt 4pt;
+  padding: .15em .3em .2em .3em;
 }
+
+.menu li:hover {
+  background: #eee;
+  border-radius: .25em;
+  color: #222;
+
+  transform: scale(1.02, 1.02);
+  transition: all .2s ease-in-out;
+}
+
 .menu img {
-  width: 16pt;
-  height: 16pt;
+  height: 1.33em;
   opacity: 0.5;
+  width: 1.33em;
 }
 
 .menu .menu-content {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  background: #f4f4f4;
-  padding: .6em .6em .8em;
-  top: 100%;
+  background: #fdfdfd;
   left: 0;
+  opacity: 0;
+  padding: .6em .6em .8em;
+  position: absolute;
+  top: 100%;
+  visibility: hidden;
+
   transform: translateZ(0);
   transform: translateY(-10%);
   transition: all 0.5s;
 }
 
 .menu.active .menu-content {
-
-  visibility: visible;
   opacity: 1;
   transform: translateX(0%);
-  transition-delay: 0s;
+  visibility: visible;
 }
 
 .menu a {
-  color: #333;
+  color: #363636;
   text-decoration: none;
-}
-.menu li:hover {
-  background: #ddd;
-  color: #000;
-  border-radius: 2pt;
 }
 
 .collaborators {
   position: absolute;
-  right: 6pt;
-  top: 4pt;
+  right: .5em;
+  top: .3em;
 }
 
 .collaborators ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  /*width: ;*/
 }
 
 .collaborators li {
-  /*padding: 8pt;*/
-  /*margin-bottom: 4pt;*/
-  margin-top: 16px;
+  margin-top: 1em;
   position: relative;
 
   transition: all .3s ease-in-out;
 }
 
+.collaborators li:first-of-type {
+  margin-top: .75em;
+}
+
 .collaborators li span {
+  color: #565656;
   display: block;
-  font-size: 7pt;
-  font-weight: bold;
-  color: #555;
+  font-size: .5em;
+  font-weight: 700;
   text-align: center;
   width: 100%;
 }
@@ -314,9 +301,11 @@ div.plot {
 .collaborators li.observer {
   text-align: center;
 }
+
 .collaborators li.here {
   opacity: 1;
 }
+
 .collaborators li.arriving,
 .collaborators li.departing {
   opacity: 0.3;
@@ -330,7 +319,7 @@ div.plot {
   padding: 0;
   position: absolute;
   right: 0;
-  max-height: 1000px;
+  max-height: 40em;
   opacity: 1;
   overflow: inherit; 
   top: 55px; /* magic number */
@@ -347,26 +336,24 @@ div.plot {
 
 .collaborators-name-change-form {
   background: #ddd;
-  border: solid 2px #ccc;
-  border-radius: 4px;
-  min-width: 200px;
+  border: solid .1em #ccc;
+  border-radius: .25em;
+  min-width: 12em;
   padding: .4em .5em .8em .5em;
   position: relative;
   z-index: 2;
 }
 
-
-
 .collaborators-name-change-form::after {
   background: #ddd;
-  border-left: solid 2px #ccc;
-  border-top: solid 2px #ccc;
+  border-left: solid .1em #ccc;
+  border-top: solid .1em #ccc;
   content: ' ';
   height: 15px;
   position: absolute;
-  right: 7px;
+  right: 1.08em;
   top: 0;
-  transform: translateY(-10.6px) rotate(45deg);
+  transform: rotate(45deg) translateY(-10.8px);
   width: 15px;
 }
 
@@ -381,7 +368,8 @@ div.plot {
 
 .collaborators-name-change-form button {
   display: inline-block;
-  margin-left: 4pt;
+  margin-left: .5em;
+  padding-left: .4em;
   width: 20%;
 }
 
@@ -393,17 +381,6 @@ div.plot {
   opacity: .82;
 }
 
-
-@keyframes pulse {
-  from {
-    opacity: 0.3;
-  }
-  to {
-    opacity: 0.7;
-  }
-}
-
-
 div.ace_editor {
   border: none;
 }
@@ -413,24 +390,6 @@ div.ace-github,
 div.ace-content {
   background: #eee;
 }
-
-div.pyresult-error {
-  background-color: #FC212C;
-  color: white;
-}
-div.pyresult-error::before {
-  content: '';
-}
-div.pyresult-error {
-  background-image: url('/bang.png');
-  background-repeat: no-repeat;
-  background-position: 6pt 4pt;
-  background-size: 20pt;
-  padding-left: 32pt;
-  box-shadow: inset 2pt 4pt 6pt 0 rgba(0,0,0,0.1);
-}
-
-
 
 #upload {
   box-sizing: border-box;
@@ -509,7 +468,7 @@ div.pyresult-error {
   }
 
   .collaborators {
-    right: 4pt;
+    right: .5em;
     top: 0;
   }
 
@@ -520,16 +479,38 @@ div.pyresult-error {
   .collaborators li {
     float: left;
     margin-bottom: 0;
-    margin-left: 2pt;
+    margin-left: .25em;
     margin-top: 0;
-    padding: 6pt;
+    padding: .4em .5em .65em .5em;
+  }
+
+  .collaborators li:first-of-type {
+    margin-top: 0;
+  }
+
+  .collaborators-name-change-form::after {
+    height: 12px;
+    right: 1.83em;
+    top: .1em;
+    width: 12px;
+
+    transform: rotate(45deg) translateY(-11.8px);
   }
 
   .notebook {
-    padding: 0;
-    margin-left: 7%;
-    margin-top: 10px;
-    width: 91%;
     border: none;
+    margin-left: 7%;
+    margin-top: .6em;
+    padding: 0;
+    width: 91%;
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.7;
   }
 }

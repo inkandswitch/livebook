@@ -78,7 +78,6 @@ var CodeCell = React.createClass({
         <div className="switch">
           <div className="codewrap">
             {this.code()}
-            <img src="/yield-arrow.png" className="yield-arrow" />
           </div>
         </div>
         {this.errorMessage()}
