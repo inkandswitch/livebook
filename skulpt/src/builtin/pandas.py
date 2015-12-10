@@ -1,5 +1,4 @@
 
-import js
 import json
 
 def do_math(func,data):
@@ -246,6 +245,7 @@ class GroupBy:
             yield (k,self.groups[k])
 
 def read_csv(filename, header=None, names=None):
+    import js
     # pandas defaults `header` to 0 (row to be treated as a header)
     # if `names` is specified, however, we use that
     if header is None and names is None:
