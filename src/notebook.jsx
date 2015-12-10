@@ -879,11 +879,11 @@ function parse_raw_data(options) {
     } else {
       length++;
       row.forEach((d,i) => {
-        if (d === "") {
-          body[head[i]].push(undefined)
-        } else {
+//        if (d === "") {
+//          body[head[i]].push(undefined)
+//        } else {
           body[head[i]].push(+d || d)
-        }
+//        }
       })
     }
   })
