@@ -1,0 +1,6 @@
+#!/usr/bin/env pypy
+
+import sys
+sys.path.insert(0,"./skulpt/src/builtin")
+import test as t
+t.run()
