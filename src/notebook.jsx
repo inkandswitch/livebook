@@ -381,6 +381,13 @@ function createAceEditor(options) {
       onBeforeLoad = options.onBeforeLoad,
       onLoad = options.onLoad;
 
+  if (typeof height === "number") {
+    height += "px";
+  }
+  if (typeof width === "number") {
+    width += "px";
+  }
+
   return (
     <AceEditor className="editor" name="editX"
       mode={lang} value={value}

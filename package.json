@@ -26,5 +26,8 @@
     "velocity-react": "^1.1.1",
     "webpack": "^1.12.2",
     "webrtc": "^1.14.1"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^0.3.3"
   }
 }
