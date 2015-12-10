@@ -47,7 +47,7 @@ class Series:
         return self.to_df().describe()
 
     def head(self):
-        return self.to_df().describe()
+        return self.to_df().head()
 
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
