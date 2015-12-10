@@ -1,6 +1,8 @@
 let working = true
 let work_queue = []
 
+var resultToHtml  = require("./util").resultToHtml;
+
 let base = require("!!raw!./base.py");
 
 let importre = new RegExp("\\s*import")
@@ -61,28 +63,39 @@ pypyjs.stderr = function(data) {
 }
 
 pypyjs.loadModuleData("pandas").then(function() {
-  console.log("pypyjs is ready")
-  working = false
-  pypyjs.exec(base)
-  do_work()
+  pypyjs.loadModuleData("matplotlib").then(function() {
+    console.log("pypyjs is ready")
+    working = false
+    pypyjs.exec(base)
+    do_work()
+  }).catch((e) => {
+    console.log("CATCH",e)
+  })
 }).catch((e) => {
-    console.log("CATCH3",e)
+  console.log("CATCH",e)
 })
 
+function handle_result(doc, results, error) {
+  for (let cell in results) {
+    python_render(doc, cell, results[cell])
+  }
+  console.log("About to send",doc)
+  postMessage({ doc: doc, error: error })
+}
+
 var re = /File .<string>., line (\d*)/
-function execute_python(iPython) {
-  let ctx = generate_python_ctx(iPython)
+function execute_python(doc) {
+  let ctx = generate_python_ctx(doc)
   console.log("CTX",ctx)
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     pypyjs.exec(ctx.code).then(() => {
-      postMessage({ results: self.RESULTS, error: undefined })
+      handle_result(doc, self.RESULTS)
     }).catch((e) => {
       let match = re.exec(e.trace)
       if (match[1] !== '') {
-        // TODO - add logic for errors thrown in non-user-generated lines
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
-        postMessage({ results: self.RESULTS, error: error })
+        handle_result(doc, self.RESULTS, error)
       } else {
         console.log("Unknown ERROR",e)
       }
@@ -92,12 +105,12 @@ function execute_python(iPython) {
   })
 }
 
-function generate_python_ctx(iPython) {
+function generate_python_ctx(doc) {
   let lines = [];
   //let lines = ["def usercode():"];
   let lineno = 0;
   let lineno_map = {}; // keeps track of line number on which to print error
-  iPython.cells.forEach((c, i) => {
+  doc.cells.forEach((c, i) => {
     if (c.cell_type == "code") {
 
       lines.push("mark("+i+")")
@@ -156,4 +169,42 @@ self.parse_raw_data = function(filename,headerRow,names) {
   })
 
   return { head: head, body: body, length: length }
+}
+
+function python_render(doc, cell, result) {
+  console.log("RENDER", text)
+  var html;
+  var text
+
+  switch (result[0]) {
+    case "html":
+      html = resultToHtml(result[1])
+      break;
+    default:
+      text = String(result[1])
+  }
+
+  if (html) {
+    doc.cells[cell].outputs = [
+      {
+       "data": {
+         "text/html": [ html ]
+       },
+       "execution_count": 1,
+       "metadata": {},
+       "output_type": "execute_result"
+      },
+    ]
+  } else {
+    doc.cells[cell].outputs = [
+      {
+       "data": {
+         "text/plain": [text]
+       },
+       "execution_count": 1,
+       "metadata": {},
+       "output_type": "execute_result"
+      }
+    ]
+  }
 }

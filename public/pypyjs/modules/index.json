@@ -4881,6 +4881,24 @@
         "_marshal"
       ]
     }, 
+    "matplotlib": {
+      "dir": "matplotlib"
+    }, 
+    "matplotlib.__init__": {
+      "file": "matplotlib/__init__.py", 
+      "imports": []
+    }, 
+    "matplotlib.pyplot": {
+      "file": "matplotlib/pyplot.py", 
+      "imports": [
+        "pandas", 
+        "sys"
+      ]
+    }, 
+    "matplotlib.sample": {
+      "file": "matplotlib/sample.py", 
+      "imports": []
+    }, 
     "md5": {
       "file": "md5.py", 
       "imports": [

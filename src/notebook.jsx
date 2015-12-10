@@ -25,10 +25,12 @@ var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   console.log("Got message from the worker:",e.data)
   if (e.data.error) handle_error(e.data.error)
-  for (let cell in e.data.results) {
-    console.log("KEY",cell)
-    python_render(cell,e.data.results[cell])
-  }
+  iPython = e.data.doc
+  console.log("New Doc",iPython)
+//  for (let cell in e.data.results) {
+//    console.log("KEY",cell)
+//    python_render(cell,e.data.results[cell])
+//  }
   render()
 }
 
@@ -166,19 +168,10 @@ var indent = /^\s+/
  * [Global Deps]
  * `iPython` - Object that is stringified into .ipynb file
  */
+/*
 function python_render(cell,text) {
   if (text === undefined) return;
   var html;
-  // Duck type result... if it has `to_js` method, proceed
-/*
-  if (result.to_js) {
-    let $method = Sk.abstr.gattr(result, 'to_js', true)
-    let $result = Sk.misceval.callsimOrSuspend($method)
-    html = resultToHtml(Sk.ffi.remapToJs($result))
-  } else {
-    text = String(Sk.ffi.remapToJs(Sk.builtin.str(result))) + "\n"
-  }
-*/
 
   if (html) {
     iPython.cells[cell].outputs = [
@@ -204,6 +197,7 @@ function python_render(cell,text) {
     ]
   }
 }
+*/
 
 // All The Globals
 var Mode = "view";
@@ -608,7 +602,6 @@ window.onpopstate = function(event) {
  * `defre`
  * `importre`
  * `indent`
- * `Sk`
  * `handle_error`
  * `render`
  */
@@ -620,65 +613,10 @@ function python_eval() {
 //  return render()
 }
 
-var assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
-/*
-function assignment_test(line) {
-  var a = assignment.test(line)
-  var b = assignment2.test(line)
-  return a || b
-}
-
-function generate_python_ctx() {
-  var lines = [];
-  var lineno = 0;
-  var lineno_map = {}; // keeps track of line number on which to print error
-  iPython.cells.forEach((c, i) => {
-    if (c.cell_type == "code") {
-
-      lines.push("mark("+i+")")
-      lineno += 1
-
-      c.source.forEach((line,line_number) => {
-        if (!line.match(/^\s*$/) &&
-            !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline" that skulpt doesn't parse
-          lineno += 1
-          lineno_map[lineno] = { cell: i, line: line_number }
-          lines.push(line.replace(/[\r\n]$/,""))
-        }
-      })
-      var line = lines.pop()
-      if (!keyword.test(line) && !assignment_test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-        lines.push("render(" + line + ")   ## line " + lineno)
-      } else {
-        lineno += 1
-        lines.push(line)
-        lines.push("render(None)    ## line " + lineno)
-      }
-    }
-  })
-  lines.push("")
-  return { map: lineno_map, code: lines.join("\n"), length: lines.length }
-}
-
-function execute_python_ctx(ctx) {
-  if (ctx.length > 1) {
-    try {
-      // console.log("CODE",ctx.code)
-      Sk.importMainWithBody("<stdin>", false, ctx.code)
-    } catch (e) {
-      return handle_error(ctx.map,e)
-    }
-  }
-  return -1
-}
-
-*/
-
 /**
  * [Global Deps]
  * `CursorCell`
  * `editor`
- * `Sk`
  */
 function handle_error(e) {
   console.log("ERROR:",e)
@@ -779,6 +717,7 @@ function forkNotebook (urls) {
 }
 
 function parse_raw_notebook(raw_notebook,raw_csv) {
+  console.log("PARSE RAW",raw_notebook, "nuff")
   iPython = JSON.parse(raw_notebook)
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
@@ -807,7 +746,7 @@ function start_peer_to_peer() {
 function startNewNotebook(data) {
   // FIXME - how do we start peer to peer after making a new notebook?
   // (I'm getting a PUT error connecting to new url + .rtc; the error originates from the cradle code)
-  post_notebook_to_server()
+  post_notebook_to_server(data.ipynb, data.csv)
   parse_raw_notebook(data.ipynb, data.csv)
   setCurrentPage("notebook")
   initializeEditor();
