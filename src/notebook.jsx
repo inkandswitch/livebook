@@ -135,8 +135,6 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
-
-
   ReactDOM.render(
     <Notebook 
         peerCursorCells={cursorPositions} 
@@ -264,10 +262,11 @@ var iPython = { cells:[] }
 var iPythonUpdated = 0
 
 // React mount points
-var notebookMount      = document.getElementById('notebook')
-var editorMount        = document.getElementById('editor')
-var menuMount          = document.getElementById('menu')
-var collaboratorsMount = document.getElementById('collaborators')
+var landingPageMount   = document.getElementById("landing-page");
+var notebookMount      = document.getElementById("notebook");
+var editorMount        = document.getElementById("editor");
+var menuMount          = document.getElementById("menu");
+var collaboratorsMount = document.getElementById("collaborators");
 
 // Editor
 var editor       = {}
@@ -773,29 +772,7 @@ var Uploader = require("./components/uploader.jsx");
 var LandingPage = require("./components/landing-page.jsx")
 
 var Notebook = React.createClass({
-  forkNotebook (urls) {
-    let fetchCSV = createAsyncDataFetcher(urls.csv);
-    let fetchIPYNB = createAsyncDataFetcher(urls.ipynb);
-
-    asyncRunParallel([fetchCSV, fetchIPYNB], function(err, livebookData) {
-      if (err) {
-        console.log("Error forking data! csv url was", urls.csv, "and ipynb url was", urls.ipynb);
-        console.log("Oh yeah. Here is the error:", err);
-        return;
-      }
-      let csv = livebookData[0];
-      let ipynb = livebookData[1];
-
-      startNewNotebook({
-        csv: csv,
-        ipynb: ipynb,
-      });
-
-    });
-
-  },
-
-  cells: function() {
+  cells() {
     return this.props.data.cells.map((cell, index) => {
 
       let errorObject = ERRORS[index];
@@ -817,10 +794,14 @@ var Notebook = React.createClass({
     })
   },
 
-  render: function() {
+  componentWillUpdate() {
+    renderLandingPage();
+  },
+
+  render() {
     switch (CurrentPage) {
       case "landing":
-        return <div className="notebook"><LandingPage fork={this.forkNotebook} /></div>
+        return <div className="notebook"></div>;
       case "upload":
         return <div className="notebook"><Uploader startNewNotebook={startNewNotebook} /></div>
       case "notebook":
@@ -828,6 +809,32 @@ var Notebook = React.createClass({
     }
   },
 })
+
+function renderLandingPage() {
+  ReactDOM.render(<LandingPage show={CurrentPage === "landing"} fork={forkNotebook} />, landingPageMount);
+}
+
+function forkNotebook (urls) {
+  let fetchCSV = createAsyncDataFetcher(urls.csv);
+  let fetchIPYNB = createAsyncDataFetcher(urls.ipynb);
+
+  asyncRunParallel([fetchCSV, fetchIPYNB], function(err, livebookData) {
+    if (err) {
+      console.log("Error forking data! csv url was", urls.csv, "and ipynb url was", urls.ipynb);
+      console.log("Oh yeah. Here is the error:", err);
+      return;
+    }
+    let csv = livebookData[0];
+    let ipynb = livebookData[1];
+
+    startNewNotebook({
+      csv: csv,
+      ipynb: ipynb,
+    });
+
+  });
+
+}
 
 /**
  * [Global Deps]

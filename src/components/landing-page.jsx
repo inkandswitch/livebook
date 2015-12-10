@@ -53,19 +53,38 @@ let ForkButtons = React.createClass({
 
 
 let LandingPage = React.createClass({
+  componentDidUpdate() {
+    if (this.isHidden()) {
+      // debugger;
+      $(this.refs.self).slideUp(function() {
+        $(this).remove();
+      });
+    }
+  },
 
   clickHandler(urls) {
     this.props.fork(urls);
   },
 
+  getStyles() {
+    if (this.isHidden()) {
+      return { display: "none", };
+    }
+    return {};
+  },
+
+  isHidden() {
+    return !this.props.show;
+  },
+
   render() {
       let clickHandler = this.clickHandler;
-
+      let styles = this.getStyles();
       return (
-        <div>
+        <div ref="self" style={styles}>
           <p>Click on a notebook to get your own fork and start editing!</p>
           <ForkButtons clickHandler={this.clickHandler}/>
-          </div>
+        </div>
       );
   },
 });
