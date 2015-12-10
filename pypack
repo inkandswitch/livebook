@@ -34,6 +34,7 @@ function generate_pyload() {
   body.push('module.exports = { files: f }')
   fs.writeFileSync("src/pyload.js", body.join("\n"))
   exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules skulpt/src/builtin/pandas.py")
+  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules skulpt/src/builtin/matplotlib")
   //console.log("imported skulpt files",files)
 }
 
