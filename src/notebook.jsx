@@ -32,6 +32,7 @@ var charts = require("./charts-v2");  // Assigns the charts
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
 var createAsyncDataFetcher = require("./util").createAsyncDataFetcher;
+var deepClone = require("./util").deepClone;
 var getPixelsBeyondFold = require("./util").getPixelsBeyondFold;
 var noop          = require("./util").noop;
 var randomColor   = require("./util").randomColor;
@@ -121,7 +122,8 @@ function update_peers_and_render() {
     colorChange = true
     peers = cradle.peers()
   }
-  ReactDOM.render(<Collaborators peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} />, collaboratorsMount);
+
+  ReactDOM.render(<Nav peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} notebook={exports}/>, navMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
@@ -267,6 +269,7 @@ var notebookMount      = document.getElementById("notebook");
 var editorMount        = document.getElementById("editor");
 var menuMount          = document.getElementById("menu");
 var collaboratorsMount = document.getElementById("collaborators");
+var navMount           = document.getElementById("nav");
 
 // Editor
 var editor       = {}
@@ -438,8 +441,9 @@ function cellPosition() {
  */
 function render() {
   let render_time = new Date()
-  ReactDOM.render(<Menu notebook={exports}/>, menuMount);
+  // ReactDOM.render(<Menu notebook={exports}/>, menuMount);
   update_peers_and_render()
+
   return render_time
 }
 
@@ -776,7 +780,8 @@ var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
 var Cell = require("./components/cell.jsx");
 var Uploader = require("./components/uploader.jsx");
-var LandingPage = require("./components/landing-page")
+var LandingPage = require("./components/landing-page");
+var Nav = require("./components/nav");
 
 var Notebook = React.createClass({
   cells() {
