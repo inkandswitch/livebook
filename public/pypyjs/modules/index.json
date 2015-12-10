@@ -7937,7 +7937,8 @@
     "pandas": {
       "file": "pandas.py", 
       "imports": [
-        "js"
+        "js", 
+        "json"
       ]
     }, 
     "pdb": {

@@ -160,7 +160,7 @@ self.parse_raw_data = function(filename,headerRow,names) {
     }
   })
 
-  return { head: head, body: body, length: length }
+  return JSON.stringify({ head: head, body: body, length: length })
 }
 
 function python_render(doc, cell, result) {
