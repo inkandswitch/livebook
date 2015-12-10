@@ -29,7 +29,6 @@ a:hover {
   transition: all .2s ease-in;
 }
 
-
 .app-container {
   position: relative;
   margin: 0 auto;
@@ -37,12 +36,30 @@ a:hover {
   padding-top: 4.2em;
 }
 
+.layout-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 2em 1.7em;
+}
+
+.layout-container-condensed {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 1em .8em;
+}
+
+
 .landing-page-container {
   padding-top: 4.2em;
 }
 
 .landing-page-container:empty {
   display: none;
+}
+
+.livebook-header {
+  background: #363636;
+  color: #fff;
 }
 
 .notebook {

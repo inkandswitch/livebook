@@ -776,7 +776,7 @@ var Menu = require("./components/menu.jsx");
 var Collaborators = require("./components/collaborators.jsx");
 var Cell = require("./components/cell.jsx");
 var Uploader = require("./components/uploader.jsx");
-var LandingPage = require("./components/landing-page.jsx")
+var LandingPage = require("./components/landing-page")
 
 var Notebook = React.createClass({
   cells() {

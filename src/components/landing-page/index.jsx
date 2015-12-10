@@ -35,8 +35,8 @@ let ForkButtons = React.createClass({
           Here's Waldo
         </ForkButton>
 
-        <ForkButton csvURL="/forkable/linear-regression.csv" 
-            ipynbURL="/forkable/linear-regression.ipynb" 
+        <ForkButton csvURL="/forkable/mlex1.csv" 
+            ipynbURL="/forkable/mlex1.ipynb" 
             clickHandler={this.clickHandler}>
           Linear regression
         </ForkButton>
@@ -60,9 +60,7 @@ let LandingPage = React.createClass({
 
   getStyles() {
     if (this.isHidden()) {
-      return { 
-        display: "none",
-      };
+      return { display: "none", };
     }
     return {};
   },
@@ -76,8 +74,21 @@ let LandingPage = React.createClass({
       let styles = this.getStyles();
       return (
         <div ref="self" style={styles} className="landing-page-container">
-          <p>Click on a notebook to get your own fork and start editing!</p>
-          <ForkButtons clickHandler={this.clickHandler}/>
+          <header className="livebook-header">
+            <div className="layout-container">
+              <hgroup>
+                <h1>Livebook</h1>
+                <h2>iPython-compatible notebook editor</h2>
+              </hgroup>
+              <p>
+                featuring live coding and realtime collaboration 
+                for researchers, journalists, and data scientists
+              </p>
+            </div>
+          </header>
+          <section className="layout-container gallery-container">
+            <ForkButtons clickHandler={this.clickHandler}/>
+          </section>
         </div>
       );
   },
