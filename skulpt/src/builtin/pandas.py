@@ -1,5 +1,6 @@
 
 import js
+import json
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -121,6 +122,10 @@ class DataFrame:
         d._idx = idx
         return d
 
+    @staticmethod
+    def from_csv(path,**kargs):
+        return read_csv(path)
+
     def __init__(self, series=None):
         if series:
             self._data = series.data
@@ -173,9 +178,6 @@ class DataFrame:
             if key == "subset":
                 new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
         return self._reindex(new_idx)
-
-    def from_csv(path,**kargs):
-        return read_csv(path)
 
     def groupby(self,by):
         return GroupBy(self,by)
@@ -252,7 +254,7 @@ def read_csv(filename, header=None, names=None):
     if header is None and names is not None:
         header = names
 
-    data = js.globals.parse_raw_data(filename,header,names)
+    data = json.loads(str(js.globals.parse_raw_data(filename,header,names)))
 
     return DataFrame.from_data(data)
 
