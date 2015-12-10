@@ -117,7 +117,13 @@ function update_peers_and_render() {
     peers = cradle.peers()
   }
 
-  ReactDOM.render(<Nav peers={peers} setMode={setMode} getMode={() => Mode} getCurrentPage={() => CurrentPage} notebook={exports}/>, navMount);
+  ReactDOM.render(<Nav 
+      show={CurrentPage !== "landing"}
+      peers={peers} 
+      setMode={setMode} getMode={() => Mode} 
+      getCurrentPage={() => CurrentPage} 
+      notebook={exports}/>, 
+    navMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME

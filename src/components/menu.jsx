@@ -1,9 +1,11 @@
 var React = require("react");
 
 var Menu = React.createClass({
+
   notebook() {
-    return this.props.notebook 
+    return this.props.notebook;
   },
+
   getInitialState() {
     return {
       active: false,

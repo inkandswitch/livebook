@@ -48,11 +48,6 @@ a:hover {
   padding: 1em .8em;
 }
 
-
-.landing-page-container {
-  padding-top: 4.2em;
-}
-
 .landing-page-container:empty {
   display: none;
 }
@@ -483,7 +478,6 @@ div.ace-content {
 
 @media only screen and (max-width: 800px) {
 
-  .landing-page-container,
   .app-container {
     padding-top: 70px;
   }
