@@ -109,7 +109,7 @@ class Test:
 
     def test_value_counts(self):
         print "testing value_counts"
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4,5,6,7,8],"h2":['A','A','B','B','B','C','B','B']},"length":8})
+        df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":['A','A','B','B','B','C','B','B']})
         assert len(df.h2.value_counts()) == 3
         assert type(df.h2.value_counts()) == pd.Series
         assert df.h2.value_counts()[0] == 5
@@ -135,5 +135,6 @@ def run():
     do_test(t,"test_reindex")
     do_test(t,"test_getitem")
     do_test(t,"test_record")
+    do_test(t,"test_value_counts")
     print "done"
 
