@@ -52,6 +52,14 @@ class Series:
     def head(self):
         return self.to_df().describe()
 
+    def value_counts(self):
+        values = [self.data[self.column][i] for i in self.idx]
+        uniques = list(set(values))
+        counts = [ values.count(val) for val in uniques ]
+        new_body = { self.column: uniques, "count": counts }
+        new_idx = sorted(range(0,len(uniques)),key=lambda i: counts[i],reverse=True)
+        return Series(new_body, "count", self.column, new_idx)
+
     def to_df(self):
         if self.sort == None:
             return DataFrame.__new__(self.data,[self.column],None,self.idx)
@@ -100,6 +108,10 @@ class DataFrame:
     @staticmethod
     def from_data(data):
         return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
+
+    @staticmethod
+    def from_dict(data):
+        return DataFrame.__new__(data,data.keys(),None,range(0,len(data[data.keys()[0]])))
 
     @staticmethod
     def __new__(data,columns,sort,idx):

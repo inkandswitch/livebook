@@ -75,12 +75,12 @@ pypyjs.loadModuleData("pandas").then(function() {
   console.log("CATCH",e)
 })
 
-function handle_result(doc, results, error) {
+function handle_result(doc, results, plots, error) {
   for (let cell in results) {
     python_render(doc, cell, results[cell])
   }
   console.log("About to send",doc)
-  postMessage({ doc: doc, error: error })
+  postMessage({ doc: doc, plots: plots, error: error })
 }
 
 var re = /File .<string>., line (\d*)/
@@ -89,13 +89,14 @@ function execute_python(doc) {
   console.log("CTX",ctx)
   pypyjs.ready().then(function() {
     self.RESULTS = {}
+    self.PLOTS = {}
     pypyjs.exec(ctx.code).then(() => {
-      handle_result(doc, self.RESULTS)
+      handle_result(doc, self.RESULTS, self.PLOTS)
     }).catch((e) => {
       let match = re.exec(e.trace)
       if (match[1] !== '') {
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
-        handle_result(doc, self.RESULTS, error)
+        handle_result(doc, self.RESULTS, self.PLOTS, Serror)
       } else {
         console.log("Unknown ERROR",e)
       }
