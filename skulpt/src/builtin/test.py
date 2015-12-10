@@ -107,6 +107,14 @@ class Test:
         assert len(df.head(7)) == 7
         assert df.head().columns() == df.columns()
 
+    def test_value_counts(self):
+        print "testing value_counts"
+        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4,5,6,7,8],"h2":['A','A','B','B','B','C','B','B']},"length":8})
+        assert len(df.h2.value_counts()) == 3
+        assert type(df.h2.value_counts()) == pd.Series
+        assert df.h2.value_counts()[0] == 5
+        assert df.h2.value_counts()[1] == 2
+        assert df.h2.value_counts()[2] == 1
 
 def do_test(t,name):
     try:
