@@ -87,7 +87,6 @@ function REMOVE_MARKERS() {
 }
 function CLEAR_ERROR_MESSAGES() {
   ERRORS = {};
-  // $("[data-cell-index]").find(".js-pyresult-error").hide().text("");
 }
 
 cradle.onarrive = function() {
@@ -107,11 +106,6 @@ cradle.onusergram = function(from,message) {
     }
   }
 }
-/**
- * [Global Deps]
- * `cradle`
- * `collaboratorsMount`
- */
 
 function update_peers_and_render() {
   let peers = cradle.peers()
@@ -267,8 +261,6 @@ var iPythonUpdated = 0
 var landingPageMount   = document.getElementById("landing-page");
 var notebookMount      = document.getElementById("notebook");
 var editorMount        = document.getElementById("editor");
-var menuMount          = document.getElementById("menu");
-var collaboratorsMount = document.getElementById("collaborators");
 var navMount           = document.getElementById("nav");
 
 // Editor
@@ -436,12 +428,9 @@ function cellPosition() {
  * [Global Deps]
  * `iPython`
  * `notebookMount`
- * `menuMount`
- * `collaboratorsMount`
  */
 function render() {
   let render_time = new Date()
-  // ReactDOM.render(<Menu notebook={exports}/>, menuMount);
   update_peers_and_render()
 
   return render_time
@@ -776,12 +765,11 @@ var CODE = {
   read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
 }
 
-var Menu = require("./components/menu.jsx");
-var Collaborators = require("./components/collaborators.jsx");
-var Cell = require("./components/cell.jsx");
-var Uploader = require("./components/uploader.jsx");
-var LandingPage = require("./components/landing-page");
 var Nav = require("./components/nav");
+var LandingPage = require("./components/landing-page");
+var Uploader = require("./components/uploader.jsx");
+var Cell = require("./components/cell.jsx");
+
 
 var Notebook = React.createClass({
   cells() {
