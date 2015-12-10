@@ -97,6 +97,9 @@ class DataFrame:
     def from_data(data):
         return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
 
+    def from_dict(data):
+        return DataFrame.__new__(data,data.keys(),None,range(0,len(data[data.keys()[0]])))
+
     def __new__(data,columns,sort,idx):
         d = DataFrame()
         d._data = data

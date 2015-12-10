@@ -58,14 +58,27 @@ let LandingPage = React.createClass({
     this.props.fork(urls);
   },
 
+  getStyles() {
+    if (this.isHidden()) {
+      return { 
+        display: "none",
+      };
+    }
+    return {};
+  },
+
+  isHidden() {
+    return !this.props.show;
+  },
+
   render() {
       let clickHandler = this.clickHandler;
-
+      let styles = this.getStyles();
       return (
-        <div>
+        <div ref="self" style={styles} className="landing-page-container">
           <p>Click on a notebook to get your own fork and start editing!</p>
           <ForkButtons clickHandler={this.clickHandler}/>
-          </div>
+        </div>
       );
   },
 });

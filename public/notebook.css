@@ -29,11 +29,20 @@ a:hover {
   transition: all .2s ease-in;
 }
 
+
 .app-container {
   position: relative;
   margin: 0 auto;
   max-width: 1200px;
   padding-top: 4.2em;
+}
+
+.landing-page-container {
+  padding-top: 4.2em;
+}
+
+.landing-page-container:empty {
+  display: none;
 }
 
 .notebook {
@@ -457,6 +466,7 @@ div.ace-content {
 
 @media only screen and (max-width: 800px) {
 
+  .landing-page-container,
   .app-container {
     padding-top: 70px;
   }

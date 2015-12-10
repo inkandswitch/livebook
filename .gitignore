@@ -6,3 +6,5 @@ db.sql
 .env
 public/js/notebook.js
 public/js/worker.js
+sample-notebooks/.ipynb_checkpoints
+public/forkable/*

@@ -226,7 +226,8 @@ var Collaborator = React.createClass({
 var Collaborators = React.createClass({
 
   shouldShow() {
-    return this.props.getCurrentPage() !== "upload";
+    let currentPage = this.props.getCurrentPage() ;
+    return currentPage !== "upload" && currentPage !== "landing";
   },
 
   renderAvatars() {

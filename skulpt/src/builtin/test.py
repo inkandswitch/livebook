@@ -5,13 +5,13 @@ import pandas as pd
 class Test:
     def test_getitem(self):
         print "testing getitem..."
-        df1 = pd.DataFrame.from_data({"head":["name","age"],"body":{"name":["zak","aaron"],"age":[30,40]},"length":2})
+        df1 = pd.DataFrame.from_dict({"name":["zak","aaron"],"age":[30,40]})
         df2 = df1.set_index("name")
         assert df1[0] == ("zak",30)
         assert df2[0] == ("aaron",40)
 
     def test_record(self):
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2],"h2":[25,35]},"length":2})
+        df = pd.DataFrame.from_dict({"h1":[1,2],"h2":[25,35]})
         for i,r in df.iterrows():
             if i == 0:
                 assert r.h1 == 1
@@ -22,7 +22,7 @@ class Test:
 
     def test_reindex(self):
         print "testing reindex..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,4,8],"h2":[25,25,25,30]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,4,8],"h2":[25,25,25,30]})
         df2 = df._reindex([3,2,1,0])
         df3 = df._reindex([0,4,1,2],sort="h2")
         assert df.h1[0] == 1
@@ -36,7 +36,7 @@ class Test:
 
     def test_select(self):
         print "testing select..."
-        df = pd.DataFrame.from_data({"head":["h1","h2","h3"],"body":{"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]})
         df2 = df.select("h1",1)
         assert len(df2) == 3
         df3 = df2.select("h2",25)
@@ -50,7 +50,7 @@ class Test:
 
     def test_resample(self):
         print "testing resample..."
-        df = pd.DataFrame.from_data({"head":["h1","h2","h3"],"body":{"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]})
         s1 = df.set_index("h1")["h2"]
         s2 = df.set_index("h2")["h1"]
         r1 = s1.resample("Q")
@@ -60,7 +60,7 @@ class Test:
         assert r2[0] == 1
         assert r2[1] == 2
         print "testing monthly resample..."
-        df = pd.DataFrame.from_data({"head":["date","bolides"],"body":{"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]},"length":3})
+        df = pd.DataFrame.from_dict({"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]})
         bb = df.set_index("date")["bolides"]
         s1 = bb.resample("M",how="count")
         s2 = bb.resample("M")
@@ -71,7 +71,7 @@ class Test:
 
     def test_set_index(self):
         print "testing index..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[40,30,20,10]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[40,30,20,10]})
         df2 = df.set_index("h1")
         df3 = df.set_index("h2")
         assert df2.h1[0] == 1
@@ -80,7 +80,7 @@ class Test:
 
     def test_dropna(self):
         print "testing dropna..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,None,None],"h2":[10,None,30,40]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,None,None],"h2":[10,None,30,40]})
         df2 = df.dropna(subset=["h1"])
         df3 = df.dropna(subset=["h2"])
         df4 = df.dropna(subset=["h2","h1"])
@@ -90,7 +90,7 @@ class Test:
 
     def test_dataframe(self):
         print "testing dataframe..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4],"h2":[10,20,30,40]},"length":4})
+        df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,20,30,40]})
         assert type(df[0]) == tuple
         assert type(df["h1"]) == pd.Series
         assert len(df) == 4
@@ -102,7 +102,7 @@ class Test:
 
     def test_head(self):
         print "testing head..."
-        df = pd.DataFrame.from_data({"head":["h1","h2"],"body":{"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]},"length":8})
+        df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]})
         assert len(df.head()) == 5
         assert len(df.head(7)) == 7
         assert df.head().columns() == df.columns()
