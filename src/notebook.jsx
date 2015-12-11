@@ -20,6 +20,7 @@ var colorChange = false
 
 var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
 
+var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
   let {doc, plots, error} = data;
