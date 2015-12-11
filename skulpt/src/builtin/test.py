@@ -65,9 +65,9 @@ class Test:
         s1 = bb.resample("M",how="count")
         s2 = bb.resample("M")
         s3 = bb.resample("A",how="count")
-        assert s1._to_list() == [2,1]
-        assert s2._to_list() == [4,150]
-        assert s3._to_list() == [3]
+        assert s1.tolist() == [2,1]
+        assert s2.tolist() == [4,150]
+        assert s3.tolist() == [3]
 
     def test_set_index(self):
         print "testing index..."
@@ -122,6 +122,18 @@ class Test:
         assert df.h2.value_counts()[1] == 2
         assert df.h2.value_counts()[2] == 1
 
+    def test_series_to_frame(self):
+        df1 = pd.DataFrame.from_dict({"h1":[1,2,3],"h2":['A','A','B'],"h3":[300,200,100]})
+        df2 = df1.set_index("h3")
+        s1  = df1["h1"]
+        s2  = df2["h1"]
+        assert s1.tolist() == [1,2,3]
+        assert s2.tolist() == [3,2,1]
+        df3 = pd.DataFrame(s1)
+        df4 = pd.DataFrame(s2)
+        assert df3.columns() == ["h1"]
+        assert df4.columns() == ["h3","h1"]
+
 def do_test(t,name):
     try:
         getattr(t,name)()
@@ -142,6 +154,7 @@ def run():
     do_test(t,"test_getitem")
     do_test(t,"test_record")
     do_test(t,"test_value_counts")
+    do_test(t,"test_series_to_frame")
 #    do_test(t,"test_series_equality")
     print "done"
 

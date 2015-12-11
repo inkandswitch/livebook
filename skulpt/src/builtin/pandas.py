@@ -33,7 +33,7 @@ class Series:
     def __len__(self):
         return len(self.idx)
 
-    def _to_list(self):
+    def tolist(self):
         c = self.data[self.column]
         return [ c[i] for i in self.idx]
 
@@ -44,10 +44,10 @@ class Series:
         ], "original_type": "series", }
 
     def describe(self):
-        return self.to_df().describe()
+        return self.to_frame().describe()
 
     def head(self):
-        return self.to_df().head()
+        return self.to_frame().head()
 
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
@@ -57,7 +57,7 @@ class Series:
         new_idx = sorted(range(0,len(uniques)),key=lambda i: counts[i],reverse=True)
         return Series(new_body, "count", self.column, new_idx)
 
-    def to_df(self):
+    def to_frame(self):
         if self.sort == None:
             return DataFrame.__new__(self.data,[self.column],None,self.idx)
         else:
@@ -115,6 +115,15 @@ class DataFrame:
         d._sort = sort
         d._idx = idx
         return d
+
+    def __init__(self, series=None):
+        if series:
+            self._data = series.data
+            self._columns = [series.sort, series.column] if series.sort else [series.column]
+            self._sort = series.sort
+            self._idx = series.idx
+        else:
+            pass
 
     def __getitem__(self,i):
         if (type(i) is str):
@@ -190,7 +199,7 @@ class DataFrame:
         sort = "_id"
         idx = range(0,len(funcs))
         for c in self.columns():
-            d = sorted(self[c]._to_list())
+            d = sorted(self[c].tolist())
             l = len(d)
             n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
             data[c] = [ math[f](d,l,n) for f in funcs ]
