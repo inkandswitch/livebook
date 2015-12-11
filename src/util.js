@@ -55,32 +55,87 @@ function rawMarkup(lines) {
 
 function resultToHtml(result) {
   if (result.head && result.body) { // this is DataFrame
-    var table = "<table><thead><tr><th>&nbsp;</th>";
-    result.head.forEach(h => {
-      if (h == result.sort) return;
-      table += "<th>" + h + "</th>"
-    })
-    table += "</tr></thead>"
-    table += "<tbody>"
-    for (let i = 0; i < result.length; i++) {
-      if (result.sort) {
-        table += "<tr><th>" + result.body[result.sort][i] + "</th>"
-      } else {
-        table += "<tr><th>" + i + "</th>"
-      }
-      result.head.forEach(h => {
-        if (h == result.sort) return;
-        var cellContent = result.body[h][i];
-        if (cellContent && cellContent.toFixed) { cellContent = cellContent.toFixed(6); }
-        table += "<td>" + (cellContent||"&nbsp;") + "</td>"
-      })
-      table += "</tr>"
-    }
-    table += "</tbody>"
-    table += "</table>";
+
+    // var table = "<table><thead><tr><th>&nbsp;</th>";
+
+    // result.head.forEach(h => {
+    //   if (h == result.sort) return;
+    //   table += "<th>" + h + "</th>"
+    // })
+    // table += "</tr></thead>"
+
+    // table += "<tbody>"
+
+    // for (let i = 0; i < result.length; i++) {
+    //   if (result.sort) {
+    //     table += "<tr><th>" + result.body[result.sort][i] + "</th>"
+    //   } else {
+    //     table += "<tr><th>" + i + "</th>"
+    //   }
+    //   result.head.forEach(h => {
+    //     if (h == result.sort) return;
+    //     var cellContent = result.body[h][i];
+    //     if (cellContent && cellContent.toFixed) { cellContent = cellContent.toFixed(6); }
+    //     table += "<td>" + (cellContent||"&nbsp;") + "</td>"
+    //   })
+    //   table += "</tr>"
+    // }
+    // table += "</tbody>"
+    // table += "</table>";
+
+    let table = "<table>%thead%%tbody%</table>";
+    let tHead = createTableHead(result);
+    table = table.replace("%thead%", tHead);
+    let tBody = createTableBody(result);
+    table = table.replace("%tbody%", tBody);
 
     return table;
   }
+}
+
+function createTableHead(data) {
+  let {head} = data;
+  let result = "<thead><tr><th>&nbsp;</th>%headRows%</tr></thead>"
+  let headRows = head.map(h => {
+    if (h === data.sort) return "";
+    return "<th>" + h + "</th>";
+  }).join("");
+  return result.replace("%headRows%", headRows);
+}
+
+function createTableBody(data) {
+  let {head, body, sort} = data;
+  let tBody = "<tbody>%tRows%</tbody>"
+  let tRows = "";
+
+  for (let rowNumber = 0; rowNumber < data.length; rowNumber++) {
+    let i = rowNumber;
+    let tRow = "<tr>%tCells%</tr>";
+    let tCells = "";
+    let firstTCell = "<th>%content%</th>";
+
+    if (sort) {
+      tCells += "<th>" + body[sort][rowNumber] + "</th>";
+    } else {
+      tCells += "<th>" + rowNumber + "</th>";
+    }
+
+    head.forEach(h => {
+      if (h === sort) return;
+      let cell = "<td>%content%</td>"
+      let content = body[h][rowNumber];
+
+      if (content && content.toFixed) {
+        content = content.toFixed(6);
+      }
+      tCells += cell.replace("%content%", content || "&nbsp;");
+    })
+
+    tRow = tRow.replace("%tCells%", tCells);
+    tRows += tRow;
+  }
+
+  return tBody.replace("%tRows%", tRows);
 }
 
 /**
