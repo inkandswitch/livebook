@@ -341,7 +341,7 @@ function createAceEditor(options) {
   if (typeof width === "number") {
     width += "px";
   }
-
+  
   return (
     <AceEditor className="editor" name="editX"
       mode={lang} value={value}
@@ -362,7 +362,7 @@ function getEditorHeight() {
 function getEditorWidth() {
   var $switch = $(".switch:eq("+CursorCell+")");
   var width = $switch.width();
-  return Math.floor(width);
+  return width;
 }
 
 /**

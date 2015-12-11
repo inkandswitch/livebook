@@ -224,7 +224,7 @@ div.ace_editor {
 div.ace_scroller {
   border: .1em solid #ddd;
   border-radius: .15em;
-  padding: .8em .85em 1em .8em;
+  /*padding: .8em .85em 1em .8em;*/ /* overflow gets in the way if we include padding D: */ ;
 }
 
 div.ace_content {
