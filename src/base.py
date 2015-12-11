@@ -3,7 +3,7 @@ import js
 import matplotlib.pyplot as pt
 
 def mark(n):
-    pass
+    print "CELL %s" % n
 
 
 def render(cell,val):

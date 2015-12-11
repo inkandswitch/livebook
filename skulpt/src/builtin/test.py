@@ -7,6 +7,7 @@ class Test:
         df2 = df1.set_index("name")
         assert df1[0] == ("zak",30)
         assert df2[0] == ("aaron",40)
+        assert df2.index.tolist() == ["aaron","zak"] ## FIXME - sort and index are different operations
 
     def test_record(self):
         df = pd.DataFrame.from_dict({"h1":[1,2],"h2":[25,35]})
@@ -148,6 +149,14 @@ class Test:
         data.iloc[:,0:cols-1].columns() == ["ones","people"]
         data.iloc[:,cols-1:cols].columns() == ["profit"]
 
+    def test_setitem(self):
+        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
+        d1 = data.set_index("profit")
+        d1["new"] = d1.index
+        assert d1.index.tolist() == [100,200,300,400,500] # FIXME setindex does not sort
+        assert d1.new.tolist() == [100,200,300,400,500]
+        assert d1.people.tolist() == [5,4,3,2,1]
+
 def do_test(t,name):
     try:
         print "running: %s" % name
@@ -173,6 +182,7 @@ def run():
     do_test(t,"test_apply")
     do_test(t,"test_cmp")
     do_test(t,"test_iloc")
+    do_test(t,"test_setitem")
 #    do_test(t,"test_series_equality")
     print "done"
 

@@ -31,11 +31,17 @@ class Record(object):
         return self._df[attr][self._i]
 
 class Series(object):
-    def __init__(self, data, column, sort, idx):
-        self.data = data
-        self.column = column
-        self.sort = sort
-        self.idx = idx
+    def __init__(self, data, column=None, sort=None, idx=None):
+        if (column == None):
+            self.data = { "series":data }
+            self.column = "series"
+            self.sort = None
+            self.idx = range(0,len(data))
+        else:
+            self.data = data
+            self.column = column
+            self.sort = sort
+            self.idx = idx
 
     def __getitem__(self,i):
         return self.data[self.column][self.idx[i]]
@@ -55,7 +61,7 @@ class Series(object):
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
 
     def apply(self,func):
-        return Series( { self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
+        return Series({ self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
 
     def tolist(self):
         c = self.data[self.column]
@@ -142,6 +148,10 @@ class DataFrame:
         d._sort = sort
         d._idx = idx
         d.shape = (len(d),len(d._columns))
+        if (d._sort):
+            d.index = d[d._sort]
+        else:
+            d.index = Series(range(0,len(d)))
         return d
 
     @staticmethod
@@ -157,6 +167,16 @@ class DataFrame:
             self._idx = series.idx
         else:
             pass
+
+    def __setitem__(self,key,val):
+        ## FIXME - this mutates the structure
+        if len(val) != len(self):
+            raise TypeError("__setitem__ called with an assignment of the wrong length")
+        try:
+            self._data[key] = [val[i] for i in self._idx]
+            self._columns.index(key)
+        except ValueError:
+            self._columns.append(key)
 
     def __getitem__(self,i):
         if (type(i) is str or type(i) is unicode):
