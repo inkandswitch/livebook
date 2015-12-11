@@ -1,8 +1,7 @@
+var Sk  = require("../skulpt");
 
-var Sk  = require("./skulpt");
-
-var noop = require("./util").noop;
-var zip = require("./util").zip;
+var noop = require("../util").noop;
+var zip = require("../util").zip;
 
 var notebook;
 
@@ -309,4 +308,72 @@ function plotSpecialLine(options) {
 
 }
 
-module.exports = { setup: setup }
+function nuLivebookPlot(selector, data) {
+
+  if (isTimeSeries(data)) {
+    plotTimeSeries(selector, data);
+    return;
+  }
+
+  let columns = data.columns;
+  let xName = columns[0][0];
+  let yName = columns[1][0];
+  let xs = {};
+  xs[yName] = xName;
+
+  debugger;
+
+  let chart = c3.generate({
+      bindto: selector,
+
+      data: {
+          xs: xs,
+          columns: columns,
+          type: "scatter",
+          // onclick: clickHandler,
+      },
+      axis: {
+          x: {
+              label: xName,
+              tick: {
+                  fit: false
+              }
+          },
+          y: {
+              label: yName,
+          }
+      },
+      tooltip: {
+        show: false,
+      },
+  });
+}
+
+function plotTimeSeries(selector, data) {
+  let {columns} = data;
+
+  let xName = columns[0][0];
+  let yName = columns[1][0];
+
+  let chart = c3.generate({
+      bindto: selector,
+      data: {
+        x: xName,
+        columns: columns,
+        // onclick: clickHandler,
+      },
+      axis: {
+          x: {
+              type: "timeseries",
+              tick: {
+                  format: '%Y'
+              }
+          }
+      },
+      tooltip: {
+        show: false,
+      },
+  });
+}
+
+module.exports = { setup, nuLivebookPlot }

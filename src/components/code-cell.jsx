@@ -1,5 +1,7 @@
 var React = require("react");
 
+var PlotContainer = require("./code-cell-plot-container");
+
 var CodeCell = React.createClass({
 
   underConstruction() {
@@ -33,6 +35,29 @@ var CodeCell = React.createClass({
    return (data && <img src={"data:image/png;base64," + data} />);
   },
 
+  getPlotContainers() {
+    let notebook = this.props.notebook;
+    let iPython = notebook.getiPython();
+    let getCellPlots = notebook.getCellPlots;
+    let cellIndex = this.props.index;
+    let cell = iPython.cells[cellIndex];
+    let plots = getCellPlots(cell);
+
+    if (!plots) return "";
+
+    return plots.map((p, i) => {
+      let key = cellIndex + "-" + i;
+      return (
+        <PlotContainer 
+          cell={cell} 
+          cellIndex={cellIndex} 
+          cellPlotIndex={i} 
+          key={key} 
+          plotMessage={p}/>
+      );
+    })
+  },
+
   text(data) {
     var klass = "pyresult";
     if (this.underConstruction()) klass += " under-construction"
@@ -40,7 +65,7 @@ var CodeCell = React.createClass({
     return (
       <div className={klass}>
         {data.join("")}
-        <div id={"plot" + this.props.index} className='plot notebook-plot'></div>
+        {this.getPlotContainers()}
       </div>
     );
   },
