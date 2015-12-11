@@ -121,6 +121,7 @@ class Series(object):
         for key,val in self.iteritems():
             #print "Resample key=%s,val=%s,rule=%s"%(key,val,rule)
             if rule == "A": key = key[:4] + "-01-01"
+            if rule == "AS": key = key[:4] + "-12-31"
             if rule == "M": key = key[:7] + "-01"
             if key in bins:
                 bins[key].append(val)
