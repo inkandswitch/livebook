@@ -7,6 +7,7 @@ def mark(n):
 
 
 def render(cell,val):
+    print "RENDER %s"%cell
     if hasattr(val, 'to_js'):
         val2 = ["html", val.to_js()]
     elif type(val) == list:

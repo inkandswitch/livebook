@@ -32,7 +32,12 @@ class Record(object):
 
 class Series(object):
     def __init__(self, data, column=None, sort=None, idx=None):
-        if (column == None):
+        if type(data) == Series:
+            self.data = data.data
+            self.column = column or data.column
+            self.sort = sort or data.sort
+            self.idx = idx or data.idx
+        elif (column == None):
             self.data = { "series":data }
             self.column = "series"
             self.sort = None
@@ -44,7 +49,10 @@ class Series(object):
             self.idx = idx
 
     def __getitem__(self,i):
-        return self.data[self.column][self.idx[i]]
+        if type(i) == slice:
+            return Series(self, idx=self.idx[i])
+        else:
+            return self.data[self.column][self.idx[i]]
 
     def __and__(self,other):
         return Series([ self[i] & other[i] for i in range(0,len(self))])
@@ -82,8 +90,8 @@ class Series(object):
     def describe(self):
         return self.to_frame().describe()
 
-    def head(self):
-        return self.to_frame().head()
+    def head(self,n=5):
+        return self[0:n]
 
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
@@ -106,9 +114,6 @@ class Series(object):
         else:
             d2 = [self.data[self.sort][i] for i in self.idx]
             return { "sort": self.sort, "head":[self.sort, self.column], "body":{self.column:d1,self.sort:d2}, "length":len(self) }
-
-    def index(self):
-        return Series(self.data, self.sort, None, self.idx)
 
     def resample(self,rule,**kwargs):
         keys = []
@@ -184,7 +189,11 @@ class DataFrame:
         if len(val) != len(self):
             raise TypeError("__setitem__ called with an assignment of the wrong length")
         try:
-            self._data[key] = [val[i] for i in self._idx]
+            val2 = list(val) ## TODO - make a reverse index?
+            remapped = len(self)*[None]
+            for i in range(0,len(self)):
+                remapped[self._idx[i]] = val2[i]
+            self._data[key] = remapped
             self._columns.index(key)
         except ValueError:
             self._columns.append(key)
@@ -276,13 +285,7 @@ class DataFrame:
         return DataFrame.__new__(data, columns, sort, idx)
 
     def head(self, n=5):
-        data = {}
-        idx = range(min(len(self), n))
-        for col in self.columns():
-            data[col] = [ self._data[col][i] for i in idx]
-
-        result = DataFrame.__new__(data, self._columns, self._sort, idx)
-        return result
+        return DataFrame.__new__(self._data, self._columns, self._sort, self._idx[0:n])
 
     def record(self, i):
         return Record(self,i)

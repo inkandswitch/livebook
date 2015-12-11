@@ -85,6 +85,7 @@ class Test:
         df2 = df1.set_index("h3").sort_values("h3")
         s1  = df1["h1"]
         s2  = df2["h1"]
+        assert list(s1) == [1,2,3]
         assert s1.tolist() == [1,2,3]
         assert s2.tolist() == [3,2,1]
         df3 = pd.DataFrame(s1)
@@ -122,10 +123,15 @@ class Test:
     def test_setitem(self):
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
         d1 = data.set_index("profit").sort_values("profit")
+        d2 = data.set_index("profit")
         d1["new"] = d1.index
+        d2["new"] = d2.index
         assert d1.index.tolist() == [100,200,300,400,500] # FIXME setindex does not sort
         assert d1.new.tolist() == [100,200,300,400,500]
         assert d1.people.tolist() == [5,4,3,2,1]
+        assert d2.index.tolist() == [500,400,300,200,100]
+        assert d2.new.tolist() == [500,400,300,200,100]
+        assert d2.people.tolist() == [1,2,3,4,5]
 
     def test_set_and(self):
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
