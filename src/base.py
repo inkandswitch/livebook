@@ -3,7 +3,7 @@ import js
 import matplotlib.pyplot as pt
 
 def mark(n):
-    print "mark %s" % n
+    pass
 
 
 def render(cell,val):
@@ -13,7 +13,7 @@ def render(cell,val):
         val2 = ["list", val]
     else:
         val2 = ["text", str(val)]
-    p = pt.get_plots()
-    if (len(p) > 0):
-        js.globals['PLOTS'][cell] = js.convert(p)
+    plots = pt.get_plots()
+    if (len(plots) > 0):
+        js.globals['PLOTS'][cell] = js.convert(plots)
     js.globals['RESULTS'][cell] = js.convert(val2)

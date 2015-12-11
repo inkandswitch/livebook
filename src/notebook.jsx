@@ -728,7 +728,6 @@ function forkNotebook (urls) {
 }
 
 function parse_raw_notebook(raw_notebook,raw_csv) {
-  console.log("PARSE RAW",raw_notebook, "nuff")
   iPython = JSON.parse(raw_notebook)
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
