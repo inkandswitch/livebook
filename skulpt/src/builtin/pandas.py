@@ -10,7 +10,7 @@ def do_math(func,data):
 def mean(nums):
     return sum(nums)/len(nums)
 
-class Record:
+class Record(object):
     def __init__(self, df, i):
         self._df = df
         self._i = i
@@ -18,7 +18,7 @@ class Record:
     def __getattr__(self,attr):
         return self._df[attr][self._i]
 
-class Series:
+class Series(object):
     def __init__(self, data, column, sort, idx):
         self.data = data
         self.column = column
@@ -34,6 +34,16 @@ class Series:
 
     def __len__(self):
         return len(self.idx)
+
+    def __eq__(self,arg): return self.apply(lambda x: x == arg)
+    def __ne__(self,arg): return self.apply(lambda x: x <> arg)
+    def __le__(self,arg): return self.apply(lambda x: x <= arg)
+    def __lt__(self,arg): return self.apply(lambda x: x < arg)
+    def __ge__(self,arg): return self.apply(lambda x: x >= arg)
+    def __gt__(self,arg): return self.apply(lambda x: x > arg)
+
+    def apply(self,func):
+        return Series( { self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
 
     def tolist(self):
         c = self.data[self.column]
@@ -137,6 +147,8 @@ class DataFrame:
     def __getitem__(self,i):
         if (type(i) is str):
             return Series(self._data,i,self._sort,self._idx)
+        if (type(i) is Series):
+            return DataFrame.__new__(self._data, self._columns, self._sort, [ self._idx[n] for n in range(0,len(self)) if i[n] ])
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
         return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))

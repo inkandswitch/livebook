@@ -126,6 +126,17 @@ class Test:
         df2 = df1.apply(lambda x: x*2)
         assert df2.h1.tolist() == [2,4,6]
         assert df2.h2.tolist() == ["AA","AA","BB"]
+        assert df1.h1.apply(lambda x: x*10).tolist() == [10,20,30]
+
+    def test_cmp(self):
+        df1 = pd.DataFrame.from_dict({"h1":[1,2,3],"h2":['A','A','B']})
+        assert (df1["h1"] == 2).tolist() == [False,True,False]
+        assert (df1["h1"] >= 2).tolist() == [False,True,True]
+        assert (df1["h1"] >  2).tolist() == [False,False,True]
+        assert (df1["h1"] <> 2).tolist() == [True,False,True]
+        assert (df1["h1"] <  2).tolist() == [True,False,False]
+        assert (df1["h1"] <= 2).tolist() == [True,True,False]
+        assert df1[ df1["h1"] <= 2].h1.tolist() == [1,2]
 
 def do_test(t,name):
     try:
@@ -150,6 +161,7 @@ def run():
     do_test(t,"test_value_counts")
     do_test(t,"test_series_to_frame")
     do_test(t,"test_apply")
+    do_test(t,"test_cmp")
 #    do_test(t,"test_series_equality")
     print "done"
 
