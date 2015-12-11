@@ -147,6 +147,12 @@ class DataFrame:
         for h in self.columns(): body[h] = []
         return body
 
+    def apply(self,func):
+        new_data = {}
+        for c in self._columns:
+            new_data[c] = [ func(d) for d in self._data[c] ]
+        return DataFrame.__new__(new_data, self._columns, None, self._idx)
+
     def _reindex(self, new_idx, **kwargs):
         new_sort = kwargs["sort"] if ('sort' in kwargs) else self._sort
         return DataFrame.__new__(self._data, self._columns, new_sort, new_idx)

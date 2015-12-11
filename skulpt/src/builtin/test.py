@@ -4,7 +4,6 @@ import pandas as pd
 
 class Test:
     def test_getitem(self):
-        print "testing getitem..."
         df1 = pd.DataFrame.from_dict({"name":["zak","aaron"],"age":[30,40]})
         df2 = df1.set_index("name")
         assert df1[0] == ("zak",30)
@@ -21,7 +20,6 @@ class Test:
                 assert r.h2 == 35
 
     def test_reindex(self):
-        print "testing reindex..."
         df = pd.DataFrame.from_dict({"h1":[1,2,4,8],"h2":[25,25,25,30]})
         df2 = df._reindex([3,2,1,0])
         df3 = df._reindex([0,4,1,2],sort="h2")
@@ -35,7 +33,6 @@ class Test:
         assert df3.h1[3] == 4
 
     def test_select(self):
-        print "testing select..."
         df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]})
         df2 = df.select("h1",1)
         assert len(df2) == 3
@@ -49,7 +46,6 @@ class Test:
         assert df4.h3[0] == "cow"
 
     def test_resample(self):
-        print "testing resample..."
         df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]})
         s1 = df.set_index("h1")["h2"]
         s2 = df.set_index("h2")["h1"]
@@ -59,7 +55,6 @@ class Test:
         r2 = s2.resample("Q",how="count")
         assert r2[0] == 1
         assert r2[1] == 2
-        print "testing monthly resample..."
         df = pd.DataFrame.from_dict({"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]})
         bb = df.set_index("date")["bolides"]
         s1 = bb.resample("M",how="count")
@@ -70,7 +65,6 @@ class Test:
         assert s3.tolist() == [3]
 
     def test_set_index(self):
-        print "testing index..."
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[40,30,20,10]})
         df2 = df.set_index("h1")
         df3 = df.set_index("h2")
@@ -79,13 +73,10 @@ class Test:
         assert df3.h2[0] == 10
 
     def test_series_equality(self):
-        print "series equality..."
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,10,20,10]})
         eq = (df["h2"] == 10)
-        print eq.to_js()
 
     def test_dropna(self):
-        print "testing dropna..."
         df = pd.DataFrame.from_dict({"h1":[1,2,None,None],"h2":[10,None,30,40]})
         df2 = df.dropna(subset=["h1"])
         df3 = df.dropna(subset=["h2"])
@@ -95,7 +86,6 @@ class Test:
         assert len(df4) == 1
 
     def test_dataframe(self):
-        print "testing dataframe..."
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,20,30,40]})
         assert type(df[0]) == tuple
         assert type(df["h1"]) == pd.Series
@@ -107,14 +97,12 @@ class Test:
         assert df["h2"][1] == 20
 
     def test_head(self):
-        print "testing head..."
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]})
         assert len(df.head()) == 5
         assert len(df.head(7)) == 7
         assert df.head().columns() == df.columns()
 
     def test_value_counts(self):
-        print "testing value_counts"
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":['A','A','B','B','B','C','B','B']})
         assert len(df.h2.value_counts()) == 3
         assert type(df.h2.value_counts()) == pd.Series
@@ -134,8 +122,15 @@ class Test:
         assert df3.columns() == ["h1"]
         assert df4.columns() == ["h3","h1"]
 
+    def test_apply(self):
+        df1 = pd.DataFrame.from_dict({"h1":[1,2,3],"h2":['A','A','B']})
+        df2 = df1.apply(lambda x: x*2)
+        assert df2.h1.tolist() == [2,4,6]
+        assert df2.h2.tolist() == ["AA","AA","BB"]
+
 def do_test(t,name):
     try:
+        print "running: %s" % name
         getattr(t,name)()
     except Exception as e:
         print e
@@ -155,6 +150,7 @@ def run():
     do_test(t,"test_record")
     do_test(t,"test_value_counts")
     do_test(t,"test_series_to_frame")
+    do_test(t,"test_apply")
 #    do_test(t,"test_series_equality")
     print "done"
 
