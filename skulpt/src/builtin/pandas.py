@@ -145,7 +145,7 @@ class DataFrame:
             pass
 
     def __getitem__(self,i):
-        if (type(i) is str):
+        if (type(i) is str or type(i) is unicode):
             return Series(self._data,i,self._sort,self._idx)
         if (type(i) is Series):
             return DataFrame.__new__(self._data, self._columns, self._sort, [ self._idx[n] for n in range(0,len(self)) if i[n] ])
