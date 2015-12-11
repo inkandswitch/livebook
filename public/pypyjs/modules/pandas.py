@@ -10,7 +10,7 @@ def do_math(func,data):
 def mean(nums):
     return sum(nums)/len(nums)
 
-class Record:
+class Record(object):
     def __init__(self, df, i):
         self._df = df
         self._i = i
@@ -18,7 +18,7 @@ class Record:
     def __getattr__(self,attr):
         return self._df[attr][self._i]
 
-class Series:
+class Series(object):
     def __init__(self, data, column, sort, idx):
         self.data = data
         self.column = column
@@ -35,7 +35,17 @@ class Series:
     def __len__(self):
         return len(self.idx)
 
-    def _to_list(self):
+    def __eq__(self,arg): return self.apply(lambda x: x == arg)
+    def __ne__(self,arg): return self.apply(lambda x: x <> arg)
+    def __le__(self,arg): return self.apply(lambda x: x <= arg)
+    def __lt__(self,arg): return self.apply(lambda x: x < arg)
+    def __ge__(self,arg): return self.apply(lambda x: x >= arg)
+    def __gt__(self,arg): return self.apply(lambda x: x > arg)
+
+    def apply(self,func):
+        return Series( { self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
+
+    def tolist(self):
         c = self.data[self.column]
         return [ c[i] for i in self.idx]
 
@@ -46,10 +56,10 @@ class Series:
         ], "original_type": "series", }
 
     def describe(self):
-        return self.to_df().describe()
+        return self.to_frame().describe()
 
     def head(self):
-        return self.to_df().describe()
+        return self.to_frame().head()
 
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
@@ -59,7 +69,7 @@ class Series:
         new_idx = sorted(range(0,len(uniques)),key=lambda i: counts[i],reverse=True)
         return Series(new_body, "count", self.column, new_idx)
 
-    def to_df(self):
+    def to_frame(self):
         if self.sort == None:
             return DataFrame.__new__(self.data,[self.column],None,self.idx)
         else:
@@ -125,9 +135,20 @@ class DataFrame:
     def from_csv(path,**kargs):
         return read_csv(path)
 
+    def __init__(self, series=None):
+        if series:
+            self._data = series.data
+            self._columns = [series.sort, series.column] if series.sort else [series.column]
+            self._sort = series.sort
+            self._idx = series.idx
+        else:
+            pass
+
     def __getitem__(self,i):
         if (type(i) is str):
             return Series(self._data,i,self._sort,self._idx)
+        if (type(i) is Series):
+            return DataFrame.__new__(self._data, self._columns, self._sort, [ self._idx[n] for n in range(0,len(self)) if i[n] ])
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
         return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))
@@ -146,6 +167,12 @@ class DataFrame:
         body = {}
         for h in self.columns(): body[h] = []
         return body
+
+    def apply(self,func):
+        new_data = {}
+        for c in self._columns:
+            new_data[c] = [ func(d) for d in self._data[c] ]
+        return DataFrame.__new__(new_data, self._columns, None, self._idx)
 
     def _reindex(self, new_idx, **kwargs):
         new_sort = kwargs["sort"] if ('sort' in kwargs) else self._sort
@@ -196,7 +223,7 @@ class DataFrame:
         sort = "_id"
         idx = range(0,len(funcs))
         for c in self.columns():
-            d = sorted(self[c]._to_list())
+            d = sorted(self[c].tolist())
             l = len(d)
             n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
             data[c] = [ math[f](d,l,n) for f in funcs ]
