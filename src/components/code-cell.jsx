@@ -28,7 +28,11 @@ var CodeCell = React.createClass({
   },
 
   html(data) {
-    return (data && <div dangerouslySetInnerHTML={{__html: data.join("") }}></div>);
+    //fixme - cuts off table
+    let styles = {
+      overflowX: "hidden",
+    };
+    return (data && <div style={styles} dangerouslySetInnerHTML={{__html: data.join("") }}></div>);
   },
 
   png(data) {
