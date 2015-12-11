@@ -1,13 +1,8 @@
 var Sk  = require("../skulpt");
 
-var noop = require("../util").noop;
-var zip = require("../util").zip;
+var {isArray, noop, zip} = require("../util");
 
 var notebook;
-
-var FIGURE_CACHE = {};
-
-
 function setup(n) {
   notebook = n
 }
@@ -308,20 +303,29 @@ function plotSpecialLine(options) {
 
 }
 
-function nuLivebookPlot(selector, data) {
+function nuLivebookPlot(selector, plotMessage) {
 
+  let isScatter = (plotMessage.length === 3) && isArray(plotMessage[2]); // fixme
+
+  if (isScatter) {
+    let columns = plotMessage.slice(1);
+    plotScatter(selector, { columns })
+    return;
+  }
+
+  let data = plotMessage[1]; 
   if (isTimeSeries(data)) {
     plotTimeSeries(selector, data);
     return;
   }
+}
 
+function plotScatter(selector, data) {
   let columns = data.columns;
   let xName = columns[0][0];
   let yName = columns[1][0];
   let xs = {};
   xs[yName] = xName;
-
-  debugger;
 
   let chart = c3.generate({
       bindto: selector,

@@ -9,7 +9,7 @@ let PlotContainer = React.createClass({
     let plotMessage = this.getPlotMessage();
     let data = plotMessage[1];
 
-    nuLivebookPlot(selector, data);
+    nuLivebookPlot(selector, plotMessage);
   },
 
   getPlotMessage() {

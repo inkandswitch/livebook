@@ -7,6 +7,7 @@ module.exports = {
   createAsyncDataFetcher: createAsyncDataFetcher,
   deepClone       : deepClone,
   getPixelsBeyondFold: getPixelsBeyondFold,
+  isArray         : isArray,
   noop            : () => {},
   randomColor     : randomColor,
   randomName      : randomName,
@@ -23,6 +24,10 @@ function deepClone(o) {
   return JSON.parse(JSON.stringify(o));
 }
 
+function isArray(o) {
+  return Object.prototype.toString.call(o) === "[object Array]";
+}
+
 function getPixelsBeyondFold($elt) {
   let viewportHeight = window.innerHeight;
   let scrollTop = $("body").scrollTop();
@@ -33,8 +38,8 @@ function getPixelsBeyondFold($elt) {
   let below = (bottomOffset - scrollTop) - viewportHeight;
 
   return {
-    above: above,
-    below: below,
+    above,
+    below,
   };
 }
 
