@@ -178,7 +178,7 @@ var Cell = React.createClass({
     if (this.isBeingEdited()) {
       let peerColor = this.peerEditorColor();
       let peerName = this.peerEditorName();
-      // debugger;
+
       return (
         <PeerEditOverlay peerColor={peerColor} peerName={peerName} />
       );
@@ -188,10 +188,25 @@ var Cell = React.createClass({
 
   subcell() {
     if (this.props.data.cell_type === "markdown") {
-      return <MarkdownCell data={this.props.data} notebook={this.props.notebook} index={this.props.index}/>      
+      return (
+        <MarkdownCell 
+          data={this.props.data} 
+          notebook={this.props.notebook} 
+          index={this.props.index} 
+          key={this.props.index} />
+      );
     }
     else {
-      return <CodeCell data={this.props.data} notebook={this.props.notebook} cursor={this.props.cursor} typing={this.props.typing} index={this.props.index} errorObject={this.props.errorObject}/>
+      return (
+        <CodeCell 
+          data={this.props.data} 
+          notebook={this.props.notebook} 
+          cursor={this.props.cursor} 
+          typing={this.props.typing} 
+          index={this.props.index} 
+          errorObject={this.props.errorObject} 
+          key={this.props.index} />
+      );
     }
   },
 

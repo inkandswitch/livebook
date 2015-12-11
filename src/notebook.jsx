@@ -18,15 +18,34 @@ var cradle     = require("./cradle");
 
 var colorChange = false
 
+var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
+
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
-  console.log("Got message from the worker:",e.data)
-  iPython = e.data.doc
-  if (e.data.error) handle_error(e.data.error)
-  render()
+  let data = e.data;
+  let {doc, plots, error} = data;
+
+  console.log("Got message from the worker:", data)
+
+  iPython = doc
+  console.log("New Doc", iPython)
+
+  if (error) handle_error(error);
+
+  bindPlotsToiPython(plots, iPython);
+  render();
 }
 
-var charts = require("./charts-v2");  // Assigns the charts
+function bindPlotsToiPython(plots, iPython) {
+  Object.keys(plots).forEach((cellNumber) => {
+    let plotArrays = plots[cellNumber];
+    let cell = iPython.cells[cellNumber];
+    setCellPlots(cell, plotArrays);
+  });
+}
+
+var charts = require("./charts");  // Assigns the charts
+
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
 var createAsyncDataFetcher = require("./util").createAsyncDataFetcher;
@@ -766,6 +785,7 @@ var exports =  {
   deleteCell             : deleteCell,
   displayClass           : displayClass,
   get$cell               : () => $cell,
+  getCellPlots           : getCellPlots,
   getCODE                : () => CODE,
   getCurrentPage         : () => CurrentPage,
   getCursorCell          : () => CursorCell,
