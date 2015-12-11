@@ -4,7 +4,7 @@ import pandas as pd
 class Test:
     def test_getitem(self):
         df1 = pd.DataFrame.from_dict({"name":["zak","aaron"],"age":[30,40]})
-        df2 = df1.set_index("name")
+        df2 = df1.set_index("name").sort_values("name")
         assert df1[0] == ("zak",30)
         assert df2[0] == ("aaron",40)
         assert df2.index.tolist() == ["aaron","zak"] ## FIXME - sort and index are different operations
@@ -19,36 +19,10 @@ class Test:
                 assert r.h1 == 2
                 assert r.h2 == 35
 
-    def test_reindex(self):
-        df = pd.DataFrame.from_dict({"h1":[1,2,4,8],"h2":[25,25,25,30]})
-        df2 = df._reindex([3,2,1,0])
-        df3 = df._reindex([0,4,1,2],sort="h2")
-        assert df.h1[0] == 1
-        assert df.h1[3] == 8
-        assert df2._sort == None
-        assert df2.h1[0] == 8
-        assert df2.h1[3] == 1
-        assert df3._sort == "h2"
-        assert df3.h1[0] == 1
-        assert df3.h1[3] == 4
-
-    def test_select(self):
-        df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[25,25,25,30],"h3":["cow","cow","pig","cow"]})
-        df2 = df.select("h1",1)
-        assert len(df2) == 3
-        df3 = df2.select("h2",25)
-        assert len(df3) == 2
-        df4 = df3.select("h3","cow")
-        assert len(df4) == 1
-        assert len(df4.h1) == 1
-        assert df4.h1[0] == 1
-        assert df4.h2[0] == 25
-        assert df4.h3[0] == "cow"
-
     def test_resample(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]})
-        s1 = df.set_index("h1")["h2"]
-        s2 = df.set_index("h2")["h1"]
+        s1 = df.set_index("h1").sort_values("h1")["h2"]
+        s2 = df.set_index("h2").sort_values("h2")["h1"]
         r1 = s1.resample("Q")
         assert r1[0] == 20
         assert r1[1] == 30
@@ -56,7 +30,7 @@ class Test:
         assert r2[0] == 1
         assert r2[1] == 2
         df = pd.DataFrame.from_dict({"date":['2015-01-01','2015-01-02','2015-02-01'],"bolides":[2,6,150]})
-        bb = df.set_index("date")["bolides"]
+        bb = df.set_index("date").sort_values("date")["bolides"]
         s1 = bb.resample("M",how="count")
         s2 = bb.resample("M")
         s3 = bb.resample("A",how="count")
@@ -66,15 +40,11 @@ class Test:
 
     def test_set_index(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[40,30,20,10]})
-        df2 = df.set_index("h1")
-        df3 = df.set_index("h2")
+        df2 = df.set_index("h1").sort_values("h1")
+        df3 = df.set_index("h2").sort_values("h2")
         assert df2.h1[0] == 1
         assert df3.h1[0] == 4
         assert df3.h2[0] == 10
-
-    def test_series_equality(self):
-        df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,10,20,10]})
-        eq = (df["h2"] == 10)
 
     def test_dropna(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,None,None],"h2":[10,None,30,40]})
@@ -112,7 +82,7 @@ class Test:
 
     def test_series_to_frame(self):
         df1 = pd.DataFrame.from_dict({"h1":[1,2,3],"h2":['A','A','B'],"h3":[300,200,100]})
-        df2 = df1.set_index("h3")
+        df2 = df1.set_index("h3").sort_values("h3")
         s1  = df1["h1"]
         s2  = df2["h1"]
         assert s1.tolist() == [1,2,3]
@@ -151,11 +121,15 @@ class Test:
 
     def test_setitem(self):
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
-        d1 = data.set_index("profit")
+        d1 = data.set_index("profit").sort_values("profit")
         d1["new"] = d1.index
         assert d1.index.tolist() == [100,200,300,400,500] # FIXME setindex does not sort
         assert d1.new.tolist() == [100,200,300,400,500]
         assert d1.people.tolist() == [5,4,3,2,1]
+
+    def test_set_and(self):
+        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
+        assert len(data[(data["people"] < 5) & (data["profit"] <= 300)]) == 2
 
 def do_test(t,name):
     try:
@@ -173,8 +147,6 @@ def run():
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
     do_test(t,"test_resample")
-    do_test(t,"test_select")
-    do_test(t,"test_reindex")
     do_test(t,"test_getitem")
     do_test(t,"test_record")
     do_test(t,"test_value_counts")
@@ -183,6 +155,6 @@ def run():
     do_test(t,"test_cmp")
     do_test(t,"test_iloc")
     do_test(t,"test_setitem")
-#    do_test(t,"test_series_equality")
+    do_test(t,"test_set_and")
     print "done"
 

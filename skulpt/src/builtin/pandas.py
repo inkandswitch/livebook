@@ -46,6 +46,9 @@ class Series(object):
     def __getitem__(self,i):
         return self.data[self.column][self.idx[i]]
 
+    def __and__(self,other):
+        return Series([ self[i] & other[i] for i in range(0,len(self))])
+
     def __iter__(self):
         for i in range(0, len(self)):
             yield self[i]
@@ -59,6 +62,9 @@ class Series(object):
     def __lt__(self,arg): return self.apply(lambda x: x < arg)
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
+
+    def sum(self):
+        return sum(self.tolist())
 
     def apply(self,func):
         return Series({ self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
@@ -147,11 +153,7 @@ class DataFrame:
         d._columns = columns
         d._sort = sort
         d._idx = idx
-        d.shape = (len(d),len(d._columns))
-        if (d._sort):
-            d.index = d[d._sort]
-        else:
-            d.index = Series(range(0,len(d)))
+        d.__postinit__()
         return d
 
     @staticmethod
@@ -165,8 +167,16 @@ class DataFrame:
             self._columns = [series.sort, series.column] if series.sort else [series.column]
             self._sort = series.sort
             self._idx = series.idx
+            self.__postinit__()
         else:
             pass
+
+    def __postinit__(self):
+        self.shape = (len(self),len(self._columns))
+        if (self._sort):
+            self.index = self[self._sort]
+        else:
+            self.index = Series(range(0,len(self)))
 
     def __setitem__(self,key,val):
         ## FIXME - this mutates the structure
@@ -213,13 +223,8 @@ class DataFrame:
             new_data[c] = [ func(d) for d in self._data[c] ]
         return DataFrame.__new__(new_data, self._columns, None, self._idx)
 
-    def _reindex(self, new_idx, **kwargs):
-        new_sort = kwargs["sort"] if ('sort' in kwargs) else self._sort
-        return DataFrame.__new__(self._data, self._columns, new_sort, new_idx)
-
     def set_index(self,index):
-        new_idx = sorted(self._idx,key=lambda i: self._data[index][i])
-        return self._reindex(new_idx,sort=index)
+        return DataFrame.__new__(self._data, self._columns, index, self._idx)
 
     def dropna(self,**kargs):
         new_idx = self._idx
@@ -227,7 +232,11 @@ class DataFrame:
             cols = kargs[key]
             if key == "subset":
                 new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
-        return self._reindex(new_idx)
+        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
+
+    def sort_values(self,by,ascending=True):
+        new_idx = sorted(self._idx,key=lambda i: self._data[by][i],reverse=(not ascending))
+        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
 
     def groupby(self,by):
         return GroupBy(self,by)
@@ -237,9 +246,6 @@ class DataFrame:
         for c in self._columns:
             body[c] = [self._data[c][i] for i in self._idx]
         return { "head":self._columns, "body":body, "length":len(self._idx), "sort": self._sort }
-
-    def select(self,key,val):
-        return self._reindex([i for i in self._idx if self._data[key][i] == val])
 
     def columns(self):
         return self._columns
