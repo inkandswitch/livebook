@@ -2,13 +2,61 @@ let React = require("react");
 
 let PlotContainer = require("./code-cell-plot-container");
 
-// let CodeCellOutput = React.createClass({});
-
-let CodeCell = React.createClass({
-
+let CodeCellOutput = React.createClass({
   componentDidUpdate() {
     // TODO - truncate table after update?
   },
+  
+  parseOutput(output) {
+    let {data} = output;
+
+    if (data["text/html"]) {
+      return this.html(data["text/html"]);
+    }
+
+    if (data["image/png"]) {
+      return this.png(data["image/png"]);
+    }
+
+    if (data["text/plain"]) {
+      return this.text(data["text/plain"]);
+    }
+
+    return [];
+  },
+
+  html(data) {
+    //fixme - cuts off table
+    let styles = { overflowX: "hidden", };
+    let htmlString = data.join("");
+    return (<div style={styles} dangerouslySetInnerHTML={{__html: htmlString }}></div>);
+  },
+
+  png(data) {
+   return (<img src={"data:image/png;base64," + data} />);
+  },
+
+  text(data) {
+    let className = this.props.className;
+    let getPlotContainers = this.props.getPlotContainers;
+    return (
+      <div className={className}>
+        {data.join("")}
+        {getPlotContainers()}
+      </div>
+    );
+  },
+
+  render() {
+    return (
+      <div>
+        {this.props.outputs.map(this.parseOutput)}
+      </div>
+    );
+  },
+});
+
+let CodeCell = React.createClass({
 
   underConstruction() {
     return (this.props.typing && this.props.index >= this.props.cursor);
@@ -35,32 +83,6 @@ let CodeCell = React.createClass({
     return (<div className={className}>{message}</div>);
   },
 
-  html(data) {
-    //fixme - cuts off table
-    let styles = {
-      overflowX: "hidden",
-    };
-    let htmlString = data.join("");
-    return (<div style={styles} dangerouslySetInnerHTML={{__html: htmlString }}></div>);
-  },
-
-  png(data) {
-   return (<img src={"data:image/png;base64," + data} />);
-  },
-
-  text(data) {
-    let className = "pyresult";
-    if (this.underConstruction())
-      className = this.appendLoadingClass(className);
-    
-    return (
-      <div className={className}>
-        {data.join("")}
-        {this.getPlotContainers()}
-      </div>
-    );
-  },
-
   getPlotContainers() {
     let notebook = this.props.notebook;
     let iPython = notebook.getiPython();
@@ -85,31 +107,21 @@ let CodeCell = React.createClass({
   },
 
   outputs() {
-    let result = this.props.data.outputs.map(this.parseOutput);
-    if (!result.length) {
+    let outputs = this.props.data.outputs;
+    if (outputs.length === 0) {
       return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);
     }
-    return result;
+
+    let className = "pyresult";
+    if (this.underConstruction())
+      className = this.appendLoadingClass(className);
+    return (
+        <CodeCellOutput 
+          outputs={outputs} 
+          className={className} 
+          getPlotContainers={this.getPlotContainers} />
+      );
   },
-
-  parseOutput(output) {
-    let {data} = output;
-
-    if (data["text/html"]) {
-      return this.html(data["text/html"]);
-    }
-
-    if (data["image/png"]) {
-      return this.png(data["image/png"]);
-    }
-
-    if (data["text/plain"]) {
-      return this.text(data["text/plain"]);
-    }
-
-    return [];
-  },
-
 
  code() {
     var displayClass = this.props.notebook.displayClass;
