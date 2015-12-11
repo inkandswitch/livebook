@@ -354,13 +354,14 @@ function createAceEditor(options) {
 }
 
 function getEditorHeight() {
-  var offsetHeight = $(".switch")[CursorCell].offsetHeight;
-  return offsetHeight;
+  var $switch = $(".switch:eq("+CursorCell+")");
+  var height = $switch.height();
+  return height;
 }
 
 function getEditorWidth() {
-  var mySwitch = $(".switch")[CursorCell];
-  var width = $(mySwitch).width() - 15;
+  var $switch = $(".switch:eq("+CursorCell+")");
+  var width = $switch.width();
   return Math.floor(width);
 }
 

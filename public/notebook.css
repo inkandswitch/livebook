@@ -221,8 +221,14 @@ div.ace_editor {
   background: #D6F717 !important;
 }
 
+div.ace_scroller {
+  border: .1em solid #ddd;
+  border-radius: .15em;
+  padding: .8em .85em 1em .8em;
+}
+
 div.ace_content {
-  padding: .8em .85em 1em .8em
+  /*padding: .8em .85em 1em .8em*/
 }
 
 div.ace_error-marker {
