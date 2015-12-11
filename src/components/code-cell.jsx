@@ -59,11 +59,11 @@ var CodeCell = React.createClass({
   },
 
   text(data) {
-    var klass = "pyresult";
-    if (this.underConstruction()) klass += " under-construction"
+    var className = "pyresult";
+    if (this.underConstruction()) className += " pyresult-loading"
     if (!data) return false;
     return (
-      <div className={klass}>
+      <div className={className}>
         {data.join("")}
         {this.getPlotContainers()}
       </div>
@@ -82,6 +82,11 @@ var CodeCell = React.createClass({
         this.text(output.data["text/plain"]);
       return output;
     });
+    if (!result.length) {
+      return (
+        <div className="pyresult pyresult-loading pyresult-loading-with-message"></div>
+      );
+    }
     return result;
   },
 
