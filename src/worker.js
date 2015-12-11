@@ -94,8 +94,8 @@ function execute_python(doc) {
       handle_result(doc, self.RESULTS, self.PLOTS)
     }).catch((e) => {
       console.log("ERR",e)
-      let match = re.exec(e.trace)
-      if (match[1] !== '') {
+      let match = re.exec(e.trace);
+      if (match && match[1] !== '') {
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         handle_result(doc, self.RESULTS, self.PLOTS, error)
       } else {
