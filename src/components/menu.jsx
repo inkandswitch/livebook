@@ -13,6 +13,12 @@ var Menu = React.createClass({
     };
   },
 
+  home() {
+    let {setCurrentPage} = this.notebook();
+    window.history.pushState({}, "Home", "/");
+    setCurrentPage("landing");
+  },
+
   handleDownload(event) {
     this.setState({download: true});
   },
@@ -39,6 +45,7 @@ var Menu = React.createClass({
       <div className={"menu " + activeClass}>
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
+          <li onClick={this.home}><a>Home</a></li>
           <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
           <li onClick={this.handleUpload}>Upload</li>
           <li>Cheatsheet</li>

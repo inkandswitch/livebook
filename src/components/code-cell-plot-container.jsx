@@ -3,11 +3,8 @@ let {nuLivebookPlot} = require("../charts/");
 
 let PlotContainer = React.createClass({
   componentDidMount() {
-    // TODO
-    // call appropriate plotting function
     let selector = "#" + this.getID();
     let plotMessage = this.getPlotMessage();
-    let data = plotMessage[1];
 
     nuLivebookPlot(selector, plotMessage);
   },

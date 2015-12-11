@@ -754,11 +754,9 @@ function start_peer_to_peer() {
 }
 
 function startNewNotebook(data) {
-  // FIXME - how do we start peer to peer after making a new notebook?
-  // (I'm getting a PUT error connecting to new url + .rtc; the error originates from the cradle code)
-  post_notebook_to_server(data.ipynb, data.csv)
-  parse_raw_notebook(data.ipynb, data.csv)
-  setCurrentPage("notebook")
+  post_notebook_to_server(data.ipynb, data.csv);
+  parse_raw_notebook(data.ipynb, data.csv);
+  setCurrentPage("notebook");
   initializeEditor();
   python_eval();
 }
