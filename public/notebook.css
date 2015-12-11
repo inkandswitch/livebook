@@ -77,9 +77,9 @@ a:hover {
 }
 
 .livebook-lede p {
-  margin: .2em 0;
   font-size: .9em;
   font-weight: 300;
+  margin: .2em 0;
 }
 
 .livebook-logo {
@@ -140,6 +140,16 @@ a:hover {
 .gallery-item-footer {
   font-size: .8em;
   font-weight: 300;
+}
+
+.gallery-item-preview {
+  margin: 0;
+  margin-top: 1em;
+  position: relative;
+}
+
+.gallery-item-preview img {
+  max-width: 100%;
 }
 
 .notebook {
@@ -233,6 +243,16 @@ a:hover {
   text-align: left;
   line-height: 1.55;
 }
+
+/* These are magick numbers */
+/*.notebook th,
+.notebook td {
+  display: none;
+}
+.notebook th:nth-of-type(-n+9),
+.notebook td:nth-of-type(-n+8) {
+  display: table-cell;
+}*/
 
 .notebook th {
   background: #f8f8f8;
