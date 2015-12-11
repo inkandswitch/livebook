@@ -29,7 +29,7 @@ let LandingPage = React.createClass({
               </div>
               <div className="livebook-lede">
                 <h1>Livebook</h1>
-                <h2>iPython-compatible notebook editor</h2>
+                <h2>IPython-compatible notebook editor</h2>
                 <p>
                   featuring live coding and realtime collaboration 
                   for researchers, journalists, and data scientists
