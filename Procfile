@@ -1,4 +1,4 @@
 web: livebook
 webpack: $(npm bin)/webpack --watch
-pypack: ./pypack --watch
+packpy: ./packpy --watch
 gopack: while true; do  make -s ; sleep 5; done
