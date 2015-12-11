@@ -4,9 +4,9 @@ let {nuLivebookPlot} = require("../charts/");
 let PlotContainer = React.createClass({
   componentDidMount() {
     let selector = "#" + this.getID();
-    let plotMessage = this.getPlotMessage();
+    let plotData = this.getPlotMessage();
 
-    nuLivebookPlot(selector, plotMessage);
+    nuLivebookPlot(selector, plotData);
   },
 
   getPlotMessage() {

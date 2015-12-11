@@ -19,6 +19,7 @@ var cradle     = require("./cradle");
 var colorChange = false
 
 var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
+var createCellPlotData = require("./cell-plots-adapter");
 
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
@@ -39,8 +40,9 @@ WORKER.onmessage = function(e) {
 function bindPlotsToiPython(plots, iPython) {
   Object.keys(plots).forEach((cellNumber) => {
     let plotArrays = plots[cellNumber];
+    let plotData = createCellPlotData(plotArrays);
     let cell = iPython.cells[cellNumber];
-    setCellPlots(cell, plotArrays);
+    setCellPlots(cell, plotData);
   });
 }
 
@@ -341,7 +343,7 @@ function createAceEditor(options) {
   if (typeof width === "number") {
     width += "px";
   }
-  
+
   return (
     <AceEditor className="editor" name="editX"
       mode={lang} value={value}
