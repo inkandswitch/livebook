@@ -138,6 +138,16 @@ class Test:
         assert (df1["h1"] <= 2).tolist() == [True,True,False]
         assert df1[ df1["h1"] <= 2].h1.tolist() == [1,2]
 
+    def test_iloc(self):
+        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[100,200,300,200,100]})
+        cols = data.shape[1]
+        len(data.iloc[:]) == len(data)
+        len(data.iloc[1:]) == len(data) - 1
+        len(data.iloc[:2]) == 3
+        len(data.iloc[:,0:cols-1]) == len(data)
+        data.iloc[:,0:cols-1].columns() == ["ones","people"]
+        data.iloc[:,cols-1:cols].columns() == ["profit"]
+
 def do_test(t,name):
     try:
         print "running: %s" % name
@@ -162,6 +172,7 @@ def run():
     do_test(t,"test_series_to_frame")
     do_test(t,"test_apply")
     do_test(t,"test_cmp")
+    do_test(t,"test_iloc")
 #    do_test(t,"test_series_equality")
     print "done"
 

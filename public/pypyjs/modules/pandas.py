@@ -10,6 +10,18 @@ def do_math(func,data):
 def mean(nums):
     return sum(nums)/len(nums)
 
+class IlocIndexer(object):
+    def __init__(self,df):
+        self._df = df
+
+    def __getitem__(self,i):
+        d = self._df
+        if type(i) == slice:
+            return DataFrame.__new__(d._data, d._columns, d._sort, d._idx[i])
+        if type(i) == tuple:
+            return DataFrame.__new__(d._data, d._columns[i[1]], d._sort, d._idx[i[0]])
+        raise IndexError("Iloc Indexer Unsupported Input")
+
 class Record(object):
     def __init__(self, df, i):
         self._df = df
@@ -129,6 +141,7 @@ class DataFrame:
         d._columns = columns
         d._sort = sort
         d._idx = idx
+        d.shape = (len(d),len(d._columns))
         return d
 
     @staticmethod
@@ -136,6 +149,7 @@ class DataFrame:
         return read_csv(path)
 
     def __init__(self, series=None):
+        self.iloc = IlocIndexer(self)
         if series:
             self._data = series.data
             self._columns = [series.sort, series.column] if series.sort else [series.column]
@@ -167,6 +181,11 @@ class DataFrame:
         body = {}
         for h in self.columns(): body[h] = []
         return body
+
+    def insert(self,loc,column,val): ## FIXME - this is the only function we have that mutates - could effect older objects
+        self._columns.insert(loc,column)
+        self._data[column] = [ val for i in range(0,len(self)) ]
+        self.shape = (len(self),len(self._columns))
 
     def apply(self,func):
         new_data = {}
