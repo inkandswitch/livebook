@@ -10,7 +10,6 @@ module.exports = {
 
     resolve: {
       modulesDirectories: ["web_modules", "node_modules"],
-      fallback: ["skulpt"],
       extensions: ["", ".js", ".jsx"]
     },
 

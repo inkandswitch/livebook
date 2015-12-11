@@ -169,50 +169,6 @@ ace.config.set("basePath", "/");
 
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
-
-// these three lines came from skulpt repl.js codebase
-var importre = new RegExp("\\s*import")
-var defre = new RegExp("def.*|class.*")
-var assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))=/;
-var keyword = /^(assert|pass|del|print|return|yield|raise|break|continue|import|global|exec)/
-var indent = /^\s+/
-
-/**
- * [Global Deps]
- * `iPython` - Object that is stringified into .ipynb file
- */
-/*
-function python_render(cell,text) {
-  if (text === undefined) return;
-  var html;
-
-  if (html) {
-    iPython.cells[cell].outputs = [
-      {
-       "data": {
-         "text/html": [ html ]
-       },
-       "execution_count": 1,
-       "metadata": {},
-       "output_type": "execute_result"
-      },
-    ]
-  } else {
-    iPython.cells[cell].outputs = [
-      {
-       "data": {
-         "text/plain": [text]
-       },
-       "execution_count": 1,
-       "metadata": {},
-       "output_type": "execute_result"
-      }
-    ]
-  }
-}
-*/
-
-// All The Globals
 var Mode = "view";
 var CursorCell = 0;
 var iPython = { cells:[] }

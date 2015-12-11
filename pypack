@@ -7,8 +7,8 @@ process.argv.forEach(function (val, index, array) {
 });
 
 function bundle_python() {
-  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules skulpt/src/builtin/pandas.py")
-  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules skulpt/src/builtin/matplotlib")
+  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/pandas.py")
+  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/matplotlib")
 }
 
 bundle_python();

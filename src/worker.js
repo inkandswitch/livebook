@@ -120,7 +120,7 @@ function generate_python_ctx(doc) {
 
       c.source.forEach((line,line_number) => {
         if (!line.match(/^\s*$/) &&
-            !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline" that skulpt doesn't parse
+            !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
           lineno += 1
           lineno_map[lineno] = { cell: i, line: line_number }
           lines.push(line.replace(/[\r\n]$/,""))
