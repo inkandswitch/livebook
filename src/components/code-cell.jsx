@@ -18,7 +18,7 @@ var CodeCell = React.createClass({
     message = errorObject.message;
 
     var klass = "pyresult pyresult-error"
-    if (this.underConstruction()) klass += " under-construction"
+    if (this.underConstruction()) klass += " pyresult-loading"
 
     return (
       <div className={klass}>
