@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 npm install
+./pypack
 go get -u github.com/ddollar/forego
 make
 
