@@ -5,22 +5,6 @@ import pandas
 #from matplotlib.figure import Figure, figaspect
 #from matplotlib.figure import Figure
 
-class Static:
-    PLOTS = []
-
-def get_plots():
-    old = Static.PLOTS
-    Static.PLOTS = []
-    return old
-
-def __figure_js__(arg1,arg2):
-#    arg1 = arg1.to_js() if hasattr(arg1, 'to_js') else arg1
-#    arg2 = arg2.to_js() if hasattr(arg2, 'to_js') else arg2
-    Static.PLOTS.append(["fig",arg1,arg2])
-
-def __plot_js__(arg1,arg2=None):
-    Static.PLOTS.append(["plot",arg1,arg2])
-
 def gca(**kwargs):
     ax =  gcf().gca(**kwargs)
     return ax
@@ -181,7 +165,6 @@ def figure_real(num=None, # autoincrement if None, else integer from 1-N
 
 
 def plot(*args):
-    global __plot_js__
     if (len(args) == 1):
         data = args[0]
         __plot_js__(data.to_plot_data())
@@ -194,7 +177,6 @@ def plot(*args):
 
 
 def scatter(x, y):
-    global __plot_js__
     try:
         xData = [x.column] + x.data[x.column]
         yData = [y.column] + y.data[y.column]

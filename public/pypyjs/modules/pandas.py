@@ -1,6 +1,4 @@
 
-import json
-
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
         return func(data)
@@ -10,19 +8,7 @@ def do_math(func,data):
 def mean(nums):
     return sum(nums)/len(nums)
 
-class IlocIndexer(object):
-    def __init__(self,df):
-        self._df = df
-
-    def __getitem__(self,i):
-        d = self._df
-        if type(i) == slice:
-            return DataFrame.__new__(d._data, d._columns, d._sort, d._idx[i])
-        if type(i) == tuple:
-            return DataFrame.__new__(d._data, d._columns[i[1]], d._sort, d._idx[i[0]])
-        raise IndexError("Iloc Indexer Unsupported Input")
-
-class Record(object):
+class Record:
     def __init__(self, df, i):
         self._df = df
         self._i = i
@@ -30,7 +16,7 @@ class Record(object):
     def __getattr__(self,attr):
         return self._df[attr][self._i]
 
-class Series(object):
+class Series:
     def __init__(self, data, column, sort, idx):
         self.data = data
         self.column = column
@@ -46,16 +32,6 @@ class Series(object):
 
     def __len__(self):
         return len(self.idx)
-
-    def __eq__(self,arg): return self.apply(lambda x: x == arg)
-    def __ne__(self,arg): return self.apply(lambda x: x <> arg)
-    def __le__(self,arg): return self.apply(lambda x: x <= arg)
-    def __lt__(self,arg): return self.apply(lambda x: x < arg)
-    def __ge__(self,arg): return self.apply(lambda x: x >= arg)
-    def __gt__(self,arg): return self.apply(lambda x: x > arg)
-
-    def apply(self,func):
-        return Series( { self.column: [ func(d) for d in self ] }, self.column, None, range(0,len(self)))
 
     def tolist(self):
         c = self.data[self.column]
@@ -126,30 +102,21 @@ class Series(object):
         return [ ( self.data[self.sort][i], self.data[self.column][i] ) for i in self.idx].__iter__()
 
 class DataFrame:
-    @staticmethod
     def from_data(data):
         return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
 
-    @staticmethod
     def from_dict(data):
         return DataFrame.__new__(data,data.keys(),None,range(0,len(data[data.keys()[0]])))
 
-    @staticmethod
     def __new__(data,columns,sort,idx):
         d = DataFrame()
         d._data = data
         d._columns = columns
         d._sort = sort
         d._idx = idx
-        d.shape = (len(d),len(d._columns))
         return d
 
-    @staticmethod
-    def from_csv(path,**kargs):
-        return read_csv(path)
-
     def __init__(self, series=None):
-        self.iloc = IlocIndexer(self)
         if series:
             self._data = series.data
             self._columns = [series.sort, series.column] if series.sort else [series.column]
@@ -159,10 +126,8 @@ class DataFrame:
             pass
 
     def __getitem__(self,i):
-        if (type(i) is str or type(i) is unicode):
+        if (type(i) is str):
             return Series(self._data,i,self._sort,self._idx)
-        if (type(i) is Series):
-            return DataFrame.__new__(self._data, self._columns, self._sort, [ self._idx[n] for n in range(0,len(self)) if i[n] ])
         if (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
         return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))
@@ -181,11 +146,6 @@ class DataFrame:
         body = {}
         for h in self.columns(): body[h] = []
         return body
-
-    def insert(self,loc,column,val): ## FIXME - this is the only function we have that mutates - could effect older objects
-        self._columns.insert(loc,column)
-        self._data[column] = [ val for i in range(0,len(self)) ]
-        self.shape = (len(self),len(self._columns))
 
     def apply(self,func):
         new_data = {}
@@ -208,6 +168,9 @@ class DataFrame:
             if key == "subset":
                 new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
         return self._reindex(new_idx)
+
+    def from_csv(path,**kargs):
+        return read_csv(path)
 
     def groupby(self,by):
         return GroupBy(self,by)
@@ -276,7 +239,6 @@ class GroupBy:
             yield (k,self.groups[k])
 
 def read_csv(filename, header=None, names=None):
-    import js
     # pandas defaults `header` to 0 (row to be treated as a header)
     # if `names` is specified, however, we use that
     if header is None and names is None:
@@ -285,7 +247,5 @@ def read_csv(filename, header=None, names=None):
     if header is None and names is not None:
         header = names
 
-    data = json.loads(str(js.globals.parse_raw_data(filename,header,names)))
-
-    return DataFrame.from_data(data)
+    return DataFrame.from_data(__load_data__(filename, header, names))
 
