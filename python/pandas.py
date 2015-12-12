@@ -17,9 +17,9 @@ class IlocIndexer(object):
     def __getitem__(self,i):
         d = self._df
         if type(i) == slice:
-            return DataFrame.__new__(d._data, d._columns, d._sort, d._idx[i])
+            return DataFrame(d,idx=d._idx[i])
         if type(i) == tuple:
-            return DataFrame.__new__(d._data, d._columns[i[1]], d._sort, d._idx[i[0]])
+            return DataFrame(d,idx=d._idx[i[0]])
         raise IndexError("Iloc Indexer Unsupported Input")
 
 class Record(object):
@@ -47,6 +47,9 @@ class Series(object):
             self.column = column
             self.sort = sort
             self.idx = idx
+
+    def __str__(self):
+        return "Series:\n" + str(self.data) + "\nCol:" + str(self.column) + "\nSort:" + str(self.sort);
 
     def __getitem__(self,i):
         if type(i) == slice:
@@ -91,7 +94,7 @@ class Series(object):
         return self.to_frame().describe()
 
     def head(self,n=5):
-        return self[0:n]
+        return Series(self, idx=self.idx[0:n])
 
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
@@ -103,9 +106,9 @@ class Series(object):
 
     def to_frame(self):
         if self.sort == None:
-            return DataFrame.__new__(self.data,[self.column],None,self.idx)
+            return DataFrame(self,columns=[self.column])
         else:
-            return DataFrame.__new__(self.data,[self.sort, self.column],self.sort,self.idx)
+            return DataFrame(self,columns=[self.sort, self.column])
 
     def to_js(self):
         d1 = [self.data[self.column][i] for i in self.idx]
@@ -143,39 +146,42 @@ class Series(object):
     def iteritems(self):
         return [ ( self.data[self.sort][i], self.data[self.column][i] ) for i in self.idx].__iter__()
 
-class DataFrame:
+class DataFrame(object):
+    def __init__(self, base=None, data=None, columns=None, sort=None, idx=None):
+        self.iloc = IlocIndexer(self)
+        if type(base) == Series:
+            self._data = base.data
+            self._columns = [base.sort, base.column] if base.sort else [base.column]
+            self._sort = base.sort
+            self._idx = base.idx
+        elif type(base) == dict:
+            self._data = base
+            self._columns = columns or base.keys()
+            self._sort = sort or None
+            self._idx = idx or range(0,len(self._data[self._columns[0]]))
+        elif type(base) == DataFrame:
+            self._data = data or base._data
+            self._columns = columns or base._columns
+            self._sort = sort or base._sort
+            self._idx = idx or base._idx
+        else:
+            pass
+        self.__postinit__()
+
     @staticmethod
     def from_data(data):
-        return DataFrame.__new__(data["body"],data["head"],None,range(0,data["length"]))
+        return DataFrame(data["body"],columns=data["head"])
 
     @staticmethod
     def from_dict(data):
-        return DataFrame.__new__(data,data.keys(),None,range(0,len(data[data.keys()[0]])))
-
-    @staticmethod
-    def __new__(data,columns,sort,idx):
-        d = DataFrame()
-        d._data = data
-        d._columns = columns
-        d._sort = sort
-        d._idx = idx
-        d.__postinit__()
-        return d
+        return DataFrame(data)
 
     @staticmethod
     def from_csv(path,**kargs):
         return read_csv(path)
 
-    def __init__(self, series=None):
-        self.iloc = IlocIndexer(self)
-        if series:
-            self._data = series.data
-            self._columns = [series.sort, series.column] if series.sort else [series.column]
-            self._sort = series.sort
-            self._idx = series.idx
-            self.__postinit__()
-        else:
-            pass
+    def __str__(self):
+        return "DataFrame:\n" + str(self._data)
 
     def __postinit__(self):
         self.shape = (len(self),len(self._columns))
@@ -199,13 +205,16 @@ class DataFrame:
             self._columns.append(key)
 
     def __getitem__(self,i):
+#        if type(i) == str and i == "_data":
+#            raise ValueError("NOPE")
         if (type(i) is str or type(i) is unicode):
             return Series(self._data,i,self._sort,self._idx)
-        if (type(i) is Series):
-            return DataFrame.__new__(self._data, self._columns, self._sort, [ self._idx[n] for n in range(0,len(self)) if i[n] ])
-        if (i < 0 or i >= len(self)):
+        elif (type(i) is Series):
+            return DataFrame(self, idx=[ self._idx[n] for n in range(0,len(self)) if i[n] ])
+        elif (i < 0 or i >= len(self)):
             raise IndexError("DataFrame index out of range")
-        return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))
+        else:
+            return tuple(map(lambda x: self._data[x][self._idx[i]], self._columns))
 
     def __getattr__(self,attr):
         return self[attr]
@@ -231,10 +240,10 @@ class DataFrame:
         new_data = {}
         for c in self._columns:
             new_data[c] = [ func(d) for d in self._data[c] ]
-        return DataFrame.__new__(new_data, self._columns, None, self._idx)
+        return DataFrame(self, data=new_data)
 
     def set_index(self,index):
-        return DataFrame.__new__(self._data, self._columns, index, self._idx)
+        return DataFrame(self, sort=index)
 
     def dropna(self,**kargs):
         new_idx = self._idx
@@ -242,11 +251,11 @@ class DataFrame:
             cols = kargs[key]
             if key == "subset":
                 new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
-        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
+        return DataFrame(self, idx=new_idx)
 
     def sort_values(self,by,ascending=True):
         new_idx = sorted(self._idx,key=lambda i: self._data[by][i],reverse=(not ascending))
-        return DataFrame.__new__(self._data, self._columns, self._sort, new_idx)
+        return DataFrame(self, idx=new_idx)
 
     def groupby(self,by):
         return GroupBy(self,by)
@@ -282,10 +291,10 @@ class DataFrame:
             l = len(d)
             n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
             data[c] = [ math[f](d,l,n) for f in funcs ]
-        return DataFrame.__new__(data, columns, sort, idx)
+        return DataFrame(data, columns=columns, sort=sort, idx=idx)
 
     def head(self, n=5):
-        return DataFrame.__new__(self._data, self._columns, self._sort, self._idx[0:n])
+        return DataFrame(self, idx=self._idx[0:n])
 
     def record(self, i):
         return Record(self,i)

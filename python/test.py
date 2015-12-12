@@ -138,12 +138,12 @@ class Test:
         assert len(data[(data["people"] < 5) & (data["profit"] <= 300)]) == 2
 
 def do_test(t,name):
-    try:
+#    try:
         print "running: %s" % name
         getattr(t,name)()
-    except Exception as e:
-        print e
-        print "-- ERROR -- There was an error running test '%s'"%name
+#    except Exception as e:
+#        print e
+#        print "-- ERROR -- There was an error running test '%s'"%name
 
 def run():
     t = Test()
@@ -162,5 +162,6 @@ def run():
     do_test(t,"test_iloc")
     do_test(t,"test_setitem")
     do_test(t,"test_set_and")
+    print "test describe()"
     print "done"
 
