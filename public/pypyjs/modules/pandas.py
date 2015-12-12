@@ -314,6 +314,9 @@ class GroupBy:
         for k in self.groups:
             yield (k,self.groups[k])
 
+class Cache:
+    csv = {}
+
 def read_csv(filename, header=None, names=None):
     import js
     # pandas defaults `header` to 0 (row to be treated as a header)
@@ -324,7 +327,12 @@ def read_csv(filename, header=None, names=None):
     if header is None and names is not None:
         header = names
 
-    data = json.loads(str(js.globals.parse_raw_data(filename,header,names)))
+    key = str([filename,header,names])
 
-    return DataFrame.from_data(data)
+    if key in Cache.csv:
+        return DataFrame.from_data(Cache.csv[key])
+
+    Cache.csv[key] = json.loads(str(js.globals.parse_raw_data(filename,header,names)))
+
+    return DataFrame.from_data(Cache.csv[key])
 
