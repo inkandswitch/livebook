@@ -137,13 +137,18 @@ class Test:
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
         assert len(data[(data["people"] < 5) & (data["profit"] <= 300)]) == 2
 
+    def test_describe(self):
+        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
+        desc = data.describe()
+        print "describe needs a test!"
+
 def do_test(t,name):
-#    try:
+    try:
         print "running: %s" % name
         getattr(t,name)()
-#    except Exception as e:
-#        print e
-#        print "-- ERROR -- There was an error running test '%s'"%name
+    except Exception as e:
+        print e
+        print "-- ERROR -- There was an error running test '%s'"%name
 
 def run():
     t = Test()
@@ -162,6 +167,6 @@ def run():
     do_test(t,"test_iloc")
     do_test(t,"test_setitem")
     do_test(t,"test_set_and")
-    print "test describe()"
+    do_test(t,"test_describe")
     print "done"
 

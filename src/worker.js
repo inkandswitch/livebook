@@ -158,6 +158,10 @@ self.parse_raw_data = function(filename,headerRow,names) {
       head.forEach((h) => body[h] = [])
     } else {
       length++;
+      if (row.length != head.length) {
+        console.log("MISMATCH!",row,head)
+        throw "CSV BROKEN LINE " + length
+      }
       row.forEach((d,i) => {
         if (d == "") {
           body[head[i]].push(undefined)
