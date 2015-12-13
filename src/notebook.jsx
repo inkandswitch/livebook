@@ -24,17 +24,21 @@ var createCellPlotData = require("./cell-plots-adapter");
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
-  let {doc, plots, error} = data;
+  let {results, plots, error} = data;
 
   console.log("Got message from the worker:", data)
 
-  iPython = doc
-  console.log("New Doc", iPython)
-
   if (error) handle_error(error);
-
   bindPlotsToiPython(plots, iPython);
+  handleResults(results)
+
   render();
+}
+
+function handleResults(results) {
+  for (let cell in results) {
+    iPython.cells[cell].outputs = results[cell]
+  }
 }
 
 function bindPlotsToiPython(plots, iPython) {

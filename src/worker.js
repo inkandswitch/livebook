@@ -1,5 +1,3 @@
-let working = true
-let work_queue = []
 
 var resultToHtml  = require("./util").resultToHtml;
 
@@ -11,20 +9,23 @@ let assignment = /^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-
 let keyword = /^(assert|pass|del|print|return|yield|raise|break|continue|import|global|exec)/
 let indent = /^\s+/
 let assignment2 = /^[.a-zA-Z0-9_"\[\]]*\s*=\s*/;
-function assignment_test(line) {
+function assignmentTest(line) {
   let a = assignment.test(line)
   let b = assignment2.test(line)
   return a || b
 }
 
-let RAW_DATA = undefined 
+self.READY     = false
+self.NEXT_JOB  = undefined
+self.INTERRUPT = false
+let RAW_DATA   = undefined
 
 onmessage = function(e) {
   console.log("worker got message:",e)
   switch(e.data.type) {
     case "exec":
-      work_queue.push(e.data)
-      do_work()
+      self.NEXT_JOB = e.data
+      maybeDoWork()
       break;
     case "data":
       RAW_DATA = e.data.data
@@ -34,22 +35,20 @@ onmessage = function(e) {
   }
 }
 
-function execute_work() {
-  working = true
-  if (work_queue.length > 0) {
-    let job = work_queue.shift()
-    console.log("DO JOB",job)
-    execute_python(job.doc)
+function maybeDoWork() {
+  if (!self.READY) return;
+  if (self.NEXT_JOB) {
+    let work = self.NEXT_JOB
+    self.NEXT_JOB = undefined
+    generateAndExecPython(work.doc);
   }
-  working = false
 }
 
-function do_work() {
-  if (working) return;
-  while(work_queue.length > 0) {
-    console.log("executing work item")
-    execute_work();
-  }
+// this allows
+// 1. IO to happen before the code is executed
+// 2. Allows infinite recursion since this blows the stack
+function nextTick(func) {
+  setTimeout(func,0)
 }
 
 self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js", "/d3/d3.js")
@@ -65,9 +64,9 @@ pypyjs.stderr = function(data) {
 pypyjs.loadModuleData("pandas").then(function() {
   pypyjs.loadModuleData("matplotlib").then(function() {
     console.log("pypyjs is ready")
-    working = false
     pypyjs.exec(base)
-    do_work()
+    self.READY = true
+    maybeDoWork()
   }).catch((e) => {
     console.log("CATCH",e)
   })
@@ -75,44 +74,68 @@ pypyjs.loadModuleData("pandas").then(function() {
   console.log("CATCH",e)
 })
 
-function handle_result(doc, results, plots, error) {
+function handleResult(doc, results, plots, error) {
   for (let cell in results) {
-    python_render(doc, cell, results[cell])
+    results[cell] = python_render(results[cell])
   }
   console.log("About to send",doc)
-  postMessage({ doc: doc, plots: plots, error: error })
+  postMessage({ plots: plots, results: results, error: error })
 }
 
-var re = /File .<string>., line (\d*)/
-function execute_python(doc) {
-  let ctx = generate_python_ctx(doc)
-  console.log("CTX",ctx)
+function completeWork() {
+  self.READY = true
+  nextTick(maybeDoWork)
+}
+
+function execPython(doc,ctxs) {
+  console.log("CTX",ctxs)
+  if (ctxs.length == 0) {
+    completeWork()
+    return;
+  }
+  if (self.NEXT_JOB) {
+    console.log("Interrupt work... new task in queue")
+    completeWork()
+    return;
+  }
+  let ctx = ctxs.shift()
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     self.PLOTS = {}
     pypyjs.exec(ctx.code).then(() => {
-      handle_result(doc, self.RESULTS, self.PLOTS)
+      handleResult(doc, self.RESULTS, self.PLOTS)
+      nextTick(() => execPython(doc,ctxs))
     }).catch((e) => {
       console.log("ERR",e)
       let match = re.exec(e.trace);
       if (match && match[1] !== '') {
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
-        handle_result(doc, self.RESULTS, self.PLOTS, error)
+        handleResult(doc, self.RESULTS, self.PLOTS, error)
       } else {
         console.log("Unknown ERROR",e)
       }
+      completeWork()
     })
   }).catch((e) => {
     console.log("Error in pypyjs promise",e)
+    completeWork()
   })
 }
 
-function generate_python_ctx(doc) {
-  let lines = [];
+var re = /File .<string>., line (\d*)/
+function generateAndExecPython(doc) {
+  self.READY = false
+  let ctxs = generatePythonCTX(doc)
+  execPython(doc,ctxs)
+}
+
+function generatePythonCTX(doc) {
   //let lines = ["def usercode():"];
-  let lineno = 0;
-  let lineno_map = {}; // keeps track of line number on which to print error
+  let ctxs = []
   doc.cells.forEach((c, i) => {
+    let lineno = 0;
+    let lines = [];
+    let lineno_map = {}; // keeps track of line number on which to print error
     if (c.cell_type == "code") {
 
       lines.push("mark("+i+")")
@@ -127,7 +150,7 @@ function generate_python_ctx(doc) {
         }
       })
       let line = lines.pop()
-      if (!keyword.test(line) && !assignment_test(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
+      if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
         lines.push(`render(${i},${line})   ## line ${lineno}`)
       } else {
         lineno += 1
@@ -135,10 +158,13 @@ function generate_python_ctx(doc) {
         lines.push(`render(${i},None)    ## line ${lineno}`)
       }
     }
+    let code = lines.join("\n") + "\n"
+    ctxs.push({ map: lineno_map, code: code, length: lines.length })
   })
-  let code = lines.join("\n") + "\n"
-  console.log(code)
-  return { map: lineno_map, code: code, length: lines.length }
+//  let code = lines.join("\n") + "\n"
+//  console.log(code)
+//  return { map: lineno_map, code: code, length: lines.length }
+  return ctxs
 }
 
 self.parse_raw_data = function(filename,headerRow,names) {
@@ -177,7 +203,7 @@ self.parse_raw_data = function(filename,headerRow,names) {
   return JSON.stringify({ head: head, body: body, length: length })
 }
 
-function python_render(doc, cell, result) {
+function python_render(result) {
   console.log("RENDER", text)
   var html;
   var text
@@ -191,7 +217,7 @@ function python_render(doc, cell, result) {
   }
 
   if (html) {
-    doc.cells[cell].outputs = [
+    return [
       {
        "data": {
          "text/html": [ html ]
@@ -199,10 +225,10 @@ function python_render(doc, cell, result) {
        "execution_count": 1,
        "metadata": {},
        "output_type": "execute_result"
-      },
+      }
     ]
   } else {
-    doc.cells[cell].outputs = [
+    return [
       {
        "data": {
          "text/plain": [text]

@@ -4,6 +4,9 @@ import matplotlib.pyplot as pt
 
 def mark(n):
     print "CELL %s" % n
+    if type(js.globals["NEXT_JOB"]) <> js.Undefined:
+        js.globals["INTERRUPT"] = js.convert(True)
+        raise BaseException("INTERRUPT")
 
 
 def render(cell,val):
