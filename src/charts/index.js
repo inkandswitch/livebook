@@ -1,6 +1,6 @@
 let {isArray, noop, zip} = require("../util");
 
-let clickForTooltip = require("./c3-click-for-tooltip");
+let createClickForTooltip = require("./c3-click-for-tooltip");
 
 let notebook;
 function setup(n) {
@@ -79,7 +79,7 @@ function plotScatter(selector, data) {
           xs: xs,
           columns: columns,
           type: "scatter",
-          onclick: clickForTooltip,
+          onclick: createClickForTooltip(),
       },
       axis: {
           x: {
@@ -109,7 +109,7 @@ function plotTimeSeries(selector, data) {
       data: {
         x: xName,
         columns: columns,
-        onclick: clickForTooltip,
+        onclick: createClickForTooltip(),
       },
       axis: {
         x: {
@@ -137,7 +137,7 @@ function plotLine(selector, data) {
         x: xName,
         columns: columns,
         type: "line",
-        onclick: clickForTooltip,
+        onclick: createClickForTooltip(),
       },
       axis: {
         x: {
@@ -149,6 +149,9 @@ function plotLine(selector, data) {
         y: {
             label: yName,
         }
+      },
+      tooltip: {
+        show: false,
       },
   });
 }
