@@ -15,6 +15,7 @@ module.exports = {
   resultToHtml    : resultToHtml,
   scrollXPixels   : scrollXPixels,
   zip             : zip,
+  ipyToHailMary   : ipyToHailMary,
 };
 
 
@@ -44,7 +45,7 @@ function getPixelsBeyondFold($elt) {
 }
 
 function scrollXPixels(x) {
-  $('body').animate({ scrollTop: $(window).scrollTop() + x }, 200); 
+  $('body').animate({ scrollTop: $(window).scrollTop() + x }, 200);
 }
 
 function rawMarkup(lines) {
@@ -179,11 +180,26 @@ function randomColorGenerator() {
     var filteredColors = colors.filter(c1 => not.every(c2 => c1 !== c2));
 
     if (filteredColors.length) {
-      return randomPick(filteredColors);      
+      return randomPick(filteredColors);
     }
     return randomPick(colors);
 
   };
+}
+
+function ipyToHailMary(ipy) {
+  let code = {}
+  let index = 0
+  let html = ipy.cells.map((cell) => {
+    if (cell.cell_type == "markdown") {
+      return marked(cell.source.join("\n"))
+    } else {
+      index += 1
+      code[index] = cell.source.join("")
+      return `<p><img data-class="placeholder" id="placeholder${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`
+    }
+  }).join("\n")
+  return {html:html,code:code}
 }
 
 function randomPick(ary) {

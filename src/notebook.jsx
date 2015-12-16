@@ -62,6 +62,7 @@ var randomColor   = require("./util").randomColor;
 var randomName    = require("./util").randomName;
 var resultToHtml  = require("./util").resultToHtml;
 var scrollXPixels = require("./util").scrollXPixels;
+var ipyToHailMary = require("./util").ipyToHailMary;
 
 var getPeerColor     = (peer) => peer.state.color ;
 
@@ -694,6 +695,8 @@ function parse_raw_notebook(raw_notebook,raw_csv) {
   iPython = JSON.parse(raw_notebook)
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
+
+  let code = ipyToHailMary(iPython)
 
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
