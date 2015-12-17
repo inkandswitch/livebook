@@ -38,7 +38,7 @@ a:hover {
   margin: 0 auto;
   max-width: 1200px;
   padding-top: 70px;
-  position: relative;
+  /*position: relative;*/
 }
 
 .layout-container {

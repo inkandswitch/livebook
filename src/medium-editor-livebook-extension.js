@@ -53,7 +53,7 @@ function createLivebookExtension() {
 
         overlay.style.position = "absolute";
         overlay.style.top = (placeholder_rect.top + window.scrollY) + "px";
-        // overlay.style.left = "0px";
+        // overlay.style.left = placeholder_rect.left + "px";
         overlay.style.marginTop = "0"; // overrides some default stylings
 
         // overlay.style.width = placeholder_rect.width + "px";

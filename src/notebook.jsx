@@ -175,8 +175,8 @@ function update_peers_and_render() {
   ReactDOM.render(
     <NotebookV2 
       html={html} code={code} 
-      hideEditor={hideEditor}
-      renderEditor={summonEditor}/>, 
+      hideCodeEditor={hideEditor}
+      renderCodeEditor={summonEditor}/>, 
     notebookV2Mount);
 }
 

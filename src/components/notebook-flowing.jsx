@@ -64,18 +64,18 @@ let NotebookV2 = React.createClass({
   },
 
   handleEditorClick() {
-    this.hideEditor();
+    this.hideCodeEditor();
   },
 
-  hideEditor() {
-    if (this.props.hideEditor) {
-      this.props.hideEditor();
+  hideCodeEditor() {
+    if (this.props.hideCodeEditor) {
+      this.props.hideCodeEditor();
     }
   },
 
   renderEditor(options) {
-    if (this.props.renderEditor) {
-      this.props.renderEditor(options);
+    if (this.props.renderCodeEditor) {
+      this.props.renderCodeEditor(options);
     }
   },
 
