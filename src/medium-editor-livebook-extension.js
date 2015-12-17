@@ -21,6 +21,9 @@ function createLivebookExtension() {
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
         validateContents(editor);
+        window.onresize = function() {
+          validateContents(editor);
+        }
     }
 
     function checkState(node) {
