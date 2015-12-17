@@ -51,13 +51,16 @@ let NotebookV2 = React.createClass({
     let nodeBox = node.getBoundingClientRect();
     let {top, left, height, width} = nodeBox;
     let position = {top, left};
+
+    let change = codeCellData.handleChange;
+
     this.renderEditor({
       code,
       height,
       width,
       position,
+      change,
     });
-    // debugger;
   },
 
   renderEditor(options) {

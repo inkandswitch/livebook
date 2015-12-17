@@ -343,7 +343,7 @@ function summonEditor(options) {
   let {height, width} = options;
   let lang   = "python";
   let value  = options.code;
-  let change =  noop; // onChangeFunc(CursorCell)
+  let {change} =  options; // onChangeFunc(CursorCell)
   let onBeforeLoad = noop;
 
   // BOOTS TODO

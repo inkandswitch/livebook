@@ -127,7 +127,7 @@ let CodeCell = React.createClass({
   code() {
     // NU
     return (
-      <div className="code">{this.props.code}</div>
+      <div className="code">{this.state.code}</div>
     );
 
 
@@ -142,10 +142,31 @@ let CodeCell = React.createClass({
     );
   },
 
+  getInitialState() {
+    return {
+      code: "",
+    };
+  },
+
+  componentDidMount() {
+    this.setState({
+      code: this.props.code,
+    });
+  },
+
   handleClick(event) {
-    let {index, code} = this.props
+    let {index} = this.props;
+    let {code} = this.state;
     let node = ReactDOM.findDOMNode(event.currentTarget);
-    this.props.handleClick({index, code, node});
+    let handleChange = this.handleEditorChange;
+
+    this.props.handleClick({index, code, node, handleChange,});
+  },
+
+  handleEditorChange(newText) {
+    this.setState({
+      code: newText,
+    });
   },
 
   render() {
