@@ -198,7 +198,7 @@ function ipyToHailMary(ipy) {
     } else {
       index += 1
       code[index] = cell.source.join("")
-      return `<p><img data-class="placeholder" id="placeholder${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`
+      return `<p><img data-livebook-placeholder-cell id="placeholder${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`
     }
   }).join("\n")
   return {html:html,code:code}

@@ -1,18 +1,32 @@
 let React = require('react');
 let ReactDOM = require('react-dom');
 let Editor = require('./notebook-flowing-editor');
+let CodeCellV2 = require('./code-cell-v2');
 
-let orionPlugin = {
-  serializeHTML: () => {},
-  saveHTML: (html) => { /* */ },
-  export: () => {},
-}
+let CodeOverlaysContainer = React.createClass({
 
-// Props:
-// - HTML
-// - list of ids
-// - code blocks
-// - (mapping between list of ids and codeblocks)
+  createCodeCell(id, pythonCode) {
+    let fakeData = { outputs: [], }; // mock some data so the comoponent does not throw an error...
+    return (
+      <CodeCellV2 key={id} index={id} code={pythonCode} data={fakeData} />
+    );
+  },
+
+  renderCodeCells() {
+    let code = this.props.code;
+    let notebookCode = Object.keys(code).map((id) => this.createCodeCell(id, code[id]));
+    return notebookCode;
+  },
+
+  render() {
+    return (
+      <div>
+        {this.renderCodeCells()}
+      </div>
+    );
+  }
+});
+
 
 let NotebookV2 = React.createClass({
 
@@ -22,41 +36,14 @@ let NotebookV2 = React.createClass({
     // debugger;
   },
 
-  renderCode() {
-    let code = this.props.code;
-    let notebookCode = Object.keys(code).map((id) => make_notebook(id, code[id]) );
-    return notebookCode;
-  },
-
   render() {
     return (
       <div className="notebook">
-        <Editor text={this.props.html} onChange={this.handleChange} />   
-        {this.renderCode()}
+        <Editor text={this.props.html} onChange={this.handleChange} /> 
+        <CodeOverlaysContainer code={this.props.code} /> 
       </div>
     );
   },
 });
 
 module.exports = NotebookV2;
-
-
-function make_notebook(id, code) {
-  return (
-    <div className="notebook" id={"overlay" + id}>
-        <div className="cell-wrap" style={{position: "relative",}}>
-            <div className="cell" data-cell-index="1">
-                <div className="switch">
-                    <div className="codewrap">
-                        <div className="code ">{code}</div>
-                    </div>
-                </div>
-                <span></span>
-                <div>
-                    <div className="pyresult"><span>None</span>
-<span></span></div>
-                </div>
-            </div>
-        </div>
-    </div>);
-};

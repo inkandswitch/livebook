@@ -112,7 +112,7 @@ function createLivebookExtension() {
     }
 
     function getAllPlaceholders() {
-      return [].slice.call(document.querySelectorAll("img[data-class='placeholder']"));
+      return [].slice.call(document.querySelectorAll("img[data-livebook-placeholder-cell]"));
     }
 
     function getPlaceholderId(placeholderElt) {
@@ -132,12 +132,11 @@ module.exports = createLivebookExtension;
 
 function isCodeCellSelected(editor) {
   let selectedParent = editor.getSelectedParentElement();
-  return isEltPlaceholder(selectedParent);
-}
+  let hasPlaceholderChild = !!selectedParent.querySelector("img[data-livebook-placeholder-cell]");
 
-function isEltPlaceholder(elt) {
-  let id_re = new RegExp(PLACEHOLDER_ID_BASE + "\\d");
-  return id_re.test(elt.id);
+  console.log("Selected parent on keystroke", selectedParent);
+
+  return hasPlaceholderChild;
 }
 
 function isCommandJ(event) {
