@@ -161,13 +161,19 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
+  // ReactDOM.render(
+  //   <Notebook 
+  //       peerCursorCells={cursorPositions} 
+  //       peerEditingCells={peerEditingCells} 
+  //       data={iPython} 
+  //       typing={typing(render_time)}/>, 
+  //   notebookMount);
+
+  let {html, code} = ipyToHailMary(iPython);
+
   ReactDOM.render(
-    <Notebook 
-        peerCursorCells={cursorPositions} 
-        peerEditingCells={peerEditingCells} 
-        data={iPython} 
-        typing={typing(render_time)}/>, 
-    notebookMount);
+    <NotebookV2 html={html} code={code} />, 
+    notebookV2Mount);
 }
 
 ace.config.set("basePath", "/");
@@ -182,6 +188,7 @@ var iPythonUpdated = 0
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
 var notebookMount      = document.getElementById("notebook");
+var notebookV2Mount    = document.getElementById("notebook-v2");
 var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
 
@@ -624,6 +631,7 @@ var Nav = require("./components/nav");
 var LandingPage = require("./components/landing-page");
 var Uploader = require("./components/uploader.jsx");
 var Cell = require("./components/cell.jsx");
+var NotebookV2 = require("./components/notebook-flowing.jsx");
 
 
 var Notebook = React.createClass({

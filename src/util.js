@@ -32,6 +32,8 @@ function isArray(o) {
 function getPixelsBeyondFold($elt) {
   let viewportHeight = window.innerHeight;
   let scrollTop = $("body").scrollTop();
+  let offset = $elt.offset();
+  if (!offset) return { above: 0, below: 0 };
   let topOffset = $elt.offset().top
   let bottomOffset = topOffset + $elt.height();
 

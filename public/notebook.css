@@ -20,7 +20,8 @@ a:hover {
 
 .livebook-nav {
   background: #fdfdfd;
-  height: 0;
+  box-shadow: 0 1px 2px #ccc;
+  height: 70px;
   position: fixed;
   top: 0;
   max-width: 1200px;
@@ -30,10 +31,10 @@ a:hover {
 }
 
 .app-container {
-  position: relative;
   margin: 0 auto;
   max-width: 1200px;
-  padding-top: 4.2em;
+  padding-top: 70px;
+  position: relative;
 }
 
 .layout-container {
@@ -154,9 +155,9 @@ a:hover {
 
 .notebook {
   margin: 0 auto;
+  padding: 0;
   max-width: 1000px;
-  min-height: 400pt;
-  width: 90%;
+  width: 100%;
 }
 
 .notebook:empty {
@@ -208,7 +209,7 @@ a:hover {
   padding: .8em .85em 1em .8em;
   position: relative;
   margin: 0;
-  margin-bottom: -.1em;
+  /*margin-bottom: -.1em;*/
 }
 
 .notebook .codewrap::after {
@@ -266,7 +267,7 @@ a:hover {
 }
 
 .notebook .cell {
-  margin-bottom: 1em;
+  /*margin-bottom: 1em;*/
   position: relative;
 }
 
@@ -295,7 +296,7 @@ a:hover {
 .pyresult::before {
   content: "→ ";
   display: inline-block;
-  margin-top: -1em; /* lift it slightly above the x-height... kind of a magick number here, but looks nicer */
+  /*margin-top: -1em;  lift it slightly above the x-height... kind of a magick number here, but looks nicer */
 }
 
 .pyresult-error {
@@ -419,27 +420,31 @@ div.ace_error-marker {
   text-decoration: none;
 }
 
+/* yyy */
 .collaborators {
-  position: absolute;
   right: .5em;
-  top: .3em;
+  top: 0;
+  position: absolute;
 }
 
 .collaborators ul {
   list-style-type: none;
   margin: 0;
+  overflow: visible; /* solves the issue of name change form being hidden on mobile */
   padding: 0;
 }
 
 .collaborators li {
-  margin-top: 1em;
+  float: left;
+  margin: 0 .25em 0 0;
+  padding: .4em .5em .65em .5em;
   position: relative;
 
   transition: all .3s ease-in-out;
 }
 
 .collaborators li:first-of-type {
-  margin-top: .75em;
+  margin-top: 0;
 }
 
 .collaborators li span {
@@ -502,12 +507,16 @@ div.ace_error-marker {
   border-left: solid .1em #ccc;
   border-top: solid .1em #ccc;
   content: ' ';
-  height: 15px;
+
+  height: 12px;
+
   position: absolute;
-  right: 1.08em;
-  top: 0;
-  transform: rotate(45deg) translateY(-10.8px);
-  width: 15px;
+
+  right: 1.83em;
+  top: .1em;
+  width: 12px;
+
+  transform: rotate(45deg) translateY(-11.8px);
 }
 
 .collaborators-name-change-form p {
@@ -612,54 +621,40 @@ div.ace-content {
   display: none;
 }
 
-@media only screen and (max-width: 800px) {
+/* xxx */
 
+@media only screen and (min-width: 800px) {
   .app-container {
-    padding-top: 70px;
+    padding-top: 4.2em;
   }
 
   .livebook-nav {
-    box-shadow: 0 1px 2px #ccc;
-    height: 70px;
-    position: fixed;
+    box-shadow: none;
+    height: 0;
   }
 
   .collaborators {
     right: .5em;
-    top: 0;
-  }
-
-  .collaborators ul {
-    overflow: visible; /* solves the issue of name change form being hidden on mobile */
+    top: .3em;
   }
 
   .collaborators li {
-    float: left;
-    margin-bottom: 0;
-    margin-left: .25em;
-    margin-top: 0;
-    padding: .4em .5em .65em .5em;
+    float: none;
+    margin: 0;
+    margin-top: 1em;
+    padding: 0;
   }
 
   .collaborators li:first-of-type {
-    margin-top: 0;
+    margin-top: .75em;
   }
 
   .collaborators-name-change-form::after {
-    height: 12px;
-    right: 1.83em;
-    top: .1em;
-    width: 12px;
-
-    transform: rotate(45deg) translateY(-11.8px);
-  }
-
-  .notebook {
-    border: none;
-    margin-left: 7%;
-    margin-top: .6em;
-    padding: 0;
-    width: 91%;
+    height: 15px;
+    right: 1.08em;
+    top: 0;
+    transform: rotate(45deg) translateY(-10.8px);
+    width: 15px;
   }
 }
 
