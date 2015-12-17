@@ -175,6 +175,7 @@ function update_peers_and_render() {
   ReactDOM.render(
     <NotebookV2 
       html={html} code={code} 
+      hideEditor={hideEditor}
       renderEditor={summonEditor}/>, 
     notebookV2Mount);
 }
@@ -346,14 +347,12 @@ function summonEditor(options) {
   let {change} =  options; // onChangeFunc(CursorCell)
   let onBeforeLoad = noop;
 
-  // BOOTS TODO
-  // - write a convenience method for this
   let editorOptions = {
     lang: lang,
     height: height,
     width: width,
     value: value,
-    change: change,
+    change: change, // TODO - scope with a function that evaluates contents
     onBeforeLoad: onBeforeLoad,
     onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
@@ -375,6 +374,10 @@ function summonEditor(options) {
   // TEMP for testing
   global.EDITOR = editor;
   REMOVE_MARKERS();
+}
+
+function hideEditor() {
+  $("#editX").hide();
 }
 
 /**

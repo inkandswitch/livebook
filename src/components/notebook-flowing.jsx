@@ -63,6 +63,16 @@ let NotebookV2 = React.createClass({
     });
   },
 
+  handleEditorClick() {
+    this.hideEditor();
+  },
+
+  hideEditor() {
+    if (this.props.hideEditor) {
+      this.props.hideEditor();
+    }
+  },
+
   renderEditor(options) {
     if (this.props.renderEditor) {
       this.props.renderEditor(options);
@@ -72,7 +82,7 @@ let NotebookV2 = React.createClass({
   render() {
     return (
       <div className="notebook">
-        <Editor text={this.props.html} onChange={this.handleChange} /> 
+        <Editor text={this.props.html} onChange={this.handleChange} onClick={this.handleEditorClick} /> 
         <CodeOverlaysContainer code={this.props.code} handleCodeCellClick={this.handleCodeCellClick} /> 
       </div>
     );

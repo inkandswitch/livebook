@@ -320,7 +320,7 @@ a:hover {
 }
 
 .pyresult-loading {
-  opacity: .3; 
+  opacity: .75; 
 }
 
 .pyresult-loading-with-message {
@@ -334,6 +334,10 @@ a:hover {
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
+}
+
+.active-code-cell {
+  border: solid 5px red;
 }
 
 div.editor { /* !!! this is necessary specificity */

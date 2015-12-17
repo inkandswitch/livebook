@@ -45,6 +45,9 @@ module.exports = React.createClass({
       this._updated = true;
       this.change(dom.innerHTML);
     });
+    this.medium.subscribe('editableClick', (event) => {
+      this.props.onClick();
+    });
   },
 
   componentWillUnmount() {

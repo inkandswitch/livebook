@@ -17,10 +17,10 @@ function createLivebookExtension() {
         editor = this.base;
 
         editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(); });
-        editor.subscribe("editableKeydown", (_) => { if (isCodeCellSelected(editor)) debugger; }); // TODO - scope to certain keys
+        editor.subscribe("editableKeydown", (_) => { highlightSelectedCodeCell(editor); }); // TODO - scope to certain keys
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
-        validateContents()
+        validateContents(editor);
     }
 
     function checkState(node) {
@@ -130,13 +130,28 @@ function createLivebookExtension() {
 
 module.exports = createLivebookExtension;
 
-function isCodeCellSelected(editor) {
+function highlightSelectedCodeCell(editor) {
   let selectedParent = editor.getSelectedParentElement();
-  let hasPlaceholderChild = !!selectedParent.querySelector("img[data-livebook-placeholder-cell]");
+  let placeholder = selectedParent.querySelector("img[data-livebook-placeholder-cell]");
 
-  console.log("Selected parent on keystroke", selectedParent);
+  removeOldHighlights();
 
-  return hasPlaceholderChild;
+  if (placeholder) {
+    addHighlight(placeholder);
+    debugger;   
+  }
+}
+
+function removeOldHighlights() {
+  [].forEach.call(document.querySelectorAll(".active-code-cell"), removeHighlight)
+}
+
+function addHighlight(elt) {
+  elt.classList.add("active-code-cell");
+}
+
+function removeHighlight(elt) {
+  elt.classList.remove("active-code-cell");
 }
 
 function isCommandJ(event) {
