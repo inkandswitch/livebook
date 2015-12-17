@@ -62,7 +62,8 @@ var randomColor   = require("./util").randomColor;
 var randomName    = require("./util").randomName;
 var resultToHtml  = require("./util").resultToHtml;
 var scrollXPixels = require("./util").scrollXPixels;
-var ipyToHailMary = require("./util").ipyToHailMary;
+var {ipyToHailMary} = require("./ipython-converter");
+
 
 var getPeerColor     = (peer) => peer.state.color ;
 

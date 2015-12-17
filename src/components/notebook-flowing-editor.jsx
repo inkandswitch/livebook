@@ -30,7 +30,7 @@ module.exports = React.createClass({
   getDefaultProps() {
     return {
       tag: 'div',
-      options: editorOptions,
+      options: Object.assign({}, editorOptions),
     };
   },
 

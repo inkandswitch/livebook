@@ -3,6 +3,8 @@ let ReactDOM = require('react-dom');
 let Editor = require('./notebook-flowing-editor');
 let CodeCellV2 = require('./code-cell-v2');
 
+let {htmlToIPy} = require("../ipython-converter");
+
 let CodeOverlaysContainer = React.createClass({
 
   createCodeCell(id, pythonCode) {
@@ -33,6 +35,8 @@ let NotebookV2 = React.createClass({
   handleChange(html, medium) {
     // TODO - save every 5th change or something?
     // serialize HTML
+    // debugger;
+    let ipython = htmlToIPy(html);
     // debugger;
   },
 
