@@ -28,7 +28,7 @@ let CodeOverlaysContainer = React.createClass({
 
   render() {
     return (
-      <div>
+      <div data-livebook-overlays>
         {this.renderCodeCells()}
       </div>
     );

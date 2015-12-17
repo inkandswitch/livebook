@@ -144,18 +144,17 @@ let CodeCell = React.createClass({
 
   handleClick(event) {
     let {index, code} = this.props
-    let node = ReactDOM.findDOMNode(this);
-
+    let node = ReactDOM.findDOMNode(event.currentTarget);
     this.props.handleClick({index, code, node});
   },
 
   render() {
     let id = "overlay" + this.props.index;
     return (
-      <div className="notebook" id={id} onClick={this.handleClick}>
+      <div className="notebook" id={id}>
         <div className="cell-wrap">
           <div className="cell" data-cell-index={this.props.index}>
-            <div className="switch">
+            <div className="switch" onClick={this.handleClick}>
               <div className="codewrap">
                 {this.code()}
               </div>
