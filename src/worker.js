@@ -132,16 +132,17 @@ function generateAndExecPython(doc) {
 function generatePythonCTX(doc) {
   //let lines = ["def usercode():"];
   let ctxs = []
-  doc.cells.forEach((c, i) => {
+
+  doc.forEach((c, i) => {
     let lineno = 0;
     let lines = [];
     let lineno_map = {}; // keeps track of line number on which to print error
-    if (c.cell_type == "code") {
+ //   if (c.cell_type == "code") {
 
       lines.push("mark("+i+")")
       lineno += 1
-
-      c.source.forEach((line,line_number) => {
+      
+      c.split("\n").forEach((line,line_number) => {
         if (!line.match(/^\s*$/) &&
             !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
           lineno += 1
@@ -157,7 +158,7 @@ function generatePythonCTX(doc) {
         lines.push(line)
         lines.push(`render(${i},None)    ## line ${lineno}`)
       }
-    }
+//    }
     let code = lines.join("\n") + "\n"
     ctxs.push({ map: lineno_map, code: code, length: lines.length })
   })

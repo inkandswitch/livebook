@@ -3,17 +3,22 @@ let ReactDOM = require('react-dom');
 let Editor = require('./notebook-flowing-editor');
 let CodeCellV2 = require('./code-cell-v2');
 
-let {htmlToIPy} = require("../ipython-converter");
+let {htmlToIPy} = require("../ipython-converter.jsx");
 
 let CodeOverlaysContainer = React.createClass({
 
-  createCodeCell(id, pythonCode) {
-    let fakeData = { outputs: [], }; // mock some data so the comoponent does not throw an error...
+  createCodeCell(id, pythonCode, result) {
     return (
       <CodeCellV2 key={id} index={id} 
-        code={pythonCode} data={fakeData} 
-        handleClick={this.handleCodeCellClick} />
+        result={result}
+        code={pythonCode} 
+        handleClick={this.handleCodeCellClick}
+        handleEditorChange={this.handleEditorChange} />
     );
+  },
+
+  handleEditorChange(id, code) {
+    this.props.handleEditorChange(id, code);
   },
 
   handleCodeCellClick(codeCellData) {
@@ -21,8 +26,11 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   renderCodeCells() {
-    let code = this.props.code;
-    let notebookCode = Object.keys(code).map((id) => this.createCodeCell(id, code[id]));
+    let codeList = this.props.codeList;
+    let codeMap = this.props.codeMap;
+    let codeResults = this.props.codeResults;
+    let notebookCode = codeList.map((id) => this.createCodeCell(id, codeMap[id], codeResults[id]));
+
     return notebookCode;
   },
 
@@ -38,12 +46,19 @@ let CodeOverlaysContainer = React.createClass({
 
 let NotebookV2 = React.createClass({
 
-  handleChange(html, medium) {
-    // TODO - save every 5th change or something?
-    // serialize HTML
-    // debugger;
-    let ipython = htmlToIPy(html);
-    // debugger;
+  getInitialState() {
+    return {
+      codeList: [],
+      codeMap: {},
+      results: {},
+    };
+  },
+
+  componentWillMount() {
+    this.setState({
+      codeList: Object.keys(this.props.code),
+      codeMap: this.props.code,
+    });
   },
 
   handleCodeCellClick(codeCellData) {
@@ -73,17 +88,67 @@ let NotebookV2 = React.createClass({
     }
   },
 
+  handleNewResult(codeListIndex, result) {
+    let id = this.state.codeList[codeListIndex];
+    if (id === undefined) return;
+
+    let nextResults = Object.assign({}, this.state.results);
+    nextResults[id] = result;
+
+    this.setState({
+      results: nextResults,
+    });
+  },
+
   renderEditor(options) {
     if (this.props.renderCodeEditor) {
       this.props.renderCodeEditor(options);
     }
   },
 
+  getCurrentCode(id) {
+    return this.state.codeMap[id];
+  },
+
+  handleEditorChange(id, code) {
+    let nextCodeMap = Object.assign({}, this.state.codeMap);
+    nextCodeMap[id] = code;
+    this.setState({ codeMap: nextCodeMap, });
+
+    this.executePython();
+  },
+
+  handleCodeChange(data) {
+    let {codeDelta, codeList} = data;
+    let nextCodeMap = Object.assign({}, this.state.codeMap, codeDelta);
+    this.setState({
+      codeMap: nextCodeMap,
+      codeList,
+    });
+
+    this.executePython()
+  },
+
+  executePython() {
+    let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
+    this.props.executePython(codeBlocks, this.handleNewResult);
+  },
+
   render() {
     return (
       <div className="notebook">
-        <Editor text={this.props.html} onChange={this.handleChange} onClick={this.handleEditorClick} /> 
-        <CodeOverlaysContainer code={this.props.code} handleCodeCellClick={this.handleCodeCellClick} /> 
+        <Editor 
+          text={this.props.html} 
+          onCodeChange={this.handleCodeChange}
+          onClick={this.handleEditorClick} 
+          getCurrentCodeList={ () => this.state.codeList}
+          getCurrentCode={this.getCurrentCode} /> 
+        <CodeOverlaysContainer 
+          codeResults={this.state.results}
+          codeList={this.state.codeList} 
+          codeMap={this.state.codeMap}
+          handleEditorChange={this.handleEditorChange}
+          handleCodeCellClick={this.handleCodeCellClick} /> 
       </div>
     );
   },

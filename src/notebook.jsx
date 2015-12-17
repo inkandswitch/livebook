@@ -21,6 +21,8 @@ var colorChange = false
 var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
 var createCellPlotData = require("./cell-plots-adapter");
 
+
+var NEXT_CALLBACK;
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
@@ -31,13 +33,12 @@ WORKER.onmessage = function(e) {
   if (error) handle_error(error);
   bindPlotsToiPython(plots, iPython);
   handleResults(results)
-
-  render();
 }
 
 function handleResults(results) {
   for (let cell in results) {
-    iPython.cells[cell].outputs = results[cell]
+    // iPython.cells[cell].outputs = results[cell]
+    NEXT_CALLBACK(cell, results[cell])
   }
 }
 
@@ -62,7 +63,7 @@ var randomColor   = require("./util").randomColor;
 var randomName    = require("./util").randomName;
 var resultToHtml  = require("./util").resultToHtml;
 var scrollXPixels = require("./util").scrollXPixels;
-var {ipyToHailMary} = require("./ipython-converter");
+var {ipyToHailMary} = require("./ipython-converter.jsx");
 
 
 var getPeerColor     = (peer) => peer.state.color ;
@@ -175,8 +176,9 @@ function update_peers_and_render() {
   ReactDOM.render(
     <NotebookV2 
       html={html} code={code} 
+      executePython={executePython}
       hideCodeEditor={hideEditor}
-      renderCodeEditor={summonEditor}/>, 
+      renderCodeEditor={summonEditor} />, 
     notebookV2Mount);
 }
 
@@ -339,6 +341,7 @@ function getEditorWidth() {
   return width;
 }
 
+
 // NB - used in free flowing
 function summonEditor(options) {
   let {height, width} = options;
@@ -352,7 +355,7 @@ function summonEditor(options) {
     height: height,
     width: width,
     value: value,
-    change: change, // TODO - scope with a function that evaluates contents
+    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
     onBeforeLoad: onBeforeLoad,
     onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
   };
@@ -374,6 +377,15 @@ function summonEditor(options) {
   // TEMP for testing
   global.EDITOR = editor;
   REMOVE_MARKERS();
+}
+
+function createChangeFunction(orig) {
+  return handleChange;
+
+  function handleChange(code) {
+    orig(code);
+
+  }
 }
 
 function hideEditor() {
@@ -621,21 +633,15 @@ window.onpopstate = function(event) {
     setCurrentPage("notebook")
 }
 
-/**
- * [Global Deps]
- * `iPython`
- * `editor`
- * `assignment`
- * `defre`
- * `importre`
- * `indent`
- * `handle_error`
- * `render`
- */
 function python_eval() {
+  throw new Error("NYI");
+}
+
+function executePython(codeBlocks, next) {
+  NEXT_CALLBACK = next;
   REMOVE_MARKERS()
 //  var code_ctx = generate_python_ctx()
-  WORKER.postMessage({ type: "exec", doc: iPython})
+  WORKER.postMessage({ type: "exec", doc: codeBlocks})
 //  var badcell  = execute_python_ctx(code_ctx)
 //  return render()
 }

@@ -1,9 +1,9 @@
 const PLACEHOLDER_ID_BASE = "placeholder";
 
-function createLivebookExtension() {
+function createLivebookExtension(options) {
+    let {onChange, getCurrentCode, getCurrentCodeList} = options;
 
-    let codeindex = 1
-    let code_ids = []
+    let codeindex;
 
     let result = { init, checkState };
     let editor = null;
@@ -41,13 +41,15 @@ function createLivebookExtension() {
       ids.forEach((index) => {
         let overlay = document.getElementById("overlay" + index)
   
+        if (!overlay) debugger;
+
         let placeholder = document.getElementById(PLACEHOLDER_ID_BASE + index)
         let placeholder_rect = placeholder.getBoundingClientRect();
         let overlay_rect = overlay.getBoundingClientRect();
         let height = overlay_rect.height;
 
-        console.log("placeholder_rect",placeholder_rect)
-        console.log("overlayrect",overlay_rect)
+        // console.log("placeholder_rect",placeholder_rect)
+        // console.log("overlayrect",overlay_rect)
 
         placeholder.style.height = height + "px"
 
@@ -63,49 +65,47 @@ function createLivebookExtension() {
       })
     }
 
-    function makeNewCodeBlock() {
-      let index = codeindex 
-      codeindex += 1
-
-      let scratch = document.getElementById("scratch")
-      scratch.insertAdjacentHTML('beforeEnd', make_random_notebook(index))
-
-      code_ids.push(index)
-
-      return index
-    }
-
     function addCodeCell() {
       let index = makeNewCodeBlock()
       editor.pasteHTML(`<p><img data-class="placeholder" id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`,{ cleanAttrs: ["style","dir"], })
     }
 
     function validateContents(editor) {
+      let codeDelta = {};
+      let prevCodeList = getCurrentCodeList();
+
       let seen = reducePlaceholders((seen, placeholder) => {
         let id = getPlaceholderId(placeholder);
         let isDuplicate = seen.includes(id);
+        let currentCode = getCurrentCode(id);
+        let isDeadCode = (currentCode !== undefined) && !prevCodeList.includes(id);
 
-        if (isDuplicate) {
-            let index = makeNewCodeBlock();
-            placeholder.id = PLACEHOLDER_ID_BASE + index;
-            seen.push(index);
-            return seen;
+        if (isDuplicate || isDeadCode) {
+          let index = codeindex++;
+
+          codeDelta[index] = currentCode;
+
+          placeholder.id = PLACEHOLDER_ID_BASE + index;
+
+          seen.push(index);
+        }
+        else {
+          seen.push(id);
         }
 
-        seen.push(id);
         return seen;
       });
 
-      let orphans = code_ids.filter((id) => !seen.includes(id))
+      // BAD INPUT COULD FUX WITH THIS PLACEMENT
+      codeindex = codeindex || (seen.slice().sort((a, b) => { +a >= +b })[0] || 0) + 1;
 
-      orphans.forEach((id) => {
-        removeCodeOverlay(id);
-        removeCodeId(id);
-      })
+      onChange({
+        codeList: seen,
+        codeDelta,
+      });
 
       console.log("seen", seen);
-      console.log("orphans", orphans)
-      console.log("code_ids", code_ids)
+      console.log("prevCodeList", prevCodeList)
 
       setCodeBlockPositions(seen);
     }
@@ -119,15 +119,8 @@ function createLivebookExtension() {
     }
 
     function getPlaceholderId(placeholderElt) {
-      return +placeholderElt.id.replace("placeholder", "");
-    }
-
-    function removeCodeOverlay(id) {
-      document.getElementById("overlay" + id).remove();
-    }
-
-    function removeCodeId(id) {
-      code_ids = code_ids.filter((d) => d != id)
+      // debugger;
+      return placeholderElt.id.replace("placeholder", "");
     }
 }
 

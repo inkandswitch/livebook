@@ -85,6 +85,8 @@ let CodeCell = React.createClass({
   },
 
   getPlotContainers() {
+    return (<div/>);
+
     let notebook = this.props.notebook;
     let iPython = notebook.getiPython();
     let getCellPlots = notebook.getCellPlots;
@@ -108,7 +110,8 @@ let CodeCell = React.createClass({
   },
 
   outputs() {
-    let outputs = this.props.data.outputs;
+    let outputs = this.props.result || [];
+
     if (outputs.length === 0) {
       return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);
     }
@@ -127,7 +130,7 @@ let CodeCell = React.createClass({
   code() {
     // NU
     return (
-      <div className="code">{this.state.code}</div>
+      <div className="code">{this.props.code}</div>
     );
 
 
@@ -142,21 +145,10 @@ let CodeCell = React.createClass({
     );
   },
 
-  getInitialState() {
-    return {
-      code: "",
-    };
-  },
-
-  componentDidMount() {
-    this.setState({
-      code: this.props.code,
-    });
-  },
 
   handleClick(event) {
     let {index} = this.props;
-    let {code} = this.state;
+    let {code} = this.props;
     let node = ReactDOM.findDOMNode(event.currentTarget);
     let handleChange = this.handleEditorChange;
 
@@ -164,9 +156,7 @@ let CodeCell = React.createClass({
   },
 
   handleEditorChange(newText) {
-    this.setState({
-      code: newText,
-    });
+    this.props.handleEditorChange(this.props.index, newText);
   },
 
   render() {

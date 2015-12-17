@@ -87,4 +87,4 @@ function setup(notebook) {
   });
 }
 
-module.exports = { setup: setup }
+module.exports = { setup: () => {} }

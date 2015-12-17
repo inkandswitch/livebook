@@ -1,7 +1,12 @@
+const PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==";
+
+var React = require('react');
+
+
 var $ = require("jquery");
 var marked = require("marked");
 // var toMarkdown =  require("to-markdown");
-var toMarkdown = require('html-md');
+var toMarkdown = () => {}; //require('html-md');
 
 module.exports = {
     ipyToHailMary,
@@ -16,8 +21,8 @@ function ipyToHailMary(ipy) {
       return marked(cell.source.join("\n"))
     } else {
       index += 1
-      code[index] = cell.source.join("")
-      return `<p><img data-livebook-placeholder-cell id="placeholder${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`
+      code[index] = cell.source.join("");
+      return `<p><img data-livebook-placeholder-cell id="placeholder${index}" width="100%" src="${PNG}"></p>`
     }
   }).join("\n")
 

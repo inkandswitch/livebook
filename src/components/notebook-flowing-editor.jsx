@@ -4,15 +4,12 @@ let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
 
 let createLivebookExtension = require("../medium-editor-livebook-extension");
-let livebookExtension = createLivebookExtension();
 
 let editorOptions = {
     buttonLabels: 'fontawesome',
-    extensions: {
-        livebook: livebookExtension,
-    },
+    extensions: {},
     paste: {
-        cleanPastedHTML: true,
+        cleanPastedHTML: false,
         forcePlainText: false
     },
     placeholder: "Write some Livebook!"
@@ -30,7 +27,6 @@ module.exports = React.createClass({
   getDefaultProps() {
     return {
       tag: 'div',
-      options: Object.assign({}, editorOptions),
     };
   },
 
@@ -40,11 +36,22 @@ module.exports = React.createClass({
 
   componentDidMount() {
     let dom = ReactDOM.findDOMNode(this);
-    this.medium = new MediumEditor(dom, this.props.options);
+
+    let livebookExtension = createLivebookExtension({
+      onChange: this.props.onCodeChange,
+      getCurrentCode: this.props.getCurrentCode,
+      getCurrentCodeList: this.props.getCurrentCodeList,
+    });
+
+    editorOptions.extensions.livebook = livebookExtension;
+
+    this.medium = new MediumEditor(dom, editorOptions);
+
     this.medium.subscribe('editableInput', (e) => {
       this._updated = true;
       this.change(dom.innerHTML);
     });
+
     this.medium.subscribe('editableClick', (event) => {
       this.props.onClick();
     });
