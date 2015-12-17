@@ -173,7 +173,9 @@ function update_peers_and_render() {
   let {html, code} = ipyToHailMary(iPython);
 
   ReactDOM.render(
-    <NotebookV2 html={html} code={code} />, 
+    <NotebookV2 
+      html={html} code={code} 
+      renderEditor={summonEditor}/>, 
     notebookV2Mount);
 }
 
@@ -334,6 +336,45 @@ function getEditorWidth() {
   var $switch = $(".switch:eq("+CursorCell+")");
   var width = $switch.width();
   return width;
+}
+
+// NB - used in free flowing
+function summonEditor(options) {
+  let {height, width} = options;
+  let lang   = "python";
+  let value  = options.code;
+  let change =  noop; // onChangeFunc(CursorCell)
+  let onBeforeLoad = noop;
+
+  // BOOTS TODO
+  // - write a convenience method for this
+  let editorOptions = {
+    lang: lang,
+    height: height,
+    width: width,
+    value: value,
+    change: change,
+    onBeforeLoad: onBeforeLoad,
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
+  };
+
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
+
+  // Position editor
+  let {position} = options;
+  $("#editX")
+    .css("top", position.top)
+    .css("left", position.left)
+    .show();
+
+  editor = ace.edit("editX")
+  editor.focus()
+  editor.moveCursorTo(0, 0);
+  editor.getSession().setUseWrapMode(true);
+
+  // TEMP for testing
+  global.EDITOR = editor;
+  REMOVE_MARKERS();
 }
 
 /**

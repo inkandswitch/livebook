@@ -10,8 +10,14 @@ let CodeOverlaysContainer = React.createClass({
   createCodeCell(id, pythonCode) {
     let fakeData = { outputs: [], }; // mock some data so the comoponent does not throw an error...
     return (
-      <CodeCellV2 key={id} index={id} code={pythonCode} data={fakeData} />
+      <CodeCellV2 key={id} index={id} 
+        code={pythonCode} data={fakeData} 
+        handleClick={this.handleCodeCellClick} />
     );
+  },
+
+  handleCodeCellClick(codeCellData) {
+    return this.props.handleCodeCellClick(codeCellData);
   },
 
   renderCodeCells() {
@@ -40,11 +46,31 @@ let NotebookV2 = React.createClass({
     // debugger;
   },
 
+  handleCodeCellClick(codeCellData) {
+    let {index, code, node} = codeCellData;
+    let nodeBox = node.getBoundingClientRect();
+    let {top, left, height, width} = nodeBox;
+    let position = {top, left};
+    this.renderEditor({
+      code,
+      height,
+      width,
+      position,
+    });
+    // debugger;
+  },
+
+  renderEditor(options) {
+    if (this.props.renderEditor) {
+      this.props.renderEditor(options);
+    }
+  },
+
   render() {
     return (
       <div className="notebook">
         <Editor text={this.props.html} onChange={this.handleChange} /> 
-        <CodeOverlaysContainer code={this.props.code} /> 
+        <CodeOverlaysContainer code={this.props.code} handleCodeCellClick={this.handleCodeCellClick} /> 
       </div>
     );
   },

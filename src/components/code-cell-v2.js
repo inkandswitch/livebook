@@ -1,4 +1,5 @@
 let React = require("react");
+let ReactDOM = require("react-dom");
 
 let PlotContainer = require("./code-cell-plot-container");
 
@@ -123,7 +124,7 @@ let CodeCell = React.createClass({
       );
   },
 
- code() {
+  code() {
     // NU
     return (
       <div className="code">{this.props.code}</div>
@@ -139,12 +140,19 @@ let CodeCell = React.createClass({
         {CODE.read(this.props.index)}
       </div>
     );
- },
+  },
+
+  handleClick(event) {
+    let {index, code} = this.props
+    let node = ReactDOM.findDOMNode(this);
+
+    this.props.handleClick({index, code, node});
+  },
 
   render() {
     let id = "overlay" + this.props.index;
     return (
-      <div className="notebook" id={id}>
+      <div className="notebook" id={id} onClick={this.handleClick}>
         <div className="cell-wrap">
           <div className="cell" data-cell-index={this.props.index}>
             <div className="switch">
