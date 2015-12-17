@@ -140,8 +140,7 @@ function highlightSelectedCodeCell(editor) {
   removeOldHighlights();
 
   if (placeholder) {
-    addHighlight(placeholder);
-    debugger;   
+    addHighlight(placeholderToCodeCell(placeholder));
   }
 }
 
@@ -155,6 +154,12 @@ function addHighlight(elt) {
 
 function removeHighlight(elt) {
   elt.classList.remove("active-code-cell");
+}
+
+function placeholderToCodeCell(placeholder) {
+  let id = placeholder.id.replace("placeholder", "");
+  let codeCell = document.getElementById("overlay" + id);
+  return codeCell;
 }
 
 function isCommandJ(event) {
