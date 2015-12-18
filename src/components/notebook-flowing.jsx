@@ -1,5 +1,6 @@
 let React = require('react');
 let ReactDOM = require('react-dom');
+var Uploader = require("./uploader.jsx");
 let Editor = require('./notebook-flowing-editor');
 let CodeCellV2 = require('./code-cell-v2');
 
@@ -61,6 +62,21 @@ let CodeOverlaysContainer = React.createClass({
 
 
 let NotebookV2 = React.createClass({
+
+  componentWillUpdate() {
+    let renderLandingPage = this.props.renderLandingPage;
+    renderLandingPage && renderLandingPage();
+  },
+
+  currentPage() {
+    let getCurrentPage = this.props.getCurrentPage;
+    if (getCurrentPage) {
+      return getCurrentPage();
+    }
+    else {
+      console.log("Get current page not defined.");
+    }
+  },
 
   getInitialState() {
     return {
@@ -156,6 +172,18 @@ let NotebookV2 = React.createClass({
   },
 
   render() {
+    let currentPage = this.currentPage();
+    switch (currentPage) {
+      case "landing":
+        return <div className="notebook"></div>;
+      case "upload":
+        return <div className="notebook"><Uploader startNewNotebook={this.props.startNewNotebook} /></div>
+      case "notebook":
+        return this.renderNotebook();
+    }
+  },
+
+  renderNotebook() {
     return (
       <div className="notebook">
         <Editor 
@@ -174,7 +202,7 @@ let NotebookV2 = React.createClass({
           handleEditorChange={this.handleEditorChange} /> 
       </div>
     );
-  },
+  }
 });
 
 module.exports = NotebookV2;

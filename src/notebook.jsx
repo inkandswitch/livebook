@@ -40,6 +40,9 @@ function notebookV2Render() {
   
   ReactDOM.render(
     <NotebookV2 
+      getCurrentPage={() => CurrentPage}
+      startNewNotebook={startNewNotebook}
+      renderLandingPage={renderLandingPage}
       store={livebookStore}
       html={html} code={code} 
       executePython={executePython}
@@ -614,7 +617,8 @@ window.onpopstate = function(event) {
 }
 
 function python_eval() {
-  throw new Error("NYI");
+  let style = "color: darkred; font-weight: 700; font-size: 2em;";
+  console.log("%c Calling python_eval is deprecated and does nothing.", style)
 }
 
 function executePython(codeBlocks, nextForResults, nextForPlots) {
