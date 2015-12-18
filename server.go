@@ -95,6 +95,24 @@ func connectToDatabase() (DB gorm.DB) {
 
 var DB gorm.DB
 
+func forkDocument(w http.ResponseWriter, r *http.Request) {
+//{ipynb: "/forkable/mlex1.ipynb", csv: "/forkable/mlex1.csv"//}
+//  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
+	var request = map[string]string{}
+	body, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(body, &request)
+	// SECURITY ISSUE - can read any file with ".."
+	csv,_ := ioutil.ReadFile("./public" + request["csv"])
+	ipynb,_ := ioutil.ReadFile("./public" + request["ipynb"])
+	document := &Document{Name:"Hello"}
+	DB.Create(&document)
+	notebook := &Notebook{ DocumentId: document.ID, Name: "NotebookName", Body: string(ipynb) }
+	DB.Create(&notebook)
+	datafile := &DataFile{ DocumentId: document.ID, Name: "DataName", Body: string(csv) }
+	DB.Create(&datafile)
+	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
+}
+
 func newDocument(w http.ResponseWriter, r *http.Request) {
 	var document = Document{}
 	body, _ := ioutil.ReadAll(r.Body)
@@ -235,6 +253,7 @@ func main() {
 	compress := handlers.CompressHandler
 
 	mux := mux.NewRouter()
+	mux.HandleFunc("/fork/", forkDocument).Methods("POST")
 	mux.HandleFunc("/d/", newDocument).Methods("POST")
 	mux.HandleFunc("/d/{id}.rtc", auth(getCradle)).Methods("GET")
 	mux.HandleFunc("/d/{id}.rtc", auth(postMessageCradle)).Methods("POST")

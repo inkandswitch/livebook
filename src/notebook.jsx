@@ -758,6 +758,10 @@ function renderLandingPage() {
 }
 
 function forkNotebook(urls) {
+  $.post("/fork/", JSON.stringify(urls), function(response) {
+    window.location = response
+  })
+/*
   let fetchCSV = createAsyncDataFetcher(urls.csv);
   let fetchIPYNB = createAsyncDataFetcher(urls.ipynb);
 
@@ -776,6 +780,8 @@ function forkNotebook(urls) {
     });
 
   });
+*/
+
 }
 
 function parse_raw_notebook(raw_notebook,raw_csv) {
