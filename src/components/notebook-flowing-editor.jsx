@@ -80,8 +80,4 @@ module.exports = React.createClass({
 
     return React.createElement(tag, props);
   },
-
-  setupMediumEditor() {
-
-  },
 });

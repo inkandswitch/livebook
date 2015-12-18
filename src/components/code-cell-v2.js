@@ -152,7 +152,14 @@ let CodeCell = React.createClass({
     let node = ReactDOM.findDOMNode(event.currentTarget);
     let handleChange = this.handleEditorChange;
 
-    this.props.handleClick({index, code, node, handleChange,});
+    this.props.store.dispatch({
+      type: "OPEN_CODE_EDITOR",
+      editorProps: {
+        code,
+        node,
+        handleChange,
+      },
+    });
   },
 
   handleEditorChange(newText) {

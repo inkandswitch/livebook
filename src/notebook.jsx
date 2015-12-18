@@ -1,11 +1,106 @@
-/**
- * [Global State]
- * `Mode`
- * `$cell`
- * `CurrentCursor`
- * `ERROR_MARKER_IDS`
- * `ERROR_CELL_CLASSNAME`
- */
+let Redux = require("redux");
+let { createStore, combineReducers } = Redux;
+
+const initialEditorState = {
+  hidden: true,
+  code: "",
+};
+
+const reducers = {
+  codeEditor: codeEditorReducer,
+};
+
+const livebookApp = combineReducers(reducers); // we can continue composing reducers here
+const livebookStore = createStore(livebookApp);
+livebookStore.subscribe(codeEditorRender);
+
+function codeEditorReducer(state = initialEditorState, action) {
+  switch (action.type) {
+    case 'OPEN_CODE_EDITOR':
+      let { editorProps } = action;
+      let hidden = false;
+      return Object.assign({}, state, editorProps, { hidden });
+    case 'CLOSE_CODE_EDITOR':
+      return { hidden: true, code: "", };
+    default:
+      return state;
+  }
+}
+
+function codeEditorRender() {
+  let { codeEditor } = livebookStore.getState();
+  let { hidden, code, node, handleChange } = codeEditor;
+
+  if (hidden) {
+    hideEditor();
+    return;
+  }
+
+  let {top, left, height, width} = node.getBoundingClientRect();
+  top += window.scrollY;
+
+  summonEditor({
+    code,
+    height, width,
+    top, left,
+    change: handleChange,
+  });
+}
+
+global.STORE = livebookStore;
+
+
+// NB - used in free flowing
+function summonEditor(options) {
+  let {height, width} = options;
+  let lang   = "python";
+  let value  = options.code;
+  let {change} =  options; // onChangeFunc(CursorCell)
+  let onBeforeLoad = noop;
+
+  let editorOptions = {
+    lang: lang,
+    height: height,
+    width: width,
+    value: value,
+    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
+    onBeforeLoad: onBeforeLoad,
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
+  };
+
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
+
+  // Position editor
+  let {top, left} = options;
+  $("#editX")
+    .css("top", top)
+    .css("left", left)
+    .show();
+
+  editor = ace.edit("editX")
+  editor.focus()
+  editor.moveCursorTo(0, 0);
+  editor.getSession().setUseWrapMode(true);
+
+  // TEMP for testing
+  global.EDITOR = editor;
+  REMOVE_MARKERS();
+}
+
+function createChangeFunction(orig) {
+  return handleChange;
+
+  function handleChange(code) {
+    orig(code);
+
+  }
+}
+
+function hideEditor() {
+  $("#editX").hide();
+}
+
+
 
 var $          = require("jquery");
 var ace        = require("brace");
@@ -50,6 +145,7 @@ function bindPlotsToiPython(plots, iPython) {
     setCellPlots(cell, plotData);
   });
 }
+
 
 var charts = require("./charts");  // Assigns the charts
 
@@ -175,6 +271,7 @@ function update_peers_and_render() {
 
   ReactDOM.render(
     <NotebookV2 
+      store={livebookStore}
       html={html} code={code} 
       executePython={executePython}
       hideCodeEditor={hideEditor}
@@ -342,55 +439,7 @@ function getEditorWidth() {
 }
 
 
-// NB - used in free flowing
-function summonEditor(options) {
-  let {height, width} = options;
-  let lang   = "python";
-  let value  = options.code;
-  let {change} =  options; // onChangeFunc(CursorCell)
-  let onBeforeLoad = noop;
 
-  let editorOptions = {
-    lang: lang,
-    height: height,
-    width: width,
-    value: value,
-    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
-    onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
-  };
-
-  ReactDOM.render(createAceEditor(editorOptions), editorMount);
-
-  // Position editor
-  let {position} = options;
-  $("#editX")
-    .css("top", position.top)
-    .css("left", position.left)
-    .show();
-
-  editor = ace.edit("editX")
-  editor.focus()
-  editor.moveCursorTo(0, 0);
-  editor.getSession().setUseWrapMode(true);
-
-  // TEMP for testing
-  global.EDITOR = editor;
-  REMOVE_MARKERS();
-}
-
-function createChangeFunction(orig) {
-  return handleChange;
-
-  function handleChange(code) {
-    orig(code);
-
-  }
-}
-
-function hideEditor() {
-  $("#editX").hide();
-}
 
 /**
  * [Global Deps]

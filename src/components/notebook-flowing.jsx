@@ -7,22 +7,33 @@ let {htmlToIPy} = require("../ipython-converter.jsx");
 
 let CodeOverlaysContainer = React.createClass({
 
+  hideCodeEditorOnEsc(event) {
+    if (event.which === 27) {
+      this.props.store.dispatch({ type: "CLOSE_CODE_EDITOR", })
+    }
+  },
+
+  componentWillMount() {
+    document.body.addEventListener("keydown", this.hideCodeEditorOnEsc);
+  },
+
+  componentWillUnmount() {
+    document.body.removeEventListener("keydown", this.hideCodeEditorOnEsc);
+
+  },
+
   createCodeCell(id, pythonCode, result) {
     return (
       <CodeCellV2 key={id} index={id} 
         result={result}
         code={pythonCode} 
-        handleClick={this.handleCodeCellClick}
+        store={this.props.store}
         handleEditorChange={this.handleEditorChange} />
     );
   },
 
   handleEditorChange(id, code) {
     this.props.handleEditorChange(id, code);
-  },
-
-  handleCodeCellClick(codeCellData) {
-    return this.props.handleCodeCellClick(codeCellData);
   },
 
   renderCodeCells() {
@@ -62,20 +73,20 @@ let NotebookV2 = React.createClass({
   },
 
   handleCodeCellClick(codeCellData) {
-    let {index, code, node} = codeCellData;
-    let nodeBox = node.getBoundingClientRect();
-    let {top, left, height, width} = nodeBox;
-    let position = {top, left};
+    // let {index, code, node} = codeCellData;
+    // let nodeBox = node.getBoundingClientRect();
+    // let {top, left, height, width} = nodeBox;
+    // let position = {top, left};
 
-    let change = codeCellData.handleChange;
+    // let change = codeCellData.handleChange;
 
-    this.renderEditor({
-      code,
-      height,
-      width,
-      position,
-      change,
-    });
+    // this.renderEditor({
+    //   code,
+    //   height,
+    //   width,
+    //   position,
+    //   change,
+    // });
   },
 
   handleEditorClick() {
@@ -144,11 +155,11 @@ let NotebookV2 = React.createClass({
           getCurrentCodeList={ () => this.state.codeList}
           getCurrentCode={this.getCurrentCode} /> 
         <CodeOverlaysContainer 
+          store={this.props.store}
           codeResults={this.state.results}
           codeList={this.state.codeList} 
           codeMap={this.state.codeMap}
-          handleEditorChange={this.handleEditorChange}
-          handleCodeCellClick={this.handleCodeCellClick} /> 
+          handleEditorChange={this.handleEditorChange} /> 
       </div>
     );
   },
