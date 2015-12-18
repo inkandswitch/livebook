@@ -65,7 +65,8 @@ var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
 var createCellPlotData = require("./cell-plots-adapter");
 
 
-var NEXT_CALLBACK;
+var NEXT_CALLBACK_FOR_RESULTS,
+    NEXT_CALLBACK_FOR_PLOTS;
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
@@ -75,13 +76,23 @@ WORKER.onmessage = function(e) {
 
   if (error) handle_error(error);
   bindPlotsToiPython(plots, iPython);
+
+  handlePlots(plots)
   handleResults(results)
 }
 
 function handleResults(results) {
   for (let cell in results) {
     // iPython.cells[cell].outputs = results[cell]
-    NEXT_CALLBACK(cell, results[cell])
+    NEXT_CALLBACK_FOR_RESULTS(cell, results[cell])
+  }
+}
+
+function handlePlots(plots) {
+  for (let cell in plots) {
+    let plotArrays = plots[cell];
+    let plotData = createCellPlotData(plotArrays);
+    NEXT_CALLBACK_FOR_PLOTS(cell, plotData);
   }
 }
 
@@ -609,8 +620,9 @@ function python_eval() {
   throw new Error("NYI");
 }
 
-function executePython(codeBlocks, next) {
-  NEXT_CALLBACK = next;
+function executePython(codeBlocks, nextForResults, nextForPlots) {
+  NEXT_CALLBACK_FOR_RESULTS = nextForResults;
+  NEXT_CALLBACK_FOR_PLOTS = nextForPlots;
   REMOVE_MARKERS()
   WORKER.postMessage({ type: "exec", doc: codeBlocks})
 }

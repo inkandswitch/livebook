@@ -14,6 +14,7 @@ let PlotContainer = React.createClass({
   },
 
   getID() {
+
     let cellIndex = this.props.cellIndex;
     let cellPlotIndex = this.props.cellPlotIndex;
 

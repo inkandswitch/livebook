@@ -19,17 +19,18 @@ let CodeOverlaysContainer = React.createClass({
 
   componentWillUnmount() {
     document.body.removeEventListener("keydown", this.hideCodeEditorOnEsc);
-
   },
 
   createCodeCell(id) {
     let code = this.props.codeMap[id];
     let result = this.props.codeResults[id];
+    let plotsData = this.props.codePlotsData[id];
     return (
       <CodeCellV2 
         key={id} index={id} 
         result={result}
         code={code} 
+        plotsData={plotsData}
         store={this.props.store}
         handleEditorChange={this.handleEditorChange} />
     );
@@ -66,6 +67,7 @@ let NotebookV2 = React.createClass({
       codeList: [],
       codeMap: {},
       results: {},
+      plots: {},
     };
   },
 
@@ -105,6 +107,24 @@ let NotebookV2 = React.createClass({
 
   },
 
+  handleNewPlot(codeListIndex, plotData) {
+    let id = this.state.codeList[codeListIndex];
+    if (id === undefined) return; // stops us from rendering plot of cell that has since been deleted
+
+    let nextPlots = {...this.state.plots};
+    nextPlots[id] = plotData;
+
+    this.setState({ plots: nextPlots, });
+
+    // this.props.store.dispatch({
+    //   type: "NEW_PLOT",
+    //   data: {
+    //     codeListIndex,
+    //     plotData,
+    //   }
+    // });
+  },
+
   getCurrentCode(id) {
     return this.state.codeMap[id];
   },
@@ -132,7 +152,7 @@ let NotebookV2 = React.createClass({
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks, this.handleNewResult); // mem: NEXT_CALLBACK
+    this.props.executePython(codeBlocks, this.handleNewResult, this.handleNewPlot); // mem: NEXT_CALLBACK
   },
 
   render() {
@@ -147,6 +167,7 @@ let NotebookV2 = React.createClass({
           getCurrentCode={this.getCurrentCode} /> 
         <CodeOverlaysContainer 
           store={this.props.store}
+          codePlotsData={this.state.plots}
           codeResults={this.state.results}
           codeList={this.state.codeList} 
           codeMap={this.state.codeMap}
