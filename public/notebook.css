@@ -14,9 +14,9 @@ a:hover {
   text-decoration: underline;
 }
 
-/*img[data-livebook-placeholder-cell] {
+img[data-livebook-placeholder-cell] {
   display: block;
-}*/
+}
 
 .cursor {
   transition: all .15s ease-out;
