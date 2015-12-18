@@ -1,3 +1,8 @@
+(function deletemeyo(){
+  let hi = { stuff: "yo", };
+  let hey = { ...hi };
+})();
+
 let Redux = require("redux");
 let { createStore, combineReducers } = Redux;
 
@@ -5,6 +10,7 @@ let codeEditorReducer = require("./reducers/code-editor-reducer");
 let documentReducer = require("./reducers/document-reducer");
 
 const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, };
+
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);

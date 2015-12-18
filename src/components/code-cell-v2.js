@@ -145,7 +145,6 @@ let CodeCell = React.createClass({
     );
   },
 
-
   handleClick(event) {
     let {index} = this.props;
     let {code} = this.props;

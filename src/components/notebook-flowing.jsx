@@ -111,6 +111,14 @@ let NotebookV2 = React.createClass({
     this.setState({
       results: nextResults,
     });
+
+    this.props.store.dispatch({
+      type: "NEW_RESULT",
+      data: {
+        codeListIndex,
+        result,
+      }
+    });
   },
 
   renderEditor(options) {
@@ -134,6 +142,11 @@ let NotebookV2 = React.createClass({
   handleCodeChange(data) {
     let {codeDelta, codeList} = data;
     let nextCodeMap = Object.assign({}, this.state.codeMap, codeDelta);
+
+    this.props.store.dispatch({
+      type: ""
+    })
+
     this.setState({
       codeMap: nextCodeMap,
       codeList,
