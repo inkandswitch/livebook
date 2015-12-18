@@ -2,11 +2,6 @@ let {isArray, noop, zip} = require("../util");
 
 let createClickForTooltip = require("./c3-click-for-tooltip");
 
-let notebook;
-function setup(n) {
-  notebook = n
-}
-
 // Fixme
 function isTimeSeries(data) {
   let columns = data.columns;
@@ -197,4 +192,4 @@ function plotSpecialLine(options) {
 
 }
 
-module.exports = { setup, nuLivebookPlot }
+module.exports = { nuLivebookPlot }

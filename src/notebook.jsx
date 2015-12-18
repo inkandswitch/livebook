@@ -105,9 +105,6 @@ function bindPlotsToiPython(plots, iPython) {
   });
 }
 
-
-var charts = require("./charts");  // Assigns the charts
-
 // Utils
 var asyncRunParallel = require("./util").asyncRunParallel;
 var createAsyncDataFetcher = require("./util").createAsyncDataFetcher;
@@ -779,7 +776,7 @@ var exports =  {
   setMode                : setMode,
 };
 
-charts.setup(exports)
+global.MEH = exports;
 
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
@@ -798,5 +795,6 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
   python_eval();
   python_eval(); // the second call is necessary to draw charts on load
 }
+
 
 module.exports = exports;
