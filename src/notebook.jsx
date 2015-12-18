@@ -559,7 +559,7 @@ function deleteCell() {
 let SAVE_TIMEOUT;
 
 function handleSaveNotebook(html,state) {
-  if (document.location ===  "/") {
+  if (document.location.pathname ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
@@ -600,7 +600,7 @@ function handleUpdateNotebook(html,state) {
 }
 
 function save_notebook() {
-  if (document.location ===  "/") {
+  if (document.location.pathname ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
@@ -792,7 +792,9 @@ function parse_raw_notebook(raw_notebook,raw_csv) {
 
 function post_notebook_to_server(raw_notebook,raw_csv) {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
+  debugger
   $.post("/d/", doc, function(response) {
+    debugger
     window.history.pushState({}, "Notebook", response);
     start_peer_to_peer()
   })
