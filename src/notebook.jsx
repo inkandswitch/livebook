@@ -790,13 +790,12 @@ function parse_raw_notebook(raw_notebook,raw_csv) {
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
-function post_notebook_to_server(raw_notebook,raw_csv) {
+function post_notebook_to_server(raw_notebook,raw_csv, callback) {
   var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
-  debugger
   $.post("/d/", doc, function(response) {
-    debugger
     window.history.pushState({}, "Notebook", response);
     start_peer_to_peer()
+    callback()
   })
 }
 
@@ -811,14 +810,15 @@ function start_peer_to_peer() {
 }
 
 function startNewNotebook(data) {
-  post_notebook_to_server(data.ipynb, data.csv);
-  parse_raw_notebook(data.ipynb, data.csv);
-  setCurrentPage("notebook");
-  initializeEditor();
-  python_eval();
+  post_notebook_to_server(data.ipynb, data.csv, function() {
+    parse_raw_notebook(data.ipynb, data.csv);
+    setCurrentPage("notebook");
+    initializeEditor();
+    python_eval();
 
-  // I HOPE THIS WORKS
-  update_peers_and_render();
+    // I HOPE THIS WORKS
+    update_peers_and_render();
+  });
 }
 
 function initializeEditor() {
