@@ -41,7 +41,10 @@ function createLivebookExtension(options) {
       ids.forEach((index) => {
         let overlay = document.getElementById("overlay" + index)
   
-        if (!overlay) debugger;
+        if (!overlay) {
+          console.log("No overlays found - returning early. (livebookExtension)");
+          return;
+        }
 
         let placeholder = document.getElementById(PLACEHOLDER_ID_BASE + index)
         let placeholder_rect = placeholder.getBoundingClientRect();
