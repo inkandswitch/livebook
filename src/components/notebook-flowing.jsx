@@ -60,7 +60,6 @@ let CodeOverlaysContainer = React.createClass({
   }
 });
 
-
 let NotebookV2 = React.createClass({
 
   componentWillUpdate() {

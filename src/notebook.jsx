@@ -700,7 +700,7 @@ function renderLandingPage() {
   ReactDOM.render(<LandingPage show={CurrentPage === "landing"} fork={forkNotebook} />, landingPageMount);
 }
 
-function forkNotebook (urls) {
+function forkNotebook(urls) {
   let fetchCSV = createAsyncDataFetcher(urls.csv);
   let fetchIPYNB = createAsyncDataFetcher(urls.ipynb);
 
@@ -726,7 +726,7 @@ function parse_raw_notebook(raw_notebook,raw_csv) {
   iPython.cells.forEach(cell => cell.outputs = [])
   iPythonUpdated = Date.now()
 
-  let code = ipyToHailMary(iPython)
+  // let {code, html} = ipyToHailMary(iPython)
 
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
@@ -755,6 +755,9 @@ function startNewNotebook(data) {
   setCurrentPage("notebook");
   initializeEditor();
   python_eval();
+
+  // I HOPE THIS WORKS
+  update_peers_and_render();
 }
 
 function initializeEditor() {
