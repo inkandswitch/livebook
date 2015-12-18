@@ -22,15 +22,21 @@ let CodeOverlaysContainer = React.createClass({
     document.body.removeEventListener("keydown", this.hideCodeEditorOnEsc);
   },
 
+  componentDidMount() {
+    this.props.handleOverlayMount();
+  },
+
   createCodeCell(id) {
     let code = this.props.codeMap[id];
     let result = this.props.codeResults[id];
     let plotsData = this.props.codePlotsData[id];
+    let error = this.props.errors[this.props.codeList.indexOf(id)];
     return (
       <CodeCellV2 
         key={id} index={id} 
         result={result}
-        code={code} 
+        code={code}
+        error={error} 
         plotsData={plotsData}
         store={this.props.store}
         handleEditorChange={this.handleEditorChange} />
@@ -48,7 +54,8 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   renderCodeCells() {
-    return this.props.codeList.map(this.createCodeCell);
+    let codeList = this.props.codeList;
+    return codeList.map(this.createCodeCell);
   },
 
   render() {
@@ -177,6 +184,10 @@ let NotebookV2 = React.createClass({
     this.props.onUpdateNotebook(html,this.state)
   },
 
+  handleOverlayMount() {
+    this.forceUpdate();
+  },
+
   render() {
     let currentPage = this.currentPage();
     switch (currentPage) {
@@ -200,11 +211,14 @@ let NotebookV2 = React.createClass({
           getCurrentCodeList={ () => this.state.codeList}
           getCurrentCode={this.getCurrentCode} /> 
         <CodeOverlaysContainer 
+          errors={this.props.errors}
+          handleOverlayMount={this.handleOverlayMount}
           store={this.props.store}
           codePlotsData={this.state.plots}
           codeResults={this.state.results}
           codeList={this.state.codeList} 
           codeMap={this.state.codeMap}
+          getCurrentCode={this.getCurrentCode}
           handleEditorChange={this.handleEditorChange} /> 
       </div>
     );

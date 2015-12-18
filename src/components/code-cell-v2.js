@@ -68,13 +68,13 @@ let CodeCell = React.createClass({
   },
 
   hasError() {
-    return !!this.props.errorObject;
+    return !!this.props.error;
   },
 
   errorMessage() {
     if (!this.hasError()) return "";
 
-    let errorObject = this.props.errorObject,
+    let errorObject = this.props.error,
         message = errorObject.message,
         className = "pyresult pyresult-error";
 
@@ -99,7 +99,6 @@ let CodeCell = React.createClass({
           plotMessage={p}/>
       );
     });
-
 
     // let notebook = this.props.notebook;
     // let iPython = notebook.getiPython();

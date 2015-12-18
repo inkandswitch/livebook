@@ -40,6 +40,7 @@ function notebookV2Render() {
   
   ReactDOM.render(
     <NotebookV2 
+      errors={ERRORS}
       getCurrentPage={() => CurrentPage}
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
@@ -79,7 +80,7 @@ WORKER.onmessage = function(e) {
   console.log("Got message from the worker:", data)
 
   if (error) handle_error(error);
-  bindPlotsToiPython(plots, iPython);
+  // bindPlotsToiPython(plots, iPython);
 
   handlePlots(plots)
   handleResults(results)
@@ -89,6 +90,7 @@ function handleResults(results) {
   for (let cell in results) {
     // iPython.cells[cell].outputs = results[cell]
     NEXT_CALLBACK_FOR_RESULTS(cell, results[cell])
+    delete ERRORS[cell]
   }
 }
 
@@ -687,15 +689,15 @@ function executePython(codeBlocks, nextForResults, nextForPlots) {
 
 function handle_error(e) {
   console.log("ERROR:",e)
-  iPython.cells[e.cell].outputs = []
-  if (e.cell === CursorCell) {
-    if (editor && editor.getSession()) {
-      let markerId = editor
-        .getSession()
-        .addMarker(new Range(e.line, 0, e.line, 1), "ace_error-marker", "fullLine");
-      ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
-    }
-  }
+  // iPython.cells[e.cell].outputs = []
+  // if (e.cell === CursorCell) {
+  //   if (editor && editor.getSession()) {
+  //     let markerId = editor
+  //       .getSession()
+  //       .addMarker(new Range(e.line, 0, e.line, 1), "ace_error-marker", "fullLine");
+  //     ERROR_MARKER_IDS.push(markerId); // keeps track of the marker ids so we can remove them with `editor.getSession().removeMarker(id)`
+  //   }
+  // }
 
   ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
   return e.cell

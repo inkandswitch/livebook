@@ -43,6 +43,7 @@ function createLivebookExtension(options) {
   
         if (!overlay) {
           console.log("No overlays found - returning early. (livebookExtension)");
+          // debugger;
           return;
         }
 
