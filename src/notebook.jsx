@@ -1,31 +1,12 @@
 let Redux = require("redux");
 let { createStore, combineReducers } = Redux;
 
-const initialEditorState = {
-  hidden: true,
-  code: "",
-};
+let codeEditorReducer = require("./reducers/code-editor-reducer");
 
-const reducers = {
-  codeEditor: codeEditorReducer,
-};
-
-const livebookApp = combineReducers(reducers); // we can continue composing reducers here
+const reducers = { codeEditor: codeEditorReducer, };
+const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
-
-function codeEditorReducer(state = initialEditorState, action) {
-  switch (action.type) {
-    case 'OPEN_CODE_EDITOR':
-      let { editorProps } = action;
-      let hidden = false;
-      return Object.assign({}, state, editorProps, { hidden });
-    case 'CLOSE_CODE_EDITOR':
-      return { hidden: true, code: "", };
-    default:
-      return state;
-  }
-}
 
 function codeEditorRender() {
   let { codeEditor } = livebookStore.getState();
@@ -48,59 +29,6 @@ function codeEditorRender() {
 }
 
 global.STORE = livebookStore;
-
-
-// NB - used in free flowing
-function summonEditor(options) {
-  let {height, width} = options;
-  let lang   = "python";
-  let value  = options.code;
-  let {change} =  options; // onChangeFunc(CursorCell)
-  let onBeforeLoad = noop;
-
-  let editorOptions = {
-    lang: lang,
-    height: height,
-    width: width,
-    value: value,
-    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
-    onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
-  };
-
-  ReactDOM.render(createAceEditor(editorOptions), editorMount);
-
-  // Position editor
-  let {top, left} = options;
-  $("#editX")
-    .css("top", top)
-    .css("left", left)
-    .show();
-
-  editor = ace.edit("editX")
-  editor.focus()
-  editor.moveCursorTo(0, 0);
-  editor.getSession().setUseWrapMode(true);
-
-  // TEMP for testing
-  global.EDITOR = editor;
-  REMOVE_MARKERS();
-}
-
-function createChangeFunction(orig) {
-  return handleChange;
-
-  function handleChange(code) {
-    orig(code);
-
-  }
-}
-
-function hideEditor() {
-  $("#editX").hide();
-}
-
-
 
 var $          = require("jquery");
 var ace        = require("brace");
@@ -340,19 +268,7 @@ function onChangeFunc(i) { // i is the CursorCell
   }
 }
 
-/**
- * [Global Deps]
- * `Mode`
- * `CursorCell`
- * `AceEditor`
- * `React`
- * `$`
- * `onChangeFunc`
- * `cellPosition`
- * `editorMount`
- * `editor`
- * `python_eval`
- */
+// NB - _NOT_ used in free flowing version
 function renderEditor() {
   if (Mode !== "edit") {
     $("#editX").hide();
@@ -398,6 +314,55 @@ function renderEditor() {
   REMOVE_MARKERS();
 }
 
+
+// NB - used in free flowing version
+function summonEditor(options) {
+  let {height, width} = options;
+  let lang   = "python";
+  let value  = options.code;
+  let {change} =  options; // onChangeFunc(CursorCell)
+  let onBeforeLoad = noop;
+
+  let editorOptions = {
+    lang: lang,
+    height: height,
+    width: width,
+    value: value,
+    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
+    onBeforeLoad: onBeforeLoad,
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
+  };
+
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
+
+  // Position editor
+  let {top, left} = options;
+  $("#editX")
+    .css("top", top)
+    .css("left", left)
+    .show();
+
+  editor = ace.edit("editX")
+  editor.focus()
+  editor.moveCursorTo(0, 0);
+  editor.getSession().setUseWrapMode(true);
+
+  // TEMP for testing
+  global.EDITOR = editor;
+  REMOVE_MARKERS();
+}
+
+function createChangeFunction(orig) {
+  return handleChange;
+  function handleChange(code) {
+    orig(code);
+  }
+}
+
+function hideEditor() {
+  $("#editX").hide();
+}
+
 function createAceEditor(options) {
   options = Object.assign({}, options);
   var lang = options.lang,
@@ -438,14 +403,6 @@ function getEditorWidth() {
   return width;
 }
 
-
-
-
-/**
- * [Global Deps]
- * `CursorCell`
- * `$`
- */
 function cellPosition() {
   var bodyRect = document.body.getBoundingClientRect();
   var notebookRect = document.querySelector("#notebook").getBoundingClientRect();
@@ -458,13 +415,6 @@ function cellPosition() {
   };
 }
 
-/**
- * Rerenders compondents
- *
- * [Global Deps]
- * `iPython`
- * `notebookMount`
- */
 function render() {
   let render_time = new Date()
   update_peers_and_render()
@@ -472,17 +422,6 @@ function render() {
   return render_time
 }
 
-// BOOTS ??? !!! (on the next many functions)
-// - all these calls to render() are a huge smell
-/**
- * [Global Deps]
- * `Mode`
- * `setMode`
- * `iPython`
- * `CursorCell`
- * `render`
- *
- */
 function moveCursor(delta, options) {
   options = Object.assign({}, options);
   if (Mode === "edit") return;
@@ -522,13 +461,6 @@ function wordProcessorScroll($activeCell) {
   }
 }
 
-/**
- * [Global Deps]
- * `iPython`
- * `render`
- * `CursorCell`
- * `setMode`
- */
 function appendCell(type) {
   var cell = '';
 
@@ -567,13 +499,6 @@ function appendCell(type) {
   setMode("edit");
 }
 
-/**
- * [Global Deps]
- * `iPython`
- * `render`
- * `CursorCell`
- * `setMode`
- */
 function deleteCell() {
   console.log('delete');
   iPython.cells.splice(CursorCell, 1);
@@ -586,10 +511,6 @@ function deleteCell() {
   render();
 }
 
-/**
- * [Global Deps]
- * `iPython`
- */
 function save_notebook() {
   if (document.location ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
@@ -620,12 +541,6 @@ function save_notebook() {
   cradle.broadcast({type: "update", time: iPythonUpdated, document: iPython})
 };
 
-/**
- * [Global Deps]
- * `Mode`
- * `CODE`
- * `save_notebook`
- */
 function setMode(m) {
   if (Mode === m) return false;
   var old = Mode;
@@ -650,12 +565,6 @@ function setMode(m) {
   return true
 }
 
-/**
- * [Global Deps]
- * `Pages`
- * `CurrentPage`
- * `render`
- */
 function setCurrentPage(page) {
   if (!Pages.includes(page)) {
     console.log("Error: '" + page + "' is not a valid page");
@@ -666,12 +575,6 @@ function setCurrentPage(page) {
   render()
 }
 
-// BOOTS ??? !!!
-// - router stuff
-/**
- * [Global Deps]
- * `setCurrentPage`
- */
 window.onpopstate = function(event) {
   var path = document.location.pathname;
   if (path === "/")
@@ -689,17 +592,9 @@ function python_eval() {
 function executePython(codeBlocks, next) {
   NEXT_CALLBACK = next;
   REMOVE_MARKERS()
-//  var code_ctx = generate_python_ctx()
   WORKER.postMessage({ type: "exec", doc: codeBlocks})
-//  var badcell  = execute_python_ctx(code_ctx)
-//  return render()
 }
 
-/**
- * [Global Deps]
- * `CursorCell`
- * `editor`
- */
 function handle_error(e) {
   console.log("ERROR:",e)
   iPython.cells[e.cell].outputs = []
@@ -716,10 +611,6 @@ function handle_error(e) {
   return e.cell
 }
 
-/**
- * [Global Deps]
- * `iPython`
- */
 // this is to cache the code being edited so the pane does not update under the editor
 var CODE = {
   cache: (i) => CODE[i] = iPython.cells[i].source.join("") + " ",
@@ -732,7 +623,6 @@ var LandingPage = require("./components/landing-page");
 var Uploader = require("./components/uploader.jsx");
 var Cell = require("./components/cell.jsx");
 var NotebookV2 = require("./components/notebook-flowing.jsx");
-
 
 var Notebook = React.createClass({
   cells() {
@@ -796,7 +686,6 @@ function forkNotebook (urls) {
     });
 
   });
-
 }
 
 function parse_raw_notebook(raw_notebook,raw_csv) {
