@@ -3,21 +3,27 @@ var marked = require("marked");
 var randomColor = randomColorGenerator();
 
 module.exports = {
-  asyncRunParallel: asyncRunParallel,
-  createAsyncDataFetcher: createAsyncDataFetcher,
-  deepClone       : deepClone,
-  getPixelsBeyondFold: getPixelsBeyondFold,
-  isArray         : isArray,
-  noop            : () => {},
-  randomColor     : randomColor,
-  randomName      : randomName,
-  rawMarkup       : rawMarkup,
-  resultToHtml    : resultToHtml,
-  scrollXPixels   : scrollXPixels,
-  zip
+  areMapsEqual,
+  asyncRunParallel,
+  createAsyncDataFetcher,
+  deepClone,
+  getPixelsBeyondFold,
+  isArray,
+  noop: () => {},
+  randomColor,
+  randomName,
+  rawMarkup,
+  resultToHtml,
+  scrollXPixels ,
+  zip,
 };
 
-
+function areMapsEqual(m1, m2) {
+  let k1 = Object.keys(m1);
+  let k2 = Object.keys(m2);
+  if (k1.length !== k2.length) return false;
+  return k1.every( k => m1[k] === m2[k]);
+}
 
 function deepClone(o) {
   // Hack

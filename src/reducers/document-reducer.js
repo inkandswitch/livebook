@@ -18,7 +18,7 @@ const documentReducer = (state = initialState, action) => {
 
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps } = action;
- return Object.assign({}, state, documentProps); 
+ return {...state, ...documentProps}; 
 }
 
 function CODE_EDITOR_CHANGE (state, action) {

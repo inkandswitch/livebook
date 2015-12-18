@@ -5,7 +5,7 @@ function createLivebookExtension(options) {
 
     let codeindex;
 
-    let result = { init, checkState };
+    let result = { init, checkState, forceUpdate: (ids) => setCodeBlockPositions(ids) };
     let editor = null;
 
     return result;

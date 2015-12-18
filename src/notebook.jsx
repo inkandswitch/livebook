@@ -1,8 +1,3 @@
-(function deletemeyo(){
-  let hi = { stuff: "yo", };
-  let hey = { ...hi };
-})();
-
 let Redux = require("redux");
 let { createStore, combineReducers } = Redux;
 

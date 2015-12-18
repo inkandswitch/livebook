@@ -22,11 +22,14 @@ let CodeOverlaysContainer = React.createClass({
 
   },
 
-  createCodeCell(id, pythonCode, result) {
+  createCodeCell(id) {
+    let code = this.props.codeMap[id];
+    let result = this.props.codeResults[id];
     return (
-      <CodeCellV2 key={id} index={id} 
+      <CodeCellV2 
+        key={id} index={id} 
         result={result}
-        code={pythonCode} 
+        code={code} 
         store={this.props.store}
         handleEditorChange={this.handleEditorChange} />
     );
@@ -39,34 +42,16 @@ let CodeOverlaysContainer = React.createClass({
       data: { id, code, },
     });
 
-    // this.props.store.dispatch({
-    //   type: "DOCUMENT_CODE_CHANGE",
-    //   data: { id, code, },
-    // });
-
     this.props.handleEditorChange(id, code);
-
-    // which, btw is this:
-
-    // let nextCodeMap = Object.assign({}, this.state.codeMap);
-    // nextCodeMap[id] = code;
-    // this.setState({ codeMap: nextCodeMap, });
-
-    // this.executePython();
   },
 
   renderCodeCells() {
-    let codeList = this.props.codeList;
-    let codeMap = this.props.codeMap;
-    let codeResults = this.props.codeResults;
-    let notebookCode = codeList.map((id) => this.createCodeCell(id, codeMap[id], codeResults[id]));
-
-    return notebookCode;
+    return this.props.codeList.map(this.createCodeCell);
   },
 
   render() {
     return (
-      <div data-livebook-overlays>
+      <div data-livebook-overlays="">
         {this.renderCodeCells()}
       </div>
     );
@@ -103,28 +88,21 @@ let NotebookV2 = React.createClass({
 
   handleNewResult(codeListIndex, result) {
     let id = this.state.codeList[codeListIndex];
-    if (id === undefined) return;
+    if (id === undefined) return; // stops us from rendering result of cell that has since been deleted
 
-    let nextResults = Object.assign({}, this.state.results);
+    let nextResults = {...this.state.results};
     nextResults[id] = result;
 
-    this.setState({
-      results: nextResults,
-    });
+    this.setState({ results: nextResults, });
 
-    this.props.store.dispatch({
-      type: "NEW_RESULT",
-      data: {
-        codeListIndex,
-        result,
-      }
-    });
-  },
+    // this.props.store.dispatch({
+    //   type: "NEW_RESULT",
+    //   data: {
+    //     codeListIndex,
+    //     result,
+    //   }
+    // });
 
-  renderEditor(options) {
-    if (this.props.renderCodeEditor) {
-      this.props.renderCodeEditor(options);
-    }
   },
 
   getCurrentCode(id) {
@@ -132,7 +110,7 @@ let NotebookV2 = React.createClass({
   },
 
   handleEditorChange(id, code) {
-    let nextCodeMap = Object.assign({}, this.state.codeMap);
+    let nextCodeMap = {...this.state.codeMap};
     nextCodeMap[id] = code;
     this.setState({ codeMap: nextCodeMap, });
 
@@ -140,12 +118,9 @@ let NotebookV2 = React.createClass({
   },
 
   handleCodeChange(data) {
-    let {codeDelta, codeList} = data;
-    let nextCodeMap = Object.assign({}, this.state.codeMap, codeDelta);
-
-    this.props.store.dispatch({
-      type: ""
-    })
+    let {codeDelta, codeList} = data; // rename codeDelta to "newCode", orion was right
+    let {codeMap} = this.state;
+    let nextCodeMap = {...codeMap, ...codeDelta}; // same as `Object.assign({}, codeMap, codeDelta);``
 
     this.setState({
       codeMap: nextCodeMap,
@@ -157,13 +132,14 @@ let NotebookV2 = React.createClass({
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks, this.handleNewResult);
+    this.props.executePython(codeBlocks, this.handleNewResult); // mem: NEXT_CALLBACK
   },
 
   render() {
     return (
       <div className="notebook">
         <Editor 
+          results={this.state.results} 
           text={this.props.html} 
           onCodeChange={this.handleCodeChange}
           onClick={this.handleEditorClick} 

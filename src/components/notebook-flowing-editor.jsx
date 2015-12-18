@@ -3,6 +3,8 @@ let React = require('react');
 let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
 
+let {areMapsEqual} = require("../util");
+
 let createLivebookExtension = require("../medium-editor-livebook-extension");
 
 let editorOptions = {
@@ -32,6 +34,17 @@ module.exports = React.createClass({
 
   change(text) {
     if(this.props.onChange) this.props.onChange(text, this.medium);
+  },
+
+  componentDidUpdate(prevProps, prevState) {
+    let prevResults = prevProps.results;
+    let { results } = this.props;
+    if (!areMapsEqual(prevResults, results)) {
+      // Wr must rerender the image placeholders to keep things looking tidy
+      let livebook = this.medium.getExtensionByName("livebook");
+      let ids = Object.keys(results); // TODO
+      livebook.forceUpdate(ids);
+    }
   },
 
   componentDidMount() {
