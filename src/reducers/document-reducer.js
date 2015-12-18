@@ -33,13 +33,7 @@ function CODE_EDITOR_CHANGE (state, action) {
 
 function NEW_RESULT(state, action) {
   let {codeListIndex, result} = action.data;
-  let nextResults = Object.assign({}, state.results);
-  //
-  // NB - must turn on level 2 in babel
-  //
-  // let nextResults = {
-  //   ...state.results,
-  // };
+  let nextResults = { ...state.results };
   let id = state.codeList[codeListIndex];
 
   if (id === undefined) return state; 

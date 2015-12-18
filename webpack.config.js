@@ -16,13 +16,19 @@ module.exports = {
     module: {
         loaders: [
             { test: /\.css$/, loader: "style!css" },
-            { test: /\.jsx?$/, exclude: /(node_modules|bower_components)/, loader: 'babel' }
+            {
+              test: /\.jsx?$/, 
+              exclude: /(node_modules|bower_components)/, 
+              loader: 'babel',
+              presets: ['stage-2'],
+            }
         ]
     },
 
     plugins: [
       new CopyWebpackPlugin([
         { from: 'sample-notebooks', to: "forkable", },
-      ])
+      ]),
+
     ],
 };
