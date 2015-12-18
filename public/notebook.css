@@ -341,7 +341,7 @@ div[contenteditable="true"] {
 }
 
 .active-code-cell {
-  border: solid 5px red;
+  box-shadow: 0 0 .5em hsla(218, 70%, 39%, 0.86);
 }
 
 div.editor { /* !!! this is necessary specificity */
