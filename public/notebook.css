@@ -333,7 +333,7 @@ div[contenteditable="true"] {
 }
 
 .pyresult-loading-with-message::after {
-  content: "Loading the code (sorry for the wait, pal)";
+  content: "(loading)";
   position: absolute;
   top: 50%;
   left: 50%;
