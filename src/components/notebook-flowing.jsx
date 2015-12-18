@@ -33,7 +33,26 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   handleEditorChange(id, code) {
+
+    this.props.store.dispatch({
+      type: "CODE_EDITOR_CHANGE",
+      data: { id, code, },
+    });
+
+    // this.props.store.dispatch({
+    //   type: "DOCUMENT_CODE_CHANGE",
+    //   data: { id, code, },
+    // });
+
     this.props.handleEditorChange(id, code);
+
+    // which, btw is this:
+
+    // let nextCodeMap = Object.assign({}, this.state.codeMap);
+    // nextCodeMap[id] = code;
+    // this.setState({ codeMap: nextCodeMap, });
+
+    // this.executePython();
   },
 
   renderCodeCells() {
@@ -70,23 +89,6 @@ let NotebookV2 = React.createClass({
       codeList: Object.keys(this.props.code),
       codeMap: this.props.code,
     });
-  },
-
-  handleCodeCellClick(codeCellData) {
-    // let {index, code, node} = codeCellData;
-    // let nodeBox = node.getBoundingClientRect();
-    // let {top, left, height, width} = nodeBox;
-    // let position = {top, left};
-
-    // let change = codeCellData.handleChange;
-
-    // this.renderEditor({
-    //   code,
-    //   height,
-    //   width,
-    //   position,
-    //   change,
-    // });
   },
 
   handleEditorClick() {

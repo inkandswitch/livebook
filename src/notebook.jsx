@@ -2,15 +2,19 @@ let Redux = require("redux");
 let { createStore, combineReducers } = Redux;
 
 let codeEditorReducer = require("./reducers/code-editor-reducer");
+let documentReducer = require("./reducers/document-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, };
+const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, };
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
+livebookStore.subscribe(notebookV2Render)
 
 function codeEditorRender() {
   let { codeEditor } = livebookStore.getState();
   let { hidden, code, node, handleChange } = codeEditor;
+
+  let {row, column} = (editor.getCursorPosition && editor.getCursorPosition()) || {row: 0, column: 0};
 
   if (hidden) {
     hideEditor();
@@ -24,8 +28,23 @@ function codeEditorRender() {
     code,
     height, width,
     top, left,
+    row, column,
     change: handleChange,
   });
+}
+
+function notebookV2Render() {
+  let { doc } = livebookStore.getState();
+  let { html, code } = doc;
+  
+  ReactDOM.render(
+    <NotebookV2 
+      store={livebookStore}
+      html={html} code={code} 
+      executePython={executePython}
+      hideCodeEditor={hideEditor}
+      renderCodeEditor={summonEditor} />, 
+    notebookV2Mount);
 }
 
 global.STORE = livebookStore;
@@ -197,14 +216,13 @@ function update_peers_and_render() {
 
   let {html, code} = ipyToHailMary(iPython);
 
-  ReactDOM.render(
-    <NotebookV2 
-      store={livebookStore}
-      html={html} code={code} 
-      executePython={executePython}
-      hideCodeEditor={hideEditor}
-      renderCodeEditor={summonEditor} />, 
-    notebookV2Mount);
+  livebookStore.dispatch({
+    type: "INITIALIZE_DOCUMENT",
+    documentProps: {
+      code,
+      html,
+    },
+  })
 }
 
 ace.config.set("basePath", "/");
@@ -317,6 +335,7 @@ function renderEditor() {
 
 // NB - used in free flowing version
 function summonEditor(options) {
+  let {row, column} = options;
   let {height, width} = options;
   let lang   = "python";
   let value  = options.code;
@@ -330,7 +349,7 @@ function summonEditor(options) {
     value: value,
     change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
     onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(0, 0) },
+    onLoad: () => { if (editor && editor.moveCursorTo) editor.moveCursorTo(row, column) },
   };
 
   ReactDOM.render(createAceEditor(editorOptions), editorMount);
@@ -344,7 +363,7 @@ function summonEditor(options) {
 
   editor = ace.edit("editX")
   editor.focus()
-  editor.moveCursorTo(0, 0);
+  editor.moveCursorTo(row, column);
   editor.getSession().setUseWrapMode(true);
 
   // TEMP for testing
