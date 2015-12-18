@@ -36,7 +36,7 @@ function codeEditorRender() {
 
 function notebookV2Render() {
   let { doc } = livebookStore.getState();
-  let { html, code } = doc;
+  let { html, codeList, codeMap } = doc;
   
   ReactDOM.render(
     <NotebookV2 
@@ -44,8 +44,9 @@ function notebookV2Render() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      html={html} code={code} 
+      html={html} codeList={codeList} codeMap={codeMap} 
       executePython={executePython}
+      onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} />, 
     notebookV2Mount);
@@ -226,15 +227,27 @@ function update_peers_and_render() {
   //       typing={typing(render_time)}/>, 
   //   notebookMount);
 
-  let {html, code} = ipyToHailMary(iPython);
-
-  livebookStore.dispatch({
-    type: "INITIALIZE_DOCUMENT",
-    documentProps: {
-      code,
-      html,
-    },
-  })
+  if (iPythonV2) {
+    let {html,state} = iPythonV2
+    livebookStore.dispatch({
+      type: "INITIALIZE_DOCUMENT",
+      documentProps: {
+        codeMap: state.codeMap,
+        codeList: state.codeList,
+        html,
+      },
+    })
+  } else {
+    let {html, code} = ipyToHailMary(iPython);
+    livebookStore.dispatch({
+      type: "INITIALIZE_DOCUMENT",
+      documentProps: {
+        codeMap: code,
+        codeList: Object.keys(code),
+        html,
+      },
+    })
+  }
 }
 
 ace.config.set("basePath", "/");
@@ -245,6 +258,7 @@ var Mode = "view";
 var CursorCell = 0;
 var iPython = { cells:[] }
 var iPythonUpdated = 0
+let iPythonV2
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
@@ -542,6 +556,49 @@ function deleteCell() {
   render();
 }
 
+let SAVE_TIMEOUT;
+
+function handleSaveNotebook(html,state) {
+  if (document.location ===  "/") {
+    // Stops 404 that results from posting to `/.json` on the starter page
+    return;
+  }
+  console.log("Saving notebook...");
+  var notebook = { version: 2, html, state } 
+  var raw_notebook = JSON.stringify(notebook)
+  var data = {
+    name: "Hello",
+    notebook: {
+      name: "NotebookName",
+      body: raw_notebook,
+    },
+  };
+  $.ajax({
+    method: "PUT",
+    url: document.location + ".json",
+    data: JSON.stringify(data),
+    complete: function(response, status) {
+      console.log("save response", response);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      // TODO handle errors
+      console.log("Saving notebook failed:", textStatus);
+    },
+  });
+/*
+  iPythonUpdated = Date.now()
+  cradle.broadcast({type: "update", time: iPythonUpdated, document: iPython})
+*/
+}
+
+function handleUpdateNotebook(html,state) {
+  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
+  SAVE_TIMEOUT = setTimeout(() => {
+    SAVE_TIMEOUT = undefined
+    handleSaveNotebook(html,state)
+  },5000)
+}
+
 function save_notebook() {
   if (document.location ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
@@ -722,12 +779,14 @@ function forkNotebook(urls) {
 }
 
 function parse_raw_notebook(raw_notebook,raw_csv) {
-  iPython = JSON.parse(raw_notebook)
-  iPython.cells.forEach(cell => cell.outputs = [])
-  iPythonUpdated = Date.now()
-
-  // let {code, html} = ipyToHailMary(iPython)
-
+  let notebook = JSON.parse(raw_notebook)
+  if (notebook.version == 2) {
+    iPythonV2 = notebook
+  } else {
+    iPython = notebook
+    iPython.cells.forEach(cell => cell.outputs = [])
+    iPythonUpdated = Date.now()
+  }
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
@@ -802,6 +861,5 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
   python_eval();
   python_eval(); // the second call is necessary to draw charts on load
 }
-
 
 module.exports = exports;

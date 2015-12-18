@@ -88,8 +88,8 @@ let NotebookV2 = React.createClass({
 
   componentWillMount() {
     this.setState({
-      codeList: Object.keys(this.props.code),
-      codeMap: this.props.code,
+      codeList: this.props.codeList,
+      codeMap: this.props.codeMap,
     });
   },
 
@@ -150,6 +150,7 @@ let NotebookV2 = React.createClass({
     this.setState({ codeMap: nextCodeMap, });
 
     this.executePython();
+    this.syncNotebook();
   },
 
   handleCodeChange(data) {
@@ -163,11 +164,17 @@ let NotebookV2 = React.createClass({
     });
 
     this.executePython()
+    this.syncNotebook();
   },
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
     this.props.executePython(codeBlocks, this.handleNewResult, this.handleNewPlot); // mem: NEXT_CALLBACK
+  },
+
+  syncNotebook() {
+    let html = document.querySelector("[contenteditable='true']").innerHTML
+    this.props.onUpdateNotebook(html,this.state)
   },
 
   render() {

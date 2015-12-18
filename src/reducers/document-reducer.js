@@ -2,7 +2,6 @@ const initialState = {
   codeList: [],
   codeMap: {},
   results: {},
-  code: {},
   html: [],
 };
 
