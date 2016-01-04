@@ -16,7 +16,7 @@ function createLivebookExtension(options) {
         // All helper methods will exist as well.
         editor = this.base;
 
-        editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(); });
+        editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(editor); });
         editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); });
         editor.subscribe("editableClick", (_) => { highlightSelectedCodeCell(editor); });
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
@@ -69,9 +69,11 @@ function createLivebookExtension(options) {
       })
     }
 
-    function addCodeCell() {
-      let index = makeNewCodeBlock()
-      editor.pasteHTML(`<p><img data-class="placeholder" id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`,{ cleanAttrs: ["style","dir"], })
+    function addCodeCell(editor) {
+      // BAD INPUT COULD FUX WITH THIS PLACEMENT
+      const index = (codeindex && codeindex++) || 1;
+      editor.pasteHTML(`<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`,{ cleanAttrs: ["style","dir"], })
+      validateContents(editor);
     }
 
     function validateContents(editor) {
@@ -80,12 +82,13 @@ function createLivebookExtension(options) {
 
       let seen = reducePlaceholders((seen, placeholder) => {
         let id = getPlaceholderId(placeholder);
+
         let isDuplicate = seen.includes(id);
         let currentCode = getCurrentCode(id);
         let isDeadCode = (currentCode !== undefined) && !prevCodeList.includes(id);
 
         if (isDuplicate || isDeadCode) {
-          let index = codeindex++;
+          let index = (codeindex++).toString();
 
           codeDelta[index] = currentCode;
 
@@ -101,7 +104,7 @@ function createLivebookExtension(options) {
       });
 
       // BAD INPUT COULD FUX WITH THIS PLACEMENT
-      codeindex = codeindex || (seen.slice().sort((a, b) => { +a >= +b })[0] || 0) + 1;
+      codeindex = codeindex || getNewCodeindex(seen);
 
       onChange({
         codeList: seen,
@@ -112,6 +115,12 @@ function createLivebookExtension(options) {
       console.log("prevCodeList", prevCodeList)
 
       setCodeBlockPositions(seen);
+    }
+
+    function getNewCodeindex(seen) {
+      const seenIdsDescending = seen.slice().sort((a, b) => +a >= +b );
+      const highestId = seenIdsDescending[0]
+      return (highestId || 0) + 1;
     }
 
     function reducePlaceholders(f) {
