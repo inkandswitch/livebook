@@ -21,6 +21,17 @@ function createLivebookExtension(options) {
         editor.subscribe("editableClick", (_) => { highlightSelectedCodeCell(editor); });
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
+        editor.subscribe("editableKeydown", (event) => {
+          if (isCodeCellSelected()) {
+            if (isEnter(event)) {
+              editSelectedCodeCell({ event });            
+            }
+            if (isDelete(event)) {
+              deleteSelectedCodeCell({ event });
+            }
+          }
+        });
+
         validateContents(editor);
         window.onresize = function() {
           validateContents(editor);
@@ -166,6 +177,39 @@ function placeholderToCodeCell(placeholder) {
   let id = placeholder.id.replace("placeholder", "");
   let codeCell = document.getElementById("overlay" + id);
   return codeCell;
+}
+
+function codeCellToPlaceholder(codeCell) {
+  let id = codeCell.id.replace("overlay", "");
+  let placeholder = document.getElementById("placeholder" + id);
+  return placeholder;
+}
+
+function isCodeCellSelected() {
+  let selected = getSelectedCodeCell();
+  return !!selected;
+}
+
+function getSelectedCodeCell() {
+  return document.querySelector(".active-code-cell");
+}
+
+function deleteSelectedCodeCell() {
+  let selected = getSelectedCodeCell();
+  let placeholder = codeCellToPlaceholder(selected);
+  // TODO - simply remove element + validate contents?
+  debugger;
+}
+
+function editSelectedCodeCell() {
+  let selected = getSelectedCodeCell();
+  // TODO - simulate click on selected element?
+  debugger;
+}
+
+function isEnter(event) {
+  let ENTER = 13;
+  return event.which === ENTER;
 }
 
 function isCommandJ(event) {
