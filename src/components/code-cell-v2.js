@@ -7,7 +7,7 @@ let CodeCellOutput = React.createClass({
   componentDidUpdate() {
     // TODO - truncate table after update?
   },
-  
+
   parseOutput(output) {
     let {data} = output;
 
@@ -99,27 +99,6 @@ let CodeCell = React.createClass({
           plotMessage={p}/>
       );
     });
-
-    // let notebook = this.props.notebook;
-    // let iPython = notebook.getiPython();
-    // let getCellPlots = notebook.getCellPlots;
-    // let cellIndex = this.props.index;
-    // let cell = iPython.cells[cellIndex];
-    // let plots = getCellPlots(cell);
-
-    // if (!plots) return "";
-
-    // return plots.map((p, i) => {
-    //   let key = cellIndex + "-" + i;
-    //   return (
-    //     <PlotContainer 
-    //       cell={cell} 
-    //       cellIndex={cellIndex} 
-    //       cellPlotIndex={i} 
-    //       key={key} 
-    //       plotMessage={p}/>
-    //   );
-    // })
   },
 
   outputs() {

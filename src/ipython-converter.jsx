@@ -9,11 +9,11 @@ var marked = require("marked");
 var toMarkdown = () => {}; //require('html-md');
 
 module.exports = {
-    ipyToHailMary,
+    iPyToHTML,
     htmlToIPy,
 };
 
-function ipyToHailMary(ipy) {
+function iPyToHTML(ipy) {
   let code = {}
   let index = 0
   let html = ipy.cells.map((cell) => {
