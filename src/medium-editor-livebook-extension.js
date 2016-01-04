@@ -17,7 +17,8 @@ function createLivebookExtension(options) {
         editor = this.base;
 
         editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(); });
-        editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); }); // TODO - scope to certain keys
+        editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); });
+        editor.subscribe("editableClick", (_) => { highlightSelectedCodeCell(editor); });
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
         validateContents(editor);
