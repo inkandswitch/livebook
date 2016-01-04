@@ -9,6 +9,18 @@ let PlotContainer = React.createClass({
     nuLivebookPlot(selector, plotData);
   },
 
+  componentDidUpdate(prevProps) {
+    let prevPlotMessage = prevProps.plotMessage;
+    let plotData = this.getPlotMessage();
+
+    if (prevPlotMessage !== plotData) {
+      let selector = "#" + this.getID();
+
+      nuLivebookPlot(selector, plotData);
+
+    }
+  },
+
   componentWillUnmount() {
     // document.getElementById(this.getId()).remove();
   },
