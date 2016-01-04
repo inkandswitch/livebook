@@ -9,7 +9,7 @@ const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, };
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
-livebookStore.subscribe(notebookV2Render)
+livebookStore.subscribe(notebookRender)
 
 let EDITOR = {}
 
@@ -36,12 +36,12 @@ function codeEditorRender() {
   });
 }
 
-function notebookV2Render() {
+function notebookRender() {
   let { doc } = livebookStore.getState();
   let { html, codeList, codeMap } = doc;
   
   ReactDOM.render(
-    <NotebookV2 
+    <Notebook 
       errors={ERRORS}
       getCurrentPage={() => CurrentPage}
       startNewNotebook={startNewNotebook}
@@ -52,7 +52,7 @@ function notebookV2Render() {
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} />, 
-    notebookV2Mount);
+    notebookMount);
 }
 
 global.STORE = livebookStore;
@@ -89,7 +89,6 @@ WORKER.onmessage = function(e) {
 
 function handleResults(results) {
   for (let cell in results) {
-    // iPython.cells[cell].outputs = results[cell]
     NEXT_CALLBACK_FOR_RESULTS(cell, results[cell])
     delete ERRORS[cell]
   }
@@ -176,8 +175,8 @@ cradle.onusergram = function(from,message) {
     console.log("Got a new document... is it new?")
     if (message.time > iPythonUpdated) {
       iPythonUpdated = message.time
-      iPython = message.document
-      render()
+      //iPython = message.document
+      //render()
     }
   }
 }
@@ -211,40 +210,27 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
-  if (iPythonV2) {
-    let {html,state} = iPythonV2
-    livebookStore.dispatch({
-      type: "INITIALIZE_DOCUMENT",
-      documentProps: {
-        codeMap: state.codeMap,
-        codeList: state.codeList,
-        html,
-      },
-    })
-  } else {
-    let {html, code} = iPyToHTML(iPython);
-    livebookStore.dispatch({
-      type: "INITIALIZE_DOCUMENT",
-      documentProps: {
-        codeMap: code,
-        codeList: Object.keys(code),
-        html,
-      },
-    })
-  }
+  let {html,state} = iPython
+  livebookStore.dispatch({
+    type: "INITIALIZE_DOCUMENT",
+    documentProps: {
+      codeMap: state.codeMap,
+      codeList: state.codeList,
+      html,
+    },
+  })
 }
 
 ace.config.set("basePath", "/");
 
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
-var iPython = { cells:[] }
 var iPythonUpdated = 0
-let iPythonV2
+let iPython
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
-var notebookV2Mount    = document.getElementById("notebook-v2");
+var notebookMount    = document.getElementById("notebook-v2");
 var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
 
@@ -403,17 +389,10 @@ function handleError(e) {
   return e.cell
 }
 
-// this is to cache the code being edited so the pane does not update under the editor
-var CODE = {
-  cache: (i) => CODE[i] = iPython.cells[i].source.join("") + " ",
-  clear: (i) => delete CODE[i],
-  read:  (i) => CODE[i] || iPython.cells[i].source.join(""),
-}
-
 var Nav = require("./components/nav");
 var LandingPage = require("./components/landing-page");
 var Uploader = require("./components/uploader.jsx");
-var NotebookV2 = require("./components/notebook-flowing.jsx");
+var Notebook = require("./components/notebook-flowing.jsx");
 
 function renderLandingPage() {
   ReactDOM.render(<LandingPage show={CurrentPage === "landing"} fork={forkNotebook} />, landingPageMount);
@@ -428,12 +407,11 @@ function forkNotebook(urls) {
 function parseRawNotebook(raw_notebook,raw_csv) {
   let notebook = JSON.parse(raw_notebook)
   if (notebook.version == 2) {
-    iPythonV2 = notebook
-  } else {
     iPython = notebook
-    iPython.cells.forEach(cell => cell.outputs = [])
-    iPythonUpdated = Date.now()
+  } else {
+    iPython = iPyToHTML(notebook);
   }
+  iPythonUpdated = Date.now()
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
@@ -468,10 +446,8 @@ function startNewNotebook(data) {
 
 var exports =  {
   getCellPlots           : getCellPlots,
-  getCODE                : () => CODE,
   getCurrentPage         : () => CurrentPage,
   getEditor              : () => EDITOR,
-  getiPython             : () => iPython,
   setCurrentPage         : setCurrentPage,
 };
 

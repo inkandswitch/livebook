@@ -120,20 +120,8 @@ let CodeCell = React.createClass({
   },
 
   code() {
-    // NU
     return (
       <div className="code">{this.props.code}</div>
-    );
-
-
-    // OLD
-    var displayClass = this.props.notebook.displayClass;
-    var CODE         = this.props.notebook.getCODE();
-
-    return (
-      <div className={"code " + displayClass(this)}>
-        {CODE.read(this.props.index)}
-      </div>
     );
   },
 

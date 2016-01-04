@@ -26,7 +26,7 @@ function iPyToHTML(ipy) {
     }
   }).join("\n")
 
-  return { html, code };
+  return { version: 2, html, code };
 }
 
 function htmlToIPy(html) {
