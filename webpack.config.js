@@ -3,7 +3,7 @@ var path = require('path');
 
 
 module.exports = {
-    entry: { notebook: "./src/index.js", worker: "./src/worker.js"},
+    entry: { notebook: "./src/notebook.jsx", worker: "./src/worker.js"},
 
     output:
       { path: "public", filename: "js/[name].js" },
