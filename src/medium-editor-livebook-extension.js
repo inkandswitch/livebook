@@ -17,7 +17,7 @@ function createLivebookExtension(options) {
         editor = this.base;
 
         editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(); });
-        editor.subscribe("editableKeydown", (_) => { highlightSelectedCodeCell(editor); }); // TODO - scope to certain keys
+        editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); }); // TODO - scope to certain keys
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
         validateContents(editor);
@@ -43,7 +43,6 @@ function createLivebookExtension(options) {
   
         if (!overlay) {
           console.log("No overlays found - returning early. (livebookExtension)");
-          // debugger;
           return;
         }
 
@@ -160,6 +159,12 @@ function placeholderToCodeCell(placeholder) {
 }
 
 function isCommandJ(event) {
-    let J = 74;
-    return event.metaKey && event.which === J;
+  let J = 74;
+  return event.metaKey && event.which === J;
+}
+
+function isArrowKey(event) {
+  const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
+  const ARROWS = [LEFT, UP, RIGHT, DOWN];
+  return ARROWS.some( (c) => c === event.which );
 }
