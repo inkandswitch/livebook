@@ -45,7 +45,7 @@ function createLivebookExtension(options) {
             if (isEnter(event)) {
               event.stopPropagation();
               event.preventDefault();
-              editSelectedCodeCell({ event });
+              editSelectedCodeCell();
               validateContents(editor);           
             }
 
@@ -114,6 +114,8 @@ function createLivebookExtension(options) {
       const index = (codeindex && codeindex++) || 1;
       editor.pasteHTML(`<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`,{ cleanAttrs: ["style","dir"], })
       validateContents(editor);
+      highlightSelectedCodeCell(editor);
+      editSelectedCodeCell();
     }
 
     function validateContents(editor) {
@@ -252,10 +254,6 @@ function addProseBelow(editor, placeholder) {
   highlightSelectedCodeCell();
 }
 
-function forceSelectedCursorUpdate() {
-
-}
-
 function isLastEditorCell(placeholder) {
   let placeholderParent = placeholder.parentNode;
   return !placeholderParent.nextElementSibling;
@@ -298,12 +296,13 @@ function findCode(elt) {
   return elt.querySelector(".code");
 }
 
-function eventFire(el, etype){
+function eventFire(el, etype, options){
   if (el.fireEvent) {
     el.fireEvent('on' + etype);
   } else {
     var evObj = document.createEvent('Events');
     evObj.initEvent(etype, true, false);
+    evObj = Object.assign(evObj, options)
     el.dispatchEvent(evObj);
   }
 }
