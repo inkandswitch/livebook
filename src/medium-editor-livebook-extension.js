@@ -5,10 +5,17 @@ function createLivebookExtension(options) {
 
     let codeindex;
 
-    let result = { init, checkState, forceUpdate: (ids) => setCodeBlockPositions(ids) };
+    let result = { init, checkState, forceUpdate };
     let editor = null;
 
     return result;
+
+    function forceUpdate(ids) {
+      if (ids === undefined) {
+        ids = getCurrentCodeList();
+      }
+      setCodeBlockPositions(ids);
+    }
 
     function init() {
         // Called by MediumEditor during initialization. 

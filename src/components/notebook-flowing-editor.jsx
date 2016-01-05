@@ -56,6 +56,8 @@ module.exports = React.createClass({
       getCurrentCodeList: this.props.getCurrentCodeList,
     });
 
+    this.props.assignForceUpdate(livebookExtension.forceUpdate);
+
     editorOptions.extensions.livebook = livebookExtension;
 
     this.medium = new MediumEditor(dom, editorOptions);

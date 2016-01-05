@@ -13,6 +13,8 @@ livebookStore.subscribe(notebookRender)
 
 let EDITOR = {}
 
+let forceUpdateEditor = null;
+
 function codeEditorRender() {
   let { codeEditor } = livebookStore.getState();
   let { hidden, code, node, handleChange } = codeEditor;
@@ -51,8 +53,13 @@ function notebookRender() {
       executePython={executePython}
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
-      renderCodeEditor={summonEditor} />, 
+      renderCodeEditor={summonEditor} 
+      assignForceUpdate={assignForceUpdate} />, 
     notebookMount);
+}
+
+function assignForceUpdate(fun) {
+  forceUpdateEditor = fun
 }
 
 global.STORE = livebookStore;
@@ -85,6 +92,7 @@ WORKER.onmessage = function(e) {
 
   handlePlots(plots)
   handleResults(results)
+  forceUpdateEditor && forceUpdateEditor();
 }
 
 function handleResults(results) {

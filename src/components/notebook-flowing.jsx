@@ -213,7 +213,8 @@ let NotebookV2 = React.createClass({
           onCodeChange={this.handleCodeChange}
           onClick={this.handleEditorClick} 
           getCurrentCodeList={ () => this.state.codeList}
-          getCurrentCode={this.getCurrentCode} /> 
+          getCurrentCode={this.getCurrentCode} 
+          assignForceUpdate={this.props.assignForceUpdate}/> 
         <CodeOverlaysContainer 
           errors={this.props.errors}
           handleOverlayMount={this.handleOverlayMount}
