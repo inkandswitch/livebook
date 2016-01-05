@@ -13,7 +13,9 @@ livebookStore.subscribe(notebookRender)
 
 let EDITOR = {}
 
-let forceUpdateEditor = null;
+// These are functions that are assigned by children 
+// (effectively passing functionality from children to parents, which is a React no-no)
+let uglyAntiFunctions = {};
 
 function codeEditorRender() {
   let { codeEditor } = livebookStore.getState();
@@ -54,12 +56,8 @@ function notebookRender() {
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
-      assignForceUpdate={assignForceUpdate} />, 
+      assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f} />, 
     notebookMount);
-}
-
-function assignForceUpdate(fun) {
-  forceUpdateEditor = fun
 }
 
 global.STORE = livebookStore;
@@ -93,6 +91,7 @@ WORKER.onmessage = function(e) {
 
   handlePlots(plots)
   handleResults(results)
+  let { forceUpdateEditor } = uglyAntiFunctions;
   forceUpdateEditor && forceUpdateEditor();
 }
 
