@@ -93,7 +93,6 @@ let NotebookV2 = React.createClass({
       codeList: [],
       codeMap: {},
       results: {},
-      errors: {},
       plots: {},
     };
   },
@@ -102,7 +101,6 @@ let NotebookV2 = React.createClass({
     this.setState({
       codeList: this.props.codeList,
       codeMap: this.props.codeMap,
-      errors: this.props.errors,
     });
   },
 
@@ -222,7 +220,7 @@ let NotebookV2 = React.createClass({
           getCurrentCode={this.getCurrentCode} 
           assignForceUpdate={this.props.assignForceUpdate}/> 
         <CodeOverlaysContainer 
-          errors={this.state.errors}
+          errors={this.props.errors}
           handleOverlayMount={this.handleOverlayMount}
           store={this.props.store}
           codePlotsData={this.state.plots}

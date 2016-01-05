@@ -2,6 +2,7 @@ const initialState = {
   codeList: [],
   codeMap: {},
   results: {},
+  errors: {},
   html: [],
 };
 
@@ -10,6 +11,7 @@ const documentReducer = (state = initialState, action) => {
     case 'INITIALIZE_DOCUMENT': return INITIALIZE_DOCUMENT(state, action);
     case 'CODE_EDITOR_CHANGE':  return CODE_EDITOR_CHANGE(state, action);
     case 'NEW_RESULT':          return NEW_RESULT(state, action);
+    case 'NEW_ERRORS':          return NEW_ERRORS(state, action);
     default:
       return state;
   }
@@ -28,6 +30,11 @@ function CODE_EDITOR_CHANGE (state, action) {
 
   let result = Object.assign({}, state, {codeMap: nextCodeMap});
   return result;
+}
+
+function NEW_ERRORS(state, action) {
+  let errors = action.data
+  return Object.assign({}, state, {errors});
 }
 
 function NEW_RESULT(state, action) {

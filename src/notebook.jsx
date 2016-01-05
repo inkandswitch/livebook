@@ -40,11 +40,11 @@ function codeEditorRender() {
 
 function notebookRender() {
   let { doc } = livebookStore.getState();
-  let { html, codeList, codeMap } = doc;
+  let { html, codeList, codeMap, errors} = doc;
   
   ReactDOM.render(
     <Notebook 
-      errors={ERRORS}
+      errors={errors}
       getCurrentPage={() => CurrentPage}
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
@@ -397,7 +397,8 @@ function executePython(codeBlocks, nextForResults, nextForPlots, nextForErrors) 
 function handleError(e) {
   console.log("ERROR:",e)
   ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
-  NEXT_CALLBACK_FOR_ERRORS(ERRORS)
+//  NEXT_CALLBACK_FOR_ERRORS(ERRORS)
+  livebookStore.dispatch({ type: "NEW_ERRORS", data: ERRORS });
 }
 
 var Nav = require("./components/nav");
