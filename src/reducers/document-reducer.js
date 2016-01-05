@@ -38,14 +38,13 @@ function NEW_ERRORS(state, action) {
 }
 
 function NEW_RESULT(state, action) {
-  let {codeListIndex, result} = action.data;
-  let nextResults = { ...state.results };
-  let id = state.codeList[codeListIndex];
-
-  if (id === undefined) return state; 
-
-  nextResults[id] = result;
-  return Object.assign({}, state, {results: nextResults});
+  let next_results = {...state.results}
+  let next_errors = {...state.errors}
+  for (let cell in action.data) {
+     next_results[cell] = action.data[cell]
+     delete next_errors[cell]
+  }
+  return {...state, results: next_results, errors: next_errors}
 }
 
 module.exports = documentReducer;

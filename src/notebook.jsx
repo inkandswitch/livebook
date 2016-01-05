@@ -99,10 +99,7 @@ WORKER.onmessage = function(e) {
 }
 
 function handleResults(results) {
-  for (let cell in results) {
-    NEXT_CALLBACK_FOR_RESULTS(cell, results[cell])
-    delete ERRORS[cell]
-  }
+  livebookStore.dispatch({ type: "NEW_RESULT", data: results })
 }
 
 function handlePlots(plots) {
@@ -381,10 +378,8 @@ window.onpopstate = function(event) {
     setCurrentPage("notebook")
 }
 
-function executePython(codeBlocks, nextForResults, nextForPlots, nextForErrors) {
-  NEXT_CALLBACK_FOR_RESULTS = nextForResults;
+function executePython(codeBlocks, nextForPlots) {
   NEXT_CALLBACK_FOR_PLOTS = nextForPlots;
-  NEXT_CALLBACK_FOR_ERRORS = nextForErrors;
   REMOVE_MARKERS()
   WORKER.postMessage({ type: "exec", doc: codeBlocks})
 }

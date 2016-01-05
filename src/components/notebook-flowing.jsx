@@ -33,7 +33,7 @@ let CodeOverlaysContainer = React.createClass({
 
   createCodeCell(id) {
     let code = this.props.codeMap[id];
-    let result = this.props.codeResults[id];
+    let result = this.props.codeResults[this.props.codeList.indexOf(id)];
     let plotsData = this.props.codePlotsData[id];
     let error = this.props.errors[this.props.codeList.indexOf(id)];
     return (
@@ -124,6 +124,7 @@ let NotebookV2 = React.createClass({
     this.setState({ errors });
   },
 
+/*
   handleNewResult(codeListIndex, result) {
     let id = this.state.codeList[codeListIndex];
     if (id === undefined) return; // stops us from rendering result of cell that has since been deleted
@@ -142,6 +143,7 @@ let NotebookV2 = React.createClass({
     // });
 
   },
+*/
 
   handleNewPlot(codeListIndex, plotData) {
     let id = this.state.codeList[codeListIndex];
@@ -190,7 +192,7 @@ let NotebookV2 = React.createClass({
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks, this.handleNewResult, this.handleNewPlot, this.handleNewErrors); // mem: NEXT_CALLBACK
+    this.props.executePython(codeBlocks, this.handleNewPlot); // mem: NEXT_CALLBACK
   },
 
   syncNotebook() {
@@ -215,10 +217,12 @@ let NotebookV2 = React.createClass({
   },
 
   renderNotebook() {
+    let r = this.props.doc.results
+    console.log("RESUTLS",r)
     return (
       <div className="notebook">
         <Editor
-          results={this.state.results}
+          results={this.props.doc.results}
           text={this.props.doc.html}
           onCodeChange={this.handleCodeChange}
           onClick={this.handleEditorClick}
@@ -232,6 +236,7 @@ let NotebookV2 = React.createClass({
           handleOverlayMount={this.handleOverlayMount}
           store={this.props.store}
           codePlotsData={this.state.plots}
+          codeResults={this.props.doc.results}
           codeList={this.state.codeList}
           codeMap={this.state.codeMap}
           getCurrentCode={this.getCurrentCode}
