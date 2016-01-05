@@ -42,10 +42,15 @@ function createLivebookExtension(options) {
               editSelectedCodeCell({ event });
               validateContents(editor);           
             }
+
             if (isDelete(event)) {
               // TODO - delete from codemap???
               deleteSelectedCodeCell(editor);
               // validateContents(editor);
+            }
+
+            if (isArrowKey(event)) {
+              handleCodeCellArrowKeyEvent(editor, { event });
             }
           }
         });
@@ -202,8 +207,7 @@ function codeCellToPlaceholder(codeCell) {
 }
 
 function isCodeCellSelected() {
-  let selected = getSelectedCodeCell();
-  return !!selected;
+  return !!getSelectedCodeCell();
 }
 
 function getSelectedCodeCell() {
@@ -224,6 +228,33 @@ function editSelectedCodeCell() {
   eventFire(code, "click");
 }
 
+function handleCodeCellArrowKeyEvent(editor, { event }) {
+  if (isDown(event)) {
+    let codeCell = getSelectedCodeCell();
+    let placeholder = codeCellToPlaceholder(codeCell);
+    if (isLastEditorCell(placeholder)) {
+      addProseBelow(editor, placeholder);      
+    }
+  }
+}
+
+function addProseBelow(editor, placeholder) {
+  let placeholderParent = placeholder.parentNode;
+  editor.selectElement(placeholderParent);
+  let html = placeholderParent.outerHTML;
+  editor.pasteHTML(placeholderParent.outerHTML + "<p><br/></p>");
+  highlightSelectedCodeCell();
+}
+
+function forceSelectedCursorUpdate() {
+
+}
+
+function isLastEditorCell(placeholder) {
+  let placeholderParent = placeholder.parentNode;
+  return !placeholderParent.nextElementSibling;
+}
+
 function isEnter(event) {
   let ENTER = 13;
   return event.which === ENTER;
@@ -240,10 +271,21 @@ function isCommandJ(event) {
   return event.metaKey && event.which === J;
 }
 
+function isUp({ which }) {
+  return which === 38;
+}
+function isDown({ which }) {
+  return which === 40;
+}
+function isLeft({ which }) {
+  return which === 37;
+}
+function isRight({ which }) {
+  return which === 39;
+}
+
 function isArrowKey(event) {
-  const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
-  const ARROWS = [LEFT, UP, RIGHT, DOWN];
-  return ARROWS.some( (c) => c === event.which );
+  return [isUp, isDown, isLeft, isRight].some( (p) => p(event) );
 }
 
 function findCode(elt) {
