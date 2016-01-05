@@ -33,8 +33,8 @@ function CODE_EDITOR_CHANGE (state, action) {
 }
 
 function NEW_ERRORS(state, action) {
-  let errors = action.data
-  return Object.assign({}, state, {errors});
+  const errors = action.data
+  return {...state, errors};
 }
 
 function NEW_RESULT(state, action) {

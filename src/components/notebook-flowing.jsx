@@ -218,7 +218,6 @@ let NotebookV2 = React.createClass({
 
   renderNotebook() {
     let r = this.props.doc.results
-    console.log("RESUTLS",r)
     return (
       <div className="notebook">
         <Editor
