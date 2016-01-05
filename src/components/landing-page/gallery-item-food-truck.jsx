@@ -13,8 +13,8 @@ let FoodTruck = React.createClass({
                   <img src="/img/food-truck.png" />
                 </div>
                 <div className="gallery-item-title">
-                  <h3> Starter Notebook </h3>
-                  <p> by <span className="text-green"> YOU! </span> </p>
+                  <h3> Food Truck Stuff! </h3>
+                  <p> by <span className="text-green"> Someone </span> </p>
                 </div>
               </header>
               <footer className="gallery-item-footer">
