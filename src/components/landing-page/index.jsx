@@ -1,5 +1,46 @@
 let React = require("react");
-let Gallery = require("./gallery");
+
+let GalleryItem = React.createClass({
+  clickHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.props.clickHandler({
+      ipynb: this.props.ipynbURL,
+      csv: this.props.csvURL,
+    });
+  },
+
+  getClassNames() {
+    let result = "gallery-item";
+    if (this.props.starter) {
+      result += " gallery-item--starter";
+    }
+    return result;
+  },
+
+  render() {
+    return (
+      <article className={this.getClassNames()} onClick={this.clickHandler}>
+        <a>{this.props.children}</a>
+      </article>
+    );
+  },
+});
+
+let Starter = React.createClass({
+    render() {
+        return (
+          <GalleryItem csvURL="/forkable/starter.csv" 
+              ipynbURL="/forkable/starter.ipynb" 
+              clickHandler={this.props.clickHandler}
+              starter={true}>
+            Get a copy of the starter notebook
+          </GalleryItem>
+        );
+    },
+});
+
 
 let LandingPage = React.createClass({
 
@@ -22,22 +63,7 @@ let LandingPage = React.createClass({
       let styles = this.getStyles();
       return (
         <div ref="self" style={styles} className="landing-page-container">
-          <header className="livebook-header">
-            <div className="layout-container">
-              <div className="livebook-logo">
-                <img src="/img/livebook-logo.svg" />
-              </div>
-              <div className="livebook-lede">
-                <h1>Livebook</h1>
-                <h2>IPython-compatible notebook editor</h2>
-                <p>
-                  featuring live coding and realtime collaboration 
-                  for researchers, journalists, and data scientists
-                </p>
-              </div>
-            </div>
-          </header>
-          <Gallery clickHandler={this.clickHandler} />
+          <Starter clickHandler={this.clickHandler} />
         </div>
       );
   },
