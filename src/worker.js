@@ -63,8 +63,6 @@ pypyjs.stderr = function(data) {
 
 pypyjs.loadModuleData("pandas").then(function() {
   pypyjs.loadModuleData("matplotlib").then(function() {
-    console.log("pypyjs is ready")
-    pypyjs.exec(base)
     self.READY = true
     maybeDoWork()
   }).catch((e) => {
@@ -109,6 +107,8 @@ function execPython(doc,ctxs) {
       console.log("ERR",e)
       let match = re.exec(e.trace);
       if (match && match[1] !== '') {
+        let n = ctx.map[match[1]]
+        if (n == undefined) debugger;
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         handleResult(doc, self.RESULTS, self.PLOTS, error)
       } else {
@@ -130,8 +130,7 @@ function generateAndExecPython(doc) {
 }
 
 function generatePythonCTX(doc) {
-  //let lines = ["def usercode():"];
-  let ctxs = []
+  let ctxs = [{ map: {}, code: base, length: 23}]
 
   doc.forEach((c, i) => {
     let lineno = 0;
