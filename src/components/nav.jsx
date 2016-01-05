@@ -19,7 +19,7 @@ let Nav = React.createClass({
         let styles = this.getStyles();
         return (
             <div className="livebook-nav" style={styles}>
-                <Collaborators peers={this.props.peers} setMode={this.props.setMode} getMode={this.props.getMode} getCurrentPage={this.props.getCurrentPage} />
+                <Collaborators peers={this.props.peers} getCurrentPage={this.props.getCurrentPage} />
                 <Menu notebook={this.props.notebook} />
             </div>
         );

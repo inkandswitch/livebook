@@ -60,14 +60,12 @@ var CollaboratorNameForm = React.createClass({
     if (!prevProps.shouldFocus && this.props.shouldFocus) {
       let input = this.refs.nameInput.getDOMNode();
       input.select();
-      this.props.setMode("meta");
       this.setState({ showForm: true });
       this.showFormAnimations();
     }
 
     // We are hiding the form
     if (prevProps.shouldFocus && !this.props.shouldFocus) {
-      this.props.setMode("nav");
       this.setState({ showForm: false });
       this.hideFormAnimations();
     }
@@ -214,9 +212,7 @@ var Collaborator = React.createClass({
           exitModal={this.exitModal}
           handleNameChange={this.handleNameChange}
           shouldFocus={this.state.isEditingName}
-          isHidden={!this.state.isEditingName}
-          setMode={this.props.setMode}
-          getMode={this.props.getMode} />
+          isHidden={!this.state.isEditingName} />
       </li>
     );
   }
@@ -237,9 +233,7 @@ var Collaborators = React.createClass({
           key={index}
           peer={peer} 
           color={peer.state.color}
-          isEditable={index === 0} 
-          setMode={this.props.setMode}
-          getMode={this.props.getMode} />
+          isEditable={index === 0} />
       );
     })
     return avatars;
