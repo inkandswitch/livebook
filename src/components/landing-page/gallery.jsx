@@ -18,7 +18,7 @@ let Gallery = React.createClass({
         <Quakes clickHandler={this.props.clickHandler} />
         <Waldo clickHandler={this.props.clickHandler} />
         <FoodTruck clickHandler={this.props.clickHandler} />
-        <Starter clickHandler={() => {}} /> 
+        <Starter clickHandler={this.props.clickHandler} /> 
       </section>
     );
   },
