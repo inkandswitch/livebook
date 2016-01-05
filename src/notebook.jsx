@@ -192,7 +192,6 @@ function update_peers_and_render() {
   }
 
   ReactDOM.render(<Nav 
-      show={CurrentPage !== "landing"}
       peers={peers} 
       getCurrentPage={() => CurrentPage} 
       notebook={exports}/>, 
@@ -210,7 +209,9 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
-  let {html,state} = iPython
+  if (!iPython) return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
+  let { html, state } = iPython;
+  if (!state) throw new Error("Unrecognized format to iPython object. See:", iPython); // FIXME - we can't fork notebooks! D:
   livebookStore.dispatch({
     type: "INITIALIZE_DOCUMENT",
     documentProps: {
@@ -230,7 +231,7 @@ let iPython
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
-var notebookMount    = document.getElementById("notebook-v2");
+var notebookMount    = document.getElementById("notebook");
 var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
 
@@ -356,7 +357,7 @@ function handleUpdateNotebook(html,state) {
   },5000)
 }
 
-function setCurrentPage(page) {
+function setCurrentPage(page, skip) {
   if (!Pages.includes(page)) {
     console.log("Error: '" + page + "' is not a valid page");
     return;
@@ -395,12 +396,14 @@ var Uploader = require("./components/uploader.jsx");
 var Notebook = require("./components/notebook-flowing.jsx");
 
 function renderLandingPage() {
-  ReactDOM.render(<LandingPage show={CurrentPage === "landing"} fork={forkNotebook} />, landingPageMount);
+  ReactDOM.render(<LandingPage fork={forkNotebook} />, landingPageMount);
 }
 
 function forkNotebook(urls) {
   $.post("/fork/", JSON.stringify(urls), function(response) {
-    window.location = response
+    debugger;
+    let newNotebookUrl = response.trimRight();
+    window.location = newNotebookUrl;
   })
 }
 
@@ -462,6 +465,7 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
 } else {
   let isUploadPage = document.location.pathname.indexOf("upload") !== -1;
   isUploadPage ? setCurrentPage("upload") : setCurrentPage("landing");
+  renderLandingPage();
 }
 
 module.exports = exports;

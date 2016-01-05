@@ -12,7 +12,7 @@ let Nav = React.createClass({
     },
 
     isHidden() {
-        return !this.props.show;
+        return window.location.pathname === "/";
     },
 
     render() {

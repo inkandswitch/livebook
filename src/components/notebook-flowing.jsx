@@ -69,6 +69,10 @@ let CodeOverlaysContainer = React.createClass({
 
 let NotebookV2 = React.createClass({
 
+  componentWillMount() {
+
+  },
+
   componentWillUpdate() {
     let renderLandingPage = this.props.renderLandingPage;
     renderLandingPage && renderLandingPage();

@@ -15,7 +15,7 @@ let LandingPage = React.createClass({
   },
 
   isHidden() {
-    return !this.props.show;
+    return window.location.pathname !== "/";
   },
 
   render() {
