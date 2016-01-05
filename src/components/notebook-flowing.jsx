@@ -93,6 +93,7 @@ let NotebookV2 = React.createClass({
       codeList: [],
       codeMap: {},
       results: {},
+      errors: {},
       plots: {},
     };
   },
@@ -101,6 +102,7 @@ let NotebookV2 = React.createClass({
     this.setState({
       codeList: this.props.codeList,
       codeMap: this.props.codeMap,
+      errors: this.props.errors,
     });
   },
 
@@ -112,6 +114,10 @@ let NotebookV2 = React.createClass({
     if (this.props.hideCodeEditor) {
       this.props.hideCodeEditor();
     }
+  },
+
+  handleNewErrors(errors) {
+    this.setState({ errors });
   },
 
   handleNewResult(codeListIndex, result) {
@@ -180,7 +186,7 @@ let NotebookV2 = React.createClass({
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks, this.handleNewResult, this.handleNewPlot); // mem: NEXT_CALLBACK
+    this.props.executePython(codeBlocks, this.handleNewResult, this.handleNewPlot, this.handleNewErrors); // mem: NEXT_CALLBACK
   },
 
   syncNotebook() {
@@ -216,7 +222,7 @@ let NotebookV2 = React.createClass({
           getCurrentCode={this.getCurrentCode} 
           assignForceUpdate={this.props.assignForceUpdate}/> 
         <CodeOverlaysContainer 
-          errors={this.props.errors}
+          errors={this.state.errors}
           handleOverlayMount={this.handleOverlayMount}
           store={this.props.store}
           codePlotsData={this.state.plots}

@@ -80,7 +80,8 @@ var createCellPlotData = require("./cell-plots-adapter");
 
 
 var NEXT_CALLBACK_FOR_RESULTS,
-    NEXT_CALLBACK_FOR_PLOTS;
+    NEXT_CALLBACK_FOR_PLOTS,
+    NEXT_CALLBACK_FOR_ERRORS;
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
@@ -385,9 +386,10 @@ window.onpopstate = function(event) {
     setCurrentPage("notebook")
 }
 
-function executePython(codeBlocks, nextForResults, nextForPlots) {
+function executePython(codeBlocks, nextForResults, nextForPlots, nextForErrors) {
   NEXT_CALLBACK_FOR_RESULTS = nextForResults;
   NEXT_CALLBACK_FOR_PLOTS = nextForPlots;
+  NEXT_CALLBACK_FOR_ERRORS = nextForErrors;
   REMOVE_MARKERS()
   WORKER.postMessage({ type: "exec", doc: codeBlocks})
 }
@@ -395,7 +397,7 @@ function executePython(codeBlocks, nextForResults, nextForPlots) {
 function handleError(e) {
   console.log("ERROR:",e)
   ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
-  return e.cell
+  NEXT_CALLBACK_FOR_ERRORS(ERRORS)
 }
 
 var Nav = require("./components/nav");
