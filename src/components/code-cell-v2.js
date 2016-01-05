@@ -142,6 +142,7 @@ let CodeCell = React.createClass({
         handleChange,
       },
     });
+
   },
 
   handleEditorChange(newText) {
@@ -151,7 +152,7 @@ let CodeCell = React.createClass({
   render() {
     let id = "overlay" + this.props.index;
     return (
-      <div className="notebook" id={id}>
+      <div className="notebook" id={id} onClick={() => this.props.focusEditorOnPlaceholder(this.props.index)}>
         <div className="cell-wrap">
           <div className="cell" data-cell-index={this.props.index}>
             <div className="switch" onClick={this.handleClick}>

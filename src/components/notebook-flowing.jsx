@@ -44,7 +44,8 @@ let CodeOverlaysContainer = React.createClass({
         error={error} 
         plotsData={plotsData}
         store={this.props.store}
-        handleEditorChange={this.handleEditorChange} />
+        handleEditorChange={this.handleEditorChange}
+        focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
     );
   },
 
@@ -224,18 +225,20 @@ let NotebookV2 = React.createClass({
           getCurrentCodeList={ () => this.state.codeList}
           getCurrentCode={this.getCurrentCode} 
           assignForceUpdate={this.props.assignForceUpdate}
-          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}/> 
+          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
+          assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/> 
         <CodeOverlaysContainer 
           errors={this.props.errors}
           handleOverlayMount={this.handleOverlayMount}
-          focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           store={this.props.store}
           codePlotsData={this.state.plots}
           codeResults={this.state.results}
           codeList={this.state.codeList} 
           codeMap={this.state.codeMap}
           getCurrentCode={this.getCurrentCode}
-          handleEditorChange={this.handleEditorChange} /> 
+          handleEditorChange={this.handleEditorChange}
+          focusOnSelectedOverlay={this.props.focusOnSelectedOverlay} 
+          focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} /> 
       </div>
     );
   }
