@@ -22,6 +22,10 @@ div[contenteditable="true"] {
   outline: none;
 }
 
+img[data-livebook-placeholder-cell] {
+  border-radius: 1em;
+}
+
 .cursor {
   transition: all .15s ease-out;
 }
