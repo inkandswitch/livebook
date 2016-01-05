@@ -37,11 +37,11 @@ let CodeOverlaysContainer = React.createClass({
     let plotsData = this.props.codePlotsData[id];
     let error = this.props.errors[this.props.codeList.indexOf(id)];
     return (
-      <CodeCellV2 
-        key={id} index={id} 
+      <CodeCellV2
+        key={id} index={id}
         result={result}
         code={code}
-        error={error} 
+        error={error}
         plotsData={plotsData}
         store={this.props.store}
         handleEditorChange={this.handleEditorChange}
@@ -105,8 +105,8 @@ let NotebookV2 = React.createClass({
 
   componentWillMount() {
     this.setState({
-      codeList: this.props.codeList,
-      codeMap: this.props.codeMap,
+      codeList: this.props.doc.codeList,
+      codeMap: this.props.doc.codeMap,
     });
   },
 
@@ -217,23 +217,22 @@ let NotebookV2 = React.createClass({
   renderNotebook() {
     return (
       <div className="notebook">
-        <Editor 
-          results={this.state.results} 
-          text={this.props.html} 
+        <Editor
+          results={this.state.results}
+          text={this.props.doc.html}
           onCodeChange={this.handleCodeChange}
-          onClick={this.handleEditorClick} 
+          onClick={this.handleEditorClick}
           getCurrentCodeList={ () => this.state.codeList}
           getCurrentCode={this.getCurrentCode} 
           assignForceUpdate={this.props.assignForceUpdate}
           assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
           assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/> 
-        <CodeOverlaysContainer 
-          errors={this.props.errors}
+        <CodeOverlaysContainer
+          errors={this.props.doc.errors}
           handleOverlayMount={this.handleOverlayMount}
           store={this.props.store}
           codePlotsData={this.state.plots}
-          codeResults={this.state.results}
-          codeList={this.state.codeList} 
+          codeList={this.state.codeList}
           codeMap={this.state.codeMap}
           getCurrentCode={this.getCurrentCode}
           handleEditorChange={this.handleEditorChange}

@@ -43,16 +43,14 @@ function codeEditorRender() {
 
 function notebookRender() {
   let { doc } = livebookStore.getState();
-  let { html, codeList, codeMap, errors} = doc;
   
   ReactDOM.render(
     <Notebook 
-      errors={errors}
+      doc={doc}
       getCurrentPage={() => CurrentPage}
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      html={html} codeList={codeList} codeMap={codeMap} 
       executePython={executePython}
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
@@ -163,18 +161,11 @@ var ERRORS = {
 };
 
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `EDITOR.getSession().removeMarker(id)`
-function REMOVE_ERRORS() {
-  REMOVE_MARKERS();
-  CLEAR_ERROR_MESSAGES();
-}
 function REMOVE_MARKERS() {
   ERROR_MARKER_IDS.forEach((id) => {
     EDITOR.getSession().removeMarker(id);
   });
   ERROR_MARKER_IDS = []
-}
-function CLEAR_ERROR_MESSAGES() {
-  ERRORS = {};
 }
 
 cradle.onarrive = function() {
