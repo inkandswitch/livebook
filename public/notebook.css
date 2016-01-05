@@ -337,7 +337,7 @@ img[data-livebook-placeholder-cell] {
 }
 
 .pyresult-loading-with-message::after {
-  content: "(loading)";
+  content: " ";
   position: absolute;
   top: 50%;
   left: 50%;
