@@ -115,7 +115,6 @@ function createLivebookExtension(options) {
         else {
           seen.push(id);
         }
-
         return seen;
       });
 
@@ -148,7 +147,6 @@ function createLivebookExtension(options) {
     }
 
     function getPlaceholderId(placeholderElt) {
-      // debugger;
       return placeholderElt.id.replace("placeholder", "");
     }
 }

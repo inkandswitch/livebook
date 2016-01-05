@@ -14,19 +14,21 @@ module.exports = {
 };
 
 function iPyToHTML(ipy) {
-  let code = {}
+  let codeMap = {}
+  let codeList = []
   let index = 0
   let html = ipy.cells.map((cell) => {
     if (cell.cell_type == "markdown") {
       return marked(cell.source.join("\n"))
     } else {
       index += 1
-      code[index] = cell.source.join("");
+      codeMap[index] = cell.source.join("");
+      codeList.push("" + index)
       return `<p><img data-livebook-placeholder-cell id="placeholder${index}" width="100%" src="${PNG}"></p>`
     }
   }).join("\n")
 
-  return { version: 2, html, code };
+  return { version: 2, html, state: { codeMap, codeList } };
 }
 
 function htmlToIPy(html) {

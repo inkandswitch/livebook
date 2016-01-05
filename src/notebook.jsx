@@ -401,7 +401,6 @@ function renderLandingPage() {
 
 function forkNotebook(urls) {
   $.post("/fork/", JSON.stringify(urls), function(response) {
-    debugger;
     let newNotebookUrl = response.trimRight();
     window.location = newNotebookUrl;
   })
