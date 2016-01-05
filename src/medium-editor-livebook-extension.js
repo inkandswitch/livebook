@@ -5,7 +5,7 @@ function createLivebookExtension(options) {
 
     let codeindex;
 
-    let result = { init, checkState, forceUpdate };
+    let result = { init, checkState, forceUpdate, focusOnSelectedOverlay };
     let editor = null;
 
     return result;
@@ -15,6 +15,12 @@ function createLivebookExtension(options) {
         ids = getCurrentCodeList();
       }
       setCodeBlockPositions(ids);
+    }
+
+    function focusOnSelectedOverlay() {
+      let codeCell = getSelectedCodeCell();
+      let placeholder = codeCellToPlaceholder(codeCell);
+      editor.selectElement(placeholder);
     }
 
     function init() {

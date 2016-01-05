@@ -57,6 +57,7 @@ module.exports = React.createClass({
     });
 
     this.props.assignForceUpdate(livebookExtension.forceUpdate);
+    this.props.assignFocusOnSelectedOverlay(livebookExtension.focusOnSelectedOverlay);
 
     editorOptions.extensions.livebook = livebookExtension;
 

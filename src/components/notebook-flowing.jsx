@@ -11,7 +11,12 @@ let CodeOverlaysContainer = React.createClass({
   hideCodeEditorOnEsc(event) {
     if (event.which === 27) {
       this.props.store.dispatch({ type: "CLOSE_CODE_EDITOR", })
+      this.restoreMediumEditorCursor();
     }
+  },
+
+  restoreMediumEditorCursor() {
+    this.props.focusOnSelectedOverlay();
   },
 
   componentWillMount() {
@@ -218,10 +223,12 @@ let NotebookV2 = React.createClass({
           onClick={this.handleEditorClick} 
           getCurrentCodeList={ () => this.state.codeList}
           getCurrentCode={this.getCurrentCode} 
-          assignForceUpdate={this.props.assignForceUpdate}/> 
+          assignForceUpdate={this.props.assignForceUpdate}
+          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}/> 
         <CodeOverlaysContainer 
           errors={this.props.errors}
           handleOverlayMount={this.handleOverlayMount}
+          focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           store={this.props.store}
           codePlotsData={this.state.plots}
           codeResults={this.state.results}

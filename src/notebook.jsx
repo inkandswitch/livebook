@@ -16,6 +16,7 @@ let EDITOR = {}
 // These are functions that are assigned by children 
 // (effectively passing functionality from children to parents, which is a React no-no)
 let uglyAntiFunctions = {};
+global.uglyAntiFunctions = uglyAntiFunctions;
 
 function codeEditorRender() {
   let { codeEditor } = livebookStore.getState();
@@ -56,7 +57,9 @@ function notebookRender() {
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
-      assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f} />, 
+      assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f}
+      assignFocusOnSelectedOverlay={(f) => uglyAntiFunctions.focusOnSelectedOverlay = f}
+      focusOnSelectedOverlay={ () => uglyAntiFunctions.focusOnSelectedOverlay && uglyAntiFunctions.focusOnSelectedOverlay() } />, 
     notebookMount);
 }
 
