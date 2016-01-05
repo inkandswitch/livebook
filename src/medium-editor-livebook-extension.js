@@ -24,10 +24,15 @@ function createLivebookExtension(options) {
         editor.subscribe("editableKeydown", (event) => {
           if (isCodeCellSelected()) {
             if (isEnter(event)) {
-              editSelectedCodeCell({ event });            
+              event.stopPropagation();
+              event.preventDefault();
+              editSelectedCodeCell({ event });
+              validateContents(editor);           
             }
             if (isDelete(event)) {
-              deleteSelectedCodeCell({ event });
+              // TODO - delete from codemap???
+              deleteSelectedCodeCell(editor);
+              // validateContents(editor);
             }
           }
         });
@@ -194,22 +199,29 @@ function getSelectedCodeCell() {
   return document.querySelector(".active-code-cell");
 }
 
-function deleteSelectedCodeCell() {
+function deleteSelectedCodeCell(editor) {
   let selected = getSelectedCodeCell();
   let placeholder = codeCellToPlaceholder(selected);
-  // TODO - simply remove element + validate contents?
-  debugger;
+  editor.selectElement(placeholder);
+  editor.selectElement(editor.getSelectedParentElement());
+  editor.execAction("delete");
 }
 
 function editSelectedCodeCell() {
   let selected = getSelectedCodeCell();
-  // TODO - simulate click on selected element?
-  debugger;
+  let code = findCode(selected);
+  eventFire(code, "click");
 }
 
 function isEnter(event) {
   let ENTER = 13;
   return event.which === ENTER;
+}
+
+function isDelete(event) {
+  let BACKSPACE = 8;
+  let DEL = 46;
+  return event.which === BACKSPACE || event.which === DEL;
 }
 
 function isCommandJ(event) {
@@ -221,4 +233,18 @@ function isArrowKey(event) {
   const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
   const ARROWS = [LEFT, UP, RIGHT, DOWN];
   return ARROWS.some( (c) => c === event.which );
+}
+
+function findCode(elt) {
+  return elt.querySelector(".code");
+}
+
+function eventFire(el, etype){
+  if (el.fireEvent) {
+    el.fireEvent('on' + etype);
+  } else {
+    var evObj = document.createEvent('Events');
+    evObj.initEvent(etype, true, false);
+    el.dispatchEvent(evObj);
+  }
 }
