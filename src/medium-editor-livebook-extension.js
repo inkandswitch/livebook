@@ -19,6 +19,7 @@ function createLivebookExtension(options) {
 
     function focusOnSelectedOverlay() {
       let codeCell = getSelectedCodeCell();
+      if (!codeCell) return;
       let placeholder = codeCellToPlaceholder(codeCell);
       editor.selectElement(placeholder);
     }
