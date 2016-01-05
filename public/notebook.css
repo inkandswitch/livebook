@@ -324,11 +324,11 @@ div[contenteditable="true"] {
 }
 
 .pyresult-loading {
-  opacity: .75; 
+  opacity: 1;
 }
 
 .pyresult-loading-with-message {
-  opacity: .75;
+  opacity: 1;
   position: relative;
 }
 
