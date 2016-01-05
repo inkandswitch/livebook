@@ -105,7 +105,10 @@ let CodeCell = React.createClass({
     let outputs = this.props.result || [];
 
     if (outputs.length === 0) {
-      return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);
+      if (this.props.code) {
+        return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);        
+      }
+      return (<div className="pyresult"></div>);        
     }
 
     let className = "pyresult";
