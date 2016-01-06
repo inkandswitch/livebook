@@ -196,41 +196,38 @@ let NotebookV2 = React.createClass({
 
   render() {
     const path = window.location.pathname;
-    if (path === "/") {
-      return <div className="notebook"></div>;      
-    }
-    else if (path.indexOf("/upload") === 0) {
-      return <div className="notebook"><Uploader startNewNotebook={this.props.startNewNotebook} /></div>      
-    }
-    return this.renderNotebook();
+    const isFullOfStuff = path !== "/" && path.indexOf("/upload") !== 0;
+    return (
+      <div className="notebook">{ isFullOfStuff ? this.renderEditorAndOverlays() : "" }</div>
+    );
   },
 
-  renderNotebook() {
+  renderEditorAndOverlays() {
     let r = this.props.doc.results
     return (
-      <div className="notebook">
-        <Editor
-          results={this.props.doc.results}
-          text={this.props.doc.html}
-          onCodeChange={this.handleCodeChange}
-          onClick={this.handleEditorClick}
-          getCurrentCodeList={ () => this.state.codeList}
-          getCurrentCode={this.getCurrentCode} 
-          assignForceUpdate={this.props.assignForceUpdate}
-          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
-          assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/> 
-        <CodeOverlaysContainer
-          errors={this.props.doc.errors}
-          handleOverlayMount={this.handleOverlayMount}
-          store={this.props.store}
-          codePlotsData={this.state.plots}
-          codeResults={this.props.doc.results}
-          codeList={this.state.codeList}
-          codeMap={this.state.codeMap}
-          getCurrentCode={this.getCurrentCode}
-          handleEditorChange={this.handleEditorChange}
-          focusOnSelectedOverlay={this.props.focusOnSelectedOverlay} 
-          focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} /> 
+      <div>
+      <Editor
+        results={this.props.doc.results}
+        text={this.props.doc.html}
+        onCodeChange={this.handleCodeChange}
+        onClick={this.handleEditorClick}
+        getCurrentCodeList={ () => this.state.codeList}
+        getCurrentCode={this.getCurrentCode} 
+        assignForceUpdate={this.props.assignForceUpdate}
+        assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
+        assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/> 
+      <CodeOverlaysContainer
+        errors={this.props.doc.errors}
+        handleOverlayMount={this.handleOverlayMount}
+        store={this.props.store}
+        codePlotsData={this.state.plots}
+        codeResults={this.props.doc.results}
+        codeList={this.state.codeList}
+        codeMap={this.state.codeMap}
+        getCurrentCode={this.getCurrentCode}
+        handleEditorChange={this.handleEditorChange}
+        focusOnSelectedOverlay={this.props.focusOnSelectedOverlay} 
+        focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
       </div>
     );
   }

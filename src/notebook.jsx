@@ -191,10 +191,7 @@ function update_peers_and_render() {
     peers = cradle.peers()
   }
 
-  ReactDOM.render(<Nav 
-      peers={peers} 
-      notebook={exports}/>, 
-    navMount);
+  ReactDOM.render(<Nav render={render} peers={peers} />, navMount);
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
@@ -208,7 +205,12 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
-  if (!iPython) return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
+  if (!iPython) { 
+    if (window.location.pathname === "/") renderLandingPage();
+    renderUploader();
+    return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
+  }
+
   let { html, state } = iPython;
   if (!state) throw new Error("Unrecognized format to iPython object. See:", iPython); // FIXME - we can't fork notebooks! D:
   livebookStore.dispatch({
@@ -230,9 +232,10 @@ let iPython
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
-var notebookMount    = document.getElementById("notebook");
+var notebookMount      = document.getElementById("notebook");
 var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
+var uploaderMount      = document.getElementById("uploader");
 
 function summonEditor(options) {
   let {row, column} = options;
@@ -313,7 +316,6 @@ function createAceEditor(options) {
 function render() {
   let render_time = new Date()
   update_peers_and_render()
-
   return render_time
 }
 
@@ -356,24 +358,10 @@ function handleUpdateNotebook(html,state) {
   },5000)
 }
 
-function setCurrentPage(page, skip) {
-  if (!Pages.includes(page)) {
-    console.log("Error: '" + page + "' is not a valid page");
-    return;
-  }
-
-  CurrentPage = page;
-  render()
-}
+// TODO - render onpushstate?
 
 window.onpopstate = function(event) {
-  var path = document.location.pathname;
-  if (path === "/")
-    setCurrentPage("landing");
-  else if (path === "/upload")
-    setCurrentPage("upload")
-  else
-    setCurrentPage("notebook")
+  render();
 }
 
 function executePython(codeBlocks, nextForPlots) {
@@ -389,13 +377,18 @@ function handleError(e) {
   livebookStore.dispatch({ type: "NEW_ERRORS", data: ERRORS });
 }
 
-var Nav = require("./components/nav");
 var LandingPage = require("./components/landing-page");
-var Uploader = require("./components/uploader.jsx");
-var Notebook = require("./components/notebook-flowing.jsx");
+var Nav = require("./components/nav");
+var Notebook = require("./components/notebook-flowing");
+var Uploader = require("./components/uploader");
 
 function renderLandingPage() {
   ReactDOM.render(<LandingPage fork={forkNotebook} />, landingPageMount);
+}
+
+function renderUploader() {
+  const isUploadPage = (window.location.pathname.indexOf("upload") !== -1)
+  ReactDOM.render(<div className="notebook"><Uploader show={isUploadPage} startNewNotebook={startNewNotebook} /></div>, uploaderMount);
 }
 
 function forkNotebook(urls) {
@@ -438,8 +431,6 @@ function startCradle() {
 function startNewNotebook(data) {
   postNotebookToServer(data.ipynb, data.csv, function() {
     parseRawNotebook(data.ipynb, data.csv);
-    setCurrentPage("notebook");
-
     // I HOPE THIS WORKS
     update_peers_and_render();
   });
@@ -449,7 +440,6 @@ var exports =  {
   getCellPlots           : getCellPlots,
   getCurrentPage         : () => CurrentPage,
   getEditor              : () => EDITOR,
-  setCurrentPage         : setCurrentPage,
 };
 
 global.MEH = exports;
@@ -457,12 +447,11 @@ global.MEH = exports;
 if (/[/]d[/](\d*)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
     parseRawNotebook(data.Notebook.Body, data.DataFile.Body);
-    setCurrentPage("notebook");
+    render();
     startCradle()
   }, "json")
 } else {
-  let isUploadPage = document.location.pathname.indexOf("upload") !== -1;
-  isUploadPage ? setCurrentPage("upload") : setCurrentPage("landing");
+  render();
   renderLandingPage();
 }
 

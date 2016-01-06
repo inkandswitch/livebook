@@ -86,8 +86,10 @@ var Uploader = React.createClass({
   },
 
   render() {
+    const styles = this.props.show ? {} : { display: "none" };
     return (
       <div id="upload" className={this.getHoverClass()} 
+          style={styles}
           onDrop={this.dropHandler} onDragOver={this.dragOverHandler}>
         <h1>Drag your files here</h1>
         <ul>

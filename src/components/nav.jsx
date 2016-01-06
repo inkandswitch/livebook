@@ -28,9 +28,8 @@ let Nav = React.createClass({
             <div className="livebook-nav" style={styles}>
                 <Collaborators 
                     show={this.shouldShowCollaborators()} 
-                    peers={this.props.peers}
-                    getCurrentPage={this.props.getCurrentPage} />
-                <Menu notebook={this.props.notebook} />
+                    peers={this.props.peers} />
+                <Menu render={this.props.render} />
             </div>
         );
     },

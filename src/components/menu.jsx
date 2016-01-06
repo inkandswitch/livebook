@@ -2,10 +2,6 @@ var React = require("react");
 
 var Menu = React.createClass({
 
-  notebook() {
-    return this.props.notebook;
-  },
-
   getInitialState() {
     return {
       active: false,
@@ -14,9 +10,8 @@ var Menu = React.createClass({
   },
 
   home() {
-    let {setCurrentPage} = this.notebook();
     window.history.pushState({}, "Home", "/");
-    setCurrentPage("landing");
+    this.props.render();
   },
 
   handleDownload(event) {
@@ -28,15 +23,14 @@ var Menu = React.createClass({
   },
 
   downloadPayload() {
-    return ""
-//    return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(iPython));
+    alert("Nope! Can't do it. April fools! (Sorry.)");
+    return "";
   },
 
   handleUpload(event) {
-    var setCurrentPage = this.notebook().setCurrentPage
     this.setState({active: false});
     window.history.pushState({}, "Upload", "/upload");
-    setCurrentPage("upload");
+    this.props.render();
   },
 
   render() {
@@ -46,8 +40,8 @@ var Menu = React.createClass({
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
           <li onClick={this.home}><a>Home</a></li>
-          <li><a href={this.downloadPayload()} id="downloader" download="notebook.ipynb">Download</a></li>
-          <li onClick={this.handleUpload}>Upload</li>
+          <li><a onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">Download</a></li>
+          <li><a href="/upload">Upload</a></li>
           <li>Cheatsheet</li>
           <li>About</li>
         </ul>
