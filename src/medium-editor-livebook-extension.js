@@ -42,6 +42,7 @@ function createLivebookExtension(options) {
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
         editor.subscribe("editableKeydown", (event) => {
+          highlightSelectedCodeCell(editor)
           if (isCodeCellSelected()) {
             if (isEnter(event)) {
               event.stopPropagation();
@@ -92,42 +93,45 @@ function createLivebookExtension(options) {
         let overlay_rect = overlay.getBoundingClientRect();
         let height = overlay_rect.height;
 
-        // console.log("placeholder_rect",placeholder_rect)
-        // console.log("overlayrect",overlay_rect)
-
         placeholder.style.height = height + "px"
 
         overlay.style.position = "absolute";
         overlay.style.top = (placeholder_rect.top + window.scrollY) + "px";
-        // overlay.style.left = placeholder_rect.left + "px";
         overlay.style.marginTop = "0"; // overrides some default stylings
-
-        // overlay.style.width = placeholder_rect.width + "px";
-
-        // let overlay_rect2 = overlay.getBoundingClientRect();
-        // let placeholder_rect2 = placeholder.getBoundingClientRect();
-      })
+      });
     }
 
     function addCodeCell(editor) {
-      // BAD INPUT COULD FUX WITH THIS PLACEMENT
       const index = (codeindex && codeindex++) || 1;
-      editor.pasteHTML(`<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`,{ cleanAttrs: ["style","dir"], })
+      const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
+
+      let afterParty = () => {}; // FIXME
+
+      if (isCodeCellSelected()) {
+        let placeholder = getSelectedPlaceholder();
+        pasteBelowPlaceholder(editor, placeholder, html);
+        afterParty = () => goToNextCodeCell(editor)
+      }
+      else {
+        editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
+      }
       validateContents(editor);
       highlightSelectedCodeCell(editor);
       editSelectedCodeCell();
+
+      afterParty();
     }
 
     function validateContents(editor) {
       let codeDelta = {};
-      let prevCodeList = getCurrentCodeList();
+      let codeList = getCurrentCodeList();
 
       let seen = reducePlaceholders((seen, placeholder) => {
         let id = getPlaceholderId(placeholder);
 
         let isDuplicate = seen.includes(id);
         let currentCode = getCurrentCode(id);
-        let isDeadCode = (currentCode !== undefined) && !prevCodeList.includes(id);
+        let isDeadCode = (currentCode !== undefined) && !codeList.includes(id);
 
         if (isDuplicate || isDeadCode) {
           let index = (codeindex++).toString();
@@ -199,6 +203,15 @@ function removeHighlight(elt) {
   elt.classList.remove("active-code-cell");
 }
 
+function goToNextCodeCell(editor) {
+  let placeholder = getSelectedPlaceholder();
+  if (!placeholder) return;
+  let nextParent = placeholder.parentNode.nextElementSibling;
+  let next = nextParent.querySelector("img");
+  editor.selectElement(next);
+  highlightSelectedCodeCell(editor);
+}
+
 function placeholderToCodeCell(placeholder) {
   let id = placeholder.id.replace("placeholder", "");
   let codeCell = document.getElementById("overlay" + id);
@@ -219,9 +232,13 @@ function getSelectedCodeCell() {
   return document.querySelector(".active-code-cell");
 }
 
+function getSelectedPlaceholder() {
+  let overlay = getSelectedCodeCell();
+  return codeCellToPlaceholder(overlay);
+}
+
 function deleteSelectedCodeCell(editor) {
-  let selected = getSelectedCodeCell();
-  let placeholder = codeCellToPlaceholder(selected);
+  let placeholder = getSelectedPlaceholder();
   editor.selectElement(placeholder);
   editor.selectElement(editor.getSelectedParentElement());
   editor.execAction("delete");
@@ -244,11 +261,14 @@ function handleCodeCellArrowKeyEvent(editor, { event }) {
 }
 
 function addProseBelow(editor, placeholder) {
+  pasteBelowPlaceholder(editor, placeholder, "<p><br/></p>");
+}
+
+function pasteBelowPlaceholder(editor, placeholder, html) {
   let placeholderParent = placeholder.parentNode;
   editor.selectElement(placeholderParent);
-  let html = placeholderParent.outerHTML;
-  editor.pasteHTML(placeholderParent.outerHTML + "<p><br/></p>");
-  highlightSelectedCodeCell();
+  editor.pasteHTML(placeholderParent.outerHTML + html);
+  highlightSelectedCodeCell(editor);
 }
 
 function isLastEditorCell(placeholder) {
