@@ -1,11 +1,11 @@
-var $      = require("jquery");
-var React  = require("react");
-var VelocityComponent = require('velocity-react').VelocityComponent;
+const $      = require("jquery");
+const React  = require("react");
+const { VelocityComponent } = require('velocity-react');
 
-var extend = $.extend;
-var cradle = require("../cradle");
+const extend = $.extend;
+const cradle = require("../cradle");
 
-var Avatar = React.createClass({
+const Avatar = React.createClass({
   componentDidMount() {
     let avatarElement = this.refs.avatarSVG;
     avatarElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -28,7 +28,7 @@ var Avatar = React.createClass({
   }
 });
 
-var ModalBackground = React.createClass({
+const ModalBackground = React.createClass({
   getStyles() {
     let result = {
       background: "hsla(0, 0%, 100%, .25)",
@@ -53,7 +53,7 @@ var ModalBackground = React.createClass({
   }
 });
 
-var CollaboratorNameForm = React.createClass({
+const CollaboratorNameForm = React.createClass({
 
   componentDidUpdate(prevProps, prevState) {
     // We are showing the form
@@ -157,7 +157,7 @@ var CollaboratorNameForm = React.createClass({
   }
 });
 
-var Collaborator = React.createClass({
+const Collaborator = React.createClass({
 
   exitModal(event) {
     this.setState({
@@ -219,7 +219,7 @@ var Collaborator = React.createClass({
 });
 
 
-var Collaborators = React.createClass({
+const Collaborators = React.createClass({
 
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
@@ -235,10 +235,8 @@ var Collaborators = React.createClass({
   },
 
   render() {
-    let styles = this.props.show ? {} : { display: "none"};
-
     return (
-      <div className="collaborators" style={styles}>
+      <div className="collaborators">
         <ul>
           {this.renderAvatars()}
         </ul>

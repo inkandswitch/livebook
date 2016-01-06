@@ -196,9 +196,10 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
+  renderLandingPage();
+  renderUploader();
+
   if (!iPython) { 
-    if (window.location.pathname === "/") renderLandingPage();
-    renderUploader();
     return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
   }
 
