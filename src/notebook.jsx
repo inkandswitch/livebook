@@ -13,6 +13,10 @@ livebookStore.subscribe(notebookRender)
 
 let EDITOR = {}
 
+function empty(x) {
+  return Object.keys(x).length == 0
+}
+
 // These are functions that are assigned by children 
 // (effectively passing functionality from children to parents, which is a React no-no)
 let uglyAntiFunctions = {};
@@ -83,20 +87,20 @@ WORKER.onmessage = function(e) {
   let data = e.data;
   let {results, plots, error} = data;
 
-  console.log("RESULTS:", data)
-
   if (error) handleError(error);
-  handlePlots(plots)
-  handleResults(results)
+  if (!empty(plots)) handlePlots(plots)
+  if (!empty(results)) handleResults(results)
   let { forceUpdateEditor } = uglyAntiFunctions;
   forceUpdateEditor && forceUpdateEditor();
 }
 
 function handleResults(results) {
+  console.log("RESULTS:",results)
   livebookStore.dispatch({ type: "NEW_RESULT", data: results })
 }
 
 function handlePlots(plots) {
+  console.log("PLOT:",plots)
   livebookStore.dispatch({ type: "NEW_PLOTS", data: plots })
 }
 
