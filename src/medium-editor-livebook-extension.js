@@ -57,6 +57,10 @@ function createLivebookExtension(options) {
               // validateContents(editor);
             }
 
+            if (isCommandX(event)) {
+              cutSelectedCodeCell(editor);
+            }
+
             if (isArrowKey(event)) {
               handleCodeCellArrowKeyEvent(editor, { event });
             }
@@ -237,6 +241,14 @@ function getSelectedPlaceholder() {
   return codeCellToPlaceholder(overlay);
 }
 
+function cutSelectedCodeCell(editor) {
+  let placeholder = getSelectedPlaceholder();
+  editor.selectElement(placeholder);
+  editor.selectElement(editor.getSelectedParentElement());
+  editor.execAction("cut");
+}
+
+
 function deleteSelectedCodeCell(editor) {
   let placeholder = getSelectedPlaceholder();
   editor.selectElement(placeholder);
@@ -276,20 +288,22 @@ function isLastEditorCell(placeholder) {
   return !placeholderParent.nextElementSibling;
 }
 
-function isEnter(event) {
-  let ENTER = 13;
-  return event.which === ENTER;
+function isEnter({ which }) {
+  return which === 13;
 }
 
-function isDelete(event) {
+function isDelete({ which }) {
   let BACKSPACE = 8;
   let DEL = 46;
-  return event.which === BACKSPACE || event.which === DEL;
+  return which === BACKSPACE || which === DEL;
 }
 
-function isCommandJ(event) {
-  let J = 74;
-  return event.metaKey && event.which === J;
+function isCommandJ({ metaKey, which }) {
+  return metaKey && which === 74;
+}
+
+function isCommandX({ metaKey, which }) {
+  return metaKey && which === 88;
 }
 
 function isUp({ which }) {
