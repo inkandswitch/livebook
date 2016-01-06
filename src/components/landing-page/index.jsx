@@ -49,10 +49,7 @@ let LandingPage = React.createClass({
   },
 
   getStyles() {
-    if (this.isHidden()) {
-      return { display: "none", };
-    }
-    return {};
+    return this.isHidden() ? { display: "none"} : {};
   },
 
   isHidden() {
@@ -62,7 +59,7 @@ let LandingPage = React.createClass({
   render() {
       let styles = this.getStyles();
       return (
-        <div ref="self" style={styles} className="landing-page-container">
+        <div style={styles} className="landing-page-container">
           <Starter clickHandler={this.clickHandler} />
         </div>
       );

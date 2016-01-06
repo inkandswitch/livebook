@@ -388,7 +388,7 @@ function renderLandingPage() {
 
 function renderUploader() {
   const isUploadPage = (window.location.pathname.indexOf("upload") !== -1)
-  ReactDOM.render(<div className="notebook"><Uploader show={isUploadPage} startNewNotebook={startNewNotebook} /></div>, uploaderMount);
+  ReactDOM.render(<Uploader show={isUploadPage} startNewNotebook={startNewNotebook} />, uploaderMount);
 }
 
 function forkNotebook(urls) {

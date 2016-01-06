@@ -58,7 +58,7 @@ var CollaboratorNameForm = React.createClass({
   componentDidUpdate(prevProps, prevState) {
     // We are showing the form
     if (!prevProps.shouldFocus && this.props.shouldFocus) {
-      let input = this.refs.nameInput.getDOMNode();
+      let input = this.refs.nameInput;
       input.select();
       this.setState({ showForm: true });
       this.showFormAnimations();
@@ -91,7 +91,7 @@ var CollaboratorNameForm = React.createClass({
 
   getName() {
     let input = this.refs.nameInput;
-    let name  = input.getDOMNode().value;
+    let name  = input.value;
     return name;
   },
 
