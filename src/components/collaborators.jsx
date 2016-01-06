@@ -221,11 +221,6 @@ var Collaborator = React.createClass({
 
 var Collaborators = React.createClass({
 
-  shouldShow() {
-    let currentPage = this.props.getCurrentPage() ;
-    return currentPage !== "upload" && currentPage !== "landing";
-  },
-
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
       return (
@@ -240,10 +235,7 @@ var Collaborators = React.createClass({
   },
 
   render() {
-    let styles = {};
-    if (!this.shouldShow()) {
-      styles.display = "none";
-    };
+    let styles = this.props.show ? {} : { display: "none"};
 
     return (
       <div className="collaborators" style={styles}>

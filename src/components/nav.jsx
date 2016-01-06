@@ -15,11 +15,21 @@ let Nav = React.createClass({
         return window.location.pathname === "/";
     },
 
+    shouldShowCollaborators() {
+        const path = window.location.pathname
+        const isLandingPage =  path === "/";
+        const isUpload = (path.indexOf("upload") !== -1);
+        return !isLandingPage && !isUpload;
+    },
+
     render() {
         let styles = this.getStyles();
         return (
             <div className="livebook-nav" style={styles}>
-                <Collaborators peers={this.props.peers} getCurrentPage={this.props.getCurrentPage} />
+                <Collaborators 
+                    show={this.shouldShowCollaborators()} 
+                    peers={this.props.peers}
+                    getCurrentPage={this.props.getCurrentPage} />
                 <Menu notebook={this.props.notebook} />
             </div>
         );

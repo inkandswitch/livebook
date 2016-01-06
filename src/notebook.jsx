@@ -47,7 +47,6 @@ function notebookRender() {
   ReactDOM.render(
     <Notebook 
       doc={doc}
-      getCurrentPage={() => CurrentPage}
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
@@ -194,7 +193,6 @@ function update_peers_and_render() {
 
   ReactDOM.render(<Nav 
       peers={peers} 
-      getCurrentPage={() => CurrentPage} 
       notebook={exports}/>, 
     navMount);
 

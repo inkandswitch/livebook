@@ -84,16 +84,6 @@ let NotebookV2 = React.createClass({
     renderLandingPage && renderLandingPage();
   },
 
-  currentPage() {
-    let getCurrentPage = this.props.getCurrentPage;
-    if (getCurrentPage) {
-      return getCurrentPage();
-    }
-    else {
-      console.log("Get current page not defined.");
-    }
-  },
-
   getInitialState() {
     return {
       codeList: [],
@@ -205,15 +195,14 @@ let NotebookV2 = React.createClass({
   },
 
   render() {
-    let currentPage = this.currentPage();
-    switch (currentPage) {
-      case "landing":
-        return <div className="notebook"></div>;
-      case "upload":
-        return <div className="notebook"><Uploader startNewNotebook={this.props.startNewNotebook} /></div>
-      case "notebook":
-        return this.renderNotebook();
+    const path = window.location.pathname;
+    if (path === "/") {
+      return <div className="notebook"></div>;      
     }
+    else if (path.indexOf("/upload") === 0) {
+      return <div className="notebook"><Uploader startNewNotebook={this.props.startNewNotebook} /></div>      
+    }
+    return this.renderNotebook();
   },
 
   renderNotebook() {
