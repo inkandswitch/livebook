@@ -5,24 +5,16 @@ let GalleryItem = React.createClass({
     event.preventDefault();
     event.stopPropagation();
 
-    this.props.clickHandler({
+    this.props.fork({
       ipynb: this.props.ipynbURL,
       csv: this.props.csvURL,
     });
   },
 
-  getClassNames() {
-    let result = "gallery-item";
-    if (this.props.starter) {
-      result += " gallery-item--starter";
-    }
-    return result;
-  },
-
   render() {
     return (
-      <article className={this.getClassNames()} onClick={this.clickHandler}>
-        {this.props.children}
+      <article onClick={this.clickHandler}>
+        <a>{this.props.children}</a>
       </article>
     );
   },
