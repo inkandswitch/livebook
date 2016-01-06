@@ -1,20 +1,20 @@
-let React = require("react");
+const React = require("react");
 
-let GalleryItem = require("./gallery-item");
+const GalleryItem = require("./gallery-item");
 
-let Starter = React.createClass({
+const MonteCarlo = () => ({
     render() {
         return (
-          <GalleryItem csvURL="/forkable/starter.csv" 
-              ipynbURL="/forkable/starter.ipynb" 
-              fork={this.props.clickHandler}>
-            Starter notebook
-          </GalleryItem>
+            <GalleryItem csvURL="/forkable/montecarlo.csv" 
+                ipynbURL="/forkable/montecarlo.ipynb" 
+                fork={this.props.clickHandler}>
+              Monte Carlo simulation
+            </GalleryItem>
         );
     },
 });
 
-let Quakes = React.createClass({
+const Quakes = () => ({
     render() {
         return (
             <GalleryItem csvURL="/forkable/earthquake_states_lite.csv" 
@@ -26,8 +26,20 @@ let Quakes = React.createClass({
     },
 });
 
+const Starter = () => ({
+    render() {
+        return (
+          <GalleryItem csvURL="/forkable/starter.csv" 
+              ipynbURL="/forkable/starter.ipynb" 
+              fork={this.props.clickHandler}>
+            Starter notebook
+          </GalleryItem>
+        );
+    },
+});
 
-let LandingPage = React.createClass({
+
+const LandingPage = React.createClass({
 
   clickHandler(urls) {
     this.props.fork(urls);
@@ -42,20 +54,20 @@ let LandingPage = React.createClass({
   },
 
   render() {
-      let styles = this.getStyles();
+      const styles = this.getStyles();
       return (
         <div style={styles} className="landing-page-container">
           <h1>Try a sample notebook</h1>
           <ul>
-          <li><Quakes clickHandler={this.clickHandler} /></li>
-          <li><a href="#">Monte Carlo simulations (<b>todo</b>)</a></li>
-          <li><Starter clickHandler={this.clickHandler} /></li>
+            <li><Quakes clickHandler={this.clickHandler} /></li>
+            <li><MonteCarlo clickHandler={this.clickHandler} /></li>
+            <li><Starter clickHandler={this.clickHandler} /></li>
           </ul>
 
           <h1>&hellip;or:</h1>
           <ul>
-          <li><a href="/upload">Upload your own .ipynb and .csv</a></li>
-          <li><a href="#">New blank notebook (<b>todo</b>)</a></li>
+            <li><a href="/upload">Upload your own .ipynb and .csv</a></li>
+            <li style={{ display: "none" }}><a href="#">New blank notebook</a></li>
           </ul>
         </div>
       );
