@@ -21,7 +21,6 @@ self.INTERRUPT = false
 let RAW_DATA   = undefined
 
 onmessage = function(e) {
-  console.log("worker got message:",e)
   switch(e.data.type) {
     case "exec":
       self.NEXT_JOB = e.data
@@ -54,11 +53,11 @@ function nextTick(func) {
 self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js", "/d3/d3.js")
 
 pypyjs.stdout = function(data) {
-  console.log("STDOUT::" , data)
+//  console.log("STDOUT::" , data)
 }
 
 pypyjs.stderr = function(data) {
-  console.log("STDERR::" , data)
+//  console.log("STDERR::" , data)
 }
 
 pypyjs.loadModuleData("pandas").then(function() {
@@ -76,7 +75,6 @@ function handleResult(doc, results, plots, error) {
   for (let cell in results) {
     results[cell] = python_render(results[cell])
   }
-  console.log("About to send",doc)
   postMessage({ plots: plots, results: results, error: error })
 }
 
@@ -86,13 +84,11 @@ function completeWork() {
 }
 
 function execPython(doc,ctxs) {
-  console.log("CTX",ctxs)
   if (ctxs.length == 0) {
     completeWork()
     return;
   }
   if (self.NEXT_JOB) {
-    console.log("Interrupt work... new task in queue")
     completeWork()
     return;
   }
@@ -100,6 +96,7 @@ function execPython(doc,ctxs) {
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     self.PLOTS = {}
+    console.log("EXEC:",{code:ctx.code})
     pypyjs.exec(ctx.code).then(() => {
       handleResult(doc, self.RESULTS, self.PLOTS)
       nextTick(() => execPython(doc,ctxs))
@@ -204,7 +201,7 @@ self.parse_raw_data = function(filename,headerRow,names) {
 }
 
 function python_render(result) {
-  console.log("RENDER", text)
+//  console.log("RENDER", text)
   var html;
   var text
 

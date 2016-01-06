@@ -42,8 +42,7 @@ module.exports = React.createClass({
     if (!areMapsEqual(prevResults, results)) {
       // Wr must rerender the image placeholders to keep things looking tidy
       let livebook = this.medium.getExtensionByName("livebook");
-      let ids = Object.keys(results); // TODO
-      livebook.forceUpdate(ids);
+      livebook.forceUpdate();
     }
   },
 

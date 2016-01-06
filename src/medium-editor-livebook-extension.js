@@ -79,12 +79,11 @@ function createLivebookExtension(options) {
     }
 
     function setCodeBlockPositions(ids) {
-      console.log("SET CODE BLOCK", ids);
       ids.forEach((index) => {
         let overlay = document.getElementById("overlay" + index)
   
         if (!overlay) {
-          console.log("No overlays found - returning early. (livebookExtension)");
+          console.log(`WARNING: No overlays found for index "${index}" - returning early. (livebookExtension)`);
           return;
         }
 
@@ -152,9 +151,6 @@ function createLivebookExtension(options) {
         codeList: seen,
         codeDelta,
       });
-
-      console.log("seen", seen);
-      console.log("prevCodeList", prevCodeList)
 
       setCodeBlockPositions(seen);
     }

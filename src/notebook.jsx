@@ -78,19 +78,14 @@ var colorChange = false
 var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
 var createCellPlotData = require("./cell-plots-adapter");
 
-
-var NEXT_CALLBACK_FOR_RESULTS,
-    NEXT_CALLBACK_FOR_PLOTS,
-    NEXT_CALLBACK_FOR_ERRORS;
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
   let {results, plots, error} = data;
 
-  console.log("Got message from the worker:", data)
+  console.log("RESULTS:", data)
 
   if (error) handleError(error);
-
   handlePlots(plots)
   handleResults(results)
   let { forceUpdateEditor } = uglyAntiFunctions;
@@ -102,11 +97,7 @@ function handleResults(results) {
 }
 
 function handlePlots(plots) {
-  for (let cell in plots) {
-    let plotArrays = plots[cell];
-    let plotData = createCellPlotData(plotArrays);
-    NEXT_CALLBACK_FOR_PLOTS(cell, plotData);
-  }
+  livebookStore.dispatch({ type: "NEW_PLOTS", data: plots })
 }
 
 // Utils
@@ -364,8 +355,7 @@ window.onpopstate = function(event) {
   render();
 }
 
-function executePython(codeBlocks, nextForPlots) {
-  NEXT_CALLBACK_FOR_PLOTS = nextForPlots;
+function executePython(codeBlocks) {
   REMOVE_MARKERS()
   WORKER.postMessage({ type: "exec", doc: codeBlocks})
 }
@@ -373,7 +363,6 @@ function executePython(codeBlocks, nextForPlots) {
 function handleError(e) {
   console.log("ERROR:",e)
   ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
-//  NEXT_CALLBACK_FOR_ERRORS(ERRORS)
   livebookStore.dispatch({ type: "NEW_ERRORS", data: ERRORS });
 }
 

@@ -34,7 +34,7 @@ let CodeOverlaysContainer = React.createClass({
   createCodeCell(id) {
     let code = this.props.codeMap[id];
     let result = this.props.codeResults[this.props.codeList.indexOf(id)];
-    let plotsData = this.props.codePlotsData[id];
+    let plotsData = this.props.codePlotsData[this.props.codeList.indexOf(id)];
     let error = this.props.errors[this.props.codeList.indexOf(id)];
     return (
       <CodeCellV2
@@ -76,7 +76,6 @@ let CodeOverlaysContainer = React.createClass({
 let NotebookV2 = React.createClass({
 
   componentWillMount() {
-
   },
 
   componentWillUpdate() {
@@ -88,8 +87,6 @@ let NotebookV2 = React.createClass({
     return {
       codeList: [],
       codeMap: {},
-      results: {},
-      plots: {},
     };
   },
 
@@ -112,45 +109,6 @@ let NotebookV2 = React.createClass({
 
   handleNewErrors(errors) {
     this.setState({ errors });
-  },
-
-/*
-  handleNewResult(codeListIndex, result) {
-    let id = this.state.codeList[codeListIndex];
-    if (id === undefined) return; // stops us from rendering result of cell that has since been deleted
-
-    let nextResults = {...this.state.results};
-    nextResults[id] = result;
-
-    this.setState({ results: nextResults, });
-
-    // this.props.store.dispatch({
-    //   type: "NEW_RESULT",
-    //   data: {
-    //     codeListIndex,
-    //     result,
-    //   }
-    // });
-
-  },
-*/
-
-  handleNewPlot(codeListIndex, plotData) {
-    let id = this.state.codeList[codeListIndex];
-    if (id === undefined) return; // stops us from rendering plot of cell that has since been deleted
-
-    let nextPlots = {...this.state.plots};
-    nextPlots[id] = plotData;
-
-    this.setState({ plots: nextPlots, });
-
-    // this.props.store.dispatch({
-    //   type: "NEW_PLOT",
-    //   data: {
-    //     codeListIndex,
-    //     plotData,
-    //   }
-    // });
   },
 
   getCurrentCode(id) {
@@ -182,7 +140,7 @@ let NotebookV2 = React.createClass({
 
   executePython() {
     let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks, this.handleNewPlot); // mem: NEXT_CALLBACK
+    this.props.executePython(codeBlocks);
   },
 
   syncNotebook() {
@@ -215,18 +173,18 @@ let NotebookV2 = React.createClass({
         getCurrentCode={this.getCurrentCode} 
         assignForceUpdate={this.props.assignForceUpdate}
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
-        assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/> 
+        assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
       <CodeOverlaysContainer
         errors={this.props.doc.errors}
         handleOverlayMount={this.handleOverlayMount}
         store={this.props.store}
-        codePlotsData={this.state.plots}
+        codePlotsData={this.props.doc.plots}
         codeResults={this.props.doc.results}
         codeList={this.state.codeList}
         codeMap={this.state.codeMap}
         getCurrentCode={this.getCurrentCode}
         handleEditorChange={this.handleEditorChange}
-        focusOnSelectedOverlay={this.props.focusOnSelectedOverlay} 
+        focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
       </div>
     );
