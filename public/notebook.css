@@ -676,7 +676,8 @@ div.ace-content {
 }
 
 .livebook-add-code-button {
-  transition: all 80ms ease-out;
+  cursor: pointer;
+  opacity: .6;
 }
 
 @keyframes pulse {

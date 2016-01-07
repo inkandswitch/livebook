@@ -44,7 +44,7 @@ function createLivebookExtension(options) {
         editor = this.base;
 
         const plusButtonOpts = {
-          clickHandler: (line) => addCodeCellBelow(editor, line),
+          clickHandler: (line) => replaceLinewWithCodeCell(editor, line),
           editor,
         };
         
@@ -166,27 +166,16 @@ function createLivebookExtension(options) {
       afterParty();
     }
 
-    function addCodeCellBelow(editor, line) {
+    function replaceLinewWithCodeCell(editor, line) {
       const index = (codeindex && codeindex++) || 1;
       const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
 
-      // FIXME
-      let afterParty = () => {};
+      editor.selectElement(line);
+      editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
 
-      if (isCodeCellSelected()) {
-        let placeholder = getSelectedPlaceholder();
-        pasteBelowPlaceholder(editor, placeholder, html);
-        afterParty = () => goToNextCodeCell(editor)
-      }
-      else {
-        editor.selectElement(line);
-        editor.pasteHTML(line.outerHTML + html, { cleanAttrs: ["style","dir"] });
-      }
       validateContents(editor);
       highlightSelectedCodeCell(editor);
       editSelectedCodeCell();
-
-      afterParty();
     }
 
     function validateContents(editor) {
@@ -256,7 +245,7 @@ function addPlusButton({ editor, clickHandler }) {
 
    div.classList.add("livebook-add-code-button");
    div.dataset.livebookAddCodeButton = "";
-   div.innerHTML = "<i class='fa fa-plus'></i>";
+   div.innerHTML = "<img src='/plus.svg' height=32 width=32 />";
    div.style.position = "fixed";
 
    div.addEventListener("click", modClickHandler, true);
@@ -285,16 +274,22 @@ function hidePlusButton(button) {
 }
 
 function movePlusButton({ editor, line }) {
+  const lineContents = line.textContent;
   const butt = getPlusButton();
+  if (lineContents.trim() || isCodeCellSelected()) {
+    hidePlusButton(butt);
+    butt.__LAST_LINE = null;
+    return;
+  }
   const { top, height } = getLineRect(line);
   const { left } = editor.getFocusedElement().getBoundingClientRect();
   const buttWidth = butt.getBoundingClientRect().width;
-  const buttMarginRight = 12;
+  const buttMarginRight = 6;
+  const buttMarginTop = -6;
 
-  butt.style.top = top + "px";
+  butt.style.top = (top + buttMarginTop) + "px";
   butt.style.left = (left - buttWidth - buttMarginRight) + "px";
-  butt.style.height = height + "px";
-  butt.style.lineHeight = .95*height + "px";
+  butt.style.height = (height) + "px";
 
   butt.__LAST_LINE = line;
 
@@ -309,7 +304,7 @@ function getLineRect(line) {
 }
 
 function highlightLine(editor) {
-  // if (isCodeCellSelected()) return;             // TODO - highlight code cell with user's color
+  // if (isCodeCellSelected()) return; 
   const line = getCurrentLineElement(editor);
   if (isLineCurrentlyHighlighted(line)) return;
   removeAllLineHighlights();
@@ -350,10 +345,10 @@ function highlightSelectedCodeCell(editor) {
   let placeholder = selectedParent.querySelector("img[data-livebook-placeholder-cell]");
 
   removeOldHighlights();
+  hidePlusButton();
 
   if (placeholder) {
     addHighlight(placeholderToCodeCell(placeholder));
-    hidePlusButton();
   }
 }
 
