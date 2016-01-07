@@ -671,6 +671,14 @@ div.ace-content {
   }
 }
 
+.selected-line {
+  transition: background 100ms ease-in-out;
+}
+
+.livebook-add-code-button {
+  transition: all 80ms ease-out;
+}
+
 @keyframes pulse {
   from {
     opacity: 0.3;

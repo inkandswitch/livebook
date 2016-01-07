@@ -29,6 +29,7 @@ function createLivebookExtension(options) {
       let placeholder = document.getElementById("placeholder"+index);
       editor.selectElement(placeholder);
       highlightSelectedCodeCell(editor);
+      highlightLine(editor);
     }
 
     function teardown() {
@@ -249,8 +250,6 @@ module.exports = createLivebookExtension;
 function addPlusButton({ editor, clickHandler }) {
    const div = document.createElement("div");
    const modClickHandler = (event) => {
-     event.stopPropagation();
-     event.preventDefault();
      const line = div.__LAST_LINE;
      clickHandler(line);
    }
@@ -295,7 +294,7 @@ function movePlusButton({ editor, line }) {
   butt.style.top = top + "px";
   butt.style.left = (left - buttWidth - buttMarginRight) + "px";
   butt.style.height = height + "px";
-  butt.style.lineHeight = height + "px";
+  butt.style.lineHeight = .95*height + "px";
 
   butt.__LAST_LINE = line;
 
