@@ -102,18 +102,8 @@ let NotebookV2 = React.createClass({
   handleEditorChange(id, code) {
     let codeList = this.doc().codeList
     let codeDelta = {}; codeDelta[id] = code;
-
-    this.handleCodeChange({ codeList, codeDelta })
-  },
-
-  handleCodeChange(data) {
+    let data = { codeList, codeDelta }
     this.props.store.dispatch({ type: "CODE_DELTA", data })
-    this.syncNotebook();
-  },
-
-  syncNotebook() {
-    let html = document.querySelector("[contenteditable='true']").innerHTML
-    this.props.onUpdateNotebook(html,this.props)
   },
 
   handleOverlayMount() {
@@ -133,7 +123,6 @@ let NotebookV2 = React.createClass({
       <div>
       <Editor
         store={this.props.store}
-        onCodeChange={this.handleCodeChange}
         onClick={this.handleEditorClick}
         assignForceUpdate={this.props.assignForceUpdate}
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}

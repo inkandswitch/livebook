@@ -28,7 +28,7 @@ function iPyToHTML(ipy) {
     }
   }).join("\n")
 
-  return { version: 2, html, state: { codeMap, codeList } };
+  return { html, codeMap, codeList };
 }
 
 function htmlToIPy(html) {

@@ -24,7 +24,7 @@ module.exports = React.createClass({
     let dom = ReactDOM.findDOMNode(this);
 
     let livebookExtension = createLivebookExtension({
-      onChange: this.props.onCodeChange,
+      onChange: (data) => { this.props.store.dispatch({ type: "CODE_DELTA", data }) },
       getCurrentCode: (id) => this.doc().codeMap[id],
       getCurrentCodeList: () => this.doc().codeList,
     });
@@ -38,7 +38,8 @@ module.exports = React.createClass({
     this.medium = new MediumEditor(dom, editorOptions);
 
     this.medium.subscribe('editableInput', (e) => {
-      // ??
+      let html = document.querySelector("[contenteditable='true']").innerHTML
+      this.props.store.dispatch({ type: "UPDATE_HTML", html })
     });
 
     this.medium.subscribe('editableClick', (event) => {

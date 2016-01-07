@@ -27,6 +27,13 @@ function runNotebook() {
 }
 
 function saveNotebook() {
+  let {doc} = livebookStore.getState()
+  if (doc.html === "") return; // inital state - ignore
+  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
+  SAVE_TIMEOUT = setTimeout(() => {
+    SAVE_TIMEOUT = undefined
+    handleSaveNotebook(doc)
+  },3000)
 }
 
 function empty(x) {
@@ -70,7 +77,6 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
       assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f}
@@ -179,8 +185,6 @@ cradle.onusergram = function(from,message) {
     console.log("Got a new document... is it new?")
     if (message.time > iPythonUpdated) {
       iPythonUpdated = message.time
-      //iPython = message.document
-      //render()
     }
   }
 }
@@ -211,21 +215,6 @@ function update_peers_and_render() {
 
   renderLandingPage();
   renderUploader();
-
-  if (!iPython) { 
-    return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
-  }
-
-  let { html, state } = iPython;
-  if (!state) throw new Error("Unrecognized format to iPython object. See:", iPython); // FIXME - we can't fork notebooks! D:
-  livebookStore.dispatch({
-    type: "INITIALIZE_DOCUMENT",
-    documentProps: {
-      codeMap: state.codeMap,
-      codeList: state.codeList,
-      html,
-    },
-  })
 }
 
 ace.config.set("basePath", "/");
@@ -233,7 +222,6 @@ ace.config.set("basePath", "/");
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
 var iPythonUpdated = 0
-let iPython
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
@@ -326,14 +314,13 @@ function render() {
 
 let SAVE_TIMEOUT;
 
-function handleSaveNotebook(html,state) {
+function handleSaveNotebook(state) {
   if (document.location.pathname ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
-  console.log("Saving notebook...");
-  var notebook = { version: 2, html, state } 
-  var raw_notebook = JSON.stringify(notebook)
+  console.log("Saving notebook...",state);
+  var raw_notebook = JSON.stringify(state)
   var data = {
     name: "Hello",
     notebook: {
@@ -355,12 +342,7 @@ function handleSaveNotebook(html,state) {
   });
 }
 
-function handleUpdateNotebook(html,state) {
-  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
-  SAVE_TIMEOUT = setTimeout(() => {
-    SAVE_TIMEOUT = undefined
-    handleSaveNotebook(html,state)
-  },5000)
+function handleUpdateNotebook(state) {
 }
 
 // TODO - render onpushstate?
@@ -399,12 +381,15 @@ function forkNotebook(urls) {
 
 function parseRawNotebook(raw_notebook,raw_csv) {
   let notebook = JSON.parse(raw_notebook)
-  if (notebook.version == 2) {
-    iPython = notebook
+  let state
+  if (notebook.cells === undefined) {
+    state = notebook
   } else {
-    iPython = iPyToHTML(notebook);
+    state = iPyToHTML(notebook);
   }
   iPythonUpdated = Date.now()
+  console.log("INIT DOCUMENT",state)
+  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state })
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 

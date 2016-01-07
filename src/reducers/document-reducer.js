@@ -4,7 +4,7 @@ const initialState = {
   results: {},
   plots: {},
   errors: {},
-  html: [],
+  html: "",
 };
 
 const documentReducer = (state = initialState, action) => {
@@ -15,6 +15,7 @@ const documentReducer = (state = initialState, action) => {
     case 'NEW_RESULT':          return NEW_RESULT(state, action);
     case 'NEW_PLOTS':           return NEW_PLOTS(state, action);
     case 'NEW_ERRORS':          return NEW_ERRORS(state, action);
+    case 'UPDATE_HTML':         return UPDATE_HTML(state, action);
     default:
       return state;
   }
@@ -31,6 +32,11 @@ function remap(map,codeList) {
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps } = action;
  return {...state, ...documentProps}; 
+}
+
+function UPDATE_HTML (state, action) {
+  let {html} = action;
+  return {...state, html}
 }
 
 function CODE_DELTA (state, action) {
