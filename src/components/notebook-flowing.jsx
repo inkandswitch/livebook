@@ -33,9 +33,9 @@ let CodeOverlaysContainer = React.createClass({
 
   createCodeCell(id) {
     let code = this.props.codeMap[id];
-    let result = this.props.codeResults[this.props.codeList.indexOf(id)];
-    let plotsData = this.props.codePlotsData[this.props.codeList.indexOf(id)];
-    let error = this.props.errors[this.props.codeList.indexOf(id)];
+    let result = this.props.codeResults[id];
+    let plotsData = this.props.codePlotsData[id];
+    let error = this.props.errors[id]
     return (
       <CodeCellV2
         key={id} index={id}

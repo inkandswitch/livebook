@@ -20,13 +20,20 @@ const documentReducer = (state = initialState, action) => {
   }
 };
 
+function remap(map,codeList) {
+  let newMap = {}
+  for (let key in map) {
+    newMap[codeList[key]] = map[key]
+  }
+  return newMap
+}
+
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps } = action;
  return {...state, ...documentProps}; 
 }
 
 function CODE_DELTA (state, action) {
-//  let next_codeMap = Object.assign({},state.codeMap, action.codeDelta)
   let nextCodeMap = {...state.codeMap, ...action.codeDelta};
   return {...state, codeList: action.data.codeList, codeMap: nextCodeMap }
 }
@@ -42,7 +49,7 @@ function CODE_EDITOR_CHANGE (state, action) {
 }
 
 function NEW_ERRORS(state, action) {
-  const errors = action.data
+  const errors = remap(action.data,state.codeList)
   return {...state, errors};
 }
 
@@ -50,8 +57,9 @@ function NEW_PLOTS(state, action) {
   let next_plots = {...state.plots}
   let next_errors = {...state.errors}
   let next_results = {...state.results}
-  for (let cell in action.data) {
-     next_plots[cell] = action.data[cell]
+  let data = remap(action.data,state.codeList)
+  for (let cell in data) {
+     next_plots[cell] = data[cell]
      delete next_errors[cell]
      delete next_results[cell]
   }
@@ -62,8 +70,9 @@ function NEW_RESULT(state, action) {
   let next_results = {...state.results}
   let next_errors = {...state.errors}
   let next_plots = {...state.plots}
-  for (let cell in action.data) {
-     next_results[cell] = action.data[cell]
+  let data = remap(action.data,state.codeList)
+  for (let cell in data) {
+     next_results[cell] = data[cell]
      delete next_errors[cell]
      delete next_plots[cell]
   }
