@@ -36,13 +36,35 @@ function createLivebookExtension(options) {
         // All helper methods will exist as well.
         editor = this.base;
 
-        editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(editor); });
-        editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); });
-        editor.subscribe("editableClick", (_) => { highlightSelectedCodeCell(editor); });
+        editor.subscribe("editableClick", (_) => {
+          highlightSelectedCodeCell(editor);
+          highlightLine(editor);
+        });
+
         editor.subscribe("editableInput", (_) => { validateContents(editor); });
 
+        editor.subscribe("editableKeyup", (event) => {
+          if (isArrowKey(event)) {
+            highlightSelectedCodeCell(editor);
+            highlightLine(editor);
+          }
+
+          if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
+            highlightLine(editor);
+          }
+        });
+
         editor.subscribe("editableKeydown", (event) => {
-          highlightSelectedCodeCell(editor)
+
+          highlightSelectedCodeCell(editor);
+
+          if (isArrowKey(event)) {
+            removeAllLineHighlights();
+          }
+
+          if (isCommandJ(event)) 
+            addCodeCell(editor);
+
           if (isCodeCellSelected()) {
             if (isEnter(event)) {
               event.stopPropagation();
@@ -66,6 +88,8 @@ function createLivebookExtension(options) {
             }
           }
         });
+
+        editor.subscribe("blur", (_) => removeAllLineHighlights() )
 
         validateContents(editor);
         window.onresize = function() {
@@ -184,6 +208,42 @@ function createLivebookExtension(options) {
 }
 
 module.exports = createLivebookExtension;
+
+function highlightLine(editor) {
+  if (isCodeCellSelected()) return; // TODO - highlight code cell with user's color
+  const line = getCurrentLineElement(editor);
+  if (isLineCurrentlyHighlighted(line)) return;
+  removeAllLineHighlights();
+  addLineHighlight(line);
+}
+
+function isLineCurrentlyHighlighted(line) {
+  return line === getCurrentHighlightedLine();
+}
+
+function getCurrentHighlightedLine() {
+  return document.querySelector(".selected-line");
+}
+
+function removeAllLineHighlights() {
+  let lines = [].slice.call(document.querySelectorAll(".selected-line"));
+  lines.forEach(removeLineHighlight)
+}
+
+function addLineHighlight(line) {
+  line.style.background = "aliceblue";
+  line.classList.add("selected-line");  
+}
+
+function removeLineHighlight(line) {
+  line.style.background = "";
+  line.classList.remove("selected-line");
+}
+
+function getCurrentLineElement(editor) {
+  let line = editor.getSelectedParentElement();
+  return line;
+}
 
 function highlightSelectedCodeCell(editor) {
   let selectedParent = editor.getSelectedParentElement();
