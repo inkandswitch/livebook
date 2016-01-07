@@ -1,11 +1,12 @@
-const PLACEHOLDER_ID_BASE = "placeholder";
+const { eventFire } = require("./util");
 
+const PLACEHOLDER_ID_BASE = "placeholder";
 function createLivebookExtension(options) {
     let {onChange, getCurrentCode, getCurrentCodeList} = options;
 
     let codeindex;
 
-    let result = { init, checkState, forceUpdate, focusOnSelectedOverlay, focusEditorOnPlaceholder };
+    let result = { init, teardown, checkState, forceUpdate, focusOnSelectedOverlay, focusEditorOnPlaceholder };
     let editor = null;
 
     return result;
@@ -30,11 +31,24 @@ function createLivebookExtension(options) {
       highlightSelectedCodeCell(editor);
     }
 
+    function teardown() {
+      removePlusButton();
+    }
+
     function init() {
         // Called by MediumEditor during initialization. 
         // The .base property will already have been set to current instance of MediumEditor when this is called.
         // All helper methods will exist as well.
+
         editor = this.base;
+
+        const plusButtonOpts = {
+          clickHandler: (line) => addCodeCellBelow(editor, line),
+          editor,
+        };
+        
+        addPlusButton(plusButtonOpts);
+        removeAllLineHighlights();
 
         editor.subscribe("editableClick", (_) => {
           highlightSelectedCodeCell(editor);
@@ -151,6 +165,29 @@ function createLivebookExtension(options) {
       afterParty();
     }
 
+    function addCodeCellBelow(editor, line) {
+      const index = (codeindex && codeindex++) || 1;
+      const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
+
+      // FIXME
+      let afterParty = () => {};
+
+      if (isCodeCellSelected()) {
+        let placeholder = getSelectedPlaceholder();
+        pasteBelowPlaceholder(editor, placeholder, html);
+        afterParty = () => goToNextCodeCell(editor)
+      }
+      else {
+        editor.selectElement(line);
+        editor.pasteHTML(line.outerHTML + html, { cleanAttrs: ["style","dir"] });
+      }
+      validateContents(editor);
+      highlightSelectedCodeCell(editor);
+      editSelectedCodeCell();
+
+      afterParty();
+    }
+
     function validateContents(editor) {
       let codeDelta = {};
       let codeList = getCurrentCodeList();
@@ -209,12 +246,76 @@ function createLivebookExtension(options) {
 
 module.exports = createLivebookExtension;
 
+function addPlusButton({ editor, clickHandler }) {
+   const div = document.createElement("div");
+   const modClickHandler = (event) => {
+     event.stopPropagation();
+     event.preventDefault();
+     const line = div.__LAST_LINE;
+     clickHandler(line);
+   }
+
+   div.classList.add("livebook-add-code-button");
+   div.dataset.livebookAddCodeButton = "";
+   div.innerHTML = "<i class='fa fa-plus'></i>";
+   div.style.position = "fixed";
+
+   div.addEventListener("click", modClickHandler, true);
+
+   hidePlusButton(div);
+
+   document.body.appendChild(div);
+}
+
+function removePlusButton() {
+  getPlusButton().remove();
+}
+
+function getPlusButton() {
+  return document.querySelector("[data-livebook-add-code-button]");
+}
+
+function showPlusButton(button) {
+  button = button || getPlusButton();
+  button.style.visibility = ""; 
+}
+
+function hidePlusButton(button) {
+  button = button || getPlusButton();
+  button.style.visibility = "hidden";
+}
+
+function movePlusButton({ editor, line }) {
+  const butt = getPlusButton();
+  const { top, height } = getLineRect(line);
+  const { left } = editor.getFocusedElement().getBoundingClientRect();
+  const buttWidth = butt.getBoundingClientRect().width;
+  const buttMarginRight = 12;
+
+  butt.style.top = top + "px";
+  butt.style.left = (left - buttWidth - buttMarginRight) + "px";
+  butt.style.height = height + "px";
+  butt.style.lineHeight = height + "px";
+
+  butt.__LAST_LINE = line;
+
+  showPlusButton(butt);
+
+  console.log("top, left", top, ",", left)
+  console.log("%cBUTT", "font-size: 2em; color: rebeccapurple; padding: .4em 0;", butt)
+}
+
+function getLineRect(line) {
+  return line.getBoundingClientRect();
+}
+
 function highlightLine(editor) {
-  if (isCodeCellSelected()) return; // TODO - highlight code cell with user's color
+  // if (isCodeCellSelected()) return;             // TODO - highlight code cell with user's color
   const line = getCurrentLineElement(editor);
   if (isLineCurrentlyHighlighted(line)) return;
   removeAllLineHighlights();
   addLineHighlight(line);
+  movePlusButton({ editor, line});
 }
 
 function isLineCurrentlyHighlighted(line) {
@@ -227,7 +328,7 @@ function getCurrentHighlightedLine() {
 
 function removeAllLineHighlights() {
   let lines = [].slice.call(document.querySelectorAll(".selected-line"));
-  lines.forEach(removeLineHighlight)
+  lines.forEach(removeLineHighlight);
 }
 
 function addLineHighlight(line) {
@@ -253,6 +354,7 @@ function highlightSelectedCodeCell(editor) {
 
   if (placeholder) {
     addHighlight(placeholderToCodeCell(placeholder));
+    hidePlusButton();
   }
 }
 
@@ -385,15 +487,4 @@ function isArrowKey(event) {
 
 function findCode(elt) {
   return elt.querySelector(".code");
-}
-
-function eventFire(el, etype, options){
-  if (el.fireEvent) {
-    el.fireEvent('on' + etype);
-  } else {
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    evObj = Object.assign(evObj, options)
-    el.dispatchEvent(evObj);
-  }
 }
