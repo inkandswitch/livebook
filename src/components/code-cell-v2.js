@@ -85,10 +85,10 @@ let CodeCell = React.createClass({
   },
 
   getPlotContainers() {
-    let {plotsData} = this.props;
-    if (!plotsData || !plotsData.length) return (<div/>);
+    let {plots} = this.props;
+    if (!plots || !plots.length) return (<div/>);
 
-    return plotsData.map( (p, i) => {
+    return plots.map( (p, i) => {
       let cellIndex = this.props.index;
       let key = cellIndex + "-" + i;
       return (

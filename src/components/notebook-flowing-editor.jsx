@@ -54,12 +54,16 @@ module.exports = React.createClass({
     return false;
   },
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   render() {
     let props = blacklist(this.props, 'tag', 'contentEditable', 'dangerouslySetInnerHTML');
 
     Object.assign(props, {
       contentEditable: true,
-      dangerouslySetInnerHTML: {__html: this.props.text}
+      dangerouslySetInnerHTML: {__html: this.doc().html}
     });
 
     return React.createElement('div', props);

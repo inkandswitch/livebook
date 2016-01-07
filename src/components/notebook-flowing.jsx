@@ -31,18 +31,23 @@ let CodeOverlaysContainer = React.createClass({
     this.props.handleOverlayMount();
   },
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   createCodeCell(id) {
-    let code = this.props.codeMap[id];
-    let result = this.props.codeResults[id];
-    let plotsData = this.props.codePlotsData[id];
-    let error = this.props.errors[id]
+    let doc    = this.doc();
+    let code   = doc.codeMap[id];
+    let result = doc.results[id];
+    let plots  = doc.plots[id];
+    let error  = doc.errors[id];
     return (
       <CodeCellV2
         key={id} index={id}
         result={result}
         code={code}
         error={error}
-        plotsData={plotsData}
+        plots={plots}
         store={this.props.store}
         handleEditorChange={this.handleEditorChange}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
@@ -50,18 +55,15 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   handleEditorChange(id, code) {
-
     this.props.store.dispatch({
       type: "CODE_EDITOR_CHANGE",
       data: { id, code, },
     });
-
     this.props.handleEditorChange(id, code);
   },
 
   renderCodeCells() {
-    let codeList = this.props.codeList;
-    return codeList.map(this.createCodeCell);
+    return this.doc().codeList.map(this.createCodeCell);
   },
 
   render() {
@@ -141,8 +143,6 @@ let NotebookV2 = React.createClass({
       <div>
       <Editor
         store={this.props.store}
-        results={this.props.doc.results}
-        text={this.props.doc.html}
         onCodeChange={this.handleCodeChange}
         onClick={this.handleEditorClick}
         getCurrentCodeList={ () => this.props.doc.codeList}
@@ -151,14 +151,8 @@ let NotebookV2 = React.createClass({
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
         assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
       <CodeOverlaysContainer
-        errors={this.props.doc.errors}
-        handleOverlayMount={this.handleOverlayMount}
         store={this.props.store}
-        codePlotsData={this.props.doc.plots}
-        codeResults={this.props.doc.results}
-        codeList={this.props.doc.codeList}
-        codeMap={this.props.doc.codeMap}
-        getCurrentCode={this.getCurrentCode}
+        handleOverlayMount={this.handleOverlayMount}
         handleEditorChange={this.handleEditorChange}
         focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
