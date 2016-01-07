@@ -34,7 +34,7 @@ function INITIALIZE_DOCUMENT(state, action) {
 }
 
 function CODE_DELTA (state, action) {
-  let nextCodeMap = {...state.codeMap, ...action.codeDelta};
+  let nextCodeMap = {...state.codeMap, ...action.data.codeDelta};
   return {...state, codeList: action.data.codeList, codeMap: nextCodeMap }
 }
 
