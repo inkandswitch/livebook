@@ -1,14 +1,17 @@
-const PLACEHOLDER_ID_BASE = "placeholder";
+const { eventFire } = require("./util");
 
+const PLACEHOLDER_ID_BASE = "placeholder";
 function createLivebookExtension(options) {
     let {onChange, getCurrentCode, getCurrentCodeList} = options;
 
     let codeindex;
-
-    let result = { init, checkState, forceUpdate, focusOnSelectedOverlay, focusEditorOnPlaceholder };
     let editor = null;
 
-    return result;
+    return {
+      init, teardown, 
+      forceUpdate, 
+      focusOnSelectedOverlay, focusEditorOnPlaceholder
+    };
 
     function forceUpdate(ids) {
       if (ids === undefined) {
@@ -28,21 +31,57 @@ function createLivebookExtension(options) {
       let placeholder = document.getElementById("placeholder"+index);
       editor.selectElement(placeholder);
       highlightSelectedCodeCell(editor);
+      highlightLine(editor);
+    }
+
+    function teardown() {
+      removePlusButton();
     }
 
     function init() {
-        // Called by MediumEditor during initialization. 
-        // The .base property will already have been set to current instance of MediumEditor when this is called.
-        // All helper methods will exist as well.
+
         editor = this.base;
 
-        editor.subscribe("editableKeydown", (event) => { if (isCommandJ(event)) addCodeCell(editor); });
-        editor.subscribe("editableKeyup", (event) => { if (isArrowKey(event)) highlightSelectedCodeCell(editor); });
-        editor.subscribe("editableClick", (_) => { highlightSelectedCodeCell(editor); });
-        editor.subscribe("editableInput", (_) => { validateContents(editor); });
+        removeAllLineHighlights();        
+
+        addPlusButton({
+          clickHandler: (_, { line }) => replaceLine(line),
+          editor,
+        });
+
+        validateContents(editor);
+        window.onresize = function() {
+          validateContents(editor);
+        }
+
+        editor.subscribe("editableClick", (_) => {
+          highlightSelectedCodeCell(editor);
+          highlightLine(editor);
+        });
+
+        editor.subscribe("blur", () => removeAllLineHighlights() );
+
+        editor.subscribe("editableInput", () => validateContents(editor) );
+
+        editor.subscribe("editableKeyup", (event) => {
+          if (isArrowKey(event))
+            highlightSelectedCodeCell(editor);
+
+          if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
+            highlightLine(editor);
+          }
+        });
 
         editor.subscribe("editableKeydown", (event) => {
-          highlightSelectedCodeCell(editor)
+
+          highlightSelectedCodeCell(editor);
+
+          if (isUp(event) || isDown(event))
+              removeAllLineHighlights();
+
+          if (isCommandJ(event)) 
+            addCodeCell(editor);
+
           if (isCodeCellSelected()) {
             if (isEnter(event)) {
               event.stopPropagation();
@@ -51,36 +90,16 @@ function createLivebookExtension(options) {
               validateContents(editor);           
             }
 
-            if (isDelete(event)) {
-              // TODO - delete from codemap???
+            if (isDelete(event))
               deleteSelectedCodeCell(editor);
-              // validateContents(editor);
-            }
 
-            if (isCommandX(event)) {
+            if (isCommandX(event))
               cutSelectedCodeCell(editor);
-            }
 
-            if (isArrowKey(event)) {
+            if (isArrowKey(event))
               handleCodeCellArrowKeyEvent(editor, { event });
-            }
           }
         });
-
-        validateContents(editor);
-        window.onresize = function() {
-          validateContents(editor);
-        }
-    }
-
-    function checkState(node) {
-
-        // If implemented, this method will be called one or more times after the state of the editor & toolbar are updated. When the state is updated, the editor does the following:
-
-        // 1. Find the parent node containing the current selection
-        // 2. Call checkState(node) on each extension, passing the node as an argument
-        // 3. Get the parent node of the previous node
-        // 4. Repeat steps #2 and #3 until we move outside the parent contenteditable
     }
 
     function setCodeBlockPositions(ids) {
@@ -109,22 +128,35 @@ function createLivebookExtension(options) {
       const index = (codeindex && codeindex++) || 1;
       const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
 
-      // FIXME
-      let afterParty = () => {};
-
       if (isCodeCellSelected()) {
-        let placeholder = getSelectedPlaceholder();
-        pasteBelowPlaceholder(editor, placeholder, html);
-        afterParty = () => goToNextCodeCell(editor)
+        addHtmlBelowPlaceholder(html, getSelectedPlaceholder());
+        return;
       }
-      else {
-        editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
-      }
+
+      editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
+      syncEditorWithNewCodeCell(editor);
+    }
+
+    function addHtmlBelowPlaceholder(html, placeholder) {
+      pasteBelowPlaceholder(editor, placeholder, html);
+      syncEditorWithNewCodeCell(editor);
+      goToNextCodeCell(editor)
+    }
+
+    function replaceLine(line) {
+      const index = (codeindex && codeindex++) || 1;
+      const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
+
+      editor.selectElement(line);
+      editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
+
+      syncEditorWithNewCodeCell(editor);
+    }
+
+    function syncEditorWithNewCodeCell(editor) {
       validateContents(editor);
       highlightSelectedCodeCell(editor);
       editSelectedCodeCell();
-
-      afterParty();
     }
 
     function validateContents(editor) {
@@ -185,35 +217,160 @@ function createLivebookExtension(options) {
 
 module.exports = createLivebookExtension;
 
+// *** Click-to-add-code-cell Button *** ///
+function addPlusButton({ editor, clickHandler }) {
+   const button = document.createElement("div");
+   const modClickHandler = (event) => {
+     const line = getLastHighlightedLineFromButton(button);
+     clickHandler(event, { line });
+   }
+   button.addEventListener("click", modClickHandler);
+   initializePlusButton(button);
+}
+
+function setLastHighlightedLineOnButton(button, line) {
+  button.__LAST_LINE = line;
+}
+
+function getLastHighlightedLineFromButton(button) {
+  return button.__LAST_LINE;
+}
+
+function initializePlusButton(button) {
+  button.classList.add("livebook-add-code-button");
+  button.dataset.livebookAddCodeButton = "";
+  button.innerHTML = "<img src='/plus.svg' height=32 width=32 />";
+  button.style.position = "fixed";
+  hidePlusButton(button);
+  document.body.appendChild(button);
+}
+
+function removePlusButton() {
+  getPlusButton().remove();
+}
+
+function getPlusButton() {
+  return document.querySelector("[data-livebook-add-code-button]");
+}
+
+function showPlusButton(button) {
+  button = button || getPlusButton();
+  button.style.visibility = ""; 
+}
+
+function hidePlusButton(button) {
+  button = button || getPlusButton();
+  button.style.visibility = "hidden";
+}
+
+function movePlusButton({ editor, line }) {
+  const lineContents = line.textContent;
+  const butt = getPlusButton();
+  if (lineContents.trim() || isCodeCellSelected()) {
+    hidePlusButton(butt);
+    setLastHighlightedLineOnButton(butt, null);
+    return;
+  }
+  const { top, height } = getLineRect(line);
+  const { left } = editor.getFocusedElement().getBoundingClientRect();
+  const buttWidth = butt.getBoundingClientRect().width;
+  const buttMarginRight = 6;
+  const buttMarginTop = -6;
+
+  butt.style.top = (top + buttMarginTop) + "px";
+  butt.style.left = (left - buttWidth - buttMarginRight) + "px";
+  butt.style.height = (height) + "px";
+
+  butt.__LAST_LINE = line;
+
+  showPlusButton(butt);
+
+  console.log("top, left", top, ",", left)
+  console.log("%cBUTT", "font-size: 2em; color: rebeccapurple; padding: .4em 0;", butt)
+}
+
+function getLineRect(line) {
+  return line.getBoundingClientRect();
+}
+
+// *** Line Highlighting *** ///
+function highlightLine(editor) {
+  const line = getCurrentLineElement(editor);
+  if (isCurrentHighlightedLine(line)) return;
+  removeAllLineHighlights();
+  addLineHighlight(line);
+  movePlusButton({ editor, line});
+}
+
+function isCurrentHighlightedLine(line) {
+  return line === getCurrentHighlightedLine();
+}
+
+function getCurrentHighlightedLine() {
+  return document.querySelector(".selected-line");
+}
+
+function removeAllLineHighlights() {
+  let lines = [].slice.call(document.querySelectorAll(".selected-line"));
+  lines.forEach(removeLineHighlight);
+}
+
+function addLineHighlight(line) {
+  line.style.background = "aliceblue";
+  line.classList.add("selected-line");  
+}
+
+function removeLineHighlight(line) {
+  line.style.background = "";
+  line.classList.remove("selected-line");
+}
+
+function getCurrentLineElement(editor) {
+  let line = editor.getSelectedParentElement();
+  return line;
+}
+
+// *** Code Cell Highlighting *** ///
 function highlightSelectedCodeCell(editor) {
   let selectedParent = editor.getSelectedParentElement();
   let placeholder = selectedParent.querySelector("img[data-livebook-placeholder-cell]");
 
-  removeOldHighlights();
+  removeAllCodeCellHighlights();
+  hidePlusButton();
 
   if (placeholder) {
-    addHighlight(placeholderToCodeCell(placeholder));
+    addCodeCellHighlight(placeholderToCodeCell(placeholder));
   }
 }
 
-function removeOldHighlights() {
-  [].forEach.call(document.querySelectorAll(".active-code-cell"), removeHighlight)
+function removeAllCodeCellHighlights() {
+  const activeCodeCells = [].slice.call(document.querySelectorAll(".active-code-cell"));
+  activeCodeCells.forEach(removeCodeCellHighlight)
 }
 
-function addHighlight(elt) {
+function addCodeCellHighlight(elt) {
   elt.classList.add("active-code-cell");
 }
 
-function removeHighlight(elt) {
+function removeCodeCellHighlight(elt) {
   elt.classList.remove("active-code-cell");
 }
 
+function isCodeCellSelected() {
+  return !!getSelectedCodeCell();
+}
+
+function getSelectedCodeCell() {
+  return document.querySelector(".active-code-cell");
+}
+
+// *** Utilities *** ///
 function goToNextCodeCell(editor) {
   let placeholder = getSelectedPlaceholder();
   if (!placeholder) return;
   let nextParent = placeholder.parentNode.nextElementSibling;
   let next = nextParent.querySelector("img");
-  editor.selectElement(next);
+  if (next) editor.selectElement(next);
   highlightSelectedCodeCell(editor);
 }
 
@@ -227,14 +384,6 @@ function codeCellToPlaceholder(codeCell) {
   let id = codeCell.id.replace("overlay", "");
   let placeholder = document.getElementById("placeholder" + id);
   return placeholder;
-}
-
-function isCodeCellSelected() {
-  return !!getSelectedCodeCell();
-}
-
-function getSelectedCodeCell() {
-  return document.querySelector(".active-code-cell");
 }
 
 function getSelectedPlaceholder() {
@@ -260,6 +409,10 @@ function editSelectedCodeCell() {
   let selected = getSelectedCodeCell();
   let code = findCode(selected);
   eventFire(code, "click");
+}
+
+function findCode(elt) {
+  return elt.querySelector(".code");
 }
 
 function handleCodeCellArrowKeyEvent(editor, { event }) {
@@ -288,6 +441,7 @@ function isLastEditorCell(placeholder) {
   return !placeholderParent.nextElementSibling;
 }
 
+// *** Key code utils ***//
 function isEnter({ which }) {
   return which === 13;
 }
@@ -321,19 +475,4 @@ function isRight({ which }) {
 
 function isArrowKey(event) {
   return [isUp, isDown, isLeft, isRight].some( (p) => p(event) );
-}
-
-function findCode(elt) {
-  return elt.querySelector(".code");
-}
-
-function eventFire(el, etype, options){
-  if (el.fireEvent) {
-    el.fireEvent('on' + etype);
-  } else {
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    evObj = Object.assign(evObj, options)
-    el.dispatchEvent(evObj);
-  }
 }

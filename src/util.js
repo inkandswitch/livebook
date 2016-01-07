@@ -7,6 +7,7 @@ module.exports = {
   asyncRunParallel,
   createAsyncDataFetcher,
   deepClone,
+  eventFire,
   getPixelsBeyondFold,
   isArray,
   noop: () => {},
@@ -28,6 +29,17 @@ function areMapsEqual(m1, m2) {
 function deepClone(o) {
   // Hack
   return JSON.parse(JSON.stringify(o));
+}
+
+function eventFire(el, etype, options){
+  if (el.fireEvent) {
+    el.fireEvent('on' + etype);
+  } else {
+    var evObj = document.createEvent('Events');
+    evObj.initEvent(etype, true, false);
+    evObj = Object.assign(evObj, options)
+    el.dispatchEvent(evObj);
+  }
 }
 
 function isArray(o) {
