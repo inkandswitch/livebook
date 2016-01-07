@@ -10,8 +10,24 @@ const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
 livebookStore.subscribe(notebookRender)
+livebookStore.subscribe(runNotebook)
+livebookStore.subscribe(saveNotebook)
 
 let EDITOR = {}
+
+let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
+function runNotebook() {
+  let {doc} = livebookStore.getState()
+  let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
+  if (LAST_CODE.join() != codeBlocks.join()) {
+    REMOVE_MARKERS()
+    WORKER.postMessage({ type: "exec", doc: codeBlocks})
+    LAST_CODE = codeBlocks
+  }
+}
+
+function saveNotebook() {
+}
 
 function empty(x) {
   return Object.keys(x).length == 0
@@ -54,7 +70,6 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      executePython={executePython}
       onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
@@ -352,11 +367,6 @@ function handleUpdateNotebook(html,state) {
 
 window.onpopstate = function(event) {
   render();
-}
-
-function executePython(codeBlocks) {
-  REMOVE_MARKERS()
-  WORKER.postMessage({ type: "exec", doc: codeBlocks})
 }
 
 function handleError(e) {

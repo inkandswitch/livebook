@@ -108,17 +108,7 @@ let NotebookV2 = React.createClass({
 
   handleCodeChange(data) {
     this.props.store.dispatch({ type: "CODE_DELTA", data })
-    this.executePython()
     this.syncNotebook();
-  },
-
-  componentDidMount() {
-    this.executePython()
-  },
-
-  executePython() {
-    let codeBlocks = this.doc().codeList.map((id) => this.doc().codeMap[id])
-    this.props.executePython(codeBlocks);
   },
 
   syncNotebook() {
