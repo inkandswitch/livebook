@@ -61,7 +61,6 @@ function createLivebookExtension(options) {
         editor.subscribe("editableKeyup", (event) => {
           if (isArrowKey(event)) {
             highlightSelectedCodeCell(editor);
-            highlightLine(editor);
           }
 
           if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
@@ -74,7 +73,8 @@ function createLivebookExtension(options) {
           highlightSelectedCodeCell(editor);
 
           if (isArrowKey(event)) {
-            removeAllLineHighlights();
+            if (isUp(event) || isDown(event))
+              removeAllLineHighlights();
           }
 
           if (isCommandJ(event)) 
