@@ -31,18 +31,23 @@ let CodeOverlaysContainer = React.createClass({
     this.props.handleOverlayMount();
   },
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   createCodeCell(id) {
-    let code = this.props.codeMap[id];
-    let result = this.props.codeResults[this.props.codeList.indexOf(id)];
-    let plotsData = this.props.codePlotsData[this.props.codeList.indexOf(id)];
-    let error = this.props.errors[this.props.codeList.indexOf(id)];
+    let doc    = this.doc();
+    let code   = doc.codeMap[id];
+    let result = doc.results[id];
+    let plots  = doc.plots[id];
+    let error  = doc.errors[id];
     return (
       <CodeCellV2
         key={id} index={id}
         result={result}
         code={code}
         error={error}
-        plotsData={plotsData}
+        plots={plots}
         store={this.props.store}
         handleEditorChange={this.handleEditorChange}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
@@ -50,18 +55,15 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   handleEditorChange(id, code) {
-
     this.props.store.dispatch({
       type: "CODE_EDITOR_CHANGE",
       data: { id, code, },
     });
-
     this.props.handleEditorChange(id, code);
   },
 
   renderCodeCells() {
-    let codeList = this.props.codeList;
-    return codeList.map(this.createCodeCell);
+    return this.doc().codeList.map(this.createCodeCell);
   },
 
   render() {
@@ -75,26 +77,16 @@ let CodeOverlaysContainer = React.createClass({
 
 let NotebookV2 = React.createClass({
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   componentWillMount() {
   },
 
   componentWillUpdate() {
     let renderLandingPage = this.props.renderLandingPage;
     renderLandingPage && renderLandingPage();
-  },
-
-  getInitialState() {
-    return {
-      codeList: [],
-      codeMap: {},
-    };
-  },
-
-  componentWillMount() {
-    this.setState({
-      codeList: this.props.doc.codeList,
-      codeMap: this.props.doc.codeMap,
-    });
   },
 
   handleEditorClick() {
@@ -107,45 +99,11 @@ let NotebookV2 = React.createClass({
     }
   },
 
-  handleNewErrors(errors) {
-    this.setState({ errors });
-  },
-
-  getCurrentCode(id) {
-    return this.state.codeMap[id];
-  },
-
   handleEditorChange(id, code) {
-    let nextCodeMap = {...this.state.codeMap};
-    nextCodeMap[id] = code;
-    this.setState({ codeMap: nextCodeMap, });
-
-    this.executePython();
-    this.syncNotebook();
-  },
-
-  handleCodeChange(data) {
-    let {codeDelta, codeList} = data; // rename codeDelta to "newCode", orion was right
-    let {codeMap} = this.state;
-    let nextCodeMap = {...codeMap, ...codeDelta}; // same as `Object.assign({}, codeMap, codeDelta);``
-
-    this.setState({
-      codeMap: nextCodeMap,
-      codeList,
-    });
-
-    this.executePython()
-    this.syncNotebook();
-  },
-
-  executePython() {
-    let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
-    this.props.executePython(codeBlocks);
-  },
-
-  syncNotebook() {
-    let html = document.querySelector("[contenteditable='true']").innerHTML
-    this.props.onUpdateNotebook(html,this.state)
+    let codeList = this.doc().codeList
+    let codeDelta = {}; codeDelta[id] = code;
+    let data = { codeList, codeDelta }
+    this.props.store.dispatch({ type: "CODE_DELTA", data })
   },
 
   handleOverlayMount() {
@@ -161,28 +119,17 @@ let NotebookV2 = React.createClass({
   },
 
   renderEditorAndOverlays() {
-    let r = this.props.doc.results
     return (
       <div>
       <Editor
-        results={this.props.doc.results}
-        text={this.props.doc.html}
-        onCodeChange={this.handleCodeChange}
+        store={this.props.store}
         onClick={this.handleEditorClick}
-        getCurrentCodeList={ () => this.state.codeList}
-        getCurrentCode={this.getCurrentCode} 
         assignForceUpdate={this.props.assignForceUpdate}
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
         assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
       <CodeOverlaysContainer
-        errors={this.props.doc.errors}
-        handleOverlayMount={this.handleOverlayMount}
         store={this.props.store}
-        codePlotsData={this.props.doc.plots}
-        codeResults={this.props.doc.results}
-        codeList={this.state.codeList}
-        codeMap={this.state.codeMap}
-        getCurrentCode={this.getCurrentCode}
+        handleOverlayMount={this.handleOverlayMount}
         handleEditorChange={this.handleEditorChange}
         focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />

@@ -20,39 +20,13 @@ let editorOptions = {
 module.exports = React.createClass({
   displayName: 'MediumEditor',
 
-  getInitialState() {
-    return {
-      text: this.props.text,
-    };
-  },
-
-  getDefaultProps() {
-    return {
-      tag: 'div',
-    };
-  },
-
-  change(text) {
-    if(this.props.onChange) this.props.onChange(text, this.medium);
-  },
-
-  componentDidUpdate(prevProps, prevState) {
-    let prevResults = prevProps.results;
-    let { results } = this.props;
-    if (!areMapsEqual(prevResults, results)) {
-      // Wr must rerender the image placeholders to keep things looking tidy
-      let livebook = this.medium.getExtensionByName("livebook");
-      livebook.forceUpdate();
-    }
-  },
-
   componentDidMount() {
     let dom = ReactDOM.findDOMNode(this);
 
     let livebookExtension = createLivebookExtension({
-      onChange: this.props.onCodeChange,
-      getCurrentCode: this.props.getCurrentCode,
-      getCurrentCodeList: this.props.getCurrentCodeList,
+      onChange: (data) => { this.props.store.dispatch({ type: "CODE_DELTA", data }) },
+      getCurrentCode: (id) => this.doc().codeMap[id],
+      getCurrentCodeList: () => this.doc().codeList,
     });
 
     this.props.assignForceUpdate(livebookExtension.forceUpdate);
@@ -64,8 +38,8 @@ module.exports = React.createClass({
     this.medium = new MediumEditor(dom, editorOptions);
 
     this.medium.subscribe('editableInput', (e) => {
-      this._updated = true;
-      this.change(dom.innerHTML);
+      let html = document.querySelector("[contenteditable='true']").innerHTML
+      this.props.store.dispatch({ type: "UPDATE_HTML", html })
     });
 
     this.medium.subscribe('editableClick', (event) => {
@@ -77,23 +51,22 @@ module.exports = React.createClass({
     this.medium.destroy();
   },
 
-  componentWillReceiveProps(nextProps) {
-    if(nextProps.text !== this.state.text && !this._updated) {
-      this.setState({text: nextProps.text});
-    }
+  shouldComponentUpdate() {
+    return false;
+  },
 
-    if(this._updated) this._updated = false;
+  doc() {
+    return this.props.store.getState().doc
   },
 
   render() {
-    let tag = this.props.tag;
     let props = blacklist(this.props, 'tag', 'contentEditable', 'dangerouslySetInnerHTML');
 
     Object.assign(props, {
       contentEditable: true,
-      dangerouslySetInnerHTML: {__html: this.state.text}
+      dangerouslySetInnerHTML: {__html: this.doc().html}
     });
 
-    return React.createElement(tag, props);
+    return React.createElement('div', props);
   },
 });

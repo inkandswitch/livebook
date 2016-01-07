@@ -10,8 +10,31 @@ const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
 livebookStore.subscribe(notebookRender)
+livebookStore.subscribe(runNotebook)
+livebookStore.subscribe(saveNotebook)
 
 let EDITOR = {}
+
+let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
+function runNotebook() {
+  let {doc} = livebookStore.getState()
+  let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
+  if (LAST_CODE.join() != codeBlocks.join()) {
+    REMOVE_MARKERS()
+    WORKER.postMessage({ type: "exec", doc: codeBlocks})
+    LAST_CODE = codeBlocks
+  }
+}
+
+function saveNotebook() {
+  let {doc} = livebookStore.getState()
+  if (doc.html === "") return; // inital state - ignore
+  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
+  SAVE_TIMEOUT = setTimeout(() => {
+    SAVE_TIMEOUT = undefined
+    handleSaveNotebook(doc)
+  },3000)
+}
 
 function empty(x) {
   return Object.keys(x).length == 0
@@ -54,8 +77,6 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      executePython={executePython}
-      onUpdateNotebook={handleUpdateNotebook}
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
       assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f}
@@ -145,12 +166,6 @@ var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
 function typing(when) { return when - LAST_TYPE < TYPING_SPAN }
 
-var ERRORS = {
-  // expects this format:
-  //
-  // cellId: { cell: x, line: y, message: "hey"},
-};
-
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `EDITOR.getSession().removeMarker(id)`
 function REMOVE_MARKERS() {
   ERROR_MARKER_IDS.forEach((id) => {
@@ -170,8 +185,6 @@ cradle.onusergram = function(from,message) {
     console.log("Got a new document... is it new?")
     if (message.time > iPythonUpdated) {
       iPythonUpdated = message.time
-      //iPython = message.document
-      //render()
     }
   }
 }
@@ -202,21 +215,6 @@ function update_peers_and_render() {
 
   renderLandingPage();
   renderUploader();
-
-  if (!iPython) { 
-    return console.log("Short circuiting update_peers_and_render because iPython is not defined.");
-  }
-
-  let { html, state } = iPython;
-  if (!state) throw new Error("Unrecognized format to iPython object. See:", iPython); // FIXME - we can't fork notebooks! D:
-  livebookStore.dispatch({
-    type: "INITIALIZE_DOCUMENT",
-    documentProps: {
-      codeMap: state.codeMap,
-      codeList: state.codeList,
-      html,
-    },
-  })
 }
 
 ace.config.set("basePath", "/");
@@ -224,7 +222,6 @@ ace.config.set("basePath", "/");
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
 var iPythonUpdated = 0
-let iPython
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
@@ -317,14 +314,13 @@ function render() {
 
 let SAVE_TIMEOUT;
 
-function handleSaveNotebook(html,state) {
+function handleSaveNotebook(state) {
   if (document.location.pathname ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
-  console.log("Saving notebook...");
-  var notebook = { version: 2, html, state } 
-  var raw_notebook = JSON.stringify(notebook)
+  console.log("Saving notebook...",state);
+  var raw_notebook = JSON.stringify(state)
   var data = {
     name: "Hello",
     notebook: {
@@ -346,12 +342,7 @@ function handleSaveNotebook(html,state) {
   });
 }
 
-function handleUpdateNotebook(html,state) {
-  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
-  SAVE_TIMEOUT = setTimeout(() => {
-    SAVE_TIMEOUT = undefined
-    handleSaveNotebook(html,state)
-  },5000)
+function handleUpdateNotebook(state) {
 }
 
 // TODO - render onpushstate?
@@ -360,15 +351,11 @@ window.onpopstate = function(event) {
   render();
 }
 
-function executePython(codeBlocks) {
-  REMOVE_MARKERS()
-  WORKER.postMessage({ type: "exec", doc: codeBlocks})
-}
-
 function handleError(e) {
   console.log("ERROR:",e)
-  ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
-  livebookStore.dispatch({ type: "NEW_ERRORS", data: ERRORS });
+  let errors = {}
+  errors[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
+  livebookStore.dispatch({ type: "NEW_ERRORS", data: errors });
 }
 
 var LandingPage = require("./components/landing-page");
@@ -394,12 +381,15 @@ function forkNotebook(urls) {
 
 function parseRawNotebook(raw_notebook,raw_csv) {
   let notebook = JSON.parse(raw_notebook)
-  if (notebook.version == 2) {
-    iPython = notebook
+  let state
+  if (notebook.cells === undefined) {
+    state = notebook
   } else {
-    iPython = iPyToHTML(notebook);
+    state = iPyToHTML(notebook);
   }
   iPythonUpdated = Date.now()
+  console.log("INIT DOCUMENT",state)
+  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state })
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
