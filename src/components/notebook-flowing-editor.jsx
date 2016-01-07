@@ -24,9 +24,9 @@ module.exports = React.createClass({
     let dom = ReactDOM.findDOMNode(this);
 
     let livebookExtension = createLivebookExtension({
-      onChange: (delta) => { this.props.store.dispatch({ type: "CODE_DELTA", data: delta }) },
-      getCurrentCode: this.props.getCurrentCode,
-      getCurrentCodeList: this.props.getCurrentCodeList,
+      onChange: this.props.onCodeChange,
+      getCurrentCode: (id) => this.doc().codeMap[id],
+      getCurrentCodeList: () => this.doc().codeList,
     });
 
     this.props.assignForceUpdate(livebookExtension.forceUpdate);

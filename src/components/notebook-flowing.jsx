@@ -77,6 +77,10 @@ let CodeOverlaysContainer = React.createClass({
 
 let NotebookV2 = React.createClass({
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   componentWillMount() {
   },
 
@@ -95,12 +99,8 @@ let NotebookV2 = React.createClass({
     }
   },
 
-  getCurrentCode(id) {
-    return this.props.doc.codeMap[id];
-  },
-
   handleEditorChange(id, code) {
-    let codeList = this.props.doc.codeList
+    let codeList = this.doc().codeList
     let codeDelta = {}; codeDelta[id] = code;
 
     this.handleCodeChange({ codeList, codeDelta })
@@ -117,7 +117,7 @@ let NotebookV2 = React.createClass({
   },
 
   executePython() {
-    let codeBlocks = this.props.doc.codeList.map((id) => this.props.doc.codeMap[id])
+    let codeBlocks = this.doc().codeList.map((id) => this.doc().codeMap[id])
     this.props.executePython(codeBlocks);
   },
 
@@ -145,8 +145,6 @@ let NotebookV2 = React.createClass({
         store={this.props.store}
         onCodeChange={this.handleCodeChange}
         onClick={this.handleEditorClick}
-        getCurrentCodeList={ () => this.props.doc.codeList}
-        getCurrentCode={this.getCurrentCode} 
         assignForceUpdate={this.props.assignForceUpdate}
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
         assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>

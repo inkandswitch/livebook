@@ -197,7 +197,7 @@ function createLivebookExtension(options) {
     }
 
     function getNewCodeindex(seen) {
-      const seenIdsDescending = seen.slice().sort((a, b) => +a >= +b );
+      const seenIdsDescending = seen.slice().sort((a, b) => +a <= +b );
       const highestId = seenIdsDescending[0]
       return ((+highestId || 0) + 1).toString();
     }
