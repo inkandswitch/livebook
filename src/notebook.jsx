@@ -145,12 +145,6 @@ var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
 function typing(when) { return when - LAST_TYPE < TYPING_SPAN }
 
-var ERRORS = {
-  // expects this format:
-  //
-  // cellId: { cell: x, line: y, message: "hey"},
-};
-
 var ERROR_MARKER_IDS = []; // keeps track of the marker ids so we can remove them with `EDITOR.getSession().removeMarker(id)`
 function REMOVE_MARKERS() {
   ERROR_MARKER_IDS.forEach((id) => {
@@ -367,8 +361,9 @@ function executePython(codeBlocks) {
 
 function handleError(e) {
   console.log("ERROR:",e)
-  ERRORS[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
-  livebookStore.dispatch({ type: "NEW_ERRORS", data: ERRORS });
+  let errors = {}
+  errors[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
+  livebookStore.dispatch({ type: "NEW_ERRORS", data: errors });
 }
 
 var LandingPage = require("./components/landing-page");
