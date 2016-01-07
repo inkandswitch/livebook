@@ -83,20 +83,6 @@ let NotebookV2 = React.createClass({
     renderLandingPage && renderLandingPage();
   },
 
-  getInitialState() {
-    return {
-      codeList: [],
-      codeMap: {},
-    };
-  },
-
-  componentWillMount() {
-    this.setState({
-      codeList: this.props.doc.codeList,
-      codeMap: this.props.doc.codeMap,
-    });
-  },
-
   handleEditorClick() {
     this.hideCodeEditor();
   },
@@ -107,45 +93,35 @@ let NotebookV2 = React.createClass({
     }
   },
 
-  handleNewErrors(errors) {
-    this.setState({ errors });
-  },
-
   getCurrentCode(id) {
-    return this.state.codeMap[id];
+    return this.props.doc.codeMap[id];
   },
 
   handleEditorChange(id, code) {
-    let nextCodeMap = {...this.state.codeMap};
-    nextCodeMap[id] = code;
-    this.setState({ codeMap: nextCodeMap, });
+    let codeList = this.props.doc.codeList
+    let codeDelta = {}; codeDelta[id] = code;
 
-    this.executePython();
-    this.syncNotebook();
+    this.handleCodeChange({ codeList, codeDelta })
   },
 
   handleCodeChange(data) {
-    let {codeDelta, codeList} = data; // rename codeDelta to "newCode", orion was right
-    let {codeMap} = this.state;
-    let nextCodeMap = {...codeMap, ...codeDelta}; // same as `Object.assign({}, codeMap, codeDelta);``
-
-    this.setState({
-      codeMap: nextCodeMap,
-      codeList,
-    });
-
+    this.props.store.dispatch({ type: "CODE_DELTA", data })
     this.executePython()
     this.syncNotebook();
   },
 
+  componentDidMount() {
+    this.executePython()
+  },
+
   executePython() {
-    let codeBlocks = this.state.codeList.map((id) => this.state.codeMap[id])
+    let codeBlocks = this.props.doc.codeList.map((id) => this.props.doc.codeMap[id])
     this.props.executePython(codeBlocks);
   },
 
   syncNotebook() {
     let html = document.querySelector("[contenteditable='true']").innerHTML
-    this.props.onUpdateNotebook(html,this.state)
+    this.props.onUpdateNotebook(html,this.props)
   },
 
   handleOverlayMount() {
@@ -161,15 +137,15 @@ let NotebookV2 = React.createClass({
   },
 
   renderEditorAndOverlays() {
-    let r = this.props.doc.results
     return (
       <div>
       <Editor
+        store={this.props.store}
         results={this.props.doc.results}
         text={this.props.doc.html}
         onCodeChange={this.handleCodeChange}
         onClick={this.handleEditorClick}
-        getCurrentCodeList={ () => this.state.codeList}
+        getCurrentCodeList={ () => this.props.doc.codeList}
         getCurrentCode={this.getCurrentCode} 
         assignForceUpdate={this.props.assignForceUpdate}
         assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
@@ -180,8 +156,8 @@ let NotebookV2 = React.createClass({
         store={this.props.store}
         codePlotsData={this.props.doc.plots}
         codeResults={this.props.doc.results}
-        codeList={this.state.codeList}
-        codeMap={this.state.codeMap}
+        codeList={this.props.doc.codeList}
+        codeMap={this.props.doc.codeMap}
         getCurrentCode={this.getCurrentCode}
         handleEditorChange={this.handleEditorChange}
         focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}

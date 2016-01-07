@@ -11,6 +11,7 @@ const documentReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'INITIALIZE_DOCUMENT': return INITIALIZE_DOCUMENT(state, action);
     case 'CODE_EDITOR_CHANGE':  return CODE_EDITOR_CHANGE(state, action);
+    case 'CODE_DELTA':          return CODE_DELTA(state, action);
     case 'NEW_RESULT':          return NEW_RESULT(state, action);
     case 'NEW_PLOTS':           return NEW_PLOTS(state, action);
     case 'NEW_ERRORS':          return NEW_ERRORS(state, action);
@@ -22,6 +23,12 @@ const documentReducer = (state = initialState, action) => {
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps } = action;
  return {...state, ...documentProps}; 
+}
+
+function CODE_DELTA (state, action) {
+//  let next_codeMap = Object.assign({},state.codeMap, action.codeDelta)
+  let nextCodeMap = {...state.codeMap, ...action.codeDelta};
+  return {...state, codeList: action.data.codeList, codeMap: nextCodeMap }
 }
 
 function CODE_EDITOR_CHANGE (state, action) {
