@@ -1,22 +1,21 @@
-let React = require("react");
+const React = require("react");
 
-let Collaborators = require("./collaborators");
-let Menu = require("./menu");
+const Collaborators = require("./collaborators");
+const Menu = require("./menu");
 
-let Nav = React.createClass({
-    shouldShowCollaborators() {
+const Nav = () => ({
+    isHidden() {
         const path = window.location.pathname
-        const isLandingPage =  path === "/";
+        const isLandingPage = path === "/";
         const isUpload = (path.indexOf("upload") !== -1);
-        return !isLandingPage && !isUpload;
+        return isLandingPage || isUpload;
     },
 
     render() {
+        const styles = this.isHidden() ? { display: "none" } : {};
         return (
-            <div className="livebook-nav">
-                <Collaborators 
-                    show={this.shouldShowCollaborators()} 
-                    peers={this.props.peers} />
+            <div style={styles} className="livebook-nav">
+                <Collaborators peers={this.props.peers} />
                 <Menu render={this.props.render} />
             </div>
         );

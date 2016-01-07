@@ -109,7 +109,8 @@ function createLivebookExtension(options) {
       const index = (codeindex && codeindex++) || 1;
       const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
 
-      let afterParty = () => {}; // FIXME
+      // FIXME
+      let afterParty = () => {};
 
       if (isCodeCellSelected()) {
         let placeholder = getSelectedPlaceholder();
@@ -247,7 +248,6 @@ function cutSelectedCodeCell(editor) {
   editor.selectElement(editor.getSelectedParentElement());
   editor.execAction("cut");
 }
-
 
 function deleteSelectedCodeCell(editor) {
   let placeholder = getSelectedPlaceholder();

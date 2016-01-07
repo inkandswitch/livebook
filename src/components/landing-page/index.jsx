@@ -1,37 +1,45 @@
-let React = require("react");
+const React = require("react");
 
-let GalleryItem = require("./gallery-item");
+const GalleryItem = require("./gallery-item");
 
-let Starter = React.createClass({
-    render() {
-        return (
-          <GalleryItem csvURL="/forkable/starter.csv" 
-              ipynbURL="/forkable/starter.ipynb" 
-              fork={this.props.clickHandler}>
-            Starter notebook
-          </GalleryItem>
-        );
-    },
-});
-
-let Quakes = React.createClass({
-    render() {
-        return (
-            <GalleryItem csvURL="/forkable/earthquake_states_lite.csv" 
-                ipynbURL="/forkable/earthquakes.ipynb" 
-                fork={this.props.clickHandler}>
-              Earthquakes in the midwest
-            </GalleryItem>
-        );
-    },
-});
-
-
-let LandingPage = React.createClass({
-
-  clickHandler(urls) {
-    this.props.fork(urls);
+const MonteCarlo = () => ({
+  render() {
+    return (
+      <GalleryItem csvURL="/forkable/montecarlo.csv" 
+          ipynbURL="/forkable/montecarlo.ipynb" 
+          fork={this.props.fork}>
+        Monte Carlo simulation
+      </GalleryItem>
+    );
   },
+});
+
+const Quakes = () => ({
+  render() {
+    return (
+      <GalleryItem csvURL="/forkable/earthquake_states_lite.csv" 
+          ipynbURL="/forkable/earthquakes.ipynb" 
+          fork={this.props.fork}>
+        Earthquakes in the midwest
+      </GalleryItem>
+    );
+  },
+});
+
+const Starter = () => ({
+  render() {
+    return (
+      <GalleryItem csvURL="/forkable/starter.csv" 
+          ipynbURL="/forkable/starter.ipynb" 
+          fork={this.props.fork}>
+        Starter notebook
+      </GalleryItem>
+    );
+  },
+});
+
+
+const LandingPage = React.createClass({
 
   getStyles() {
     return this.isHidden() ? { display: "none"} : {};
@@ -42,20 +50,20 @@ let LandingPage = React.createClass({
   },
 
   render() {
-      let styles = this.getStyles();
+      const styles = this.getStyles();
       return (
         <div style={styles} className="landing-page-container">
           <h1>Try a sample notebook</h1>
           <ul>
-          <li><Quakes clickHandler={this.clickHandler} /></li>
-          <li><a href="#">Monte Carlo simulations (<b>todo</b>)</a></li>
-          <li><Starter clickHandler={this.clickHandler} /></li>
+            <li><Quakes fork={this.props.fork} /></li>
+            <li><MonteCarlo fork={this.props.fork} /></li>
+            <li><Starter fork={this.props.fork} /></li>
           </ul>
 
           <h1>&hellip;or:</h1>
           <ul>
-          <li><a href="/upload">Upload your own .ipynb and .csv</a></li>
-          <li><a href="#">New blank notebook (<b>todo</b>)</a></li>
+            <li><a href="/upload">Upload your own .ipynb and .csv</a></li>
+            <li style={{ display: "none" }}><a href="#">New blank notebook</a></li>
           </ul>
         </div>
       );

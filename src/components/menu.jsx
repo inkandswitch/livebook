@@ -1,6 +1,6 @@
-var React = require("react");
+const React = require("react");
 
-var Menu = React.createClass({
+const Menu = React.createClass({
 
   getInitialState() {
     return {
