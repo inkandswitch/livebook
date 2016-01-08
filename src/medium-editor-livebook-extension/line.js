@@ -6,12 +6,20 @@ module.exports = {
 
   highlightLine,
   addLineHighlight,
+  getLinePosition,
   removeLineHighlight,
   removeAllLineHighlights,
   isCurrentHighlightedLine,
   getCurrentLineElement,
   getCurrentHighlightedLine,
 };
+
+function getLinePosition(editor) {
+  let line = getCurrentLineElement(editor);
+  let { top } = line.getBoundingClientRect();
+  let { left, right } = editor.getFocusedElement().getBoundingClientRect();
+  return { top, right, left }; 
+}
 
 // *** Line Highlighting *** ///
 function highlightLine(editor) {

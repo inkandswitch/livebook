@@ -24,6 +24,7 @@ module.exports = React.createClass({
     let dom = ReactDOM.findDOMNode(this);
 
     let livebookExtension = createLivebookExtension({
+      moveAvatar: (position) => this.props.store.dispatch({ type: "MOVE_AVATAR", position }),
       onChange: (data) => { this.props.store.dispatch({ type: "CODE_DELTA", data }) },
       getCurrentCode: (id) => this.doc().codeMap[id],
       getCurrentCodeList: () => this.doc().codeList,

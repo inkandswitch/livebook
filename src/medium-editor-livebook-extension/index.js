@@ -22,6 +22,7 @@ const {
 
 const {
   addPlusButton,
+  getLinePosition,
   hidePlusButton,
   highlightLine,
   removeAllLineHighlights,
@@ -29,7 +30,7 @@ const {
 
 const PLACEHOLDER_ID_BASE = "placeholder";
 
-function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList}) {
+function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, moveAvatar}) {
     let codeindex;
     let editor = null;
 
@@ -84,13 +85,19 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList})
           highlightLine(editor);
         });
 
-        editor.subscribe("blur", () => removeAllLineHighlights() );
+        editor.subscribe("blur", () => { 
+          removeAllLineHighlights();
+          moveAvatar({})
+        });
 
         editor.subscribe("editableInput", () => validateContents(editor) );
 
         editor.subscribe("editableKeyup", (event) => {
-          if (isArrowKey(event))
+          if (isArrowKey(event)) {
             highlightSelectedCodeCell(editor);
+            let linePosition = getLinePosition(editor);
+            moveAvatar(linePosition);
+          }
 
           if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
             highlightLine(editor);

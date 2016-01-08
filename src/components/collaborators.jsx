@@ -189,22 +189,40 @@ const Collaborator = React.createClass({
     cradle.setUserVar("name",name)
   },
 
+  hasPosition() {
+    const { position } = this.props;
+    return position && ("top" in position && "right" in position);
+  },
+
+  getPosition() {
+    if (this.hasPosition()) {
+      const { top, right } = this.props.position;
+      return {
+        position: "fixed",
+        left: right,
+        top,
+      }
+    }
+    return {};
+  },
+
   render() {
 
     let peer = this.props.peer;
     let name = peer.user.name || peer.session;
     let connected = (peer.connected) ? "!!" : "";
     let cursor = (peer.state.cursor == undefined) ? "?" : peer.state.cursor;
-
+    let styles = { ...this.getPosition() };
     return (
       <li className={"observer " + peer.status}
           data-user-color={this.props.color}
-          onClick={this.handleClick}>
+          onClick={this.handleClick}
+          style={styles}>
 
         <Avatar color={this.props.color} />
 
         <VelocityComponent animation={{ opacity: [1, 0], }} duration={600} runOnMount={true}>
-          <span>{name}</span>
+          <span className="avatar-name">{name}</span>
         </VelocityComponent>
 
         <CollaboratorNameForm 
@@ -223,12 +241,14 @@ const Collaborators = React.createClass({
 
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
+      const position = (index === 0) ? this.props.avatarPosition : null;
       return (
         <Collaborator 
           key={index}
           peer={peer} 
           color={peer.state.color}
-          isEditable={index === 0} />
+          isEditable={index === 0}
+          position={position} />
       );
     })
     return avatars;

@@ -1,14 +1,16 @@
-let Redux = require("redux");
-let { createStore, combineReducers } = Redux;
+const Redux = require("redux");
+const { createStore, combineReducers } = Redux;
 
-let codeEditorReducer = require("./reducers/code-editor-reducer");
-let documentReducer = require("./reducers/document-reducer");
+const avatarReducer = require("./reducers/avatar-reducer");
+const codeEditorReducer = require("./reducers/code-editor-reducer");
+const documentReducer = require("./reducers/document-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, };
+const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatar: avatarReducer };
 
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
 livebookStore.subscribe(codeEditorRender);
+livebookStore.subscribe(navRender);
 livebookStore.subscribe(notebookRender)
 livebookStore.subscribe(runNotebook)
 livebookStore.subscribe(saveNotebook)
@@ -85,6 +87,12 @@ function notebookRender() {
       focusEditorOnPlaceholder={ (i) => uglyAntiFunctions.focusEditorOnPlaceholder && uglyAntiFunctions.focusEditorOnPlaceholder(i) } 
       focusOnSelectedOverlay={ () => uglyAntiFunctions.focusOnSelectedOverlay && uglyAntiFunctions.focusOnSelectedOverlay() } />, 
     notebookMount);
+}
+
+function navRender() {
+  const peers = cradle.peers() // COULD CONFLICT WITH update_peers_and_render
+  const avatarPosition = livebookStore.getState().avatar.position;
+  ReactDOM.render(<Nav render={render} peers={peers} avatarPosition={avatarPosition} />, navMount);
 }
 
 global.STORE = livebookStore;
@@ -199,7 +207,7 @@ function update_peers_and_render() {
     peers = cradle.peers()
   }
 
-  ReactDOM.render(<Nav render={render} peers={peers} />, navMount);
+  navRender();
 
   let cursorPositions = peers.map((peer) => {
     let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
