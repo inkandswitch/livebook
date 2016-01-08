@@ -8,40 +8,44 @@ let CodeCellOutput = React.createClass({
     // TODO - truncate table after update?
   },
 
-  parseOutput(output) {
+  parseOutput(output, key) {
     let {data} = output;
 
     if (data["text/html"]) {
-      return this.html(data["text/html"]);
+      return this.html(data["text/html"], key);
     }
 
     if (data["image/png"]) {
-      return this.png(data["image/png"]);
+      return this.png(data["image/png"], key);
     }
 
     if (data["text/plain"]) {
-      return this.text(data["text/plain"]);
+      return this.text(data["text/plain"], key);
     }
 
     return [];
   },
 
-  html(data) {
+  html(data, key) {
     //fixme - cuts off table
     let styles = { overflowX: "hidden", };
     let htmlString = data.join("");
-    return (<div style={styles} dangerouslySetInnerHTML={{__html: htmlString }}></div>);
+    return (
+      <div style={styles} 
+          key={key}
+          dangerouslySetInnerHTML={{__html: htmlString }}></div>
+    );
   },
 
-  png(data) {
-   return (<img src={"data:image/png;base64," + data} />);
+  png(data, key) {
+   return (<img src={"data:image/png;base64," + data} key={key} />);
   },
 
-  text(data) {
+  text(data, key) {
     let className = this.props.className;
     let getPlotContainers = this.props.getPlotContainers;
     return (
-      <div className={className}>
+      <div className={className} key={key} >
         {data.join("")}
         {getPlotContainers()}
       </div>

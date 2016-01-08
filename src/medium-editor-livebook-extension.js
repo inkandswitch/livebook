@@ -264,29 +264,31 @@ function hidePlusButton(button) {
 }
 
 function movePlusButton({ editor, line }) {
+  const buton = getPlusButton();
   const lineContents = line.textContent;
-  const butt = getPlusButton();
-  if (lineContents.trim() || isCodeCellSelected()) {
-    hidePlusButton(butt);
-    setLastHighlightedLineOnButton(butt, null);
+  const lineHasContent = !!lineContents.trim();
+
+  if (lineHasContent || isCodeCellSelected()) {
+    hidePlusButton(button);
+    setLastHighlightedLineOnButton(button, null);
     return;
   }
+  positionPlusButtonByLine({ editor, button, line });
+  setLastHighlightedLineOnButton(button, line);
+  showPlusButton(button);
+}
+
+function positionPlusButtonByLine({ editor, button, line }) {
   const { top, height } = getLineRect(line);
   const { left } = editor.getFocusedElement().getBoundingClientRect();
+
   const buttWidth = butt.getBoundingClientRect().width;
   const buttMarginRight = 6;
   const buttMarginTop = -6;
 
-  butt.style.top = (top + buttMarginTop) + "px";
-  butt.style.left = (left - buttWidth - buttMarginRight) + "px";
-  butt.style.height = (height) + "px";
-
-  butt.__LAST_LINE = line;
-
-  showPlusButton(butt);
-
-  console.log("top, left", top, ",", left)
-  console.log("%cBUTT", "font-size: 2em; color: rebeccapurple; padding: .4em 0;", butt)
+  button.style.top = (top + buttMarginTop) + "px";
+  button.style.left = (left - buttWidth - buttMarginRight) + "px";
+  button.style.height = (height) + "px";
 }
 
 function getLineRect(line) {
