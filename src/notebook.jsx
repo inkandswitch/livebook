@@ -91,8 +91,8 @@ function notebookRender() {
 
 function navRender() {
   const peers = cradle.peers() // COULD CONFLICT WITH update_peers_and_render
-  const avatarPosition = livebookStore.getState().avatar.position;
-  ReactDOM.render(<Nav render={render} peers={peers} avatarPosition={avatarPosition} />, navMount);
+  const avatarPosition = livebookStore.getState().avatar.position; // TODO - dont need to pass this now - in store
+  ReactDOM.render(<Nav render={render} peers={peers} store={livebookStore} avatarPosition={avatarPosition} />, navMount);
 }
 
 global.STORE = livebookStore;

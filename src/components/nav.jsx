@@ -16,7 +16,7 @@ const Nav = () => ({
         return (
             <div style={styles} className="livebook-nav">
                 <Collaborators peers={this.props.peers} avatarPosition={this.props.avatarPosition} />
-                <Menu render={this.props.render} />
+                <Menu store={this.props.store} render={this.props.render} />
             </div>
         );
     },

@@ -17,9 +17,13 @@ const Menu = React.createClass({
     this.setState({active: !this.state.active});
   },
 
+  doc() {
+    return this.props.store.getState().doc
+  },
+
   downloadPayload() {
-    alert("Nope! Can't do it. April fools! (Sorry.)");
-    return "";
+    document.getElementById("downloader").setAttribute('href','data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.doc())))
+    return true
   },
 
   handleUpload(event) {
@@ -35,7 +39,7 @@ const Menu = React.createClass({
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
           <li><a href="/">Home</a></li>
-          <li><a onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">Download</a></li>
+          <li><a id="downloader" onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">Download</a></li>
           <li><a href="/upload">Upload</a></li>
           <li>Cheatsheet</li>
           <li>About</li>
