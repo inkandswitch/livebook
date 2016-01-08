@@ -35,7 +35,7 @@ function INITIALIZE_DOCUMENT(state, action) {
 }
 
 function UPDATE_HTML (state, action) {
-  let {html} = action;
+  let { html } = action;
   return {...state, html}
 }
 

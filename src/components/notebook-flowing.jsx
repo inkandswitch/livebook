@@ -1,38 +1,10 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-let Uploader = require("./uploader.jsx");
-let Editor = require('./notebook-flowing-editor');
-let CodeCellV2 = require('./code-cell-v2');
+const Uploader = require("./uploader.jsx");
+const Editor = require('./notebook-flowing-editor');
+const CodeCellV2 = require('./code-cell-v2');
 
-const NewNotebookForm = () => ({
-  componentDidMount() {
-    this.refs.title.focus();
-  },
-
-  handleSubmit(e) {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const title = this.refs.title.value;
-    this.setTitle(title)
-  },
-
-  setTitle(title) {
-    const type = "UPDATE_HTML";
-    const html = `<h1>${title}</h1>`
-    this.props.store.dispatch({ type, html });
-  },
-
-  render() {
-    const placeholderText = "What will you title your notebook?";
-    return (
-      <form className="notebook-title-form" onSubmit={(e) => this.handleSubmit(e)}>
-        <input className="notebook-title-input" ref="title" type="text" placeholder={placeholderText} />
-        <button onClick={(e) => this.handleSubmit(e)}> Stuff </button>
-      </form>
-    );
-  }
-})
+const { eventFire } = require("../util");
 
 const CodeOverlaysContainer = React.createClass({
 
@@ -138,25 +110,9 @@ const NotebookV2 = React.createClass({
     this.forceUpdate();
   },
 
-  isDocEmpty() {
-    const editorElement = document.querySelector("[data-medium-editor-element]");
-    if (!editorElement) return false; // FIXME
-    const editorTextContent = editorElement.textContent.trim();
-    const isNoText = !editorTextContent;
-    return isNoText;
-  },
-
   render() {
     const path = window.location.pathname;
     const isFullOfStuff = path !== "/" && path.indexOf("/upload") !== 0;
-
-    if (this.isDocEmpty()) {
-      return (
-        <div className="notebook">
-          <NewNotebookForm store={this.props.store} />
-        </div>
-      );
-    }
 
     if (isFullOfStuff) {
      return (

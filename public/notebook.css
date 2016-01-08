@@ -176,20 +176,18 @@ img[data-livebook-placeholder-cell] {
   display: none;
 }
 
-.notebook-title-input { /* Copy styles of .notebook h1 */
-  background: aliceblue;
-  border: 0;
-  border-bottom: .1em solid rgba(0,0,0,0.125);
-  display: block;
-  font-size: 2.4em;
-  font-weight: 700;
-  margin-bottom: .4em;
-  padding-bottom: .1em;
-  width: 100%;
+.notebook-title-show-placeholder {
+  position: relative;  
 }
 
-.notebook-title-input:focus { 
-  outline: none;
+.notebook-title-show-placeholder::after {
+  color: #888;
+  content: "What will you title your notebook?";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 .notebook h1,

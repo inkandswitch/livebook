@@ -3,9 +3,9 @@ let React = require('react');
 let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
 
-let {areMapsEqual} = require("../util");
+const { areMapsEqual, eventFire } = require("../util");
 
-let createLivebookExtension = require("../medium-editor-livebook-extension/");
+const createLivebookExtension = require("../medium-editor-livebook-extension/");
 
 let editorOptions = {
     buttonLabels: 'fontawesome',
@@ -39,7 +39,7 @@ module.exports = React.createClass({
     this.medium = new MediumEditor(dom, editorOptions);
 
     this.medium.subscribe('editableInput', (e) => {
-      let html = document.querySelector("[contenteditable='true']").innerHTML
+      let html = dom.innerHTML;
       this.props.store.dispatch({ type: "UPDATE_HTML", html })
     });
 

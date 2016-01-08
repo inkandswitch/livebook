@@ -197,6 +197,8 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
     }
 
     function validateContents(editor) {
+      validateHeading(editor)
+
       let codeDelta = {};
       let codeList = getCurrentCodeList();
 
@@ -249,6 +251,23 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
     function getPlaceholderId(placeholderElt) {
       return placeholderElt.id.replace("placeholder", "");
+    }
+
+    function validateHeading(editor) {
+      let editorElement = editor.origElements
+      let firstChild  = editorElement.firstChild;
+      let placeholderText = "What will you title your notebook?";
+      if (firstChild.tagName !== "H1") {
+        let h1 = document.createElement("h1");
+        h1.innerHTML = "placeholderText";
+        editorElement.insertBefore(h1, editorElement.firstChild)
+      }
+      if (firstChild.textContent.trim() === "") {
+        firstChild.classList.add("notebook-title-show-placeholder");
+      }
+      else {
+        firstChild.classList.remove("notebook-title-show-placeholder");        
+      }
     }
 }
 
