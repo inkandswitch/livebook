@@ -3,6 +3,7 @@ module.exports = {
   isCommandX,
   isDelete,
   isEnter,
+  isEscape,
   isArrowKey,
   isDown,
   isLeft,
@@ -26,6 +27,10 @@ function isDelete({ which }) {
 
 function isEnter({ which }) {
   return which === 13;
+}
+
+function isEscape({ which }) {
+  return which === 27;
 }
 
 function isArrowKey(event) {

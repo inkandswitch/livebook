@@ -2,7 +2,7 @@
 // CodeCell: 
 // Placeholder: 
 const { eventFire } = require("../util");
-const { isDown } = require("./util");
+const { isArrowKey, isDown, isEnter, isEscape } = require("./util");
 
 module.exports = {
     codeCellToPlaceholder,
@@ -12,7 +12,7 @@ module.exports = {
     focusOnSelectedOverlay,
     getSelectedPlaceholder,
     goToNextCodeCell,
-    handleCodeCellArrowKeyEvent,
+    handleCodeCellKeyEvent,
     highlightSelectedCodeCell,
     isCodeCellSelected,
 };
@@ -26,7 +26,13 @@ function goToNextCodeCell(editor) {
   highlightSelectedCodeCell(editor);
 }
 
-function handleCodeCellArrowKeyEvent(editor, { event }) {
+function handleCodeCellKeyEvent(editor, { event }) {
+  if (!isEnter(event) && !isEscape(event) && !isArrowKey(event)) {
+    let codeCell = getSelectedCodeCell();
+    let placeholder = codeCellToPlaceholder(codeCell);
+    addProseBelow(editor, placeholder);
+  }
+
   if (isDown(event)) {
     let codeCell = getSelectedCodeCell();
     let placeholder = codeCellToPlaceholder(codeCell);
@@ -36,8 +42,8 @@ function handleCodeCellArrowKeyEvent(editor, { event }) {
   }
 }
 
-function addProseBelow(editor, placeholder) {
-  pasteBelowPlaceholder(editor, placeholder, "<p><br/></p>");
+function addProseBelow(editor, placeholder, prose="<p><br/></p>") {
+  pasteBelowPlaceholder(editor, placeholder, prose);
 }
 
 function pasteBelowPlaceholder(editor, placeholder, html) {

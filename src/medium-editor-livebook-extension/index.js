@@ -16,7 +16,7 @@ const {
   focusOnSelectedOverlay,
   getSelectedPlaceholder,
   goToNextCodeCell,
-  handleCodeCellArrowKeyEvent,
+  handleCodeCellKeyEvent,
   highlightSelectedCodeCell,
   isCodeCellSelected, } = require("./code-cell");
 
@@ -118,8 +118,14 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList})
             if (isCommandX(event))
               cutSelectedCodeCell(editor);
 
-            if (isArrowKey(event))
-              handleCodeCellArrowKeyEvent(editor, { event });
+          }
+        });
+
+        editor.subscribe("editableKeypress", (event) => {
+          if (isCodeCellSelected()) {
+            handleCodeCellKeyEvent(editor, { event });
+            highlightLine(editor);
+            hidePlusButton();
           }
         });
     }
