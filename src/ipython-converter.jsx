@@ -2,7 +2,6 @@ const PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJA
 
 var React = require('react');
 
-
 var $ = require("jquery");
 var marked = require("marked");
 // var toMarkdown =  require("to-markdown");
@@ -10,7 +9,7 @@ var toMarkdown = () => {}; //require('html-md');
 
 module.exports = {
     iPyToHTML,
-    htmlToIPy,
+    docToIPy,
 };
 
 function iPyToHTML(ipy) {
@@ -29,6 +28,65 @@ function iPyToHTML(ipy) {
   }).join("\n")
 
   return { html, codeMap, codeList };
+}
+
+function docToIPy(doc) {
+  let htmlChunks = doc.html.split(/<p><img data-livebook-placeholder-cell [^>]*><\/p>/)
+  let textChunks = htmlChunks.map((chunk) => $(chunk).text())
+  let markCells  = textChunks.map(textToMDCell)
+  let codeChunks = doc.codeList.map((index) => doc.codeMap[index])
+  let codeCells  = codeChunks.map(codeToCodeCell)
+  let cells      = []
+  for (let i in markCells) cells[i*2]   = markCells[i]
+  for (let i in codeCells) cells[i*2+1] = codeCells[i]
+  return {
+     cells: cells,
+     metadata: {
+      kernelspec: {
+       display_name: "Python 2",
+       language: "python",
+       name: "python2"
+      },
+      language_info: {
+       codemirror_mode: {
+        name: "ipython",
+        version: 2
+       },
+       file_extension: ".py",
+       mimetype: "text/x-python",
+       name: "python",
+       nbconvert_exporter: "python",
+       pygments_lexer: "ipython2",
+       version: "2.7.10"
+      }
+     },
+     nbformat: 4,
+     nbformat_minor: 0
+  }
+}
+
+function nbSplit(text) {  // split the lines, leave the \n
+  return text.match(/[^\n]*(\n|[^\n]$)/g)
+}
+
+function codeToCodeCell(code) {
+  return {
+   cell_type: "code",
+   execution_count: null,
+   metadata: {
+    collapsed: true
+   },
+   outputs: [],
+   source: nbSplit(code)
+  }
+}
+
+function textToMDCell(text) {
+  return {
+   cell_type: "markdown",
+   metadata: {},
+   source: nbSplit(text)
+  }
 }
 
 function htmlToIPy(html) {

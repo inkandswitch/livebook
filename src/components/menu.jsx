@@ -1,5 +1,7 @@
 const React = require("react");
 
+let {docToIPy} = require("../ipython-converter.jsx");
+
 const Menu = React.createClass({
 
   getInitialState() {
@@ -22,7 +24,7 @@ const Menu = React.createClass({
   },
 
   downloadPayload() {
-    document.getElementById("downloader").setAttribute('href','data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.doc())))
+    document.getElementById("downloader").setAttribute('href','data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(docToIPy(this.doc()),null,2)))
     return true
   },
 
