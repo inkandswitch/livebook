@@ -5,7 +5,7 @@ let MediumEditor = require('medium-editor');
 
 let {areMapsEqual} = require("../util");
 
-let createLivebookExtension = require("../medium-editor-livebook-extension");
+let createLivebookExtension = require("../medium-editor-livebook-extension/");
 
 let editorOptions = {
     buttonLabels: 'fontawesome',
