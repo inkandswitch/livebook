@@ -176,6 +176,22 @@ img[data-livebook-placeholder-cell] {
   display: none;
 }
 
+.notebook-title-input { /* Copy styles of .notebook h1 */
+  background: aliceblue;
+  border: 0;
+  border-bottom: .1em solid rgba(0,0,0,0.125);
+  display: block;
+  font-size: 2.4em;
+  font-weight: 700;
+  margin-bottom: .4em;
+  padding-bottom: .1em;
+  width: 100%;
+}
+
+.notebook-title-input:focus { 
+  outline: none;
+}
+
 .notebook h1,
 .notebook h2,
 .notebook h3 {

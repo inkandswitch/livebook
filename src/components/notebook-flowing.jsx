@@ -1,12 +1,40 @@
-let React = require('react');
-let ReactDOM = require('react-dom');
-var Uploader = require("./uploader.jsx");
+const React = require('react');
+const ReactDOM = require('react-dom');
+let Uploader = require("./uploader.jsx");
 let Editor = require('./notebook-flowing-editor');
 let CodeCellV2 = require('./code-cell-v2');
 
-let {htmlToIPy} = require("../ipython-converter.jsx");
+const NewNotebookForm = () => ({
+  componentDidMount() {
+    this.refs.title.focus();
+  },
 
-let CodeOverlaysContainer = React.createClass({
+  handleSubmit(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const title = this.refs.title.value;
+    this.setTitle(title)
+  },
+
+  setTitle(title) {
+    const type = "UPDATE_HTML";
+    const html = `<h1>${title}</h1>`
+    this.props.store.dispatch({ type, html });
+  },
+
+  render() {
+    const placeholderText = "What will you title your notebook?";
+    return (
+      <form className="notebook-title-form" onSubmit={(e) => this.handleSubmit(e)}>
+        <input className="notebook-title-input" ref="title" type="text" placeholder={placeholderText} />
+        <button onClick={(e) => this.handleSubmit(e)}> Stuff </button>
+      </form>
+    );
+  }
+})
+
+const CodeOverlaysContainer = React.createClass({
 
   hideCodeEditorOnEsc(event) {
     if (event.which === 27) {
@@ -36,11 +64,11 @@ let CodeOverlaysContainer = React.createClass({
   },
 
   createCodeCell(id) {
-    let doc    = this.doc();
-    let code   = doc.codeMap[id];
-    let result = doc.results[id];
-    let plots  = doc.plots[id];
-    let error  = doc.errors[id];
+    const doc    = this.doc();
+    const code   = doc.codeMap[id];
+    const result = doc.results[id];
+    const plots  = doc.plots[id];
+    const error  = doc.errors[id];
     return (
       <CodeCellV2
         key={id} index={id}
@@ -75,7 +103,7 @@ let CodeOverlaysContainer = React.createClass({
   }
 });
 
-let NotebookV2 = React.createClass({
+const NotebookV2 = React.createClass({
 
   doc() {
     return this.props.store.getState().doc
@@ -85,7 +113,7 @@ let NotebookV2 = React.createClass({
   },
 
   componentWillUpdate() {
-    let renderLandingPage = this.props.renderLandingPage;
+    const renderLandingPage = this.props.renderLandingPage;
     renderLandingPage && renderLandingPage();
   },
 
@@ -100,9 +128,9 @@ let NotebookV2 = React.createClass({
   },
 
   handleEditorChange(id, code) {
-    let codeList = this.doc().codeList
-    let codeDelta = {}; codeDelta[id] = code;
-    let data = { codeList, codeDelta }
+    const codeList = this.doc().codeList
+    const codeDelta = {}; codeDelta[id] = code;
+    const data = { codeList, codeDelta }
     this.props.store.dispatch({ type: "CODE_DELTA", data })
   },
 
@@ -110,11 +138,34 @@ let NotebookV2 = React.createClass({
     this.forceUpdate();
   },
 
+  isDocEmpty() {
+    const editorElement = document.querySelector("[data-medium-editor-element]");
+    if (!editorElement) return false; // FIXME
+    const editorTextContent = editorElement.textContent.trim();
+    const isNoText = !editorTextContent;
+    return isNoText;
+  },
+
   render() {
     const path = window.location.pathname;
     const isFullOfStuff = path !== "/" && path.indexOf("/upload") !== 0;
+
+    if (this.isDocEmpty()) {
+      return (
+        <div className="notebook">
+          <NewNotebookForm store={this.props.store} />
+        </div>
+      );
+    }
+
+    if (isFullOfStuff) {
+     return (
+       <div className="notebook">{ this.renderEditorAndOverlays()}</div>
+     ); 
+    }
+
     return (
-      <div className="notebook">{ isFullOfStuff ? this.renderEditorAndOverlays() : "" }</div>
+      <div className="notebook"></div>
     );
   },
 
