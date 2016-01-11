@@ -689,6 +689,10 @@ div.ace-content {
   transition: background 100ms ease-in-out;
 }
 
+.selected-line::first-line {
+  /*background: aliceblue;*/
+}
+
 .livebook-add-code-button {
   cursor: pointer;
   opacity: .6;

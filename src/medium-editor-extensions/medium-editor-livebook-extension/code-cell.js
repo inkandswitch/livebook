@@ -1,7 +1,7 @@
 // Overlay:
 // CodeCell: 
 // Placeholder: 
-const { eventFire } = require("../util");
+const { eventFire } = require("../../util");
 const { isArrowKey, isDown, isEnter, isEscape } = require("./util");
 
 module.exports = {

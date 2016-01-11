@@ -3,9 +3,11 @@ let React = require('react');
 let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
 
+require("../medium-editor-extensions/heading-button/")(MediumEditor); // modify default h2 button prototype
+
 const { areMapsEqual, eventFire } = require("../util");
 
-const createLivebookExtension = require("../medium-editor-livebook-extension/");
+const createLivebookExtension = require("../medium-editor-extensions/medium-editor-livebook-extension/");
 
 let editorOptions = {
     buttonLabels: 'fontawesome',
@@ -14,7 +16,10 @@ let editorOptions = {
         cleanPastedHTML: false,
         forcePlainText: false
     },
-    placeholder: "Write some Livebook!"
+    placeholder: "Write some Livebook!",
+    toolbar: {
+      buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'quote'],
+    },
 };
 
 module.exports = React.createClass({
@@ -29,7 +34,6 @@ module.exports = React.createClass({
       getCurrentCode: (id) => this.doc().codeMap[id],
       getCurrentCodeList: () => this.doc().codeList,
     });
-
     this.props.assignForceUpdate(livebookExtension.forceUpdate);
     this.props.assignFocusOnSelectedOverlay(livebookExtension.focusOnSelectedOverlay);
     this.props.assignFocusEditorOnPlaceholder(livebookExtension.focusEditorOnPlaceholder);
