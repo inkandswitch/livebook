@@ -141,7 +141,7 @@ let CodeCell = React.createClass({
     this.props.store.dispatch({
       type: "OPEN_CODE_EDITOR",
       editorProps: {
-        code,
+        index,
         node,
         handleChange,
       },

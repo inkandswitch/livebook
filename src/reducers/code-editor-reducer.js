@@ -1,22 +1,16 @@
 const initialEditorState = {
   hidden: true,
-  code: "",
+  index: undefined,
 };
 
 const codeEditorReducer = (state = initialEditorState, action) => {
   switch (action.type) {
-    case 'CODE_EDITOR_CHANGE':
-      let {code} = action.data;
-      return Object.assign({}, state, {code});
-
-
     case 'OPEN_CODE_EDITOR':
       let { editorProps } = action;
-      let hidden = false;
-      return Object.assign({}, state, editorProps, { hidden });
+      return {...state, ...editorProps, hidden: false };
 
     case 'CLOSE_CODE_EDITOR':
-      return { hidden: true, code: "", };
+      return { hidden: true, index: undefined, };
 
     default:
       return state;

@@ -48,8 +48,9 @@ let uglyAntiFunctions = {};
 global.uglyAntiFunctions = uglyAntiFunctions;
 
 function codeEditorRender() {
-  let { codeEditor } = livebookStore.getState();
-  let { hidden, code, node, handleChange } = codeEditor;
+  let { codeEditor, doc } = livebookStore.getState();
+  let { hidden, index, node, handleChange } = codeEditor;
+  let code = doc.codeMap[index]
 
   let {row, column} = (EDITOR.getCursorPosition && EDITOR.getCursorPosition()) || {row: 0, column: 0};
 

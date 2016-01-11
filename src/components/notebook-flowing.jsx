@@ -55,10 +55,12 @@ const CodeOverlaysContainer = React.createClass({
   },
 
   handleEditorChange(id, code) {
+/*
     this.props.store.dispatch({
       type: "CODE_EDITOR_CHANGE",
       data: { id, code, },
     });
+*/
     this.props.handleEditorChange(id, code);
   },
 
