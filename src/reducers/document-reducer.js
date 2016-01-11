@@ -29,23 +29,23 @@ function remap(map,codeList) {
 }
 
 function INITIALIZE_DOCUMENT(state, action) {
- let { documentProps } = action;
- return {...state, ...documentProps}; 
+ let { documentProps, editor } = action;
+ return {...state, ...documentProps, editor};
 }
 
 function UPDATE_HTML (state, action) {
   let { html } = action;
-  return {...state, html}
+  return {...state, html, editor: "me" }
 }
 
 function CODE_DELTA (state, action) {
   let nextCodeMap = {...state.codeMap, ...action.data.codeDelta};
-  return {...state, codeList: action.data.codeList, codeMap: nextCodeMap }
+  return {...state, codeList: action.data.codeList, codeMap: nextCodeMap, editor: "me" }
 }
 
 function NEW_ERRORS(state, action) {
   const errors = remap(action.data,state.codeList)
-  return {...state, errors};
+  return {...state, errors, editor: "me"};
 }
 
 function NEW_PLOTS(state, action) {
@@ -58,7 +58,7 @@ function NEW_PLOTS(state, action) {
      delete next_errors[cell]
      delete next_results[cell]
   }
-  return {...state, plots: next_plots, errors: next_errors}
+  return {...state, plots: next_plots, errors: next_errors, editor: "me"}
 }
 
 function NEW_RESULT(state, action) {
@@ -71,7 +71,7 @@ function NEW_RESULT(state, action) {
      delete next_errors[cell]
      delete next_plots[cell]
   }
-  return {...state, results: next_results, errors: next_errors}
+  return {...state, results: next_results, errors: next_errors, editor: "me"}
 }
 
 module.exports = documentReducer;

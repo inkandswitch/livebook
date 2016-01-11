@@ -20,6 +20,7 @@ let EDITOR = {}
 let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
 function runNotebook() {
   let {doc} = livebookStore.getState()
+  if (doc.editor !== "me") return; // someone else did the update - let them run it
   let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
   if (LAST_CODE.join() != codeBlocks.join()) {
     REMOVE_MARKERS()
@@ -31,10 +32,12 @@ function runNotebook() {
 function saveNotebook() {
   let {doc} = livebookStore.getState()
   if (doc.html === "") return; // inital state - ignore
+  if (doc.editor !== "me") return; // someone else did the update - let them save it
   if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
   SAVE_TIMEOUT = setTimeout(() => {
     SAVE_TIMEOUT = undefined
     handleSaveNotebook(doc)
+    handleSyncNotebook(doc)
   },3000)
 }
 
@@ -196,9 +199,7 @@ cradle.onusergram = function(from,message) {
   console.log("on usergram")
   if (message && message.type == "update") {
     console.log("Got a new document... is it new?")
-    if (message.time > iPythonUpdated) {
-      iPythonUpdated = message.time
-    }
+    livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: message.doc, editor: from })
   }
 }
 
@@ -234,7 +235,6 @@ ace.config.set("basePath", "/");
 
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
-var iPythonUpdated = 0
 
 // React mount points
 var landingPageMount   = document.getElementById("landing-page");
@@ -327,6 +327,10 @@ function render() {
 
 let SAVE_TIMEOUT;
 
+function handleSyncNotebook(state) {
+  cradle.broadcast({type:"update",time:Date.now(), doc: state })
+}
+
 function handleSaveNotebook(state) {
   if (document.location.pathname ===  "/") {
     // Stops 404 that results from posting to `/.json` on the starter page
@@ -400,9 +404,8 @@ function parseRawNotebook(raw_notebook,raw_csv) {
   } else {
     state = iPyToHTML(notebook);
   }
-  iPythonUpdated = Date.now()
   console.log("INIT DOCUMENT",state)
-  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state })
+  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: "me" })
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 

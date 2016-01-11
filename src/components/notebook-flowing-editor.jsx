@@ -57,7 +57,7 @@ module.exports = React.createClass({
   },
 
   shouldComponentUpdate() {
-    return false;
+    return this.doc().editor != "me";
   },
 
   doc() {
