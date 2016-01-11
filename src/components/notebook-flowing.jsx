@@ -50,19 +50,9 @@ const CodeOverlaysContainer = React.createClass({
         error={error}
         plots={plots}
         store={this.props.store}
-        handleEditorChange={this.handleEditorChange}
+        handleEditorChange={this.props.handleEditorChange}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
     );
-  },
-
-  handleEditorChange(id, code) {
-/*
-    this.props.store.dispatch({
-      type: "CODE_EDITOR_CHANGE",
-      data: { id, code, },
-    });
-*/
-    this.props.handleEditorChange(id, code);
   },
 
   renderCodeCells() {

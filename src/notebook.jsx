@@ -32,7 +32,7 @@ function runNotebook() {
 function saveNotebook() {
   let {doc} = livebookStore.getState()
   if (doc.html === "") return; // inital state - ignore
-  if (doc.editor !== "me") return; // someone else did the update - let them save it
+  if (doc.editor !== "me") return; // someone else did the update (or undefined)
   if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
   SAVE_TIMEOUT = setTimeout(() => {
     SAVE_TIMEOUT = undefined
@@ -196,9 +196,8 @@ cradle.onarrive = function() {
 cradle.ondepart = update_peers_and_render;
 cradle.onupdate = update_peers_and_render;
 cradle.onusergram = function(from,message) {
-  console.log("on usergram")
   if (message && message.type == "update") {
-    console.log("Got a new document... is it new?")
+    console.log("onusergram update, from ", from)
     livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: message.doc, editor: from })
   }
 }
@@ -405,7 +404,7 @@ function parseRawNotebook(raw_notebook,raw_csv) {
     state = iPyToHTML(notebook);
   }
   console.log("INIT DOCUMENT",state)
-  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: "me" })
+  livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: undefined })
   WORKER.postMessage({ type: "data", data: raw_csv })
 }
 
