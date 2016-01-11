@@ -14,6 +14,7 @@ livebookStore.subscribe(navRender);
 livebookStore.subscribe(notebookRender)
 livebookStore.subscribe(runNotebook)
 livebookStore.subscribe(saveNotebook)
+livebookStore.subscribe(syncNotebook)
 
 let EDITOR = {}
 
@@ -29,6 +30,11 @@ function runNotebook() {
   }
 }
 
+function syncNotebook() {
+  let {doc} = livebookStore.getState()
+  handleSyncNotebook(doc)
+}
+
 function saveNotebook() {
   let {doc} = livebookStore.getState()
   let timeout = 500
@@ -39,7 +45,6 @@ function saveNotebook() {
   SAVE_TIMEOUT = setTimeout(() => {
     SAVE_TIMEOUT = undefined
     handleSaveNotebook(doc)
-    handleSyncNotebook(doc)
   },timeout)
 }
 
