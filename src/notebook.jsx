@@ -14,7 +14,6 @@ livebookStore.subscribe(navRender);
 livebookStore.subscribe(notebookRender)
 livebookStore.subscribe(runNotebook)
 livebookStore.subscribe(saveNotebook)
-livebookStore.subscribe(syncNotebook)
 
 let EDITOR = {}
 
@@ -30,22 +29,29 @@ function runNotebook() {
   }
 }
 
-function syncNotebook() {
-  let {doc} = livebookStore.getState()
-  handleSyncNotebook(doc)
-}
-
 function saveNotebook() {
   let {doc} = livebookStore.getState()
-  let timeout = 500
   if (doc.html === "") return; // inital state - ignore
   if (doc.editor !== "me") return; // someone else did the update (or undefined)
-  //if (Object.keys(doc.errors).length !== 0) timeout = 5000 // save with errors after 5 seconds
-  if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
-  SAVE_TIMEOUT = setTimeout(() => {
-    SAVE_TIMEOUT = undefined
+
+  // yuck...
+  // If there's a pending update - change the SAVE_FUNC
+  if (SAVE_TIMEOUT) {
+    SAVE_FUNC = () => {
+      handleSaveNotebook(doc)
+      handleSyncNotebook(doc)
+    }
+  } else {
+    // IF NOT - blank out the SAVE_FUNC and start a timer - this way nothing happens if this
+    // is the final update - but a proper save happens in 500ms if it isn't
+    SAVE_FUNC = () => {} 
+    SAVE_TIMEOUT = setTimeout(() => {
+      SAVE_TIMEOUT = undefined
+      SAVE_FUNC()
+    }, 500)
     handleSaveNotebook(doc)
-  },timeout)
+    handleSyncNotebook(doc)
+  }
 }
 
 function empty(x) {
@@ -332,6 +338,7 @@ function render() {
 }
 
 let SAVE_TIMEOUT;
+let SAVE_FUNC;
 
 function handleSyncNotebook(state) {
   cradle.broadcast({type:"update",time:Date.now(), doc: state })
