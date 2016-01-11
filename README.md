@@ -6,7 +6,19 @@ An IPython notebook-compatible experiment to share your data stories in the brow
 
 Livebook features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in browser.
 
-##Motivation & audience
+![livebook screenshot](https://raw.githubusercontent.com/aordlab/livebook/master/livebook-screenshot.png?token=AEQz9ePEWt-A8pN80dVOaOF3TLHAN4H8ks5WnSeVwA%3D%3D)
+
+- [Livebook](#livebook)
+- [Motivation and audience](#motivation-and-audience)
+- [Features](#features)
+- [Setup](#setup)
+  - [Try it](#try-it)
+  - [Install or develop it](#install-or-develop-it)
+- [Caveats](#caveats)
+- [Technologies](#technologies)
+- [Meta](#meta)
+
+##Motivation and audience
 
 We data scientists tell stories with data. This is why the notebook format is so powerful: a mix of explanatory prose, data, and executable code that produces charts and tables.
 
