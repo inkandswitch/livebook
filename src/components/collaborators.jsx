@@ -72,12 +72,10 @@ const CollaboratorNameForm = React.createClass({
   },
 
   showFormAnimations() {
-    $("#notebook,#editor").addClass("blur");
     $(".observer:not(:first-of-type)").slideUp(150);
   },
 
   hideFormAnimations() {
-    $("#notebook,#editor").removeClass("blur");
     $(".observer:not(:first-of-type)").slideDown(150);  
   },
 
@@ -191,15 +189,14 @@ const Collaborator = React.createClass({
 
   hasPosition() {
     const { position } = this.props;
-    return position && ("top" in position && "right" in position);
+    return position && ("top" in position);
   },
 
   getPosition() {
     if (this.hasPosition()) {
-      const { top, right } = this.props.position;
+      const { top } = this.props.position;
       return {
-        position: "fixed",
-        left: right,
+        position: "absolute",
         top,
       }
     }

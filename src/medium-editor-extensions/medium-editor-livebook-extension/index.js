@@ -87,7 +87,7 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
         editor.subscribe("blur", () => { 
           removeAllLineHighlights();
-          moveAvatar({})
+          // moveAvatar({})
         });
 
         editor.subscribe("editableInput", () => validateContents(editor) );
@@ -95,12 +95,11 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
         editor.subscribe("editableKeyup", (event) => {
           if (isArrowKey(event)) {
             highlightSelectedCodeCell(editor);
-            let linePosition = getLinePosition(editor);
-            moveAvatar(linePosition);
           }
 
           if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
             highlightLine(editor);
+            moveAvatar(getLinePosition(editor));
           }
         });
 
@@ -147,14 +146,12 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
         }
 
         let placeholder = document.getElementById(PLACEHOLDER_ID_BASE + index)
-        let placeholder_rect = placeholder.getBoundingClientRect();
-        let overlay_rect = overlay.getBoundingClientRect();
-        let height = overlay_rect.height;
+        let height = overlay.getBoundingClientRect().height;
 
         placeholder.style.height = height + "px"
 
         overlay.style.position = "absolute";
-        overlay.style.top = (placeholder_rect.top + window.scrollY) + "px";
+        overlay.style.top = (placeholder.offsetTop) + "px";
         overlay.style.marginTop = "0"; // overrides some default stylings
       });
     }
@@ -256,10 +253,9 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
     function validateHeading(editor) {
       let editorElement = editor.origElements
       let firstChild  = editorElement.firstChild;
-      let placeholderText = "What will you title your notebook?";
       if (firstChild.tagName !== "H1") {
         let h1 = document.createElement("h1");
-        h1.innerHTML = "placeholderText";
+        h1.innerHTML = "";
         editorElement.insertBefore(h1, editorElement.firstChild)
       }
       if (firstChild.textContent.trim() === "") {

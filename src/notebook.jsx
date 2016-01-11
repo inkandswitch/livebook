@@ -72,14 +72,18 @@ function codeEditorRender() {
 }
 
 function notebookRender() {
-  let { doc } = livebookStore.getState();
-  
+  const state = livebookStore.getState();
+  const { doc } = livebookStore.getState();
+  const avatarPosition = state.avatar.position;
+
   ReactDOM.render(
     <Notebook 
       doc={doc}
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
+      avatarPosition={avatarPosition}
+      getPeers={() => cradle.peers() }
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
       assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f}

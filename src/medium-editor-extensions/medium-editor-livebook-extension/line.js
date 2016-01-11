@@ -15,10 +15,9 @@ module.exports = {
 };
 
 function getLinePosition(editor) {
-  let line = getCurrentLineElement(editor);
-  let { top } = line.getBoundingClientRect();
-  let { left, right } = editor.getFocusedElement().getBoundingClientRect();
-  return { top, right, left }; 
+  const line = getCurrentLineElement(editor);
+  const top = line.offsetTop;
+  return { top, }; 
 }
 
 // *** Line Highlighting *** ///
@@ -83,9 +82,10 @@ function initializePlusButton(button) {
   button.classList.add("livebook-add-code-button");
   button.dataset.livebookAddCodeButton = "";
   button.innerHTML = "<img src='/plus.svg' height=32 width=32 />";
-  button.style.position = "fixed";
+  button.style.position = "absolute";
+  button.style.left = "-32px";
   hidePlusButton(button);
-  document.body.appendChild(button);
+  document.querySelector("[data-livebook-editor-wrapper]").appendChild(button);
 }
 
 function removePlusButton() {
@@ -122,7 +122,8 @@ function movePlusButton({ editor, line }) {
 }
 
 function positionPlusButtonByLine({ editor, button, line }) {
-  const { top, height } = getLineRect(line);
+
+  const { height, top } = getLineRect(line);
   const { left } = editor.getFocusedElement().getBoundingClientRect();
 
   const buttWidth = button.getBoundingClientRect().width;
@@ -130,10 +131,12 @@ function positionPlusButtonByLine({ editor, button, line }) {
   const buttMarginTop = -6;
 
   button.style.top = (top + buttMarginTop) + "px";
-  button.style.left = (left - buttWidth - buttMarginRight) + "px";
+  button.style.left = (0 - buttWidth - buttMarginRight) + "px";
   button.style.height = (height) + "px";
 }
 
 function getLineRect(line) {
-  return line.getBoundingClientRect();
+  const height = line.offsetHeight;
+  const top = line.offsetTop;
+  return { height, top };
 }

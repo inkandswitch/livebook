@@ -15,7 +15,6 @@ const Nav = () => ({
         const styles = this.isHidden() ? { display: "none" } : {};
         return (
             <div style={styles} className="livebook-nav">
-                <Collaborators peers={this.props.peers} avatarPosition={this.props.avatarPosition} />
                 <Menu store={this.props.store} render={this.props.render} />
             </div>
         );

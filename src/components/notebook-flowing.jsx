@@ -3,6 +3,7 @@ const ReactDOM = require('react-dom');
 const Uploader = require("./uploader.jsx");
 const Editor = require('./notebook-flowing-editor');
 const CodeCellV2 = require('./code-cell-v2');
+const Collaborators = require("./collaborators");
 
 const { eventFire } = require("../util");
 
@@ -129,19 +130,20 @@ const NotebookV2 = React.createClass({
 
   renderEditorAndOverlays() {
     return (
-      <div>
-      <Editor
-        store={this.props.store}
-        onClick={this.handleEditorClick}
-        assignForceUpdate={this.props.assignForceUpdate}
-        assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
-        assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
-      <CodeOverlaysContainer
-        store={this.props.store}
-        handleOverlayMount={this.handleOverlayMount}
-        handleEditorChange={this.handleEditorChange}
-        focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
-        focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
+      <div className="editor-wrapper" data-livebook-editor-wrapper="true">
+        <Editor
+          store={this.props.store}
+          onClick={this.handleEditorClick}
+          assignForceUpdate={this.props.assignForceUpdate}
+          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
+          assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
+        <CodeOverlaysContainer
+          store={this.props.store}
+          handleOverlayMount={this.handleOverlayMount}
+          handleEditorChange={this.handleEditorChange}
+          focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
+          focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
+        <Collaborators peers={this.props.getPeers()} avatarPosition={this.props.avatarPosition} />
       </div>
     );
   }

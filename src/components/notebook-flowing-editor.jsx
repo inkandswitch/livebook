@@ -72,6 +72,8 @@ module.exports = React.createClass({
       dangerouslySetInnerHTML: {__html: this.doc().html}
     });
 
-    return React.createElement('div', props);
+    return (
+      <div {...props} />
+    );
   },
 });
