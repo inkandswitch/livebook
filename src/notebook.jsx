@@ -31,14 +31,16 @@ function runNotebook() {
 
 function saveNotebook() {
   let {doc} = livebookStore.getState()
+  let timeout = 500
   if (doc.html === "") return; // inital state - ignore
   if (doc.editor !== "me") return; // someone else did the update (or undefined)
+  //if (Object.keys(doc.errors).length !== 0) timeout = 5000 // save with errors after 5 seconds
   if (SAVE_TIMEOUT) { clearTimeout(SAVE_TIMEOUT) }
   SAVE_TIMEOUT = setTimeout(() => {
     SAVE_TIMEOUT = undefined
     handleSaveNotebook(doc)
     handleSyncNotebook(doc)
-  },3000)
+  },timeout)
 }
 
 function empty(x) {
