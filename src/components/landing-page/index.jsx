@@ -26,17 +26,18 @@ const Quakes = () => ({
   },
 });
 
-const Starter = () => ({
+const Welcome = () => ({
   render() {
     return (
-      <GalleryItem csvURL="/forkable/starter.csv" 
-          ipynbURL="/forkable/starter.ipynb" 
+      <GalleryItem csvURL="/forkable/welcome.csv" 
+          ipynbURL="/forkable/welcome.ipynb" 
           fork={this.props.fork}>
-        Starter notebook
+        Welcome notebook
       </GalleryItem>
     );
   },
 });
+
 
 
 const LandingPage = React.createClass({
@@ -57,7 +58,7 @@ const LandingPage = React.createClass({
           <ul>
             <li><Quakes fork={this.props.fork} /></li>
             <li><MonteCarlo fork={this.props.fork} /></li>
-            <li><Starter fork={this.props.fork} /></li>
+            <li><Welcome fork={this.props.fork} /></li>
           </ul>
 
           <h1>&hellip;or:</h1>
