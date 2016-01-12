@@ -31,9 +31,20 @@ module.exports = React.createClass({
     let dom = ReactDOM.findDOMNode(this);
 
     let changeCounter = 0; // CODE_DELTA will trigger a document save - we want to skip the first onChange
+
+    const livebookExtensionOnChange = (data) => {
+      if (changeCounter++ > 0) 
+        this.props.store.dispatch({ type: "CODE_DELTA", data })
+    };
+    
+    const moveAvatar = (position) => {
+      const type = "MOVE_AVATAR";
+      this.props.store.dispatch({ type, position });
+    };
+
     let livebookExtension = createLivebookExtension({
-      moveAvatar: (position) => this.props.store.dispatch({ type: "MOVE_AVATAR", position }),
-      onChange: (data) => { if (changeCounter++ > 0) this.props.store.dispatch({ type: "CODE_DELTA", data }) },
+      moveAvatar,
+      onChange: livebookExtensionOnChange,
       getCurrentCode: (id) => this.doc().codeMap[id],
       getCurrentCodeList: () => this.doc().codeList,
     });

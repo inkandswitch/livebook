@@ -236,6 +236,11 @@ function update_peers_and_render() {
     };
   });
 
+  livebookStore.dispatch({
+    type: "UPDATE_PEER_CURSORS",
+    data: cursorPositions,
+  });
+
   let peerEditingCells = getPeerEditingCells();
 
   let render_time = new Date();
