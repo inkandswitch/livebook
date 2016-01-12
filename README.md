@@ -75,4 +75,4 @@ Released under the [MIT license](https://opensource.org/licenses/MIT).
 
 Big thanks to the wonderful folks in the IPython/Jupyter community, the authors of all the technologies listed above, and [John Templon](https://twitter.com/jtemplon) and [Justin Bozonier](https://twitter.com/databozo) for the sample notebooks.
 
-Made with <3 by [Adam Wiggins](https://twitter.com/hirodusk), [Orion Henry](https://github.com/orionz), [Brett Beutell](http://brettim.us/), and [Lucía Santamaría](https://about.me/lusantala).
+Made with <3 by [Adam Wiggins](https://twitter.com/hirodusk), Orion Henry, [Brett Beutell](http://brettim.us/), and [Lucía Santamaría](https://about.me/lusantala).
