@@ -56,7 +56,7 @@ Structure and document your notebooks as if you were writing a regular text file
 
 ###Install or develop it
 
-Livebook is open source and can be run locally, run on a server, or deployed to Heroku. Instructions are in `doc/INSTALL.md`.
+Livebook is open source and can be run locally, run on a server, or deployed to Heroku. Instructions are in [`doc/INSTALL.md`](https://github.com/inkandswitch/livebook/blob/master/doc/INSTALL.md).
 
 ##Caveats
 
