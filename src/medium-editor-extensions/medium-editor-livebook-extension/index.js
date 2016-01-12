@@ -195,6 +195,7 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
     function validateContents(editor) {
       validateHeading(editor)
+      validateSegments(editor)
 
       let codeDelta = {};
       let codeList = getCurrentCodeList();
@@ -248,6 +249,23 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
     function getPlaceholderId(placeholderElt) {
       return placeholderElt.id.replace("placeholder", "");
+    }
+
+    function validateSegments(editor) {
+      let editorElement = editor.origElements
+      let nodes = editorElement.childNodes;
+      let seen = []
+      for (let i = 0; i < nodes.length; i++) {
+        let node = nodes[i]
+        if (node.nodeName !== "#text") {
+          let attr = node.getAttribute("livebook-node-id")
+          if (attr === null || seen.includes(attr)) { // new or a repeat
+            attr = Math.random().toString(36).slice(2)
+            node.setAttribute("livebook-node-id",attr)
+          }
+          seen.push(attr)
+        }
+      }
     }
 
     function validateHeading(editor) {
