@@ -67,6 +67,41 @@ module.exports = React.createClass({
     });
   },
 
+  componentWillReceiveProps(nextProps) {
+    const store = nextProps.store;
+    const state = store.getState();
+    const peerState = state.peer;
+    const cursors = peerState.peerCursors;
+    cursors.forEach((c) => {
+      let {color, nodeId, peerId } = c;
+      if (nodeId == null) return;
+      let node = document.querySelector("[livebook-node-id='"+nodeId+"']");
+      if (node.dataset.livebookSessions === undefined) {
+        node.dataset.livebookSessions = "";        
+      }
+      peerId = peerId || "xxxxxx"
+
+      let lastSelected = [].slice.call(document.querySelectorAll("[data-livebook-sessions*='"+peerId+"']"));
+      lastSelected.forEach(function(domNode) {
+        domNode.dataset.livebookSessions = domNode.dataset.livebookSessions.replace(peerId, "");
+      });
+
+      node.dataset.livebookSessions += peerId;
+
+      let head = document.querySelector("head");
+      let style = document.createElement("style");
+      style.innerHTML = "[data-livebook-sessions*='"+peerId+"'] { background:"+color+" !important; }"
+      head.appendChild(style);
+      // current user select through having _no session_
+      // debugger;
+      // "[livebook-sessions*='oursessionvalue']"
+      // "{livebook-sessions}" += newSession
+      // "{livebook-sessions}"  =  "{livebook-sessions}".replace(session, "")
+
+      // node.style.background = color;
+    });
+  },
+
   componentWillUnmount() {
     this.medium.destroy();
   },
@@ -81,21 +116,16 @@ module.exports = React.createClass({
 
   shouldComponentUpdate() {
     CURSOR = this.medium.exportSelection()
-    console.log("CURSOR",CURSOR)
+    console.log("CURSOR", CURSOR)
     // ---
     const line = document.querySelector(".selected-line");
     if (line !== null) {
       const nodeId = line.getAttribute('livebook-node-id')
-      Cradle.setSessionVar('cursor',nodeId)
+      Cradle.setSessionVar('cursor', nodeId)
     }
     // ---
 
     return this.doc().editor != "me";
-
-  if (isCurrentHighlightedLine(line)) return;
-  removeAllLineHighlights();
-  addLineHighlight(line);
-  movePlusButton({ editor, line});
   },
 
   doc() {

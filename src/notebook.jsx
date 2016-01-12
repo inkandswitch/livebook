@@ -5,8 +5,9 @@ const { createStore, combineReducers } = Redux;
 const avatarReducer = require("./reducers/avatar-reducer");
 const codeEditorReducer = require("./reducers/code-editor-reducer");
 const documentReducer = require("./reducers/document-reducer");
+const peerReducer = require("./reducers/peer-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatar: avatarReducer };
+const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatar: avatarReducer, peer: peerReducer };
 
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
@@ -229,9 +230,9 @@ function update_peers_and_render() {
   navRender();
 
   let cursorPositions = peers.map((peer) => {
-    let cursorPosition = peer.state.cursor === undefined ? 0 : peer.state.cursor; // FIXME
     return {
-      position: cursorPosition,
+      peerId: peer.state.session,
+      nodeId: peer.state.cursor,
       color: getPeerColor(peer),
     };
   });
@@ -439,7 +440,6 @@ function postNotebookToServer(raw_notebook,raw_csv, callback) {
 
 function startCradle() {
   cradle.join(document.location + ".rtc", function() {
-    cradle.setSessionVar("cursor",0)
     cradle.setSessionVar("color", '#1E52AA')
     if (cradle.user.name == undefined) {
       cradle.setUserVar("name", randomName())

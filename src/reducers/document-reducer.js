@@ -3,7 +3,6 @@ const initialState = {
   codeMap: {},
   errors: {},
   html: "",
-  peerCursors: [],
   plots: {},
   results: {},
 };
@@ -17,7 +16,6 @@ const documentReducer = (state = initialState, action) => {
     case 'NEW_PLOTS':           return NEW_PLOTS(state, action);
     case 'NEW_ERRORS':          return NEW_ERRORS(state, action);
     case 'UPDATE_HTML':         return UPDATE_HTML(state, action);
-    case 'UPDATE_PEER_CURSORS': return UPDATE_PEER_CURSORS(state, action);
     default:
       return state;
   }
@@ -75,11 +73,6 @@ function NEW_RESULT(state, action) {
      delete next_plots[cell]
   }
   return {...state, results: next_results, errors: next_errors, editor: "me"}
-}
-
-function UPDATE_PEER_CURSORS(state, action) {
-  const peerCursors = action.data;
-  return { ...state, peerCursors};
 }
 
 module.exports = documentReducer;
