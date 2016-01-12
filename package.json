@@ -33,9 +33,7 @@
     "redux": "^3.0.5",
     "velocity-react": "^1.1.1",
     "webpack": "^1.12.2",
-    "webrtc": "^1.14.1"
-  },
-  "devDependencies": {
+    "webrtc": "^1.14.1",
     "css-loader": "^0.23.1",
     "file-loader": "^0.8.5",
     "node-sass": "^3.4.2",
