@@ -1,10 +1,10 @@
 #Livebook
 
-<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.png?token=AEQz9axtqjO4ZglgrBuook6n-PwD-YbWks5WnmATwA%3D%3D" align="right" width="400px" />
-
 An [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories in the browser.
 
 Livebook features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in browser.
+
+<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.png?token=AEQz9axtqjO4ZglgrBuook6n-PwD-YbWks5WnmATwA%3D%3D" align="right" width="400px" />
 
 - [Livebook](#livebook)
 - [Motivation and audience](#motivation-and-audience)
@@ -32,7 +32,7 @@ _Livebook is not for production use. It's an experiment, intended to demonstrate
 
 Play around with your code and plots, and get instant results as you type. No need to rerun cells or track cell dependencies.
 
-<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/live-coding.png?token=AEQz9WYkRBFg2qrk9kkddaJ-8nIZvKfvks5WnmCfwA%3D%3D" align="left" width="800px" />
+![live coding](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/live-coding.png?token=AEQz9WYkRBFg2qrk9kkddaJ-8nIZvKfvks5WnmCfwA%3D%3D)
 
 ###Realtime collaboration
 
@@ -41,7 +41,8 @@ Work on your notebooks simultaneously and see your collaborators’ edits on the
 ###WYSIWYG prose editor
 Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don’t need to know Markdown to contribute to the notebook.
 
-<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.png?token=AEQz9QqiSOYSdfXtqAyXGqX7bQfThOiUks5WnmDIwA%3D%3D" align="left" width="600px" />
+![prose editor](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.png?token=AEQz9ec7vBOephfFvdWK_UDK_JxsBAczks5WnmQ0wA%3D%3D)
+
 
 ##Setup
 
