@@ -48,7 +48,7 @@ Structure and document your notebooks as if you were writing a regular text file
 
 ###Try it
 
-Visit [livebook.example.com](livebook.example.com) to fork a welcome notebook and get started. And try the other sample notebooks: Earthquakes and Monte Carlo.
+Visit [http://livebook.inkandswitch.com/](http://livebook.inkandswitch.com/) to fork a welcome notebook and get started. And try the other sample notebooks: Earthquakes and Monte Carlo.
 
 ###Install or develop it
 
