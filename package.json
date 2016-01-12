@@ -1,6 +1,9 @@
 {
   "name": "touchplot",
   "version": "1.0.0",
+  "engines": {
+    "node": "5.0.0"
+  },
   "description": "",
   "scripts": {
     "test": "./test",

@@ -14,7 +14,7 @@ module.exports = {
 
     resolve: {
       modulesDirectories: ["web_modules", "node_modules"],
-      extensions: ["", ".js", ".jsx"]
+      extensions: ["", ".js", ".jsx", ".scss"]
     },
 
     module: {
