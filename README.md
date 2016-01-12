@@ -1,12 +1,10 @@
 #Livebook
 
-<img src="https://raw.githubusercontent.com/aordlab/livebook/master/logo.png?token=AEQz9dZL6JjaX56rFOhqDRoq5QSbWHStks5WnRPrwA%3D%3D" align="right" width="160px" />
+<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.png?token=AEQz9axtqjO4ZglgrBuook6n-PwD-YbWks5WnmATwA%3D%3D" align="right" width="400px" />
 
-An IPython notebook-compatible experiment to share your data stories in the browser.
+An [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories in the browser.
 
 Livebook features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in browser.
-
-![livebook screenshot](https://raw.githubusercontent.com/aordlab/livebook/master/livebook-screenshot.png?token=AEQz9ePEWt-A8pN80dVOaOF3TLHAN4H8ks5WnSeVwA%3D%3D)
 
 - [Livebook](#livebook)
 - [Motivation and audience](#motivation-and-audience)
@@ -30,17 +28,20 @@ _Livebook is not for production use. It's an experiment, intended to demonstrate
 
 ##Features
 
-- **Live coding.** Play around with your code and plots, and get instant results as you type. No need to rerun cells or track cell dependencies.
+###Live coding
 
-- **Realtime collaboration.** Work on your notebooks simultaneously and see your collaborators’ edits on the fly.
+Play around with your code and plots, and get instant results as you type. No need to rerun cells or track cell dependencies.
 
-- **Immediate error feedback.** Get instantaneous error messages that help you correct your code syntax.
+<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/live-coding.png?token=AEQz9WYkRBFg2qrk9kkddaJ-8nIZvKfvks5WnmCfwA%3D%3D" align="left" width="800px" />
 
-<img src="https://raw.githubusercontent.com/aordlab/livebook/master/immediate-errors.gif?token=AEQz9YDeLe__jXUxm7NcLHa7qg1nn7m5ks5WnRWFwA%3D%3D" align="center" />
+###Realtime collaboration
 
-- **WYSIWYG prose editor.** Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don’t need to know Markdown to contribute to the notebook.
+Work on your notebooks simultaneously and see your collaborators’ edits on the fly.
 
-<img src="https://raw.githubusercontent.com/aordlab/livebook/master/prose-editor.gif?token=AEQz9ffb0Q99xMib9BQM4yJPGDPOum98ks5WnRYCwA%3D%3D" align="center" />
+###WYSIWYG prose editor
+Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don’t need to know Markdown to contribute to the notebook.
+
+<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.png?token=AEQz9QqiSOYSdfXtqAyXGqX7bQfThOiUks5WnmDIwA%3D%3D" align="left" width="600px" />
 
 ##Setup
 
