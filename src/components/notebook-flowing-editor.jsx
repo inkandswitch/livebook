@@ -2,6 +2,7 @@ let blacklist = require('blacklist');
 let React = require('react');
 let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
+let Cradle = require('../cradle');
 
 let CURSOR;
 
@@ -71,17 +72,30 @@ module.exports = React.createClass({
   },
 
   componentWillUpdate() {
-      CURSOR = this.medium.exportSelection()
-      console.log("CURSOR",CURSOR)
   },
 
   componentDidUpdate() {
-      this.medium.importSelection(CURSOR)
+    this.medium.importSelection(CURSOR)
     editorOptions.extensions.livebook.forceUpdate()
   },
 
   shouldComponentUpdate() {
+    CURSOR = this.medium.exportSelection()
+    console.log("CURSOR",CURSOR)
+    // ---
+    const line = document.querySelector(".selected-line");
+    if (line !== null) {
+      const nodeId = line.getAttribute('livebook-node-id')
+      Cradle.setSessionVar('cursor',nodeId)
+    }
+    // ---
+
     return this.doc().editor != "me";
+
+  if (isCurrentHighlightedLine(line)) return;
+  removeAllLineHighlights();
+  addLineHighlight(line);
+  movePlusButton({ editor, line});
   },
 
   doc() {
