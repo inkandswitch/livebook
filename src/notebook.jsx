@@ -44,7 +44,7 @@ function saveNotebook() {
   } else {
     // IF NOT - blank out the SAVE_FUNC and start a timer - this way nothing happens if this
     // is the final update - but a proper save happens in 500ms if it isn't
-    SAVE_FUNC = () => {} 
+    SAVE_FUNC = () => {}
     SAVE_TIMEOUT = setTimeout(() => {
       SAVE_TIMEOUT = undefined
       SAVE_FUNC()

@@ -3,6 +3,8 @@ let React = require('react');
 let ReactDOM = require('react-dom');
 let MediumEditor = require('medium-editor');
 
+let CURSOR;
+
 require("../medium-editor-extensions/heading-button/")(MediumEditor); // modify default h2 button prototype
 
 const { areMapsEqual, eventFire } = require("../util");
@@ -55,6 +57,16 @@ module.exports = React.createClass({
 
   componentWillUnmount() {
     this.medium.destroy();
+  },
+
+  componentWillUpdate() {
+      CURSOR = this.medium.exportSelection()
+      console.log("CURSOR",CURSOR)
+  },
+
+  componentDidUpdate() {
+      this.medium.importSelection(CURSOR)
+    editorOptions.extensions.livebook.forceUpdate()
   },
 
   shouldComponentUpdate() {
