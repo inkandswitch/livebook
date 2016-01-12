@@ -77,6 +77,9 @@ const Menu = React.createClass({
       <div className={"menu " + activeClass}>
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
+          <li className="menu-content-header">
+            Livebook
+          </li>
           <li className="menu-content-item">
             <a id="downloader" onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">
               <i className="fa fa-cloud-download" />

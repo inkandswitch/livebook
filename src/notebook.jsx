@@ -1,3 +1,4 @@
+require("./stylesheets/notebook.scss");
 const Redux = require("redux");
 const { createStore, combineReducers } = Redux;
 

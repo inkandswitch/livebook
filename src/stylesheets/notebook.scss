@@ -426,6 +426,10 @@ div.ace_error-marker {
   visibility: visible;
 }
 
+.menu-content-header {
+  
+}
+
 .menu-content-item {
   padding: .5em .3em .6em .4em;  
 }
@@ -449,9 +453,9 @@ div.ace_error-marker {
 }
 
 .sub-menu-content {
-    list-style: none;
-    margin:0;
-    padding:0;
+  list-style: none;
+  margin:0;
+  padding:0;
 }
 
 .sub-menu-content-item  {
@@ -466,9 +470,9 @@ div.ace_error-marker {
 }
 
 .sub-menu-content-item::before {
-    content: "•";
-    color: #363636;
-    padding-right: .4em;
+  content: "•";
+  color: #363636;
+  padding-right: .4em;
 }
 
 .sub-menu-content-item:hover {
