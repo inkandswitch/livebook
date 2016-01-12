@@ -6,6 +6,8 @@ It features live coding, realtime collaboration, a WYSIWYG prose editor, and run
 
 <img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.gif?token=AEQz9QvL7OlVXm_jc6PauMb3_qz30Dfxks5WnmpqwA%3D%3D" align="right" width="600px" />
 
+&nbsp;
+
 - [Livebook](#livebook)
 - [Motivation and audience](#motivation-and-audience)
 - [Features](#features)
@@ -15,6 +17,8 @@ It features live coding, realtime collaboration, a WYSIWYG prose editor, and run
 - [Caveats](#caveats)
 - [Technologies](#technologies)
 - [Meta](#meta)
+
+&nbsp;
 
 ##Motivation and audience
 
@@ -32,7 +36,7 @@ _Livebook is an experiment, not for production use. We hope it will demonstrate 
 
 Play around with your code and plots, and get instant results as you type. No need to rerun cells or track cell dependencies.
 
-![live coding](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/live-coding.png?token=AEQz9WYkRBFg2qrk9kkddaJ-8nIZvKfvks5WnmCfwA%3D%3D)
+![live coding](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/live-coding.gif?token=AEQz9ajlKnyzXhqYf4l7na-8Hfou5E4hks5WnorpwA%3D%3D)
 
 ###Realtime collaboration
 
@@ -41,7 +45,7 @@ Work on your notebooks simultaneously and see your collaborators’ edits on the
 ###WYSIWYG prose editor
 Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don’t need to know Markdown to contribute to the notebook.
 
-![prose editor](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.png?token=AEQz9ec7vBOephfFvdWK_UDK_JxsBAczks5WnmQ0wA%3D%3D)
+![prose editor](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.gif?token=AEQz9fdLzMEUvLoFE8Aabf1UDcJqy2dbks5WnosFwA%3D%3D)
 
 
 ##Setup
