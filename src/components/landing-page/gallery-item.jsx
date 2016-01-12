@@ -13,7 +13,7 @@ let GalleryItem = React.createClass({
 
   render() {
     return (
-      <article onClick={this.clickHandler}>
+      <article className="sample-notebook-forkable" onClick={this.clickHandler}>
         <a>{this.props.children}</a>
       </article>
     );

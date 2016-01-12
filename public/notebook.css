@@ -397,26 +397,6 @@ div.ace_error-marker {
   left: 1.3em;
   position: absolute;
   top: 1.3em;
-  width: 5%;
-}
-
-.menu ul {
-  font-size: .75em;
-  list-style-type: none;
-  padding: 0;
-}
-
-.menu li {
-  padding: .15em .3em .2em .3em;
-}
-
-.menu li:hover {
-  background: #eee;
-  border-radius: .25em;
-  color: #222;
-
-  transform: scale(1.02, 1.02);
-  transition: all .2s ease-in-out;
 }
 
 .menu img {
@@ -425,13 +405,14 @@ div.ace_error-marker {
   width: 1.33em;
 }
 
-.menu .menu-content {
+.menu-content {
   background: #fdfdfd;
-  left: 0;
+  border: solid 2px #A8A8A8;
+  list-style-type: none;
+  min-width: 18em;
   opacity: 0;
   padding: .6em .6em .8em;
   position: absolute;
-  top: 100%;
   visibility: hidden;
 
   transform: translateZ(0);
@@ -439,16 +420,70 @@ div.ace_error-marker {
   transition: all 0.5s;
 }
 
-.menu.active .menu-content {
+.active .menu-content {
   opacity: 1;
   transform: translateX(0%);
   visibility: visible;
 }
 
-.menu a {
+.menu-content-item {
+  padding: .5em .3em .6em .4em;  
+}
+
+.menu-content-item:hover,
+.menu-content-item:hover a {
+  background: #2a64c7;
+  border-radius: .25em;
+  color: #fff;
+
+  transition: all .15s ease-in-out;
+}
+
+.menu-content-item a {
   color: #363636;
   text-decoration: none;
 }
+
+.menu-content-item a:hover {
+  text-decoration: none;
+}
+
+.sub-menu-content {
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+
+.sub-menu-content-item  {
+  border: solid 1px transparent;
+  border-radius: .3em;
+  padding: .4em .2em .5em 1.5em;
+  text-indent: -.4em;
+}
+
+.sub-menu-content-item:first-of-type  {
+  margin-top: .3em;
+}
+
+.sub-menu-content-item::before {
+    content: "•";
+    color: #363636;
+    padding-right: .4em;
+}
+
+.sub-menu-content-item:hover {
+  border: solid 1px white;
+}
+
+.menu-content-item:hover .sub-menu-content-item::before {
+  color: #fff;
+}
+
+.sample-notebook-forkable {
+  display: inline-block;
+  margin-left: .4em;
+}
+
 
 .collaborators {
   right: .5em;
@@ -459,7 +494,7 @@ div.ace_error-marker {
 .collaborators ul {
   list-style-type: none;
   margin: 0;
-  overflow: visible; /* solves the issue of name change form being hidden on mobile */
+  overflow: visible;
   padding: 0;
 }
 
@@ -468,8 +503,6 @@ div.ace_error-marker {
   margin: 0 .25em 0 0;
   padding: .4em .5em .65em .5em;
   position: relative;
-
-  /*transition: all .3s ease-in-out;*/
 }
 
 .collaborators li:first-of-type {

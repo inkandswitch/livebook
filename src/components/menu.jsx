@@ -77,17 +77,43 @@ const Menu = React.createClass({
       <div className={"menu " + activeClass}>
         <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
-
-          <li><a href="/">Home</a></li>
-          <li><a id="downloader" onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">Download</a></li>
-          <li><a href="/upload">Upload</a></li>
-          <li>Cheatsheet</li>
-          <li>About</li>
-          <li>&hellip;</li>
-          <li><Quakes fork={this.props.fork} /></li>
-          <li><MonteCarlo fork={this.props.fork} /></li>
-          <li><Welcome fork={this.props.fork} /></li>
-
+          <li className="menu-content-item">
+            <a id="downloader" onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">
+              <i className="fa fa-cloud-download" />
+              &nbsp;
+              Download this notebook
+            </a>
+          </li>
+          <li className="menu-content-item">
+            <i className="fa fa-code-fork"/>
+            &nbsp;
+            Fork a sample notebook
+            <ul className="sub-menu-content">
+              <li className="sub-menu-content-item">
+                <Quakes fork={this.props.fork} />
+              </li>
+              <li className="sub-menu-content-item">
+                <MonteCarlo fork={this.props.fork} />
+              </li>
+              <li className="sub-menu-content-item">
+                <Welcome fork={this.props.fork} />
+              </li>
+            </ul>
+          </li>
+          <li className="menu-content-item">
+            <a href="/upload">
+              <i className="fa fa-upload" />
+              &nbsp;
+              Upload .ipynb + .csv
+            </a>
+          </li>
+          <li className="menu-content-item">
+            <a href="//github.com/aordlab/livebook">
+              <i className="fa fa-github"/>
+              &nbsp;
+              Readme &amp; sourcecode
+            </a>
+          </li>
         </ul>
       </div>
     )
