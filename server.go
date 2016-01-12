@@ -121,6 +121,20 @@ func newDocument(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
 }
 
+// Incomplete action (BB)
+func newWelcomeDocument(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("new welcome document \n")
+	csv, _ := ioutil.ReadFile("./public/welcome.csv")
+	ipynb, _ := ioutil.ReadFile("./public/welcome.ipynb")
+	document := &Document{Name:"Welcome"}
+	DB.Create(&document)
+	notebook := &Notebook{ DocumentId: document.ID, Name: "Welcome", Body: string(ipynb) }
+	DB.Create(&notebook)
+	datafile := &DataFile{ DocumentId: document.ID, Name: "Welcome", Body: string(csv) }
+	DB.Create(&datafile)
+	// w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
+}
+
 func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id, _ = strconv.Atoi(vars["id"])
