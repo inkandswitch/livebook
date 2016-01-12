@@ -76,6 +76,7 @@ module.exports = React.createClass({
       let {color, nodeId, peerId } = c;
       if (nodeId == null) return;
       let node = document.querySelector("[livebook-node-id='"+nodeId+"']");
+      if (!node) return;
       if (node.dataset.livebookSessions === undefined) {
         node.dataset.livebookSessions = "";        
       }
