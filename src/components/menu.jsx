@@ -111,7 +111,7 @@ const Menu = React.createClass({
             </a>
           </li>
           <li className="menu-content-item">
-            <a href="//github.com/aordlab/livebook">
+            <a href="//github.com/inkandswitch/livebook">
               <i className="fa fa-github"/>
               &nbsp;
               Readme &amp; sourcecode
