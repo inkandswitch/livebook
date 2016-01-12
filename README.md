@@ -26,7 +26,7 @@ We data scientists tell stories with data. This is why the notebook format is so
 
 When we share our notebook with a client, researcher, or other colleague who is not a heavy IPython/Jupyter user, we typically send them static HTML or a PDF. But this doesn't invite them into the story, because they cannot freely tinker with the results without setting up their own Python environment.
 
-By uploading a notebook to Livebook, you can share it with a colleague in a format that allows them to tinker with the code or edit the prose without installing anything. When your colleagues can interact with your data stories, your narrative becomes bidirectional.
+By uploading a notebook to Livebook, you can share it with a colleague in a format that allows them to play with the code or edit the prose without installing anything. When your colleagues can interact with your data stories, your narrative becomes bidirectional.
 
 _Livebook is an experiment, not for production use. We hope it will demonstrate some ideas and perhaps inform future possibilities for the Jupyter project._ 
 
@@ -40,10 +40,10 @@ Play around with your code and plots, and get instant results as you type. No ne
 
 ###Realtime collaboration
 
-Work on your notebooks simultaneously and see your collaborators’ edits on the fly.
+Work on your notebooks simultaneously and see your collaborators' edits on the fly.
 
 ###WYSIWYG prose editor
-Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don’t need to know Markdown to contribute to the notebook.
+Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don't need to know Markdown to contribute to the notebook.
 
 ![prose editor](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/prose-editor.gif?token=AEQz9fdLzMEUvLoFE8Aabf1UDcJqy2dbks5WnosFwA%3D%3D)
 
