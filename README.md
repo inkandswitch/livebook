@@ -2,9 +2,9 @@
 
 An [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories in the browser.
 
-Livebook features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in browser.
+<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.png?token=AEQz9axtqjO4ZglgrBuook6n-PwD-YbWks5WnmATwA%3D%3D" align="right" width="500px" />
 
-<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.png?token=AEQz9axtqjO4ZglgrBuook6n-PwD-YbWks5WnmATwA%3D%3D" align="right" width="400px" />
+Livebook features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in browser.
 
 - [Livebook](#livebook)
 - [Motivation and audience](#motivation-and-audience)
