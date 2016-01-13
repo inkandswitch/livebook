@@ -264,7 +264,7 @@ const Collaborators = React.createClass({
     const result = positions.map((position) => {
 
       const { top } = position;
-      if (!top) debugger;
+//      if (!top) debugger;
 
       if (overlaps[top] === undefined) 
         overlaps[top] = -1;
@@ -279,7 +279,7 @@ const Collaborators = React.createClass({
       return position;
     });
 
-    if (areOverlaps) debugger;
+//    if (areOverlaps) debugger;
 
     return result;
   },
