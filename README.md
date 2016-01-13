@@ -1,10 +1,8 @@
 #Livebook
 
-Livebook is an [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories on the web.
+Livebook is an [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories on the web. It features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in the browser.
 
-It features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in the browser.
-
-<img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.gif?token=AEQz9QvL7OlVXm_jc6PauMb3_qz30Dfxks5WnmpqwA%3D%3D" align="right" width="600px" />
+<a href="http://livebook.inkandswitch.com/"><img src="https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/livebook.gif?token=AEQz9QvL7OlVXm_jc6PauMb3_qz30Dfxks5WnmpqwA%3D%3D" align="right" width="600px" /></a>
 
 &nbsp;
 
