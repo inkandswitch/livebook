@@ -81,8 +81,13 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
         }
 
         editor.subscribe("editableClick", (_) => {
-          highlightSelectedCodeCell(editor);
-          highlightLine(editor);
+          if (isCodeCellSelected()) {
+            highlightSelectedCodeCell(editor);
+          }
+          else {
+            highlightLine(editor);            
+          }
+          moveAvatar(getLinePosition(editor));
         });
 
         editor.subscribe("blur", () => { 

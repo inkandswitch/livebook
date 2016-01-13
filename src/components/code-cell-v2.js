@@ -153,10 +153,22 @@ let CodeCell = React.createClass({
     this.props.handleEditorChange(this.props.index, newText);
   },
 
+  moveAvatarToCell() {
+    const type = "MOVE_AVATAR";
+    const top = this.refs.codeCellContainer.offsetTop;
+    const position = { top };
+    this.props.store.dispatch({ type, position, })
+  },
+
   render() {
-    let id = "overlay" + this.props.index;
+    const id = "overlay" + this.props.index;
+    const onClick = (e) => {
+      this.props.focusEditorOnPlaceholder(this.props.index);
+      this.moveAvatarToCell();
+    };
+
     return (
-      <div className="notebook" id={id} onClick={() => this.props.focusEditorOnPlaceholder(this.props.index)}>
+      <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
         <div className="cell-wrap">
           <div className="cell" data-cell-index={this.props.index}>
             <div className="switch" onClick={this.handleClick}>
