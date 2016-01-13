@@ -1,5 +1,5 @@
 {
-  "name": "touchplot",
+  "name": "livebook",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:aordlab/touchplot.git"
+    "url": "git@github.com:inkandswitch/livebook.git"
   },
   "author": "",
   "license": "ISC",
