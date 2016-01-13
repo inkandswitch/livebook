@@ -20,7 +20,8 @@ let EDITOR = {}
 let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
 function runNotebook() {
   let {doc} = livebookStore.getState()
-  if (doc.editor !== "me") return; // someone else did the update - let them run it
+  console.log("RUN??",doc,Date.now())
+  if (doc.editor !== "me" && doc.editor !== undefined) return; // someone else did the update - let them run it
   let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
   if (LAST_CODE.join() != codeBlocks.join()) {
     REMOVE_MARKERS()
@@ -211,8 +212,8 @@ cradle.onupdate = function() {
   //update_peers_and_render();
   // update the style for other users cursors
   let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor }))
-  console.log("PEER1",peers)
   let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: aliceblue; }\n").join('')
+
   ifChanged("style",style,() => {
     let css = document.getElementById("peers-style");
     css.innerHTML = style
@@ -227,7 +228,7 @@ cradle.onupdate = function() {
       });
 
       let node = document.querySelector("[livebook-node-id='"+p.cursor+"']");
-      node.dataset.livebookSessions = (node.dataset.livebookSessions || "") + p.session;
+      if (node) node.dataset.livebookSessions = (node.dataset.livebookSessions || "") + p.session;
     })
   })
 }

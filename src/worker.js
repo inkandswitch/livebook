@@ -105,7 +105,6 @@ function execPython(doc,ctxs) {
       let match = re.exec(e.trace);
       if (match && match[1] !== '') {
         let n = ctx.map[match[1]]
-        if (n == undefined) debugger;
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         handleResult(doc, self.RESULTS, self.PLOTS, error)
       } else {

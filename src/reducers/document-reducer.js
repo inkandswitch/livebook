@@ -30,7 +30,7 @@ function remap(map,codeList) {
 
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps, editor } = action;
- return {...state, ...documentProps, editor};
+ return {...state, ...documentProps, editor: "me" };
 }
 
 function UPDATE_HTML (state, action) {
