@@ -177,12 +177,7 @@ const Collaborator = React.createClass({
   },
 
   handleNameChange(name) {
-    let oldName = this.state.name;
-
-    this.setState({
-      isEditingName: false,
-    });
-
+    this.setState({ isEditingName: false });
     // send user name to server
     cradle.setUserVar("name",name)
   },
@@ -193,14 +188,25 @@ const Collaborator = React.createClass({
   },
 
   getPosition() {
-    if (this.hasPosition()) {
-      const { top } = this.props.position;
-      return {
-        position: "absolute",
-        top,
-      }
+    let result = {};
+    if (!this.hasPosition()) return result; // Might be unnecessary
+
+    const position = "absolute";
+    const { top, overlaps } = this.props.position;
+
+    result = { position, top };
+    if (overlaps) {
+      result = this.addOverlapOffset(result);
     }
-    return {};
+    
+    return result;
+  },
+
+  addOverlapOffset(position) {
+    const avatarDim = 40;
+    const overlaps = this.props.position.overlaps;
+    const right = (-avatarDim * overlaps) + "px"
+    return { ...position, right };
   },
 
   render() {
@@ -251,9 +257,31 @@ const Collaborators = React.createClass({
   },
 
   validatePositions(positions) {
-    // TODO
-    // This should add gutters to overlapping
-    return positions;
+    // Adds `overlap` prop to position objects
+    // Lets us compute horizontal offsets when rendering avatars
+    let areOverlaps = false;
+    const overlaps = {};
+    const result = positions.map((position) => {
+
+      const { top } = position;
+      if (!top) debugger;
+
+      if (overlaps[top] === undefined) 
+        overlaps[top] = -1;
+
+      overlaps[top]++;
+
+      if (overlaps[top] > 0) {
+        position.overlaps = overlaps[top];
+        areOverlaps = true;        
+      }
+      
+      return position;
+    });
+
+    if (areOverlaps) debugger;
+
+    return result;
   },
 
   renderAvatars() {
