@@ -7,7 +7,7 @@ const codeEditorReducer = require("./reducers/code-editor-reducer");
 const documentReducer = require("./reducers/document-reducer");
 const peerReducer = require("./reducers/peer-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatar: avatarReducer, peer: peerReducer };
+const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatars: avatarReducer, peer: peerReducer };
 
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
@@ -92,7 +92,7 @@ function codeEditorRender() {
 function notebookRender() {
   const state = livebookStore.getState();
   const { doc } = livebookStore.getState();
-  const avatarPosition = state.avatar.position;
+  const avatarPositions = state.avatars.positions;
 
   ReactDOM.render(
     <Notebook 
@@ -100,7 +100,7 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      avatarPosition={avatarPosition}
+      avatarPositions={avatarPositions}
       getPeers={() => cradle.peers() }
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 
@@ -113,8 +113,6 @@ function notebookRender() {
 }
 
 function navRender() {
-  const peers = cradle.peers() // COULD CONFLICT WITH update_peers_and_render
-  const avatarPosition = livebookStore.getState().avatar.position; // TODO - dont need to pass this now - in store
   ReactDOM.render(<Nav  render={render} store={livebookStore} fork={forkNotebook} />, navMount);
 }
 

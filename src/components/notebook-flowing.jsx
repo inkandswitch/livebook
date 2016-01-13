@@ -119,6 +119,7 @@ const NotebookV2 = React.createClass({
   },
 
   renderEditorAndOverlays() {
+    
     return (
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
         <Editor
@@ -133,7 +134,7 @@ const NotebookV2 = React.createClass({
           handleEditorChange={this.handleEditorChange}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
-        <Collaborators peers={this.props.getPeers()} avatarPosition={this.props.avatarPosition} />
+        <Collaborators peers={this.props.getPeers()} avatarPositions={this.props.avatarPositions} />
       </div>
     );
   }

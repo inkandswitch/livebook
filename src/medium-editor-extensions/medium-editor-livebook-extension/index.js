@@ -92,7 +92,6 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
         editor.subscribe("blur", () => { 
           removeAllLineHighlights();
-          // moveAvatar({})
         });
 
         editor.subscribe("editableInput", () => validateContents(editor) );

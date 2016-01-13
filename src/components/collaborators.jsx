@@ -206,9 +206,10 @@ const Collaborator = React.createClass({
   render() {
 
     let peer = this.props.peer;
+    let session = peer.session;
     let name = peer.user.name || peer.session;
     let connected = (peer.connected) ? "!!" : "";
-    let cursor = (peer.state.cursor == undefined) ? "?" : peer.state.cursor;
+    let cursor = peer.state.cursor;
     let styles = { ...this.getPosition() };
     return (
       <li className={"observer " + peer.status}
@@ -238,11 +239,12 @@ const Collaborators = React.createClass({
 
   renderAvatars() {
     let avatars = this.props.peers.map((peer, index) => {
-      const position = (index === 0) ? this.props.avatarPosition : null;
+      const peerId = peer.session || "current";
+      const position = this.props.avatarPositions[peerId];
       return (
         <Collaborator 
           key={index}
-          peer={peer} 
+          peer={peer}
           color={peer.state.color}
           isEditable={index === 0}
           position={position} />

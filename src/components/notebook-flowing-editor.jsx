@@ -39,7 +39,7 @@ module.exports = React.createClass({
     };
     
     const moveAvatar = (position) => {
-      const type = "MOVE_AVATAR";
+      const type = "MOVE_CURRENT_USER_AVATAR";
       this.props.store.dispatch({ type, position });
     };
 

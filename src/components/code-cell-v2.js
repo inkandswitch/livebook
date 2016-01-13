@@ -154,7 +154,7 @@ let CodeCell = React.createClass({
   },
 
   moveAvatarToCell() {
-    const type = "MOVE_AVATAR";
+    const type = "MOVE_CURRENT_USER_AVATAR";
     const top = this.refs.codeCellContainer.offsetTop;
     const position = { top };
     this.props.store.dispatch({ type, position, })
