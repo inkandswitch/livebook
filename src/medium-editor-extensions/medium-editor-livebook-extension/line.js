@@ -1,4 +1,5 @@
 const { isCodeCellSelected, } = require("./code-cell");
+const Cradle = require("../../cradle");
 
 module.exports = {
   addPlusButton,
@@ -23,9 +24,13 @@ function getLinePosition(editor) {
 // *** Line Highlighting *** ///
 function highlightLine(editor) {
   const line = getCurrentLineElement(editor);
+  const nodeId = line.getAttribute('livebook-node-id')
+  Cradle.setSessionVar('cursor', nodeId)
+/*
   if (isCurrentHighlightedLine(line)) return;
   removeAllLineHighlights();
   addLineHighlight(line);
+*/
   movePlusButton({ editor, line});
 }
 

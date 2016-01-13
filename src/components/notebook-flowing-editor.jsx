@@ -67,6 +67,7 @@ module.exports = React.createClass({
     });
   },
 
+/*
   componentWillReceiveProps(nextProps) {
     const store = nextProps.store;
     const state = store.getState();
@@ -102,6 +103,7 @@ module.exports = React.createClass({
       // node.style.background = color;
     });
   },
+*/
 
   componentWillUnmount() {
     this.medium.destroy();
@@ -117,7 +119,6 @@ module.exports = React.createClass({
 
   shouldComponentUpdate() {
     CURSOR = this.medium.exportSelection()
-    console.log("CURSOR", CURSOR)
     // ---
     const line = document.querySelector(".selected-line");
     if (line !== null) {

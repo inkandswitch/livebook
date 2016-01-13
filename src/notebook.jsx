@@ -205,11 +205,41 @@ function REMOVE_MARKERS() {
   ERROR_MARKER_IDS = []
 }
 
-cradle.onarrive = function() {
-  update_peers_and_render();
+function ifChanged(key,val,func) {
+  let flatVal = typeof val == 'object' ? JSON.stringify(val) : val
+  if (ifChanged[key] !== flatVal) {
+    ifChanged[key] = flatVal
+    func(val)
+  }
 }
+
+cradle.onupdate = function() {
+  //update_peers_and_render();
+  // update the style for other users cursors
+  let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor }))
+  console.log("PEER1",peers)
+  let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: aliceblue; }\n").join('')
+  ifChanged("style",style,() => {
+    let css = document.getElementById("peers-style");
+    css.innerHTML = style
+  })
+
+  ifChanged("cursors",peers,() => {
+    peers.filter((p) => p.session && p.cursor).map((p) => {
+      console.log("PEER",p)
+      let nodes = [].slice.call(document.querySelectorAll("[data-livebook-sessions*='"+p.session+"']"))
+      nodes.forEach((domNode) => {
+        domNode.dataset.livebookSessions = domNode.dataset.livebookSessions.replace(p.session, "");
+      });
+
+      let node = document.querySelector("[livebook-node-id='"+p.cursor+"']");
+      node.dataset.livebookSessions = (node.dataset.livebookSessions || "") + p.session;
+    })
+  })
+}
+
+cradle.onarrive = update_peers_and_render;
 cradle.ondepart = update_peers_and_render;
-cradle.onupdate = update_peers_and_render;
 cradle.onusergram = function(from,message) {
   if (message && message.type == "update") {
     console.log("onusergram update, from ", from)
@@ -229,6 +259,7 @@ function update_peers_and_render() {
 
   navRender();
 
+/*
   let cursorPositions = peers.map((peer) => {
     return {
       peerId: peer.state.session,
@@ -241,6 +272,7 @@ function update_peers_and_render() {
     type: "UPDATE_PEER_CURSORS",
     data: cursorPositions,
   });
+*/
 
   let peerEditingCells = getPeerEditingCells();
 

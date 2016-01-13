@@ -366,11 +366,11 @@ function get(handler) {
 
 // USER = 1E52AA
 function peers() { // CAUTION
-  var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true, senior: false }]
+  var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true, senior: false, self: true }]
   for (let id in Peers) {
     let p = Peers[id]
     if (p.last_connected) {
-      peers.push({session_id:id, state: p.last_state_obj, user: p.last_user_obj, connected: p.data_channel != undefined, senior: p.senior })
+      peers.push({session:id, state: p.last_state_obj, user: p.last_user_obj, connected: p.data_channel != undefined, senior: p.senior, self: false })
     }
   }
   return peers
@@ -394,13 +394,21 @@ function delSessionVar(key) {
 }
 
 function setSessionVar(key,val) {
-  Exports.state[key] = val
-  put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
+  if (Exports.state[key] !== val) {
+    console.log("SET SESSION",key,val)
+    Exports.state[key] = val
+    Exports.onupdate()
+    put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
+  }
 }
 
 function setUserVar(key,val) {
-  Exports.user[key] = val
-  put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
+  if (Exports.user[key] !== val) {
+    console.log("SET USER",key,val)
+    Exports.user[key] = val
+    Exports.onupdate()
+    put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
+  }
 }
 
 var Exports = {
@@ -410,7 +418,7 @@ var Exports = {
   onarrive:      () => {},
   ondepart:      () => {},
   onusergram:    () => {},
-  onupdate:      () => {},
+  onupdate:      () => { console.log("DEFAULT ONUPDATE") },
   state:         {},
   user:          {},
   setSessionVar: setSessionVar,
