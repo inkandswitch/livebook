@@ -25,8 +25,9 @@ function getLinePosition(editor) {
 function highlightLine(editor) {
   const line = getCurrentLineElement(editor);
   const nodeId = findLivebookNodeIdFromLine(editor, line)
-  if (!nodeId) debugger;
-  Cradle.setSessionVar('cursor', nodeId)
+  if (nodeId) {
+    Cradle.setSessionVar('cursor', nodeId)
+  }
 /*
   if (isCurrentHighlightedLine(line)) return;
   removeAllLineHighlights();

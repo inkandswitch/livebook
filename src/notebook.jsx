@@ -497,8 +497,10 @@ if (/[/]d[/](\d*)$/.test(document.location)) {
     startCradle()
   }, "json")
 } else {
-  render();
-  renderLandingPage();
+  forkNotebook({
+   ipynb: "/forkable/welcome.ipynb",
+   csv: "/forkable/welcome.csv"
+  })
 }
 
 module.exports = exports;
