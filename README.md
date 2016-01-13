@@ -42,6 +42,8 @@ Play around with your code and plots, and get instant results as you type. No ne
 
 Work on your notebooks simultaneously and see your collaborators' edits on the fly.
 
+![realtime collaboration](https://raw.githubusercontent.com/inkandswitch/livebook/master/doc/realtime-collab.png?token=AEQz9YKP6HQ37-8A8WsGfo6JJA673fsmks5Wn7BLwA%3D%3D)
+
 ###WYSIWYG prose editor
 Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don't need to know Markdown to contribute to the notebook.
 
