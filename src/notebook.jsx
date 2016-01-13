@@ -2,12 +2,10 @@ require("./stylesheets/notebook.scss");
 const Redux = require("redux");
 const { createStore, combineReducers } = Redux;
 
-const avatarReducer = require("./reducers/avatar-reducer");
 const codeEditorReducer = require("./reducers/code-editor-reducer");
 const documentReducer = require("./reducers/document-reducer");
-const peerReducer = require("./reducers/peer-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, doc: documentReducer, avatars: avatarReducer, peer: peerReducer };
+const reducers = { codeEditor: codeEditorReducer, doc: documentReducer};
 
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
@@ -92,7 +90,6 @@ function codeEditorRender() {
 function notebookRender() {
   const state = livebookStore.getState();
   const { doc } = livebookStore.getState();
-  const avatarPositions = state.avatars.positions;
 
   ReactDOM.render(
     <Notebook 
@@ -100,7 +97,6 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       renderLandingPage={renderLandingPage}
       store={livebookStore}
-      avatarPositions={avatarPositions}
       getPeers={() => cradle.peers() }
       hideCodeEditor={hideEditor}
       renderCodeEditor={summonEditor} 

@@ -236,18 +236,38 @@ const Collaborator = React.createClass({
 
 
 const Collaborators = React.createClass({
+  getPositionFromNodeId(nodeId, index) {
+    const node = document.querySelector("[livebook-node-id='" + nodeId + "']");
+    if (!node) return { top: 0 };
+    const top = node.offsetTop;
+    return { top };
+  },
+
+  getAvatarPositions() {
+    const nodeIds = this.props.peers.map( p => p.state.cursor );
+    const positions = nodeIds.map(this.getPositionFromNodeId);
+
+    return this.validatePositions(positions);
+  },
+
+  validatePositions(positions) {
+    // TODO
+    // This should add gutters to overlapping
+    return positions;
+  },
 
   renderAvatars() {
-    let avatars = this.props.peers.map((peer, index) => {
-      const peerId = peer.session || "current";
-      const position = this.props.avatarPositions[peerId];
+    const positions = this.getAvatarPositions();
+    const avatars = this.props.peers.map((peer, index) => {
+      const peerId = peer.session;
+      const position = positions[index];
       return (
         <Collaborator 
           key={index}
           peer={peer}
           color={peer.state.color}
-          isEditable={index === 0}
-          position={position} />
+          position={position}
+          isEditable={index === 0} />
       );
     })
     return avatars;

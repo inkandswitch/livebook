@@ -37,14 +37,8 @@ module.exports = React.createClass({
       if (changeCounter++ > 0) 
         this.props.store.dispatch({ type: "CODE_DELTA", data })
     };
-    
-    const moveAvatar = (position) => {
-      const type = "MOVE_CURRENT_USER_AVATAR";
-      this.props.store.dispatch({ type, position });
-    };
 
     let livebookExtension = createLivebookExtension({
-      moveAvatar,
       onChange: livebookExtensionOnChange,
       getCurrentCode: (id) => this.doc().codeMap[id],
       getCurrentCodeList: () => this.doc().codeList,
@@ -66,44 +60,6 @@ module.exports = React.createClass({
       this.props.onClick();
     });
   },
-
-/*
-  componentWillReceiveProps(nextProps) {
-    const store = nextProps.store;
-    const state = store.getState();
-    const peerState = state.peer;
-    const cursors = peerState.peerCursors;
-    cursors.forEach((c) => {
-      let {color, nodeId, peerId } = c;
-      if (nodeId == null) return;
-      let node = document.querySelector("[livebook-node-id='"+nodeId+"']");
-      if (!node) return;
-      if (node.dataset.livebookSessions === undefined) {
-        node.dataset.livebookSessions = "";        
-      }
-      peerId = peerId || "xxxxxx"
-
-      let lastSelected = [].slice.call(document.querySelectorAll("[data-livebook-sessions*='"+peerId+"']"));
-      lastSelected.forEach(function(domNode) {
-        domNode.dataset.livebookSessions = domNode.dataset.livebookSessions.replace(peerId, "");
-      });
-
-      node.dataset.livebookSessions += peerId;
-
-      let head = document.querySelector("head");
-      let style = document.createElement("style");
-      style.innerHTML = "[data-livebook-sessions*='"+peerId+"'] { background:"+color+" !important; }"
-      head.appendChild(style);
-      // current user select through having _no session_
-      // debugger;
-      // "[livebook-sessions*='oursessionvalue']"
-      // "{livebook-sessions}" += newSession
-      // "{livebook-sessions}"  =  "{livebook-sessions}".replace(session, "")
-
-      // node.style.background = color;
-    });
-  },
-*/
 
   componentWillUnmount() {
     this.medium.destroy();

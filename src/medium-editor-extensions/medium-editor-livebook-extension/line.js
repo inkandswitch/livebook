@@ -24,7 +24,8 @@ function getLinePosition(editor) {
 // *** Line Highlighting *** ///
 function highlightLine(editor) {
   const line = getCurrentLineElement(editor);
-  const nodeId = line.getAttribute('livebook-node-id')
+  const nodeId = findLivebookNodeIdFromLine(editor, line)
+  if (!nodeId) debugger;
   Cradle.setSessionVar('cursor', nodeId)
 /*
   if (isCurrentHighlightedLine(line)) return;
@@ -32,6 +33,17 @@ function highlightLine(editor) {
   addLineHighlight(line);
 */
   movePlusButton({ editor, line});
+}
+
+function findLivebookNodeIdFromLine(editor, line) {
+  const topParent = editor.origElements;
+  let nodeId = line.getAttribute('livebook-node-id');
+  // Search parents for node id
+  while (!nodeId && line.parentElement && line.parentElement !== topParent) {
+    line = line.parentElement;
+    nodeId = line.getAttribute('livebook-node-id');
+  }
+  return nodeId;
 }
 
 function addLineHighlight(line) {

@@ -153,18 +153,10 @@ let CodeCell = React.createClass({
     this.props.handleEditorChange(this.props.index, newText);
   },
 
-  moveAvatarToCell() {
-    const type = "MOVE_CURRENT_USER_AVATAR";
-    const top = this.refs.codeCellContainer.offsetTop;
-    const position = { top };
-    this.props.store.dispatch({ type, position, })
-  },
-
   render() {
     const id = "overlay" + this.props.index;
     const onClick = (e) => {
-      this.props.focusEditorOnPlaceholder(this.props.index);
-      this.moveAvatarToCell();
+      const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
     };
 
     return (

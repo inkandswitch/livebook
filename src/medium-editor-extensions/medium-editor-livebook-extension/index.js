@@ -30,7 +30,7 @@ const {
 
 const PLACEHOLDER_ID_BASE = "placeholder";
 
-function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, moveAvatar}) {
+function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList }) {
     let codeindex;
     let editor = null;
 
@@ -58,6 +58,7 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
       highlightSelectedCodeCell(editor);
       hidePlusButton();
       highlightLine(editor);
+      return placeholder;
     }
 
     function teardown() {
@@ -87,7 +88,6 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
           else {
             highlightLine(editor);            
           }
-          moveAvatar(getLinePosition(editor));
         });
 
         editor.subscribe("blur", () => { 
@@ -103,7 +103,6 @@ function createLivebookExtension({onChange, getCurrentCode, getCurrentCodeList, 
 
           if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
             highlightLine(editor);
-            moveAvatar(getLinePosition(editor));
           }
         });
 
