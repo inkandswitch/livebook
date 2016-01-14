@@ -66,7 +66,7 @@ function docToIPy(doc) {
 }
 
 function nbSplit(text) {  // split the lines, leave the \n
-  return text.match(/[^\n]*(\n|[^\n]$)/g)
+  return text.match(/[^\n]*(\n|[^\n]$)/g) || []
 }
 
 function codeToCodeCell(code) {
