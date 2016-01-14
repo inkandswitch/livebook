@@ -211,7 +211,7 @@ cradle.onupdate = function() {
   //update_peers_and_render();
   // update the style for other users cursors
   let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor }))
-  let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: aliceblue; }\n").join('')
+  let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: "+p.color+"; }\n").join('')
 
   set_avatar_colors()
 
@@ -244,7 +244,7 @@ cradle.onusergram = function(from,message) {
   }
 }
 
-function set_avatar_colors(peers) {
+function set_avatar_colors() {
   let peers = cradle.peers()
   if (colorChange === false && getSeniorPeerColors().indexOf(cradle.state.color) !== -1) {
     console.log("changing color once b/c someone else has seniority")

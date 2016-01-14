@@ -189,7 +189,8 @@ function randomName() {
 
 function randomColorGenerator() {
   var lastIndex = 0;
-  var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
+//  var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
+  var colors = ['rgba(30,82,170,0.95)', 'rgba(158,17,168,0.95)', 'rgba(255,128,24,0.95)', 'rgba(214,247,23,0.95)'];
 
   return function(options) {
 
