@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing/quick"
 
-	"github.com/gorilla/securecookie"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/gorilla/securecookie"
 )
 
 var hashKey = []byte("very-secret12345")

@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/lib/pq/hstore"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/lib/pq/hstore"
 )
 
 type postgres struct {

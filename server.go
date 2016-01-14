@@ -12,15 +12,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/lytics/base62"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/gorilla/context"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/gorilla/handlers"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/gorilla/sessions"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/jinzhu/gorm"
+	_ "github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/lib/pq"
+	"github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/lytics/base62"
+	_ "github.com/inkandswitch/livebook/Godeps/_workspace/src/github.com/mattn/go-sqlite3"
 	"github.com/inkandswitch/livebook/cradle"
-	"github.com/gorilla/context"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -57,10 +57,10 @@ var CRADLE = cradle.New()
 
 func migrateUIDs() {
 	fmt.Printf("migrate...\n")
-	documents := make([]Document,0)
+	documents := make([]Document, 0)
 	DB.Where("uid is null").Find(&documents)
-	fmt.Printf("Found %d documents to update",len(documents))
-	for _,document := range documents {
+	fmt.Printf("Found %d documents to update", len(documents))
+	for _, document := range documents {
 		document.Uid = randomUID()
 		DB.Save(&document)
 	}
@@ -70,7 +70,7 @@ func randomUID() string {
 	b := make([]byte, 9)
 	rand.Read(b)
 	str := base62.StdEncoding.EncodeToString(b)
-	fmt.Printf("RAND '%s'\n",str)
+	fmt.Printf("RAND '%s'\n", str)
 	return str
 }
 
@@ -116,22 +116,22 @@ func connectToDatabase() (DB gorm.DB) {
 var DB gorm.DB
 
 func forkDocument(w http.ResponseWriter, r *http.Request) {
-//{ipynb: "/forkable/mlex1.ipynb", csv: "/forkable/mlex1.csv"//}
-//  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
+	//{ipynb: "/forkable/mlex1.ipynb", csv: "/forkable/mlex1.csv"//}
+	//  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
 	fmt.Printf("FORK\n")
 	var request = map[string]string{}
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &request)
 	// SECURITY ISSUE - can read any file with ".."
-	csv,_ := ioutil.ReadFile("./public" + request["csv"])
-	ipynb,_ := ioutil.ReadFile("./public" + request["ipynb"])
-	document := &Document{Name:"Hello",Uid:randomUID()}
+	csv, _ := ioutil.ReadFile("./public" + request["csv"])
+	ipynb, _ := ioutil.ReadFile("./public" + request["ipynb"])
+	document := &Document{Name: "Hello", Uid: randomUID()}
 	DB.Create(&document)
-	notebook := &Notebook{ DocumentId: document.ID, Name: "NotebookName", Body: string(ipynb) }
+	notebook := &Notebook{DocumentId: document.ID, Name: "NotebookName", Body: string(ipynb)}
 	DB.Create(&notebook)
-	datafile := &DataFile{ DocumentId: document.ID, Name: "DataName", Body: string(csv) }
+	datafile := &DataFile{DocumentId: document.ID, Name: "DataName", Body: string(csv)}
 	DB.Create(&datafile)
-	fmt.Printf("FORKED %s\n",document.Uid)
+	fmt.Printf("FORKED %s\n", document.Uid)
 	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
 }
 
@@ -142,7 +142,7 @@ func newDocument(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &document)
 	document.Uid = randomUID()
 	DB.Create(&document)
-	fmt.Printf("Create %#v\n",document)
+	fmt.Printf("Create %#v\n", document)
 	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
 }
 
@@ -151,18 +151,18 @@ func newWelcomeDocument(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("new welcome document \n")
 	csv, _ := ioutil.ReadFile("./public/welcome.csv")
 	ipynb, _ := ioutil.ReadFile("./public/welcome.ipynb")
-	document := &Document{Name:"Welcome"}
+	document := &Document{Name: "Welcome"}
 	DB.Create(&document)
-	notebook := &Notebook{ DocumentId: document.ID, Name: "Welcome", Body: string(ipynb) }
+	notebook := &Notebook{DocumentId: document.ID, Name: "Welcome", Body: string(ipynb)}
 	DB.Create(&notebook)
-	datafile := &DataFile{ DocumentId: document.ID, Name: "Welcome", Body: string(csv) }
+	datafile := &DataFile{DocumentId: document.ID, Name: "Welcome", Body: string(csv)}
 	DB.Create(&datafile)
 	// w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
 }
 
 func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-//	var id, _ = strconv.Atoi(vars["id"])
+	//	var id, _ = strconv.Atoi(vars["id"])
 
 	var oldDoc = Document{}
 	DB.Where("uid = ?", vars["id"]).First(&oldDoc)
@@ -235,13 +235,13 @@ func getCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 func getDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var document = Document{}
-	fmt.Printf("GET %s\n",vars["id"])
+	fmt.Printf("GET %s\n", vars["id"])
 	DB.Where("uid = ?", vars["id"]).First(&document)
 	DB.Model(&document).Related(&document.Notebook)
 	DB.Model(&document).Related(&document.DataFile)
 	json, _ := json.Marshal(document)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Printf("GET %s\n",json)
+	fmt.Printf("GET %s\n", json)
 	w.Write(json)
 }
 
