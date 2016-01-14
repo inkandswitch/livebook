@@ -81,13 +81,13 @@ const Menu = React.createClass({
           </li>
           <li className="menu-content-item">
             <a id="downloader" onClick={this.downloadPayload} id="downloader" download="notebook.ipynb">
-              <i className="fa fa-cloud-download" />
+              <i className="fa fa-cloud-download menu-content-item-icon" />
               &nbsp;
               Download this notebook
             </a>
           </li>
           <li className="menu-content-item">
-            <i className="fa fa-code-fork"/>
+            <i className="fa fa-code-fork menu-content-item-icon"/>
             &nbsp;
             Fork a sample notebook
             <ul className="sub-menu-content">
@@ -104,14 +104,14 @@ const Menu = React.createClass({
           </li>
           <li className="menu-content-item">
             <a href="/upload">
-              <i className="fa fa-upload" />
+              <i className="fa fa-upload menu-content-item-icon" />
               &nbsp;
               Upload .ipynb + .csv
             </a>
           </li>
           <li className="menu-content-item">
             <a href="//github.com/inkandswitch/livebook">
-              <i className="fa fa-github"/>
+              <i className="fa fa-github menu-content-item-icon"/>
               &nbsp;
               Readme &amp; sourcecode
             </a>

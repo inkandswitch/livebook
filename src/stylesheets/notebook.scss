@@ -313,7 +313,8 @@ div.ace_error-marker {
   visibility: hidden;
 
   transform: translateZ(0) translateY(-10%);
-  transition: all 0.5s;
+  transition: transform 0.5s,
+              opacity 0.5s;
 }
 
 .active .menu-content {
@@ -333,7 +334,7 @@ div.ace_error-marker {
 }
 
 .menu-content-header {
-  border-bottom: solid 1px #A8A8A8;
+  border-bottom: solid 1px #ccc;
   color: #888;
   font-size: 130%;
   letter-spacing: .02em;
@@ -350,7 +351,7 @@ div.ace_error-marker {
     border-radius: .25em;
     color: #fff;
 
-    transition: all .15s ease-in-out;
+    // transition: background .15s ease-in-out;
   }
 
   a {
@@ -361,6 +362,11 @@ div.ace_error-marker {
       text-decoration: none;
     }
   }
+}
+
+.menu-content-item-icon {
+  display: inline-block;
+  width: 1.2em;
 }
 
 .sub-menu-content {
@@ -383,7 +389,7 @@ div.ace_error-marker {
   border: solid 1px transparent;
   border-radius: .3em;
   opacity: .86;
-  padding: .4em .2em .5em 1.5em;
+  padding: .4em .2em .5em 2.2em;
   text-indent: -.4em;
 
   &::before {
