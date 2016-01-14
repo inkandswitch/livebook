@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/lytics/base62"
 	"github.com/inkandswitch/livebook/cradle"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
@@ -25,7 +26,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -47,12 +47,32 @@ type Notebook struct {
 
 type Document struct {
 	gorm.Model
+	Uid      string `sql:"type:text"`
 	Name     string `sql:"type:text"`
 	Notebook Notebook
 	DataFile DataFile
 }
 
 var CRADLE = cradle.New()
+
+func migrateUIDs() {
+	fmt.Printf("migrate...\n")
+	documents := make([]Document,0)
+	DB.Where("uid is null").Find(&documents)
+	fmt.Printf("Found %d documents to update",len(documents))
+	for _,document := range documents {
+		document.Uid = randomUID()
+		DB.Save(&document)
+	}
+}
+
+func randomUID() string {
+	b := make([]byte, 9)
+	rand.Read(b)
+	str := base62.StdEncoding.EncodeToString(b)
+	fmt.Printf("RAND '%s'\n",str)
+	return str
+}
 
 func randomString(length int) (str string) {
 	b := make([]byte, length)
@@ -98,27 +118,32 @@ var DB gorm.DB
 func forkDocument(w http.ResponseWriter, r *http.Request) {
 //{ipynb: "/forkable/mlex1.ipynb", csv: "/forkable/mlex1.csv"//}
 //  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
+	fmt.Printf("FORK\n")
 	var request = map[string]string{}
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &request)
 	// SECURITY ISSUE - can read any file with ".."
 	csv,_ := ioutil.ReadFile("./public" + request["csv"])
 	ipynb,_ := ioutil.ReadFile("./public" + request["ipynb"])
-	document := &Document{Name:"Hello"}
+	document := &Document{Name:"Hello",Uid:randomUID()}
 	DB.Create(&document)
 	notebook := &Notebook{ DocumentId: document.ID, Name: "NotebookName", Body: string(ipynb) }
 	DB.Create(&notebook)
 	datafile := &DataFile{ DocumentId: document.ID, Name: "DataName", Body: string(csv) }
 	DB.Create(&datafile)
-	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
+	fmt.Printf("FORKED %s\n",document.Uid)
+	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
 }
 
 func newDocument(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("POST\n")
 	var document = Document{}
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &document)
+	document.Uid = randomUID()
 	DB.Create(&document)
-	w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
+	fmt.Printf("Create %#v\n",document)
+	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
 }
 
 // Incomplete action (BB)
@@ -137,10 +162,13 @@ func newWelcomeDocument(w http.ResponseWriter, r *http.Request) {
 
 func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var id, _ = strconv.Atoi(vars["id"])
+//	var id, _ = strconv.Atoi(vars["id"])
+
+	var oldDoc = Document{}
+	DB.Where("uid = ?", vars["id"]).First(&oldDoc)
+	var id = oldDoc.ID
 
 	var newDoc = Document{}
-
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &newDoc)
 
@@ -160,9 +188,9 @@ func postMessageCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
 	to := r.Form["to"][0]
-	session_id := r.Form["session_id"][0] // SECURITY ISSUE - CAN FORGE MESSAGES - FIXME
+	session_id := r.Form["session_id"][0]
 	message := r.Form["message"][0]
-	CRADLE.Post(vars["id"], session_id, to, message)
+	CRADLE.Post(vars["id"], session_id, to, message) // FIXME
 	w.Write([]byte("{\"ok\":true}"))
 }
 
@@ -207,11 +235,13 @@ func getCradle(user_id string, w http.ResponseWriter, r *http.Request) {
 func getDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var document = Document{}
-	DB.First(&document, vars["id"])
+	fmt.Printf("GET %s\n",vars["id"])
+	DB.Where("uid = ?", vars["id"]).First(&document)
 	DB.Model(&document).Related(&document.Notebook)
 	DB.Model(&document).Related(&document.DataFile)
 	json, _ := json.Marshal(document)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	fmt.Printf("GET %s\n",json)
 	w.Write(json)
 }
 
@@ -258,6 +288,7 @@ func noStore(h http.Handler) http.Handler {
 func main() {
 	DB = connectToDatabase()
 	DB.Debug()
+	migrateUIDs()
 	port := os.Getenv("PORT")
 	addr := ":" + port
 	fmt.Printf("port=%v\n", port)

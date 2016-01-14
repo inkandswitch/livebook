@@ -215,8 +215,10 @@ cradle.onupdate = function() {
       '#D6F717': 'rgba(214,247,23,0.05)'
   };
 
-  let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor }))
+  console.log("onupdate1",cradle.peers())
+  let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor, name: p.user.name }))
   let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: "+ colorMap[p.color]+"; }\n").join('')
+  console.log("onupdate",peers)
 
   set_avatar_colors()
 
@@ -485,7 +487,7 @@ var exports =  {
 
 global.MEH = exports;
 
-if (/[/]d[/](\d*)$/.test(document.location)) {
+if (/[/]d[/]([-\.a-zA-Z0-9]+)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
     parseRawNotebook(data.Notebook.Body, data.DataFile.Body);
     render();
