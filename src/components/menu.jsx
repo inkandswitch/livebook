@@ -18,7 +18,7 @@ const MonteCarlo = () => ({
 const Quakes = () => ({
   render() {
     return (
-      <GalleryItem csvURL="/forkable/earthquake_states_lite.csv" 
+      <GalleryItem csvURL="/forkable/earthquake_states.csv" 
           ipynbURL="/forkable/earthquakes.ipynb" 
           fork={this.props.fork}>
         Earthquakes in the midwest

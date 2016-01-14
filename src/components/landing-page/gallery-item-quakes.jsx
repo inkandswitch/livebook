@@ -5,7 +5,7 @@ let GalleryItem = require("./gallery-item");
 let Quakes = React.createClass({
     render() {
         return (
-            <GalleryItem csvURL="/forkable/earthquake_states_lite.csv" 
+            <GalleryItem csvURL="/forkable/earthquake_states.csv" 
                 ipynbURL="/forkable/earthquakes.ipynb" 
                 clickHandler={this.props.clickHandler}>
               <header className="gallery-item-header">
