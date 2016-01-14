@@ -20,7 +20,6 @@ let EDITOR = {}
 let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
 function runNotebook() {
   let {doc} = livebookStore.getState()
-  console.log("RUN??",doc,Date.now())
   if (doc.editor !== "me" && doc.editor !== undefined) return; // someone else did the update - let them run it
   let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
   if (LAST_CODE.join() != codeBlocks.join()) {
@@ -34,6 +33,8 @@ function saveNotebook() {
   let {doc} = livebookStore.getState()
   if (doc.html === "") return; // inital state - ignore
   if (doc.editor !== "me") return; // someone else did the update (or undefined)
+
+  console.log("SAVE?",doc.editor)
 
   // yuck...
   // If there's a pending update - change the SAVE_FUNC
@@ -142,12 +143,10 @@ WORKER.onmessage = function(e) {
 }
 
 function handleResults(results) {
-  console.log("RESULTS:",results)
   livebookStore.dispatch({ type: "NEW_RESULT", data: results })
 }
 
 function handlePlots(plots) {
-  console.log("PLOT:",plots)
   livebookStore.dispatch({ type: "NEW_PLOTS", data: plots })
 }
 
@@ -230,6 +229,7 @@ cradle.onupdate = function() {
       let node = document.querySelector("[livebook-node-id='"+p.cursor+"']");
       if (node) node.dataset.livebookSessions = (node.dataset.livebookSessions || "") + p.session;
     })
+    notebookRender()
   })
 }
 

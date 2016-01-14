@@ -231,7 +231,6 @@ function Peer(session) {
 function process_usergram(usergram) {
   let self = this
   console.log("GOT MESSAGE FROM ", self.id, "--" ,usergram)
-  console.log("Sending usergram")
   Exports.onusergram(self.id, usergram)
 }
 

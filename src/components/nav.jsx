@@ -1,6 +1,5 @@
 const React = require("react");
 
-const Collaborators = require("./collaborators");
 const Menu = require("./menu");
 
 const Nav = () => ({

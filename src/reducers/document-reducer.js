@@ -8,6 +8,7 @@ const initialState = {
 };
 
 const documentReducer = (state = initialState, action) => {
+  console.log("DOC",action.type)
   switch (action.type) {
     case 'INITIALIZE_DOCUMENT': return INITIALIZE_DOCUMENT(state, action);
     case 'CODE_DELTA':          return CODE_DELTA(state, action);
@@ -30,7 +31,7 @@ function remap(map,codeList) {
 
 function INITIALIZE_DOCUMENT(state, action) {
  let { documentProps, editor } = action;
- return {...state, ...documentProps, editor: "me" };
+ return {...state, ...documentProps, editor: editor };
 }
 
 function UPDATE_HTML (state, action) {
