@@ -213,6 +213,8 @@ cradle.onupdate = function() {
   let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor }))
   let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: aliceblue; }\n").join('')
 
+  set_avatar_colors()
+
   ifChanged("style",style,() => {
     let css = document.getElementById("peers-style");
     css.innerHTML = style
@@ -242,32 +244,20 @@ cradle.onusergram = function(from,message) {
   }
 }
 
-function update_peers_and_render() {
+function set_avatar_colors(peers) {
   let peers = cradle.peers()
-
   if (colorChange === false && getSeniorPeerColors().indexOf(cradle.state.color) !== -1) {
     console.log("changing color once b/c someone else has seniority")
     cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
     colorChange = true
-    peers = cradle.peers()
   }
+}
+function update_peers_and_render() {
+  let peers = cradle.peers()
+
+  set_avatar_colors()
 
   navRender();
-
-/*
-  let cursorPositions = peers.map((peer) => {
-    return {
-      peerId: peer.state.session,
-      nodeId: peer.state.cursor,
-      color: getPeerColor(peer),
-    };
-  });
-
-  livebookStore.dispatch({
-    type: "UPDATE_PEER_CURSORS",
-    data: cursorPositions,
-  });
-*/
 
   let peerEditingCells = getPeerEditingCells();
 
