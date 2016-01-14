@@ -75,7 +75,6 @@ const Menu = React.createClass({
     let activeClass = this.state.active ? "active" : "";
     return (
       <div className={"menu " + activeClass}>
-        <img src="/menu.png" alt="menu" onClick={this.handleClick} />
         <ul className="menu-content">
           <li className="menu-content-header">
             Livebook
@@ -118,6 +117,7 @@ const Menu = React.createClass({
             </a>
           </li>
         </ul>
+        <img src="/menu.png" alt="menu" onClick={this.handleClick} />
       </div>
     )
   },

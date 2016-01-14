@@ -1,6 +1,8 @@
 $black: #363636;
 $blue: #2A64C7;
 
+$bold: 600;
+
 body {
   font-family: 'Helvetica Neue', sans-serif;
   color: $black;
@@ -277,8 +279,11 @@ div.ace_error-marker {
 }
 
 .menu {
+  background: #fff;
+  border-radius: 3px;
   cursor: pointer;
   left: 1.3em;
+  padding: .8em;
   position: absolute;
   top: 1.3em;
 
@@ -289,13 +294,21 @@ div.ace_error-marker {
   }
 }
 
+.menu.active {
+  border: solid 2px #A8A8A8;
+  border-bottom: solid 2px #fff;
+}
+
 .menu-content {
   background: #fdfdfd;
   border: solid 2px #A8A8A8;
+  font-weight: $bold;
   list-style-type: none;
+  left: -1px;
   min-width: 18em;
   opacity: 0;
-  padding: .6em .6em .8em;
+  margin-top: 2.13em;
+  padding: 1em 1.3em 1.1em;
   position: absolute;
   visibility: hidden;
 
@@ -307,9 +320,26 @@ div.ace_error-marker {
   opacity: 1;
   transform: translateX(0%);
   visibility: visible;
+
+  &::after {
+    background: #fff;
+    content: " ";
+    left: 0;
+    position: absolute;
+    top: -2px;
+    height: 3px;
+    width: 2.9em;
+  }
 }
 
-.menu-content-header {}
+.menu-content-header {
+  border-bottom: solid 1px #A8A8A8;
+  color: #888;
+  font-size: 130%;
+  letter-spacing: .02em;
+  margin-bottom: .5em;
+  padding-bottom: .4em;
+}
 
 .menu-content-item {
   padding: .5em .3em .6em .4em;
@@ -339,9 +369,20 @@ div.ace_error-marker {
   padding:0;
 }
 
+.menu-content-item {
+  &:hover {
+    .sub-menu-content-item {
+      &::before {
+        color: #fff;
+      }
+    }
+  }
+}
+
 .sub-menu-content-item  {
   border: solid 1px transparent;
   border-radius: .3em;
+  opacity: .86;
   padding: .4em .2em .5em 1.5em;
   text-indent: -.4em;
 
@@ -357,7 +398,7 @@ div.ace_error-marker {
 
   &:hover {
     border: solid 1px white;
-
+    opacity: .98;
     &::before {
       color: #fff;
     }
