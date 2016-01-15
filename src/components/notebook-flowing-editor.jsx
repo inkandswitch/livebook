@@ -11,10 +11,13 @@ require("../medium-editor-extensions/heading-button/")(MediumEditor); // modify 
 const { areMapsEqual, eventFire } = require("../util");
 
 const createLivebookExtension = require("../medium-editor-extensions/medium-editor-livebook-extension/");
+const h1NoSelect = require("../medium-editor-extensions/h1-no-select/");
 
 let editorOptions = {
     buttonLabels: 'fontawesome',
-    extensions: {},
+    extensions: {
+      h1NoSelect,
+    },
     paste: {
         cleanPastedHTML: false,
         forcePlainText: false
