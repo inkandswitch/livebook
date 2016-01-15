@@ -41,6 +41,16 @@ const Welcome = () => ({
 
 const Menu = React.createClass({
 
+  mixins: [
+    require('react-onclickoutside')
+  ],
+
+  handleClickOutside() {
+    if (this.state.active) {
+      this.setState({ active: false });
+    }
+  },
+
   getInitialState() {
     return {
       active: false,
