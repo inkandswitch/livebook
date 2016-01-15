@@ -493,7 +493,10 @@ if (/[/]d[/]([-\.a-zA-Z0-9]+)$/.test(document.location)) {
     render();
     startCradle()
   }, "json")
-} else {
+} else if (document.location.pathname.indexOf("/upload") === 0) {
+  render();
+}
+else {
   forkNotebook({
    ipynb: "/forkable/welcome.ipynb",
    csv: "/forkable/welcome.csv"
