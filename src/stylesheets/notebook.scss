@@ -285,7 +285,7 @@ div.ace_error-marker {
   left: 1.3em;
   padding: .8em;
   position: absolute;
-  top: 1.3em;
+  top: .5em;
 
   img { // i.e., hamburger
     height: 1.33em;
@@ -311,15 +311,10 @@ div.ace_error-marker {
   padding: 1em 1.3em 1.1em;
   position: absolute;
   visibility: hidden;
-
-  transform: translateZ(0) translateY(-10%);
-  transition: transform 0.5s,
-              opacity 0.5s;
 }
 
 .active .menu-content {
   opacity: 1;
-  transform: translateX(0%);
   visibility: visible;
 
   &::after {
