@@ -151,7 +151,7 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
         let placeholder = document.getElementById(PLACEHOLDER_ID_BASE + index)
         let height = overlay.getBoundingClientRect().height;
 
-        placeholder.style.height = height + "px"
+        placeholder.style.height = Math.floor(height) + "px"
 
         overlay.style.position = "absolute";
         overlay.style.top = (placeholder.offsetTop) + "px";
