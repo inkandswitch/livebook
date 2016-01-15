@@ -40,6 +40,7 @@ type DataFile struct {
 
 type Notebook struct {
 	gorm.Model
+	Updates    uint
 	DocumentId uint
 	Name       string `sql:"type:text"`
 	Body       string `sql:"type:text"`
@@ -176,6 +177,7 @@ func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	DB.First(&notebook, Notebook{DocumentId: uint(id)})
 	notebook.Body = newDoc.Notebook.Body
 	notebook.Name = newDoc.Notebook.Name
+	notebook.Updates += 1
 
 	if notebook.Body != "" {
 		DB.Save(&notebook)
