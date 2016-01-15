@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+const Helmet = require('react-helmet');
 const Uploader = require("./uploader.jsx");
 const Editor = require('./notebook-flowing-editor');
 const CodeCellV2 = require('./code-cell-v2');
@@ -122,6 +123,7 @@ const NotebookV2 = React.createClass({
     
     return (
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
+        <Helmet title="Livebook Notebook" />
         <Editor
           store={this.props.store}
           onClick={this.handleEditorClick}
