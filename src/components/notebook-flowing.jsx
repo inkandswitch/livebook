@@ -124,12 +124,6 @@ const NotebookV2 = React.createClass({
     return (
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
         <Helmet title={title} />
-        <Editor
-          store={this.props.store}
-          onClick={this.handleEditorClick}
-          assignForceUpdate={this.props.assignForceUpdate}
-          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
-          assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
         <CodeOverlaysContainer
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
@@ -137,6 +131,12 @@ const NotebookV2 = React.createClass({
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
         <Collaborators peers={this.props.getPeers()}/>
+        <Editor
+          store={this.props.store}
+          onClick={this.handleEditorClick}
+          assignForceUpdate={this.props.assignForceUpdate}
+          assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
+          assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
       </div>
     );
   }

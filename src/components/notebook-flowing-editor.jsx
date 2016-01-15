@@ -51,15 +51,22 @@ module.exports = React.createClass({
 
     this.medium = new MediumEditor(dom, editorOptions);
 
-    this.medium.subscribe('editableInput', (e) => {
+    let updateHTML = (e) => {
       let html = dom.innerHTML;
       let title = this.medium.origElements.firstChild.innerHTML
       this.props.store.dispatch({ type: "UPDATE_HTML", html, title })
-    });
+    }
+
+    this.medium.subscribe('editableInput', updateHTML)
 
     this.medium.subscribe('editableClick', (event) => {
       this.props.onClick();
     });
+
+    livebookExtension.forceUpdate()
+    if (this.medium.origElements.innerHTML !== this.doc().html) { // if the document required changes - save it
+      updateHTML()
+    }
   },
 
   componentWillUnmount() {
