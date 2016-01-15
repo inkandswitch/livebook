@@ -380,12 +380,12 @@ function handleSaveNotebook(state) {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
-  console.log("Saving notebook...",state);
+  console.log("Saving notebook...",state.title);
   var raw_notebook = JSON.stringify(state)
   var data = {
-    name: "Hello",
+    name: state.title,
     notebook: {
-      name: "NotebookName",
+      name: state.title,
       body: raw_notebook,
     },
   };

@@ -175,6 +175,7 @@ func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
 	var notebook = Notebook{}
 	DB.First(&notebook, Notebook{DocumentId: uint(id)})
 	notebook.Body = newDoc.Notebook.Body
+	notebook.Name = newDoc.Notebook.Name
 
 	if notebook.Body != "" {
 		DB.Save(&notebook)

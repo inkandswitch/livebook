@@ -53,7 +53,8 @@ module.exports = React.createClass({
 
     this.medium.subscribe('editableInput', (e) => {
       let html = dom.innerHTML;
-      this.props.store.dispatch({ type: "UPDATE_HTML", html })
+      let title = this.medium.origElements.firstChild.innerHTML
+      this.props.store.dispatch({ type: "UPDATE_HTML", html, title })
     });
 
     this.medium.subscribe('editableClick', (event) => {
