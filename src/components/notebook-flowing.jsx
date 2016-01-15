@@ -120,10 +120,10 @@ const NotebookV2 = React.createClass({
   },
 
   renderEditorAndOverlays() {
-    
+    const { title } = this.props.store.getState().doc;
     return (
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
-        <Helmet title="Livebook Notebook" />
+        <Helmet title={title} />
         <Editor
           store={this.props.store}
           onClick={this.handleEditorClick}

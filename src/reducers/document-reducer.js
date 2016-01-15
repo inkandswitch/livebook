@@ -3,6 +3,7 @@ const initialState = {
   codeMap: {},
   errors: {},
   html: "",
+  title: "",
   plots: {},
   results: {},
 };
