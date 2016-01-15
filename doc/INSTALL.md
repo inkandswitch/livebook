@@ -30,3 +30,11 @@ Install needed modules
 Start the server
 
     $ forego start
+
+To deploy on Heroku:
+
+    $ heroku create
+    $ heroku addons:create heroku-postgresql:hobby-dev
+    $ heroku buildpacks:add heroku/go
+    $ git push heroku master
+
