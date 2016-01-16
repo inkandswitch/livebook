@@ -97,7 +97,6 @@ function notebookRender() {
     <Notebook 
       doc={doc}
       startNewNotebook={startNewNotebook}
-      renderLandingPage={renderLandingPage}
       store={livebookStore}
       getPeers={() => cradle.peers() }
       hideCodeEditor={hideEditor}
@@ -270,7 +269,6 @@ function update_peers_and_render() {
 
   let render_time = new Date();
 
-  renderLandingPage();
   renderUploader();
 }
 
@@ -280,7 +278,6 @@ var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";
 
 // React mount points
-var landingPageMount   = document.getElementById("landing-page");
 var notebookMount      = document.getElementById("notebook");
 var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
@@ -419,14 +416,10 @@ function handleError(e) {
   livebookStore.dispatch({ type: "NEW_ERRORS", data: errors });
 }
 
-var LandingPage = require("./components/landing-page");
 var Nav = require("./components/nav");
 var Notebook = require("./components/notebook-flowing");
 var Uploader = require("./components/uploader");
 
-function renderLandingPage() {
-  ReactDOM.render(<LandingPage fork={forkNotebook} />, landingPageMount);
-}
 
 function renderUploader() {
   const isUploadPage = (window.location.pathname.indexOf("upload") !== -1)

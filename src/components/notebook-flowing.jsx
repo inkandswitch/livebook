@@ -75,14 +75,6 @@ const NotebookV2 = React.createClass({
     return this.props.store.getState().doc
   },
 
-  componentWillMount() {
-  },
-
-  componentWillUpdate() {
-    const renderLandingPage = this.props.renderLandingPage;
-    renderLandingPage && renderLandingPage();
-  },
-
   handleEditorClick() {
     this.hideCodeEditor();
   },
