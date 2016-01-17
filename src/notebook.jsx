@@ -150,15 +150,9 @@ function handlePlots(plots) {
 }
 
 // Utils
-var asyncRunParallel = require("./util").asyncRunParallel;
-var createAsyncDataFetcher = require("./util").createAsyncDataFetcher;
-var deepClone = require("./util").deepClone;
-var getPixelsBeyondFold = require("./util").getPixelsBeyondFold;
 var noop          = require("./util").noop;
 var randomColor   = require("./util").randomColor;
 var randomName    = require("./util").randomName;
-var resultToHtml  = require("./util").resultToHtml;
-var scrollXPixels = require("./util").scrollXPixels;
 var {iPyToHTML} = require("./ipython-converter.jsx");
 
 
@@ -171,20 +165,6 @@ function getSeniorPeerColors() {
 function getPeerColors() {
   return cradle.peers().slice(1).map(getPeerColor);
 };
-
-var getPeerEditing = (peer) => peer.state.editing;
-var isPeerEditing = (peer) => { return (typeof getPeerEditing(peer)) === "number"; }
-function getPeerEditingCells() {
-  let otherPeers = cradle.peers().slice(1);
-  return otherPeers.reduce((result, peer) => {
-    if (isPeerEditing(peer)) {
-      let peerClone = Object.assign({}, peer);
-      peerClone.state = Object.assign({}, peer.state)
-      result.push(peerClone);
-    }
-    return result;
-  }, []);
-}
 
 var LAST_TYPE = new Date()
 var TYPING_SPAN = 500
@@ -264,8 +244,6 @@ function update_peers_and_render() {
   set_avatar_colors()
 
   navRender();
-
-  let peerEditingCells = getPeerEditingCells();
 
   let render_time = new Date();
 
