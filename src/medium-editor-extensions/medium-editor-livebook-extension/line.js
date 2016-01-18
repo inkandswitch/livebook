@@ -128,8 +128,9 @@ function movePlusButton({ editor, line }) {
   const button = getPlusButton();
   const lineContents = line.textContent;
   const lineHasContent = !!lineContents.trim();
-
-  if (lineHasContent || isCodeCellSelected()) { // instead of isCodeCellSelected, could opt to look at inner html
+  const isTitle = line.tagName === "H1";
+  
+  if (isTitle || lineHasContent || isCodeCellSelected()) { // instead of isCodeCellSelected, could opt to look at inner html
     hidePlusButton(button);
     setLastHighlightedLineOnButton(button, null);
     return;
