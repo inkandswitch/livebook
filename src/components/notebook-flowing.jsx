@@ -6,7 +6,7 @@ const Editor = require('./notebook-flowing-editor');
 const CodeCellV2 = require('./code-cell-v2');
 const Collaborators = require("./collaborators");
 
-const { eventFire } = require("../util");
+const { eventFire, htmlDecode } = require("../util");
 
 const CodeOverlaysContainer = React.createClass({
 
@@ -112,7 +112,14 @@ const NotebookV2 = React.createClass({
   },
 
   renderEditorAndOverlays() {
-    const { title } = this.props.store.getState().doc;
+    let { title } = this.props.store.getState().doc;
+    if (title.trim() ===  "<br>") {
+      title = "(untitled notebook)";
+    }
+    else {
+      title = htmlDecode(title);
+    }
+
     return (
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
         <Helmet title={title} />

@@ -9,6 +9,7 @@ module.exports = {
   deepClone,
   eventFire,
   getPixelsBeyondFold,
+  htmlDecode,
   isArray,
   noop: () => {},
   randomColor,
@@ -40,6 +41,12 @@ function eventFire(el, etype, options){
     evObj = Object.assign(evObj, options)
     el.dispatchEvent(evObj);
   }
+}
+
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 }
 
 function isArray(o) {
