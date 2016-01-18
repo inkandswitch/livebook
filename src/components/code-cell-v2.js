@@ -1,5 +1,9 @@
 let React = require("react");
 let ReactDOM = require("react-dom");
+let ace        = require("brace");
+let Range      = ace.acequire('ace/range').Range;
+let AceEditor  = require("react-ace");
+
 
 let PlotContainer = require("./code-cell-plot-container");
 
@@ -62,6 +66,14 @@ let CodeCellOutput = React.createClass({
 });
 
 let CodeCell = React.createClass({
+  componentDidMount() {
+    const editor = document.querySelector("#editor" + this.props.index);
+    if (editor)
+      editor.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+  },
 
   underConstruction() {
     return (this.props.typing && this.props.index >= this.props.cursor);
@@ -154,27 +166,121 @@ let CodeCell = React.createClass({
   },
 
   render() {
+    let height, width, change, onBeforeLoad, onLoad, lang;
+
+    lang = "python";
+    onLoad = (editor) => {
+      const container = editor.container;
+      const containerParent = container.parentElement;
+      const { height, width } = containerParent.getBoundingClientRect();
+      const leftPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-left').replace("px","");
+      container.style.height = height + "px";
+      container.style.width = (width - leftPadding) + "px";
+      containerParent.firstChild.remove() // remove the static code
+      container.style.display = "block";
+
+    };
+
     const id = "overlay" + this.props.index;
     const onClick = (e) => {
       const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
     };
 
     return (
-      <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
-        <div className="cell-wrap">
-          <div className="cell" data-cell-index={this.props.index}>
-            <div className="switch" onClick={this.handleClick}>
-              <div className="codewrap">
-                {this.code()}
+      <div>
+        <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
+          <div className="cell-wrap">
+            <div className="cell" data-cell-index={this.props.index}>
+              <div className="switch" onClick={this.handleClick}>
+                <div className="codewrap">
+                  <div>
+                    {this.code()}
+                  </div>
+                  <AceEditor className="editor" name={"editor" + this.props.index}
+                    mode={lang} value={this.props.code}
+                    height={height} width={width}
+                    theme="github" onChange={change}
+                    showGutter={false}
+                    editorProps={{$blockScrolling: true,}}
+                    onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
+                </div>
               </div>
+              {this.errorMessage()}
+              {this.outputs()}
             </div>
-            {this.errorMessage()}
-            {this.outputs()}
           </div>
         </div>
+
       </div>
     );
   }
 });
 
 module.exports = CodeCell;
+
+
+
+function createAceEditor(options) {
+  options = Object.assign({}, options);
+  var lang = options.lang,
+      height = options.height,
+      width = options.width,
+      value = options.value,
+      change = options.change,
+      onBeforeLoad = options.onBeforeLoad,
+      onLoad = options.onLoad;
+
+  if (typeof height === "number") {
+    height += "px";
+  }
+  if (typeof width === "number") {
+    width += "px";
+  }
+
+  return (
+    <AceEditor className="editor" name="editX"
+      mode={lang} value={value}
+      height={height} width={width}
+      theme="github" onChange={change}
+      showGutter={false}
+      editorProps={{$blockScrolling: true,}}
+      onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
+  );
+}
+
+function summonEditor(options) {
+  let {row, column} = options;
+  let {height, width} = options;
+  let lang   = "python";
+  let value  = options.code;
+  let {change} =  options;
+  let onBeforeLoad = noop;
+
+  let editorOptions = {
+    lang: lang,
+    height: height,
+    width: width,
+    value: value,
+    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
+    onBeforeLoad: onBeforeLoad,
+    onLoad: () => { if (EDITOR && EDITOR.moveCursorTo) EDITOR.moveCursorTo(row, column) },
+  };
+
+  ReactDOM.render(createAceEditor(editorOptions), editorMount);
+
+  // Position editor
+  let {top, left} = options;
+  $("#editX")
+    .css("top", top)
+    .css("left", left)
+    .show();
+
+  EDITOR = ace.edit("editX")
+  EDITOR.focus()
+  EDITOR.moveCursorTo(row, column);
+  EDITOR.getSession().setUseWrapMode(true);
+
+  // TEMP for testing
+  global.EDITOR = EDITOR;
+  REMOVE_MARKERS();
+}

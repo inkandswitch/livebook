@@ -80,13 +80,13 @@ function codeEditorRender() {
   let {top, left, height, width} = node.getBoundingClientRect();
   top += window.scrollY;
 
-  summonEditor({
-    code,
-    height, width,
-    top, left,
-    row, column,
-    change: handleChange,
-  });
+  // summonEditor({
+  //   code,
+  //   height, width,
+  //   top, left,
+  //   row, column,
+  //   change: handleChange,
+  // });
 }
 
 function notebookRender() {

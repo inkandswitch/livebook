@@ -245,13 +245,14 @@ img[data-livebook-placeholder-cell] {
 
 div.editor { /* !!! this is necessary specificity */
   display: none;
-  position: absolute;
+  // top: 0;
+  // position: absolute;
   z-index: 2;
 }
 
 div.ace_editor {
   box-sizing: border-box;
-  font-size: .82em; /* slightly reduced font size relative to codecell becuase of font differences */
+  // font-size: .82em; /* slightly reduced font size relative to codecell becuase of font differences */
   margin: 0;
 }
 
