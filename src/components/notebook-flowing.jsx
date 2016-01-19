@@ -51,7 +51,6 @@ const CodeOverlaysContainer = React.createClass({
         error={error}
         plots={plots}
         store={this.props.store}
-        handleEditorChange={this.props.handleEditorChange}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
     );
   },
@@ -70,16 +69,6 @@ const CodeOverlaysContainer = React.createClass({
 });
 
 const NotebookV2 = React.createClass({
-
-  handleEditorClick() {
-    this.hideCodeEditor();
-  },
-
-  hideCodeEditor() {
-    if (this.props.hideCodeEditor) {
-      this.props.hideCodeEditor();
-    }
-  },
 
   handleOverlayMount() {
     this.forceUpdate();

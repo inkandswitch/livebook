@@ -144,27 +144,6 @@ let CodeCell = React.createClass({
     );
   },
 
-  // handleClick(event) {
-  //   let {index} = this.props;
-  //   let {code} = this.props;
-  //   let node = ReactDOM.findDOMNode(event.currentTarget);
-  //   let handleChange = this.handleEditorChange;
-
-  //   this.props.store.dispatch({
-  //     type: "OPEN_CODE_EDITOR",
-  //     editorProps: {
-  //       index,
-  //       node,
-  //       handleChange,
-  //     },
-  //   });
-
-  // },
-
-  // handleEditorChange(newText) {
-  //   this.props.handleEditorChange(this.props.index, newText);
-  // },
-
   handleEditorChange(code) {
     const codeList = this.props.store.getState().doc.codeList;
     const id = this.props.index;
@@ -175,6 +154,7 @@ let CodeCell = React.createClass({
   },
 
   sizeEditor(editor) {
+    // TODO - calculate height based on number of lines
     const container = editor.container;
     const containerParent = container.parentElement;
     const { height, width } = containerParent.getBoundingClientRect();
@@ -185,12 +165,11 @@ let CodeCell = React.createClass({
 
     container.style.height = (height - topPadding) + "px";
     container.style.width = (width - leftPadding - rightPadding) + "px";
-    containerParent.firstChild.style.display = "none" // DO NOT REMOVE the static code -- it messes with react
+    containerParent.firstChild.style.display = "none"; // hide the code block
     container.style.display = "block";
   },
 
   createAceEditor() {
-    const handleEditorChange = this.handleEditorChange;
     let height, width, change, onBeforeLoad, onLoad, lang;
 
     lang = "python";
@@ -198,7 +177,7 @@ let CodeCell = React.createClass({
       this.sizeEditor(editor);
     };
     change = (text) => {
-      handleEditorChange(text)
+      this.handleEditorChange(text)
     };
     onBeforeLoad = () => {};
 
@@ -246,77 +225,3 @@ let CodeCell = React.createClass({
 });
 
 module.exports = CodeCell;
-
-
-
-function createAceEditor(options) {
-  options = Object.assign({}, options);
-  var lang = options.lang,
-      height = options.height,
-      width = options.width,
-      value = options.value,
-      change = options.change,
-      onBeforeLoad = options.onBeforeLoad,
-      onLoad = options.onLoad;
-
-  if (typeof height === "number") {
-    height += "px";
-  }
-  if (typeof width === "number") {
-    width += "px";
-  }
-
-  return (
-    <AceEditor className="editor" name="editX"
-      mode={lang} value={value}
-      height={height} width={width}
-      theme="github" onChange={change}
-      showGutter={false}
-      editorProps={{$blockScrolling: true,}}
-      onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
-  );
-}
-
-function summonEditor(options) {
-  let {row, column} = options;
-  let {height, width} = options;
-  let lang   = "python";
-  let value  = options.code;
-  let {change} =  options;
-  let onBeforeLoad = noop;
-
-  let editorOptions = {
-    lang: lang,
-    height: height,
-    width: width,
-    value: value,
-    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
-    onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (EDITOR && EDITOR.moveCursorTo) EDITOR.moveCursorTo(row, column) },
-  };
-
-  ReactDOM.render(createAceEditor(editorOptions), editorMount);
-
-  // Position editor
-  let {top, left} = options;
-  $("#editX")
-    .css("top", top)
-    .css("left", left)
-    .show();
-
-  EDITOR = ace.edit("editX")
-  EDITOR.focus()
-  EDITOR.moveCursorTo(row, column);
-  EDITOR.getSession().setUseWrapMode(true);
-
-  // TEMP for testing
-  global.EDITOR = EDITOR;
-  REMOVE_MARKERS();
-}
-
-function createChangeFunction(orig) {
-  return handleChange;
-  function handleChange(code) {
-    orig(code);
-  }
-}
