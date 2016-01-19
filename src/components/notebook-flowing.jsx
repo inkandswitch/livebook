@@ -10,12 +10,24 @@ const { eventFire, htmlDecode } = require("../util");
 
 const CodeOverlaysContainer = React.createClass({
 
-  restoreMediumEditorCursor() {
-    this.props.focusOnSelectedOverlay();
-  },
-
   componentDidMount() {
     this.props.handleOverlayMount();
+    document.body.addEventListener("keydown", this.blurEditorOnEsc)
+  },
+
+  componentWillUnmount() {
+    document.body.removeEventListener("keydown", this.blurEditorOnEsc)
+  },
+
+  blurEditorOnEsc({ which }) {
+    let ESC = 27;
+    if (which === ESC) {
+      this.restoreMediumEditorCursor();
+    }
+  },
+
+  restoreMediumEditorCursor() {
+    this.props.focusOnSelectedOverlay();
   },
 
   doc() {
