@@ -112,12 +112,17 @@ function execPython(doc,ctx,next) {
 }
 
 var re = /File .<string>., line (\d*)/
+var BASE = false
 function generateAndExecPython(doc) {
   self.READY = false
   // hack b/c sometimes base.py goes away ?? :-/ - FIXME
-  execPython(doc,{ map: {}, code: base, length: base.split("\n").length}, () => {
+  if (BASE === false) {
+    execPython(doc,{ map: {}, code: base, length: base.split("\n").length}, () => {
+      generateAndExecPythonStep(doc,0)
+    })
+  } else {
     generateAndExecPythonStep(doc,0)
-  })
+  }
 }
 
 function generateAndExecPythonStep(doc,i) {
