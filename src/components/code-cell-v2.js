@@ -144,42 +144,73 @@ let CodeCell = React.createClass({
     );
   },
 
-  handleClick(event) {
-    let {index} = this.props;
-    let {code} = this.props;
-    let node = ReactDOM.findDOMNode(event.currentTarget);
-    let handleChange = this.handleEditorChange;
+  // handleClick(event) {
+  //   let {index} = this.props;
+  //   let {code} = this.props;
+  //   let node = ReactDOM.findDOMNode(event.currentTarget);
+  //   let handleChange = this.handleEditorChange;
 
-    this.props.store.dispatch({
-      type: "OPEN_CODE_EDITOR",
-      editorProps: {
-        index,
-        node,
-        handleChange,
-      },
-    });
+  //   this.props.store.dispatch({
+  //     type: "OPEN_CODE_EDITOR",
+  //     editorProps: {
+  //       index,
+  //       node,
+  //       handleChange,
+  //     },
+  //   });
 
+  // },
+
+  // handleEditorChange(newText) {
+  //   this.props.handleEditorChange(this.props.index, newText);
+  // },
+
+  handleEditorChange(code) {
+    const codeList = this.props.store.getState().doc.codeList;
+    const id = this.props.index;
+    const codeDelta = {}; 
+    codeDelta[id] = code;
+    const data = { codeList, codeDelta };
+    this.props.store.dispatch({ type: "CODE_DELTA", data })
   },
 
-  handleEditorChange(newText) {
-    this.props.handleEditorChange(this.props.index, newText);
+  sizeEditor(editor) {
+    const container = editor.container;
+    const containerParent = container.parentElement;
+    const { height, width } = containerParent.getBoundingClientRect();
+    const leftPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-left').replace("px","");
+    container.style.height = height + "px";
+    container.style.width = (width - leftPadding) + "px";
+    containerParent.firstChild.style.display = "none" // DO NOT REMOVE the static code -- it messes with react
+    container.style.display = "block";
   },
 
-  render() {
+  createAceEditor() {
+    const handleEditorChange = this.handleEditorChange;
     let height, width, change, onBeforeLoad, onLoad, lang;
 
     lang = "python";
     onLoad = (editor) => {
-      const container = editor.container;
-      const containerParent = container.parentElement;
-      const { height, width } = containerParent.getBoundingClientRect();
-      const leftPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-left').replace("px","");
-      container.style.height = height + "px";
-      container.style.width = (width - leftPadding) + "px";
-      containerParent.firstChild.remove() // remove the static code
-      container.style.display = "block";
-
+      this.sizeEditor(editor);
     };
+    change = (text) => {
+      handleEditorChange(text)
+    };
+    onBeforeLoad = () => {};
+
+    return (
+      <AceEditor className="editor" name={"editor" + this.props.index}
+        key={this.props.index}
+        mode={lang} value={this.props.code}
+        height={height} width={width}
+        theme="github" onChange={change}
+        showGutter={false}
+        editorProps={{$blockScrolling: true,}}
+        onBeforeLoad={onBeforeLoad} onLoad = {onLoad} />
+    );
+  },
+
+  render() {
 
     const id = "overlay" + this.props.index;
     const onClick = (e) => {
@@ -191,18 +222,12 @@ let CodeCell = React.createClass({
         <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
           <div className="cell-wrap">
             <div className="cell" data-cell-index={this.props.index}>
-              <div className="switch" onClick={this.handleClick}>
+              <div className="switch">
                 <div className="codewrap">
                   <div>
                     {this.code()}
                   </div>
-                  <AceEditor className="editor" name={"editor" + this.props.index}
-                    mode={lang} value={this.props.code}
-                    height={height} width={width}
-                    theme="github" onChange={change}
-                    showGutter={false}
-                    editorProps={{$blockScrolling: true,}}
-                    onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
+                  {this.createAceEditor()}
                 </div>
               </div>
               {this.errorMessage()}
@@ -283,4 +308,11 @@ function summonEditor(options) {
   // TEMP for testing
   global.EDITOR = EDITOR;
   REMOVE_MARKERS();
+}
+
+function createChangeFunction(orig) {
+  return handleChange;
+  function handleChange(code) {
+    orig(code);
+  }
 }

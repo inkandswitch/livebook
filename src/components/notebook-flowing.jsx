@@ -71,10 +71,6 @@ const CodeOverlaysContainer = React.createClass({
 
 const NotebookV2 = React.createClass({
 
-  doc() {
-    return this.props.store.getState().doc
-  },
-
   handleEditorClick() {
     this.hideCodeEditor();
   },
@@ -83,13 +79,6 @@ const NotebookV2 = React.createClass({
     if (this.props.hideCodeEditor) {
       this.props.hideCodeEditor();
     }
-  },
-
-  handleEditorChange(id, code) {
-    const codeList = this.doc().codeList
-    const codeDelta = {}; codeDelta[id] = code;
-    const data = { codeList, codeDelta }
-    this.props.store.dispatch({ type: "CODE_DELTA", data })
   },
 
   handleOverlayMount() {
