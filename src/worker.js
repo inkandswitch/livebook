@@ -83,84 +83,86 @@ function completeWork() {
   nextTick(maybeDoWork)
 }
 
-function execPython(doc,ctxs) {
-  if (ctxs.length == 0) {
-    completeWork()
-    return;
-  }
-  if (self.NEXT_JOB) {
-    completeWork()
-    return;
-  }
-  let ctx = ctxs.shift()
+function execPython(doc,ctx,next) {
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     self.PLOTS = {}
     console.log("EXEC:",{code:ctx.code})
     pypyjs.exec(ctx.code).then(() => {
       handleResult(doc, self.RESULTS, self.PLOTS)
-      nextTick(() => execPython(doc,ctxs))
+      next()
     }).catch((e) => {
-      console.log("ERR",e)
+      console.log("ERR",e,ctx)
       let match = re.exec(e.trace);
       if (match && match[1] !== '') {
+        console.log("match[1]",match[1])
         let n = ctx.map[match[1]]
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         handleResult(doc, self.RESULTS, self.PLOTS, error)
       } else {
         console.log("Unknown ERROR",e)
       }
-      completeWork()
+      next(e)
     })
   }).catch((e) => {
     console.log("Error in pypyjs promise",e)
-    completeWork()
+    next(e)
   })
 }
 
 var re = /File .<string>., line (\d*)/
 function generateAndExecPython(doc) {
   self.READY = false
-  let ctxs = generatePythonCTX(doc)
-  execPython(doc,ctxs)
+  // hack b/c sometimes base.py goes away ?? :-/ - FIXME
+  execPython(doc,{ map: {}, code: base, length: 23}, () => {
+    generateAndExecPythonStep(doc,0)
+  })
 }
 
-function generatePythonCTX(doc) {
-  let ctxs = [{ map: {}, code: base, length: 23}]
-
-  doc.forEach((c, i) => {
-    let lineno = 0;
-    let lines = [];
-    let lineno_map = {}; // keeps track of line number on which to print error
- //   if (c.cell_type == "code") {
-
-      lines.push("mark("+i+")")
-      lineno += 1
-      
-      c.split("\n").forEach((line,line_number) => {
-        if (!line.match(/^\s*$/) &&
-            !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
-          lineno += 1
-          lineno_map[lineno] = { cell: i, line: line_number }
-          lines.push(line.replace(/[\r\n]$/,""))
-        }
-      })
-      let line = lines.pop()
-      if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-        lines.push(`render(${i},${line})   ## line ${lineno}`)
-      } else {
-        lineno += 1
-        lines.push(line)
-        lines.push(`render(${i},None)    ## line ${lineno}`)
-      }
-//    }
-    let code = lines.join("\n") + "\n"
-    ctxs.push({ map: lineno_map, code: code, length: lines.length })
+function generateAndExecPythonStep(doc,i) {
+  let c = doc.shift()
+  let ctx = generatePythonCTX(c,i)
+  execPython(doc,ctx, (err) => {
+    if (err) { // there was an error - stop execution
+      completeWork()
+    } else if (self.NEXT_JOB) { // new code has arrived - stop execution
+      completeWork()
+    } else if (doc.length == 0) { // we finished the last block of code - stop execution
+      completeWork()
+    } else {
+      // next tick prevents the stack from blowing up
+      // also allows new messages to be processed before the next block of code is executed
+      nextTick(() => generateAndExecPythonStep(doc,i+1))
+    }
   })
-//  let code = lines.join("\n") + "\n"
-//  console.log(code)
-//  return { map: lineno_map, code: code, length: lines.length }
-  return ctxs
+}
+
+function generatePythonCTX(c,i) {
+  let lineno = 0;
+  let lines = [];
+  let lineno_map = {}; // keeps track of line number on which to print error
+
+  lines.push("mark("+i+")")
+  lineno += 1
+      
+  c.split("\n").forEach((line,line_number) => {
+    if (!line.match(/^\s*$/) &&
+        !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
+      lineno += 1
+      lineno_map[lineno] = { cell: i, line: line_number }
+      lines.push(line.replace(/[\r\n]$/,""))
+     }
+   })
+   let line = lines.pop()
+   if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
+     lines.push(`render(${i},${line})   ## line ${lineno}`)
+   } else {
+     lineno += 1
+     lines.push(line)
+     lines.push(`render(${i},None)    ## line ${lineno}`)
+   }
+   let code = lines.join("\n") + "\n"
+   return { map: lineno_map, code: code, length: lines.length }
 }
 
 self.parse_raw_data = function(filename,headerRow,names) {
