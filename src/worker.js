@@ -15,14 +15,15 @@ function assignmentTest(line) {
   return a || b
 }
 
-self.READY     = false
-self.NEXT_JOB  = undefined
-self.INTERRUPT = false
-let RAW_DATA   = undefined
+self.READY    = false
+self.NEXT_JOB = undefined
+self.LOCALS   = {}
+let RAW_DATA  = undefined
 
 onmessage = function(e) {
   switch(e.data.type) {
     case "exec":
+      console.log("NEW EXEC")
       self.NEXT_JOB = e.data
       maybeDoWork()
       break;
@@ -53,11 +54,11 @@ function nextTick(func) {
 self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js", "/d3/d3.js")
 
 pypyjs.stdout = function(data) {
-//  console.log("STDOUT::" , data)
+  console.log("STDOUT::" , data)
 }
 
 pypyjs.stderr = function(data) {
-//  console.log("STDERR::" , data)
+  console.log("STDERR::" , data)
 }
 
 pypyjs.loadModuleData("pandas").then(function() {
@@ -114,7 +115,7 @@ var re = /File .<string>., line (\d*)/
 function generateAndExecPython(doc) {
   self.READY = false
   // hack b/c sometimes base.py goes away ?? :-/ - FIXME
-  execPython(doc,{ map: {}, code: base, length: 23}, () => {
+  execPython(doc,{ map: {}, code: base, length: base.split("\n").length}, () => {
     generateAndExecPythonStep(doc,0)
   })
 }
@@ -138,13 +139,20 @@ function generateAndExecPythonStep(doc,i) {
 }
 
 function generatePythonCTX(c,i) {
-  let lineno = 0;
-  let lines = [];
+  let lineno = 1;
+  let lines = ["def code():"];
   let lineno_map = {}; // keeps track of line number on which to print error
+  let pad = "  "
 
-  lines.push("mark("+i+")")
-  lineno += 1
-      
+  console.log("+LOCALS",self.LOCALS)
+  console.log("+LOCALS",i,self.LOCALS[i])
+  if (self.LOCALS[i - 1]) { // import locals from the last code block
+    for (let x in self.LOCALS[i - 1]) {
+      lines.push(`${x} = LOCALS[${i - 1}]['${x}']`)
+      lineno += 1
+    }
+  }
+
   c.split("\n").forEach((line,line_number) => {
     if (!line.match(/^\s*$/) &&
         !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
@@ -155,13 +163,13 @@ function generatePythonCTX(c,i) {
    })
    let line = lines.pop()
    if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-     lines.push(`render(${i},${line})   ## line ${lineno}`)
+     lines.push(`checkpoint(${i},${line},locals())   ## line ${lineno}`)
    } else {
      lineno += 1
      lines.push(line)
-     lines.push(`render(${i},None)    ## line ${lineno}`)
+     lines.push(`checkpoint(${i},None,locals())    ## line ${lineno}`)
    }
-   let code = lines.join("\n") + "\n"
+   let code = lines.join("\n  ") + "\ncode()"
    return { map: lineno_map, code: code, length: lines.length }
 }
 

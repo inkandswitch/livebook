@@ -2,14 +2,9 @@ import js
 
 import matplotlib.pyplot as pt
 
-def mark(n):
-    print "CELL %s" % n
-    if type(js.globals["NEXT_JOB"]) <> js.Undefined:
-        js.globals["INTERRUPT"] = js.convert(True)
-        raise BaseException("INTERRUPT")
+LOCALS = {}
 
-
-def render(cell,val):
+def checkpoint(cell,val,local):
     print "RENDER %s"%cell
     if hasattr(val, 'to_js'):
         val2 = ["html", val.to_js()]
@@ -21,3 +16,7 @@ def render(cell,val):
     if (len(plots) > 0):
         js.globals['PLOTS'][cell] = js.convert(plots)
     js.globals['RESULTS'][cell] = js.convert(val2)
+    types = dict([[k,str(type(local[k]))] for k in local.keys()])
+    print types
+    js.globals['LOCALS'][cell] = js.convert(types)
+    LOCALS[cell] = local
