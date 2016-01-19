@@ -72,11 +72,12 @@ pypyjs.loadModuleData("pandas").then(function() {
   console.log("CATCH",e)
 })
 
-function handleResult(doc, results, plots, error) {
+function handleResult(doc, results, plots, error, locals) {
   for (let cell in results) {
     results[cell] = python_render(results[cell])
   }
-  postMessage({ plots: plots, results: results, error: error })
+  console.log("POST MESSAGE LOCALS",locals)
+  postMessage({ plots, results, error, locals })
 }
 
 function completeWork() {
@@ -88,9 +89,10 @@ function execPython(doc,ctx,next) {
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     self.PLOTS = {}
-    console.log("EXEC:",{code:ctx.code})
+    console.log("+EXEC:",{code:ctx.code})
     pypyjs.exec(ctx.code).then(() => {
-      handleResult(doc, self.RESULTS, self.PLOTS)
+      console.log("EXEC DONE",self.LOCALS)
+      handleResult(doc, self.RESULTS, self.PLOTS, undefined, self.LOCALS)
       next()
     }).catch((e) => {
       console.log("ERR",e,ctx)
@@ -99,7 +101,7 @@ function execPython(doc,ctx,next) {
         console.log("match[1]",match[1])
         let n = ctx.map[match[1]]
         let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
-        handleResult(doc, self.RESULTS, self.PLOTS, error)
+        handleResult(doc, self.RESULTS, self.PLOTS, error, self.LOCALS)
       } else {
         console.log("Unknown ERROR",e)
       }
@@ -150,7 +152,7 @@ function generatePythonCTX(c,i) {
   let pad = "  "
 
   console.log("+LOCALS",self.LOCALS)
-  console.log("+LOCALS",i,self.LOCALS[i])
+  console.log("+LOCALS",i,self.LOCALS[i-1])
   if (self.LOCALS[i - 1]) { // import locals from the last code block
     for (let x in self.LOCALS[i - 1]) {
       lines.push(`${x} = LOCALS[${i - 1}]['${x}']`)

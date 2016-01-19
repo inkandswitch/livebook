@@ -286,7 +286,6 @@ const Collaborators = React.createClass({
 
   renderAvatars() {
     const positions = this.getAvatarPositions();
-    console.log("RENDER AVATAR",positions)
     const avatars = this.props.peers.map((peer, index) => {
       const peerId = peer.session;
       const position = positions[index];

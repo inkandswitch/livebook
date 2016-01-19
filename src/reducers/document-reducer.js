@@ -5,6 +5,7 @@ const initialState = {
   html: "",
   title: "",
   plots: {},
+  locals: {},
   results: {},
 };
 
@@ -67,13 +68,13 @@ function NEW_RESULT(state, action) {
   let next_results = {...state.results}
   let next_errors = {...state.errors}
   let next_plots = {...state.plots}
-  let data = remap(action.data,state.codeList)
-  for (let cell in data) {
-     next_results[cell] = data[cell]
+  let results = remap(action.results,state.codeList)
+  for (let cell in results) {
+     next_results[cell] = results[cell]
      delete next_errors[cell]
      delete next_plots[cell]
   }
-  return {...state, results: next_results, errors: next_errors, editor: "me"}
+  return {...state, results: next_results, errors: next_errors, locals: action.locals, editor: "me"}
 }
 
 module.exports = documentReducer;

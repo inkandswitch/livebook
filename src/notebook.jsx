@@ -104,17 +104,17 @@ var createCellPlotData = require("./cell-plots-adapter");
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
-  let {results, plots, error} = data;
+  let {results, plots, error, locals} = data;
 
   if (error) handleError(error);
   if (!empty(plots)) handlePlots(plots)
-  if (!empty(results)) handleResults(results)
+  if (!empty(results)) handleResults(results,locals)
   let { forceUpdateEditor } = uglyAntiFunctions;
   forceUpdateEditor && forceUpdateEditor();
 }
 
-function handleResults(results) {
-  livebookStore.dispatch({ type: "NEW_RESULT", data: results })
+function handleResults(results, locals) {
+  livebookStore.dispatch({ type: "NEW_RESULT", results, locals})
 }
 
 function handlePlots(plots) {
