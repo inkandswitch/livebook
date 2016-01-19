@@ -62,10 +62,6 @@ module.exports = React.createClass({
 
     this.medium.subscribe('editableInput', updateHTML)
 
-    this.medium.subscribe('editableClick', (event) => {
-      this.props.onClick();
-    });
-
     livebookExtension.forceUpdate()
     if (this.medium.origElements.innerHTML !== this.doc().html) { // if the document required changes - save it
       updateHTML()

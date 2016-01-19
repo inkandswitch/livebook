@@ -1,5 +1,9 @@
 let React = require("react");
 let ReactDOM = require("react-dom");
+let ace        = require("brace");
+let Range      = ace.acequire('ace/range').Range;
+let AceEditor  = require("react-ace");
+
 
 let PlotContainer = require("./code-cell-plot-container");
 
@@ -62,6 +66,22 @@ let CodeCellOutput = React.createClass({
 });
 
 let CodeCell = React.createClass({
+  componentDidMount() {
+    const editor = document.querySelector("#editor" + this.props.index);
+    if (editor)
+      editor.addEventListener("click", this.stopTheBubbly)
+  },
+
+  componentWillUnmount() {
+    const editor = document.querySelector("#editor" + this.props.index);
+    if (editor)
+      editor.removeEventListener("click", this.stopTheBubbly)
+  },
+
+  stopTheBubbly(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  },
 
   underConstruction() {
     return (this.props.typing && this.props.index >= this.props.cursor);
@@ -132,46 +152,81 @@ let CodeCell = React.createClass({
     );
   },
 
-  handleClick(event) {
-    let {index} = this.props;
-    let {code} = this.props;
-    let node = ReactDOM.findDOMNode(event.currentTarget);
-    let handleChange = this.handleEditorChange;
-
-    this.props.store.dispatch({
-      type: "OPEN_CODE_EDITOR",
-      editorProps: {
-        index,
-        node,
-        handleChange,
-      },
-    });
-
+  handleEditorChange(code) {
+    const codeList = this.props.store.getState().doc.codeList;
+    const id = this.props.index;
+    const codeDelta = {}; 
+    codeDelta[id] = code;
+    const data = { codeList, codeDelta };
+    this.props.store.dispatch({ type: "CODE_DELTA", data })
   },
 
-  handleEditorChange(newText) {
-    this.props.handleEditorChange(this.props.index, newText);
+  sizeEditor(editor) {
+    // TODO - calculate height based on number of lines
+    const container = editor.container;
+    const containerParent = container.parentElement;
+    const { height, width } = containerParent.getBoundingClientRect();
+    const leftPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-left').replace("px","");
+    const rightPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-right').replace("px","");
+    const topPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-top').replace("px","");
+    // const bottomPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-bottom').replace("px","");
+
+    container.style.height = (height - topPadding) + "px";
+    container.style.width = (width - leftPadding - rightPadding) + "px";
+    containerParent.firstChild.style.display = "none"; // hide the code block
+    container.style.display = "block";
+  },
+
+  createAceEditor() {
+    let height, width, change, onBeforeLoad, onLoad, lang;
+
+    lang = "python";
+    onLoad = (editor) => {
+      this.sizeEditor(editor);
+    };
+    change = (text) => {
+      this.handleEditorChange(text)
+    };
+    onBeforeLoad = () => {};
+
+    return (
+      <AceEditor className="editor" name={"editor" + this.props.index}
+        key={this.props.index}
+        mode={lang} value={this.props.code}
+        height={height} width={width}
+        theme="github" onChange={change}
+        showGutter={false}
+        editorProps={{$blockScrolling: true,}}
+        onBeforeLoad={onBeforeLoad} onLoad = {onLoad} />
+    );
   },
 
   render() {
+
     const id = "overlay" + this.props.index;
     const onClick = (e) => {
       const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
     };
 
     return (
-      <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
-        <div className="cell-wrap">
-          <div className="cell" data-cell-index={this.props.index}>
-            <div className="switch" onClick={this.handleClick}>
-              <div className="codewrap">
-                {this.code()}
+      <div>
+        <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
+          <div className="cell-wrap">
+            <div className="cell" data-cell-index={this.props.index}>
+              <div className="switch">
+                <div className="codewrap">
+                  <div>
+                    {this.code()}
+                  </div>
+                  {this.createAceEditor()}
+                </div>
               </div>
+              {this.errorMessage()}
+              {this.outputs()}
             </div>
-            {this.errorMessage()}
-            {this.outputs()}
           </div>
         </div>
+
       </div>
     );
   }

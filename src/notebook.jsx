@@ -2,14 +2,12 @@ require("./stylesheets/notebook.scss");
 const Redux = require("redux");
 const { createStore, combineReducers } = Redux;
 
-const codeEditorReducer = require("./reducers/code-editor-reducer");
 const documentReducer = require("./reducers/document-reducer");
 
-const reducers = { codeEditor: codeEditorReducer, doc: documentReducer};
+const reducers = { doc: documentReducer};
 
 const livebookApp = combineReducers(reducers);
 const livebookStore = createStore(livebookApp);
-livebookStore.subscribe(codeEditorRender);
 livebookStore.subscribe(navRender);
 livebookStore.subscribe(notebookRender)
 livebookStore.subscribe(runNotebook)
@@ -65,30 +63,6 @@ function empty(x) {
 let uglyAntiFunctions = {};
 global.uglyAntiFunctions = uglyAntiFunctions;
 
-function codeEditorRender() {
-  let { codeEditor, doc } = livebookStore.getState();
-  let { hidden, index, node, handleChange } = codeEditor;
-  let code = doc.codeMap[index]
-
-  let {row, column} = (EDITOR.getCursorPosition && EDITOR.getCursorPosition()) || {row: 0, column: 0};
-
-  if (hidden) {
-    hideEditor();
-    return;
-  }
-
-  let {top, left, height, width} = node.getBoundingClientRect();
-  top += window.scrollY;
-
-  summonEditor({
-    code,
-    height, width,
-    top, left,
-    row, column,
-    change: handleChange,
-  });
-}
-
 function notebookRender() {
   const state = livebookStore.getState();
   const { doc } = livebookStore.getState();
@@ -99,8 +73,6 @@ function notebookRender() {
       startNewNotebook={startNewNotebook}
       store={livebookStore}
       getPeers={() => cradle.peers() }
-      hideCodeEditor={hideEditor}
-      renderCodeEditor={summonEditor} 
       assignForceUpdate={(f) => uglyAntiFunctions.forceUpdateEditor = f}
       assignFocusOnSelectedOverlay={(f) => uglyAntiFunctions.focusOnSelectedOverlay = f}
       assignFocusEditorOnPlaceholder={(f) => uglyAntiFunctions.focusEditorOnPlaceholder = f}
@@ -257,85 +229,8 @@ var CurrentPage = "notebook";
 
 // React mount points
 var notebookMount      = document.getElementById("notebook");
-var editorMount        = document.getElementById("editor");
 var navMount           = document.getElementById("nav");
 var uploaderMount      = document.getElementById("uploader");
-
-function summonEditor(options) {
-  let {row, column} = options;
-  let {height, width} = options;
-  let lang   = "python";
-  let value  = options.code;
-  let {change} =  options;
-  let onBeforeLoad = noop;
-
-  let editorOptions = {
-    lang: lang,
-    height: height,
-    width: width,
-    value: value,
-    change: createChangeFunction(change), // TODO - scope with a function that evaluates contents
-    onBeforeLoad: onBeforeLoad,
-    onLoad: () => { if (EDITOR && EDITOR.moveCursorTo) EDITOR.moveCursorTo(row, column) },
-  };
-
-  ReactDOM.render(createAceEditor(editorOptions), editorMount);
-
-  // Position editor
-  let {top, left} = options;
-  $("#editX")
-    .css("top", top)
-    .css("left", left)
-    .show();
-
-  EDITOR = ace.edit("editX")
-  EDITOR.focus()
-  EDITOR.moveCursorTo(row, column);
-  EDITOR.getSession().setUseWrapMode(true);
-
-  // TEMP for testing
-  global.EDITOR = EDITOR;
-  REMOVE_MARKERS();
-}
-
-function createChangeFunction(orig) {
-  return handleChange;
-  function handleChange(code) {
-    orig(code);
-  }
-}
-
-function hideEditor() {
-  $("#editX").hide();
-}
-
-function createAceEditor(options) {
-  options = Object.assign({}, options);
-  var lang = options.lang,
-      height = options.height,
-      width = options.width,
-      value = options.value,
-      change = options.change,
-      onBeforeLoad = options.onBeforeLoad,
-      onLoad = options.onLoad;
-
-  if (typeof height === "number") {
-    height += "px";
-  }
-  if (typeof width === "number") {
-    width += "px";
-  }
-
-  return (
-    <AceEditor className="editor" name="editX"
-      mode={lang} value={value}
-      height={height} width={width}
-      theme="github" onChange={change}
-      showGutter={false}
-      editorProps={{$blockScrolling: true,}}
-      onBeforeLoad={onBeforeLoad} onLoad = {onLoad}/>
-  );
-}
 
 function render() {
   let render_time = new Date()

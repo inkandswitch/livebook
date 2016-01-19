@@ -10,27 +10,24 @@ const { eventFire, htmlDecode } = require("../util");
 
 const CodeOverlaysContainer = React.createClass({
 
-  hideCodeEditorOnEsc(event) {
-    if (event.which === 27) {
-      this.props.store.dispatch({ type: "CLOSE_CODE_EDITOR", })
+  componentDidMount() {
+    this.props.handleOverlayMount();
+    document.body.addEventListener("keydown", this.blurEditorOnEsc)
+  },
+
+  componentWillUnmount() {
+    document.body.removeEventListener("keydown", this.blurEditorOnEsc)
+  },
+
+  blurEditorOnEsc({ which }) {
+    let ESC = 27;
+    if (which === ESC) {
       this.restoreMediumEditorCursor();
     }
   },
 
   restoreMediumEditorCursor() {
     this.props.focusOnSelectedOverlay();
-  },
-
-  componentWillMount() {
-    document.body.addEventListener("keydown", this.hideCodeEditorOnEsc);
-  },
-
-  componentWillUnmount() {
-    document.body.removeEventListener("keydown", this.hideCodeEditorOnEsc);
-  },
-
-  componentDidMount() {
-    this.props.handleOverlayMount();
   },
 
   doc() {
@@ -51,7 +48,6 @@ const CodeOverlaysContainer = React.createClass({
         error={error}
         plots={plots}
         store={this.props.store}
-        handleEditorChange={this.props.handleEditorChange}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
     );
   },
@@ -70,27 +66,6 @@ const CodeOverlaysContainer = React.createClass({
 });
 
 const NotebookV2 = React.createClass({
-
-  doc() {
-    return this.props.store.getState().doc
-  },
-
-  handleEditorClick() {
-    this.hideCodeEditor();
-  },
-
-  hideCodeEditor() {
-    if (this.props.hideCodeEditor) {
-      this.props.hideCodeEditor();
-    }
-  },
-
-  handleEditorChange(id, code) {
-    const codeList = this.doc().codeList
-    const codeDelta = {}; codeDelta[id] = code;
-    const data = { codeList, codeDelta }
-    this.props.store.dispatch({ type: "CODE_DELTA", data })
-  },
 
   handleOverlayMount() {
     this.forceUpdate();
@@ -126,13 +101,11 @@ const NotebookV2 = React.createClass({
         <CodeOverlaysContainer
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
-          handleEditorChange={this.handleEditorChange}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
         <Collaborators peers={this.props.getPeers()}/>
         <Editor
           store={this.props.store}
-          onClick={this.handleEditorClick}
           assignForceUpdate={this.props.assignForceUpdate}
           assignFocusOnSelectedOverlay={this.props.assignFocusOnSelectedOverlay}
           assignFocusEditorOnPlaceholder={this.props.assignFocusEditorOnPlaceholder}/>
