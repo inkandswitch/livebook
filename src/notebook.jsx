@@ -88,11 +88,8 @@ function navRender() {
 global.STORE = livebookStore;
 
 var $          = require("jquery");
-var ace        = require("brace");
-var Range      = ace.acequire('ace/range').Range;
 var React      = require("react");
 var ReactDOM   = require("react-dom");
-var AceEditor  = require("react-ace");
 
 var cradle     = require("./cradle");
 
@@ -222,7 +219,6 @@ function update_peers_and_render() {
   renderUploader();
 }
 
-ace.config.set("basePath", "/");
 
 var Pages = [ "landing", "notebook", "upload" ];
 var CurrentPage = "notebook";

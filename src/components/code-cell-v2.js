@@ -1,13 +1,16 @@
-let React = require("react");
-let ReactDOM = require("react-dom");
-let ace        = require("brace");
-let Range      = ace.acequire('ace/range').Range;
-let AceEditor  = require("react-ace");
+const React = require("react");
+const ReactDOM = require("react-dom");
+const ace        = require("brace");
+const Range      = ace.acequire('ace/range').Range;
+const AceEditor  = require("react-ace");
 
+ace.config.set("basePath", "/");
 
-let PlotContainer = require("./code-cell-plot-container");
+const { stopTheBubbly } = require("../util");
 
-let CodeCellOutput = React.createClass({
+const PlotContainer = require("./code-cell-plot-container");
+
+const CodeCellOutput = React.createClass({
   componentDidUpdate() {
     // TODO - truncate table after update?
   },
@@ -65,22 +68,20 @@ let CodeCellOutput = React.createClass({
   },
 });
 
-let CodeCell = React.createClass({
+const CodeCell = React.createClass({
+  getInitialState() {
+    return { editor: null };
+  },
+
   componentDidMount() {
     const editor = document.querySelector("#editor" + this.props.index);
-    if (editor)
-      editor.addEventListener("click", this.stopTheBubbly)
+    if (editor) editor.addEventListener("click", stopTheBubbly);
   },
 
   componentWillUnmount() {
     const editor = document.querySelector("#editor" + this.props.index);
-    if (editor)
-      editor.removeEventListener("click", this.stopTheBubbly)
-  },
-
-  stopTheBubbly(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    if (editor) editor.removeEventListener("click", stopTheBubbly);
+    this.state.editor.destroy();
   },
 
   underConstruction() {
@@ -162,7 +163,6 @@ let CodeCell = React.createClass({
   },
 
   sizeEditor(editor) {
-    // TODO - calculate height based on number of lines
     const container = editor.container;
     const containerParent = container.parentElement;
     const { height, width } = containerParent.getBoundingClientRect();
@@ -178,22 +178,37 @@ let CodeCell = React.createClass({
   },
 
   createAceEditor() {
-    let height, width, change, onBeforeLoad, onLoad, lang;
+    let change, onBeforeLoad, onLoad;
+    const lang = "python";
 
-    lang = "python";
     onLoad = (editor) => {
+
       this.sizeEditor(editor);
+
+      editor.selection.on("changeSelection", (event, selection) => {
+        let wordRange = selection.getWordRange();
+        if (!selection.$isEmpty) {
+          if (editor.getSelectedText) {
+            let text = editor.getSelectedText();
+          }
+          else {}
+        }
+        else {}
+      });
+
+      this.setState({ editor });
     };
+
     change = (text) => {
       this.handleEditorChange(text)
     };
+
     onBeforeLoad = () => {};
 
     return (
       <AceEditor className="editor" name={"editor" + this.props.index}
         key={this.props.index}
         mode={lang} value={this.props.code}
-        height={height} width={width}
         theme="github" onChange={change}
         showGutter={false}
         editorProps={{$blockScrolling: true,}}

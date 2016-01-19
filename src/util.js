@@ -16,7 +16,8 @@ module.exports = {
   randomName,
   rawMarkup,
   resultToHtml,
-  scrollXPixels ,
+  scrollXPixels,
+  stopTheBubbly,
   zip,
 };
 
@@ -217,6 +218,11 @@ function randomPick(ary) {
   return ary[Math.floor((Math.random() * ary.length))];
 }
 
+
+function stopTheBubbly(event) {
+  event.preventDefault();
+  event.stopPropagation();
+}
 
 function zip(a, b) {
   return a.map((v, i) => [v, b[i]]);
