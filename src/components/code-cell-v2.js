@@ -179,8 +179,12 @@ let CodeCell = React.createClass({
     const containerParent = container.parentElement;
     const { height, width } = containerParent.getBoundingClientRect();
     const leftPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-left').replace("px","");
-    container.style.height = height + "px";
-    container.style.width = (width - leftPadding) + "px";
+    const rightPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-right').replace("px","");
+    const topPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-top').replace("px","");
+    // const bottomPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-bottom').replace("px","");
+
+    container.style.height = (height - topPadding) + "px";
+    container.style.width = (width - leftPadding - rightPadding) + "px";
     containerParent.firstChild.style.display = "none" // DO NOT REMOVE the static code -- it messes with react
     container.style.display = "block";
   },
