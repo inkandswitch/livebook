@@ -69,10 +69,18 @@ let CodeCell = React.createClass({
   componentDidMount() {
     const editor = document.querySelector("#editor" + this.props.index);
     if (editor)
-      editor.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      })
+      editor.addEventListener("click", this.stopTheBubbly)
+  },
+
+  componentWillUnmount() {
+    const editor = document.querySelector("#editor" + this.props.index);
+    if (editor)
+      editor.removeEventListener("click", this.stopTheBubbly)
+  },
+
+  stopTheBubbly(event) {
+    event.preventDefault();
+    event.stopPropagation();
   },
 
   underConstruction() {
