@@ -10,23 +10,8 @@ const { eventFire, htmlDecode } = require("../util");
 
 const CodeOverlaysContainer = React.createClass({
 
-  hideCodeEditorOnEsc(event) {
-    if (event.which === 27) {
-      this.props.store.dispatch({ type: "CLOSE_CODE_EDITOR", })
-      this.restoreMediumEditorCursor();
-    }
-  },
-
   restoreMediumEditorCursor() {
     this.props.focusOnSelectedOverlay();
-  },
-
-  componentWillMount() {
-    document.body.addEventListener("keydown", this.hideCodeEditorOnEsc);
-  },
-
-  componentWillUnmount() {
-    document.body.removeEventListener("keydown", this.hideCodeEditorOnEsc);
   },
 
   componentDidMount() {
@@ -104,7 +89,6 @@ const NotebookV2 = React.createClass({
         <CodeOverlaysContainer
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
-          handleEditorChange={this.handleEditorChange}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
           focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
         <Collaborators peers={this.props.getPeers()}/>
