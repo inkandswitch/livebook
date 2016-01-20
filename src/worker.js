@@ -101,7 +101,14 @@ function execPython(doc,ctx,next) {
       if (match && match[1] !== '') {
         console.log("match[1]",match[1])
         let n = ctx.map[match[1]]
-        let error = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
+        let error
+        if (ctx.map[match[1]] == undefined) {
+          console.log("Error line number bug - pick the first line so we dont crash")
+          let index = Object.keys(ctx.map)[0]
+          error  = { name: e.name, message: e.message, cell: ctx.map[index].cell, line: ctx.map[index].line }
+        } else {
+          error  = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
+        }
         handleResult(doc, self.RESULTS, self.PLOTS, error, self.LOCALS)
       } else {
         console.log("Unknown ERROR",e)
