@@ -44,7 +44,7 @@ const NotebookV2 = React.createClass({
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}
-          focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
+          focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder}/>
         <Collaborators peers={this.props.getPeers()}/>
         <Editor
           store={this.props.store}

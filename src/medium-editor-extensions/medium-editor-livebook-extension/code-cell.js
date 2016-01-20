@@ -61,11 +61,12 @@ function isLastEditorCell(placeholder) {
 function editSelectedCodeCell() {
   let selected = getSelectedCodeCell();
   let code = findCode(selected);
-  eventFire(code, "click");   // FIXME - does not focus on editor D:
+  eventFire(code, "mousedown");   // FIXME - does not focus on editor D:
 }
 
 function findCode(elt) {
-  return elt.querySelector("[id*='editor']");
+  let editor = elt.querySelector("[id*='editor'] .ace_content");
+  return editor;
 }
 
 function cutSelectedCodeCell(editor) {

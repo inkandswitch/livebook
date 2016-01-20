@@ -223,19 +223,28 @@ const CodeCell = React.createClass({
         }
       };
 
-      editor.on("focus", () => {
+      const hidePanel = () => {
+        this.setState({ showPopUp: false });
+      }
+
+      editor.on("focus", (event) => {
+        clearTimeout(lastTimeout);
         this.setState({ showPopUp: true });
       });
 
+      editor.on("mousedown", (event) => {
+        this.handleCodeCellFocus(event, true);
+      })
+
       editor.on("blur", () => {
-        this.setState({ showPopUp: false });
         clearTimeout(lastTimeout);
+        lastTimeout = setTimeout(hidePanel, 100)
       });
 
       editor.selection.on("changeCursor", (event, _) => {
-        debugger;
+        global.ACEDITOR = editor;
         clearTimeout(lastTimeout);
-        lastTimeout = setTimeout(() => showDef(), 50)
+        lastTimeout = setTimeout(() => showDef(), 60)
       });
 
       this.setState({ editor });
@@ -258,16 +267,20 @@ const CodeCell = React.createClass({
     );
   },
 
+  handleCodeCellFocus(event, returnFocusToEditor=false) {
+    const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
+    if (returnFocusToEditor && !this.state.editor.isFocused()) {
+      this.state.editor.focus();      
+    }
+  },
+
   render() {
 
     const id = "overlay" + this.props.index;
-    const onClick = (e) => {
-      const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
-    };
 
     return (
       <div>
-        <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
+        <div ref="codeCellContainer" className="notebook" id={id} onClick={(e) => this.handleCodeCellFocus(e) }>
           <div className="cell-wrap">
             <div className="cell" data-cell-index={this.props.index}>
               <SyntaxPopup show={this.state.showPopUp} local={this.state.local} store={this.props.store} />

@@ -52,12 +52,15 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       setCodeBlockPositions(ids);
     }
 
-    function focusEditorOnPlaceholder(index) {
+    function focusEditorOnPlaceholder(index, returnFocusToCodeEditor=false) {
       let placeholder = document.getElementById("placeholder"+index);
       editor.selectElement(placeholder);
       highlightSelectedCodeCell(editor);
       hidePlusButton();
       highlightLine(editor);
+      if (returnFocusToCodeEditor) {
+        // TODO - focus on code editor
+      }
       return placeholder;
     }
 

@@ -80,7 +80,7 @@ function notebookRender() {
 }
 
 function navRender() {
-  ReactDOM.render(<Nav  render={render} store={livebookStore} fork={forkNotebook} />, navMount);
+  ReactDOM.render(<Nav render={render} store={livebookStore} fork={forkNotebook} />, navMount);
 }
 
 global.STORE = livebookStore;
