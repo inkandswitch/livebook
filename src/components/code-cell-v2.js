@@ -188,39 +188,54 @@ const CodeCell = React.createClass({
     onLoad = (editor) => {
 
       let lastTimeout;
+      let lastWord;
 
       this.sizeEditor(editor);
 
-      const showPopUp = (wordRange) => {
-        if (editor.getSelectedText().trim()) {
-          let word = editor.session.getTextRange(wordRange);
-          if (!this.props.locals) {
-            // Probably means we haven't gotten response from worker yet
-            return;
-          }
+      const showDef = () => {
+        if (!this.props.locals) {
+          // Probably means we haven't gotten response from worker yet
+          return;
+        }
+        let selection = editor.getSelection();
+        let wordRange = selection.getWordRange();
+        let word = editor.session.getTextRange(wordRange);
 
-          let local = {
-            name: word,
-            desc: this.props.locals[word],
-          };
+        if (word === lastWord) return;
 
-          if (local.desc) {
-            this.setState({ local, showPopUp: true, });
-          }
+        lastWord = word;
+        let local = {
+          name: word,
+          desc: this.props.locals[word],
+        };
+
+        if (local.desc) {
+          this.setState({ local });
+        }
+        else if (!local.name.trim()) {
+          local.name = "¯\\_(ツ)_/¯";
+          local.desc = "";
+          this.setState({ local });          
+        }
+        else {
+          local.desc = "Mehhhhh";
+          this.setState({ local });
         }
       };
 
-      editor.selection.on("changeSelection", (event, selection) => {
-        let wordRange = selection.getWordRange();
-        let selectedText = editor.getSelectedText && editor.getSelectedText()
+      editor.on("focus", () => {
+        this.setState({ showPopUp: true });
+      });
 
-        if (selectedText && selectedText.trim()) {
-          lastTimeout = setTimeout(() => showPopUp(wordRange), 50)
-        }
-        else {
-          this.setState({ showPopUp: false });
-          clearTimeout(lastTimeout);
-        }
+      editor.on("blur", () => {
+        this.setState({ showPopUp: false });
+        clearTimeout(lastTimeout);
+      });
+
+      editor.selection.on("changeCursor", (event, _) => {
+        debugger;
+        clearTimeout(lastTimeout);
+        lastTimeout = setTimeout(() => showDef(), 50)
       });
 
       this.setState({ editor });
