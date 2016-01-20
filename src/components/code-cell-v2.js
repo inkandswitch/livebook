@@ -1,14 +1,14 @@
-const React = require("react");
-const ReactDOM = require("react-dom");
-const ace        = require("brace");
+const React     = require("react");
+const ReactDOM  = require("react-dom");
+const ace       = require("brace");
+                   ace.config.set("basePath", "/");
 const Range      = ace.acequire('ace/range').Range;
 const AceEditor  = require("react-ace");
-
-ace.config.set("basePath", "/");
 
 const { stopTheBubbly } = require("../util");
 
 const PlotContainer = require("./code-cell-plot-container");
+const SyntaxPopup = require("./code-cell-syntax-helper");
 
 const CodeCellOutput = React.createClass({
   componentDidUpdate() {
@@ -70,7 +70,11 @@ const CodeCellOutput = React.createClass({
 
 const CodeCell = React.createClass({
   getInitialState() {
-    return { editor: null };
+    return {
+      editor: null,
+      showPopUp: false,
+      local: {}, 
+    };
   },
 
   componentDidMount() {
@@ -183,17 +187,40 @@ const CodeCell = React.createClass({
 
     onLoad = (editor) => {
 
+      let lastTimeout;
+
       this.sizeEditor(editor);
+
+      const showPopUp = (wordRange) => {
+        if (editor.getSelectedText().trim()) {
+          let word = editor.session.getTextRange(wordRange);
+          if (!this.props.locals) {
+            // Probably means we haven't gotten response from worker yet
+            return;
+          }
+
+          let local = {
+            name: word,
+            desc: this.props.locals[word],
+          };
+
+          if (local.desc) {
+            this.setState({ local, showPopUp: true, });
+          }
+        }
+      };
 
       editor.selection.on("changeSelection", (event, selection) => {
         let wordRange = selection.getWordRange();
-        if (!selection.$isEmpty) {
-          if (editor.getSelectedText) {
-            let text = editor.getSelectedText();
-          }
-          else {}
+        let selectedText = editor.getSelectedText && editor.getSelectedText()
+
+        if (selectedText && selectedText.trim()) {
+          lastTimeout = setTimeout(() => showPopUp(wordRange), 50)
         }
-        else {}
+        else {
+          this.setState({ showPopUp: false });
+          clearTimeout(lastTimeout);
+        }
       });
 
       this.setState({ editor });
@@ -228,6 +255,7 @@ const CodeCell = React.createClass({
         <div ref="codeCellContainer" className="notebook" id={id} onClick={onClick}>
           <div className="cell-wrap">
             <div className="cell" data-cell-index={this.props.index}>
+              <SyntaxPopup show={this.state.showPopUp} local={this.state.local} store={this.props.store} />
               <div className="switch">
                 <div className="codewrap">
                   <div>
