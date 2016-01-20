@@ -6,7 +6,7 @@ LOCALS = {}
 
 def checkpoint(cell,val,local):
     print "CHECKPOINT %s"%cell
-    if hasattr(val, 'to_js'):
+    if hasattr(val, 'to_js') and type(val) != type:
         val2 = ["html", val.to_js()]
     elif type(val) == list:
         val2 = ["list", val]
