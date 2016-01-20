@@ -72,12 +72,9 @@ pypyjs.loadModuleData("pandas").then(function() {
   console.log("CATCH",e)
 })
 
-function handleResult(doc, results, plots, error, locals) {
-  for (let cell in results) {
-    results[cell] = python_render(results[cell])
-  }
-  console.log("POST MESSAGE LOCALS",locals)
-  postMessage({ plots, results, error, locals })
+function handleResult(doc, index, raw_results, plots, locals, error) {
+  let results = python_render(raw_results)
+  postMessage({ plots, index, results, error, locals })
 }
 
 function completeWork() {
@@ -85,15 +82,15 @@ function completeWork() {
   nextTick(maybeDoWork)
 }
 
-function execPython(doc,ctx,next) {
+function execPython(doc,index,ctx,next) {
   pypyjs.ready().then(function() {
-    self.RESULTS = {}
-    self.PLOTS = {}
+    self.RESULTS = undefined
+    self.PLOTS = undefined
     console.log("---")
     console.log(ctx.code)
     console.log("---")
     pypyjs.exec(ctx.code).then(() => {
-      handleResult(doc, self.RESULTS, self.PLOTS, undefined, self.LOCALS)
+      handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index])
       next()
     }).catch((e) => {
       console.log("ERR",e,ctx)
@@ -103,13 +100,12 @@ function execPython(doc,ctx,next) {
         let n = ctx.map[match[1]]
         let error
         if (ctx.map[match[1]] == undefined) {
-          console.log("Error line number bug - pick the first line so we dont crash")
-          let index = Object.keys(ctx.map)[0]
-          error  = { name: e.name, message: e.message, cell: ctx.map[index].cell, line: ctx.map[index].line }
+          console.log("Error line number bug - pick the first line so we dont crash",e,ctx.map)
+          error  = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
         } else {
           error  = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         }
-        handleResult(doc, self.RESULTS, self.PLOTS, error, self.LOCALS)
+        handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], error)
       } else {
         console.log("Unknown ERROR",e)
       }
@@ -154,7 +150,7 @@ function generateAndExecPythonStep(doc,i,started) {
   }
   console.log("NEW CODE - RUNNING",i)
   delete CODE_CACHE[i]
-  execPython(doc,ctx, (err) => {
+  execPython(doc,i,ctx, (err) => {
     if (err) { // there was an error - stop execution
       completeWork()
     } else if (self.NEXT_JOB) { // new code has arrived - stop execution
@@ -242,13 +238,14 @@ self.parse_raw_data = function(filename,headerRow,names) {
 }
 
 function python_render(result) {
-//  console.log("RENDER", text)
   var html;
   var text
 
-  switch (result[0]) {
+  if (result == undefined) return undefined;
+
+  switch(result[0]) {
     case "html":
-      html = resultToHtml(result[1])
+      html = resultToHtml(result[1]) // do we still use this?
       break;
     default:
       text = String(result[1])

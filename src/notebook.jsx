@@ -99,15 +99,20 @@ var createCellPlotData = require("./cell-plots-adapter");
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
-  let {results, plots, error, locals} = data;
+  let {index, results, plots, error, locals} = data;
 
+  livebookStore.dispatch({ type: "NEW_RESULTS", index, results, plots, locals, error })
+
+/*
   if (error) handleError(error);
   if (!empty(plots)) handlePlots(plots)
   if (!empty(results)) handleResults(results,locals)
+*/
   let { forceUpdateEditor } = uglyAntiFunctions;
   forceUpdateEditor && forceUpdateEditor();
 }
 
+/*
 function handleResults(results, locals) {
   livebookStore.dispatch({ type: "NEW_RESULT", results, locals})
 }
@@ -115,6 +120,7 @@ function handleResults(results, locals) {
 function handlePlots(plots) {
   livebookStore.dispatch({ type: "NEW_PLOTS", data: plots })
 }
+*/
 
 // Utils
 var noop          = require("./util").noop;
@@ -274,12 +280,14 @@ window.onpopstate = function(event) {
   render();
 }
 
+/*
 function handleError(e) {
   console.log("ERROR:",e)
   let errors = {}
   errors[e.cell] = Object.assign({message: `${e.name}: ${e.message}`}, e);
   livebookStore.dispatch({ type: "NEW_ERRORS", data: errors });
 }
+*/
 
 var Nav = require("./components/nav");
 var Notebook = require("./components/notebook-flowing");

@@ -147,6 +147,7 @@ const CodeCell = React.createClass({
         <CodeCellOutput 
           outputs={outputs} 
           className={className} 
+          herka={this.props.plots !== undefined}
           getPlotContainers={this.getPlotContainers} />
       );
   },
@@ -275,7 +276,6 @@ const CodeCell = React.createClass({
   },
 
   render() {
-
     const id = "overlay" + this.props.index;
 
     return (
