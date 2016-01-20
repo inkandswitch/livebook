@@ -89,9 +89,10 @@ function execPython(doc,ctx,next) {
   pypyjs.ready().then(function() {
     self.RESULTS = {}
     self.PLOTS = {}
-    console.log("+EXEC:",{code:ctx.code})
+    console.log("---")
+    console.log(ctx.code)
+    console.log("---")
     pypyjs.exec(ctx.code).then(() => {
-      console.log("EXEC DONE",self.LOCALS)
       handleResult(doc, self.RESULTS, self.PLOTS, undefined, self.LOCALS)
       next()
     }).catch((e) => {
@@ -131,13 +132,21 @@ var re = /File .<string>., line (\d*)/
 function generateAndExecPython(doc) {
   self.READY = false
   basePY(() => {
-    generateAndExecPythonStep(doc,0)
+    generateAndExecPythonStep(doc,0,false)
   })
 }
 
-function generateAndExecPythonStep(doc,i) {
+let CODE_CACHE = {}
+function generateAndExecPythonStep(doc,i,started) {
   let c = doc.shift()
   let ctx = generatePythonCTX(c,i)
+  if (!started && CODE_CACHE[i] == ctx.code) {
+    console.log("REPEAT - SKIPPING",i)
+    generateAndExecPythonStep(doc,i+1,started)
+    return
+  }
+  console.log("NEW CODE - RUNNING",i)
+  delete CODE_CACHE[i]
   execPython(doc,ctx, (err) => {
     if (err) { // there was an error - stop execution
       completeWork()
@@ -146,36 +155,37 @@ function generateAndExecPythonStep(doc,i) {
     } else if (doc.length == 0) { // we finished the last block of code - stop execution
       completeWork()
     } else {
+      CODE_CACHE[i] = ctx.code
       // next tick prevents the stack from blowing up
       // also allows new messages to be processed before the next block of code is executed
-      nextTick(() => generateAndExecPythonStep(doc,i+1))
+      nextTick(() => generateAndExecPythonStep(doc,i+1,true))
     }
   })
 }
 
 function generatePythonCTX(c,i) {
   let lineno = 1;
-  let lines = ["def code():"];
+  let lines = [`def code():  ## line ${lineno}`];
   let lineno_map = {}; // keeps track of line number on which to print error
   let pad = "  "
 
-  console.log("+LOCALS",self.LOCALS)
-  console.log("+LOCALS",i,self.LOCALS[i-1])
   if (self.LOCALS[i - 1]) { // import locals from the last code block
     for (let x in self.LOCALS[i - 1]) {
-      lines.push(`${x} = LOCALS[${i - 1}]['${x}']`)
       lineno += 1
+      lines.push(`${x} = LOCALS[${i - 1}]['${x}']  # line ${lineno}`)
     }
   }
 
+  let map
   c.split("\n").forEach((line,line_number) => {
-    if (!line.match(/^\s*$/) &&
-        !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
+    if (!line.match(/^\s*$/) && !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
       lineno += 1
-      lineno_map[lineno] = { cell: i, line: line_number }
+      map = { cell: i, line: line_number, code: line }
+      lineno_map[lineno] = map
       lines.push(line.replace(/[\r\n]$/,""))
      }
    })
+   lineno_map[lineno+1] = map // somethimes the error is on the line after
    let line = lines.pop()
    if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
      lines.push(`checkpoint(${i},${line},locals())   ## line ${lineno}`)

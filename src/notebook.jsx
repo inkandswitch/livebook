@@ -32,8 +32,6 @@ function saveNotebook() {
   if (doc.html === "") return; // inital state - ignore
   if (doc.editor !== "me") return; // someone else did the update (or undefined)
 
-  console.log("SAVE?",doc.editor)
-
   // yuck...
   // If there's a pending update - change the SAVE_FUNC
   if (SAVE_TIMEOUT) {
@@ -163,10 +161,8 @@ cradle.onupdate = function() {
       '#D6F717': 'rgba(214,247,23,0.05)'
   };
 
-  console.log("onupdate1",cradle.peers())
   let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor, name: p.user.name }))
   let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: "+ colorMap[p.color]+"; }\n").join('')
-  console.log("onupdate",peers)
 
   set_avatar_colors()
 
