@@ -33,7 +33,7 @@ class Record(object):
 
 class Series(object):
     def __deepcopy__(self,memo):
-        return Series(self.data, column=self.column, idx=copy(self.idx))
+        return Series(self.data, sort=self.sort, column=self.column, idx=copy(self.idx))
 
     def __init__(self, data, column=None, sort=None, idx=None):
         if type(data) == Series:
@@ -44,7 +44,7 @@ class Series(object):
         elif (column == None):
             self.data = { "series":data }
             self.column = "series"
-            self.sort = None
+            self.sort = "series"
             self.idx = range(0,len(data))
         else:
             self.data = data
