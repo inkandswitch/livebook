@@ -113,18 +113,26 @@ function execPython(doc,ctx,next) {
   })
 }
 
-var re = /File .<string>., line (\d*)/
-var BASE = false
-function generateAndExecPython(doc) {
-  self.READY = false
-  // hack b/c sometimes base.py goes away ?? :-/ - FIXME
+let BASE = false
+function basePY(next) {
   if (BASE === false) {
-    execPython(doc,{ map: {}, code: base, length: base.split("\n").length}, () => {
-      generateAndExecPythonStep(doc,0)
+    pypyjs.exec(base).then(() => {
+      BASE = true
+      next()
+    }).catch((e) => {
+      console.log("Error running base.py")
     })
   } else {
-    generateAndExecPythonStep(doc,0)
+    next()
   }
+}
+
+var re = /File .<string>., line (\d*)/
+function generateAndExecPython(doc) {
+  self.READY = false
+  basePY(() => {
+    generateAndExecPythonStep(doc,0)
+  })
 }
 
 function generateAndExecPythonStep(doc,i) {
