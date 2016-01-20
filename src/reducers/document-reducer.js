@@ -13,9 +13,7 @@ const documentReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'INITIALIZE_DOCUMENT': return INITIALIZE_DOCUMENT(state, action);
     case 'CODE_DELTA':          return CODE_DELTA(state, action);
-    case 'NEW_RESULT':          return NEW_RESULT(state, action);
-    case 'NEW_PLOTS':           return NEW_PLOTS(state, action);
-    case 'NEW_ERRORS':          return NEW_ERRORS(state, action);
+    case 'NEW_RESULTS':         return NEW_RESULTS(state, action);
     case 'UPDATE_HTML':         return UPDATE_HTML(state, action);
     default:
       return state;
@@ -45,35 +43,26 @@ function CODE_DELTA (state, action) {
   return {...state, codeList: action.data.codeList, codeMap: nextCodeMap, editor: "me" }
 }
 
-function NEW_ERRORS(state, action) {
-  const errors = remap(action.data,state.codeList)
-  return {...state, errors, editor: "me"};
-}
+function NEW_RESULTS(state, action) {
+  let { index, results, plots, locals, error } = action
 
-function NEW_PLOTS(state, action) {
-  let next_plots = {...state.plots}
-  let next_errors = {...state.errors}
-  let next_results = {...state.results}
-  let data = remap(action.data,state.codeList)
-  for (let cell in data) {
-     next_plots[cell] = data[cell]
-     delete next_errors[cell]
-     delete next_results[cell]
-  }
-  return {...state, plots: next_plots, errors: next_errors, editor: "me"}
-}
+  index = state.codeList[index]
 
-function NEW_RESULT(state, action) {
   let next_results = {...state.results}
   let next_errors = {...state.errors}
-  let next_plots = {...state.plots}
-  let results = remap(action.results,state.codeList)
-  for (let cell in results) {
-     next_results[cell] = results[cell]
-     delete next_errors[cell]
-     delete next_plots[cell]
+  let next_plots  = {...state.plots}
+  let next_locals = {...state.locals}
+
+  if (error) {
+    next_errors[index] = error
+  } else {
+    next_locals[index] = locals
+    next_results[index] = results
+    next_plots[index] = plots
+    delete next_errors[index]
   }
-  return {...state, results: next_results, errors: next_errors, locals: action.locals, editor: "me"}
+
+  return {...state, results: next_results, plots: next_plots, errors: next_errors, locals: next_locals, editor: "me"}
 }
 
 module.exports = documentReducer;

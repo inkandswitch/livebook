@@ -105,12 +105,13 @@ const CodeCell = React.createClass({
 
     let errorObject = this.props.error,
         message = errorObject.message,
+        name = errorObject.name,
         className = "pyresult pyresult-error";
 
     if (this.underConstruction())
       className = this.appendLoadingClass(className);
 
-    return (<div className={className}>{message}</div>);
+    return (<div className={className}>{name}: {message}</div>);
   },
 
   getPlotContainers() {
@@ -277,7 +278,6 @@ const CodeCell = React.createClass({
   },
 
   render() {
-
     const id = "overlay" + this.props.index;
 
     return (
