@@ -7937,6 +7937,7 @@
     "pandas": {
       "file": "pandas.py", 
       "imports": [
+        "copy", 
         "js", 
         "json"
       ]

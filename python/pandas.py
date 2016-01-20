@@ -1,5 +1,6 @@
 
 import json
+from copy import copy
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -31,6 +32,9 @@ class Record(object):
         return self._df[attr][self._i]
 
 class Series(object):
+    def __deepcopy__(self,memo):
+        return Series(self.data, column=self.column, idx=copy(self.idx))
+
     def __init__(self, data, column=None, sort=None, idx=None):
         if type(data) == Series:
             self.data = data.data
@@ -147,6 +151,9 @@ class Series(object):
         return [ ( self.data[self.sort][i], self.data[self.column][i] ) for i in self.idx].__iter__()
 
 class DataFrame(object):
+    def __deepcopy__(self,memo):
+        return DataFrame(data=self._data, columns=copy(self._columns), sort=copy(self._sort), idx=copy(self._idx))
+
     def __init__(self, base=None, data=None, columns=None, sort=None, idx=None):
         self.iloc = IlocIndexer(self)
         if type(base) == Series:
@@ -165,6 +172,10 @@ class DataFrame(object):
             self._sort = sort or base._sort
             self._idx = idx or base._idx
         else:
+            self._data = data
+            self._columns = columns
+            self._sort = sort
+            self._idx = idx
             pass
         self.__postinit__()
 

@@ -1,5 +1,5 @@
 import js
-
+import copy
 import matplotlib.pyplot as pt
 
 LOCALS = {}
@@ -19,4 +19,4 @@ def checkpoint(cell,val,local):
     types = dict([[k,str(type(local[k]))] for k in local.keys()])
     print types
     js.globals['LOCALS'][cell] = js.convert(types)
-    LOCALS[cell] = local
+    LOCALS[cell] = dict([[k,copy.deepcopy(local[k])] for k in local.keys()])

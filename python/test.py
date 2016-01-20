@@ -1,7 +1,21 @@
 
 import pandas as pd
+import copy
 
 class Test:
+    def test_deepcopy(self):
+        df1 = pd.DataFrame.from_dict({"name":["zak","aaron"],"age":[30,40]}).sort_values("name")
+        df2 = copy.deepcopy(df1)
+        assert df1._data is df2._data
+        assert not df1._columns is df2._columns
+        assert not df1._idx is df2._idx
+        s1 = df1["name"]
+        s2 = copy.deepcopy(s1)
+        assert s1.data is s2.data
+        assert s1.column is s2.column # is str - imutable
+        assert s1.sort is s2.sort # is str - imutable
+        assert not s1.idx is s2.idx
+
     def test_getitem(self):
         df1 = pd.DataFrame.from_dict({"name":["zak","aaron"],"age":[30,40]})
         df2 = df1.set_index("name").sort_values("name")
@@ -168,5 +182,6 @@ def run():
     do_test(t,"test_setitem")
     do_test(t,"test_set_and")
     do_test(t,"test_describe")
+    do_test(t,"test_deepcopy")
     print "done"
 
