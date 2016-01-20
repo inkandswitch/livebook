@@ -2,16 +2,33 @@ const React     = require("react");
 const ReactDOM  = require("react-dom");
 const { VelocityTransitionGroup } = require('velocity-react');
 
+const getTypeMetaData = () => {};
+
 const Text = () => ({
+  parseDescription(local) {
+    const { desc } = local;
+    if (!desc) {
+      return "";
+    }
+    const re = /type \'(\w*)\'/;
+    const match = desc.match(re);
+    if (match && match[1]) {
+      return match[1]
+    }
+    return null;
+  },
+
   render() {
     const { local } = this.props;
-
+    let { name } = local;
+    const type = this.parseDescription(local);
+    if (type === null) name = "";
     return (
       <div style={this.props.style} className="notebook-syntax-helper">
         <p><small>Look! A local variable appeared!</small></p>
-        <b>{ local.name }</b>
+        <b>{ name }</b>
         &nbsp; &nbsp;
-        <i style={{ fontWeight: 300 }}>{ local.desc }</i>
+        <i style={{ fontWeight: 300 }}>{ type }</i>
       </div>
     );
   }

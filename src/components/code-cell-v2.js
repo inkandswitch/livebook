@@ -204,9 +204,11 @@ const CodeCell = React.createClass({
         if (word === lastWord) return;
 
         lastWord = word;
+
+        let type = this.props.locals[word];
         let local = {
           name: word,
-          desc: this.props.locals[word],
+          desc: type,
         };
 
         if (local.desc) {
