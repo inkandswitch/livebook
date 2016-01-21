@@ -91,7 +91,9 @@ const Menu = React.createClass({
   },
 
   downloadPayload() {
-    document.getElementById("downloader").setAttribute('href','data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(docToIPy(this.doc()),null,2)))
+    let doc = docToIPy(this.doc()) // ipython format
+    //let doc = this.doc()  // native format
+    document.getElementById("downloader").setAttribute('href','data:application/octet-stream;charset=utf-8,' + encodeURIComponent(JSON.stringify(doc,null,2)))
     return true
   },
 

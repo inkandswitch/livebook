@@ -1,0 +1,473 @@
+{
+  "codeList": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14"
+  ],
+  "codeMap": {
+    "1": "import matplotlib.pyplot as plt\nimport pandas as pd",
+    "2": "all_quakes = pd.DataFrame.from_csv(\"earthquake_states.csv\", index_col=None, parse_dates=[\"time\", \"updated\"])\nlen(all_quakes)",
+    "3": "all_quakes.head()",
+    "4": "us_quakes = all_quakes.dropna(subset=[\"state\"])\nlen(us_quakes)",
+    "5": "state_counts = pd.DataFrame(us_quakes.state.value_counts())\nstate_counts.head()",
+    "6": "data = us_quakes[us_quakes[\"state\"] == \"Oklahoma\"].set_index(\"time\")[\"id\"].resample(\"A\", how=\"count\")\ndata.head()",
+    "7": "plt.plot(data)",
+    "8": "data = us_quakes[us_quakes[\"state\"] == \"California\"].set_index(\"time\")[\"id\"].resample(\"A\", how=\"count\")\nplt.plot(data)",
+    "9": "data = us_quakes[us_quakes[\"state\"] == \"Texas\"].set_index(\"time\")[\"id\"].resample(\"A\", how=\"count\")\nplt.plot(data)",
+    "10": "data = us_quakes[us_quakes[\"state\"] == \"Kansas\"].set_index(\"time\")[\"id\"].resample(\"A\", how=\"count\")\nplt.plot(data)",
+    "11": "def quake_percentage_change(state):\n    by_year = pd.DataFrame(us_quakes[us_quakes[\"state\"] == state].set_index(\"time\")[\"id\"].resample(\"AS\", how=\"count\"))\n    by_year[\"start\"] = by_year.index\n    by_year[\"year\"] = by_year[\"start\"].apply(lambda x: int(x[0:4]))\n    decade_05_14 = by_year[(by_year[\"year\"] >= 2005) & (by_year[\"year\"] <= 2014)]\n    total_05_14 = decade_05_14[\"count\"].sum()\n    decade_95_04 = by_year[(by_year[\"year\"] >= 1995) & (by_year[\"year\"] <= 2004)]\n    total_95_04 = decade_95_04[\"count\"].sum()\n    if total_95_04 != 0:\n        pct = round(100.0 * (total_05_14 - total_95_04) / total_95_04, 2)\n    else:\n        pct = None\n    return total_95_04, total_05_14, pct",
+    "12": "state_counts[\"name\"] = state_counts.index\nstate_counts[\"total_95-04\"], state_counts[\"total_05-14\"], state_counts[\"percentage_change\"] =\\\n    zip(*state_counts[\"name\"].apply(lambda x: quake_percentage_change(x)))",
+    "13": "state_counts[state_counts[\"total_95-04\"] >= 5].sort_values(by=\"percentage_change\", ascending=False).head(10)",
+    "14": ""
+  },
+  "errors": {},
+  "html": "<h1 livebook-node-id=\"33hoxodc20wtrzfr\">Analyzing State-by-State Changes In Earthquake Frequency</h1>\n<p livebook-node-id=\"emifbdo3bpe6d2t9\"><em>adapted from <a href=\"https://github.com/BuzzFeedNews/2015-03-earthquake-maps/blob/master/notebooks/earthquake-state-analysis.ipynb\">this notebook</a> by <a href=\"https://twitter.com/jtemplon\">John Templon</a></em></p>\n\n<p livebook-node-id=\"li2nd4kdgo4gf1or\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder1\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<h3 id=\"load-and-clean-up-data\" livebook-node-id=\"2eeey1drkqsq0k9\">Load and clean up data</h3>\n<p livebook-node-id=\"4swxxzuy90qc9pb9\">The data was obtained from USGS here: <a href=\"http://earthquake.usgs.gov/earthquakes/search/\">http://earthquake.usgs.gov/earthquakes/search/</a>. It was then run through a PostGIS database to determine the location of the epicenters by state, since USGS does provide specific state locations in its data.</p>\n\n<p livebook-node-id=\"uiyo36b5e14f5hfr\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder2\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<p livebook-node-id=\"fv0r6713t66wp14i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder3\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 100px;\"></p>\n<p livebook-node-id=\"xzryw2zlohguv7vi\">Some earthquakes within the U.S. bounding box don't have epicenters outside any state (e.g., the ocean).</p>\n\n<p livebook-node-id=\"3ml0eon6u13mobt9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder4\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<p livebook-node-id=\"sxf5g4z84s2d42t9\">Count number of earthquakes per state</p>\n\n<p livebook-node-id=\"sd5r2em2ekejc3di\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder5\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<h2 id=\"charting-earthquake-activity-over-time-by-state\" livebook-node-id=\"x2k386fpziio1or\">Charting Earthquake Activity Over Time, By State</h2>\n\n<p livebook-node-id=\"ubd1bekyuylm1jor\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder6\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<p livebook-node-id=\"pak57s6b8nd34n29\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder7\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 100px;\"></p>\n<p livebook-node-id=\"452twfd3d9t9ms4i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder8\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<p livebook-node-id=\"3w1qy28oxjtkpgb9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder9\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<p livebook-node-id=\"hrmay5rvp2bxd2t9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder10\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<h2 id=\"calculating-percentage-change-decade-over-decade\" livebook-node-id=\"afruy58sx6gbke29\">Calculating Percentage Change Decade Over Decade</h2>\n<p livebook-node-id=\"aaxgpailmm0io1or\">The most recent complete year of earthquakes is 2014. Below, we compare 2005-2014 to the prior decade, 1995-2004.</p>\n\n<p livebook-node-id=\"w8nojz0kt0t9ms4i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder11\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 292px;\"></p>\n<p livebook-node-id=\"v6pf8lzrq5i885mi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder12\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 132px;\"></p>\n<p livebook-node-id=\"r6joyw3vvzog8pvi\">States with at least 5 earthquakes from 1995-2004 (sorted by percentage change decade-over-decade):</p>\n\n<p livebook-node-id=\"3flwphzuylfmvx6r\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder13\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 100px;\"></p>\n<p livebook-node-id=\"rtz4npnumf2mx6r\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder14\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 84px;\"></p>",
+  "title": "",
+  "plots": {
+    "7": [
+      [
+        "plot",
+        {
+          "x": "id",
+          "columns": [
+            [
+              "id",
+              "2014-01-01",
+              "2011-01-01",
+              "2013-01-01",
+              "2012-01-01",
+              "2010-01-01",
+              "2009-01-01",
+              "2008-01-01",
+              "2007-01-01",
+              "2006-01-01",
+              "2005-01-01",
+              "2004-01-01",
+              "2002-01-01"
+            ],
+            [
+              "count",
+              585,
+              64,
+              107,
+              34,
+              43,
+              20,
+              2,
+              1,
+              3,
+              1,
+              2,
+              3
+            ]
+          ],
+          "original_type": "series"
+        },
+        null
+      ]
+    ],
+    "8": [
+      [
+        "plot",
+        {
+          "x": "id",
+          "columns": [
+            [
+              "id",
+              "2014-01-01",
+              "1992-01-01",
+              "2013-01-01",
+              "2012-01-01",
+              "2011-01-01",
+              "2010-01-01",
+              "2009-01-01",
+              "2008-01-01",
+              "2007-01-01",
+              "2006-01-01",
+              "2005-01-01",
+              "2004-01-01",
+              "2003-01-01",
+              "2002-01-01"
+            ],
+            [
+              "count",
+              188,
+              23,
+              240,
+              242,
+              187,
+              559,
+              246,
+              228,
+              187,
+              185,
+              228,
+              338,
+              335,
+              187
+            ]
+          ],
+          "original_type": "series"
+        },
+        null
+      ]
+    ],
+    "9": [
+      [
+        "plot",
+        {
+          "x": "id",
+          "columns": [
+            [
+              "id",
+              "2014-01-01",
+              "2013-01-01",
+              "2012-01-01",
+              "2011-01-01",
+              "2010-01-01",
+              "2009-01-01",
+              "2008-01-01",
+              "2007-01-01",
+              "2006-01-01",
+              "2005-01-01",
+              "2003-01-01"
+            ],
+            [
+              "count",
+              8,
+              17,
+              11,
+              17,
+              9,
+              2,
+              5,
+              2,
+              2,
+              1,
+              1
+            ]
+          ],
+          "original_type": "series"
+        },
+        null
+      ]
+    ],
+    "10": [
+      [
+        "plot",
+        {
+          "x": "id",
+          "columns": [
+            [
+              "id",
+              "2014-01-01",
+              "2013-01-01",
+              "2007-01-01",
+              "1992-01-01",
+              "2003-01-01",
+              "2002-01-01"
+            ],
+            [
+              "count",
+              42,
+              2,
+              1,
+              1,
+              1,
+              1
+            ]
+          ],
+          "original_type": "series"
+        },
+        null
+      ]
+    ]
+  },
+  "locals": {
+    "1": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>"
+    },
+    "2": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>"
+    },
+    "3": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>"
+    },
+    "4": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>"
+    },
+    "5": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>"
+    },
+    "6": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>"
+    },
+    "7": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>"
+    },
+    "8": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>"
+    },
+    "9": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>"
+    },
+    "10": {
+      "plt": "<type 'module'>",
+      "pd": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>"
+    },
+    "11": {
+      "plt": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>",
+      "quake_percentage_change": "<type 'function'>",
+      "pd": "<type 'module'>",
+      "us_quakes": "<class 'pandas.DataFrame'>"
+    },
+    "12": {
+      "plt": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>",
+      "pd": "<type 'module'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "quake_percentage_change": "<type 'function'>"
+    },
+    "13": {
+      "plt": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>",
+      "pd": "<type 'module'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "quake_percentage_change": "<type 'function'>"
+    },
+    "14": {
+      "plt": "<type 'module'>",
+      "all_quakes": "<class 'pandas.DataFrame'>",
+      "state_counts": "<class 'pandas.DataFrame'>",
+      "data": "<class 'pandas.Series'>",
+      "pd": "<type 'module'>",
+      "us_quakes": "<class 'pandas.DataFrame'>",
+      "quake_percentage_change": "<type 'function'>"
+    }
+  },
+  "results": {
+    "1": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "2": [
+      {
+        "data": {
+          "text/plain": [
+            "50000"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "3": [
+      {
+        "data": {
+          "text/html": [
+            "<table><thead><tr><th>&nbsp;</th><th>time</th><th>latitude</th><th>longitude</th><th>mag</th><th>id</th><th>updated</th><th>place</th><th>type</th><th>geom</th><th>state</th></tr></thead><tbody><tr><th>0</th><td>2014-12-30 00:12:02.71-05</td><td>35.936667</td><td>-117.222167</td><td>3.470000</td><td>ci37300152</td><td>2015-02-19 21:27:38.024-05</td><td>23km NE of Trona, California</td><td>earthquake</td><td>0101000020AD100000A9B0ADFA374E5DC04AE0C5B1E4F74140</td><td>California</td></tr><tr><th>1</th><td>2012-08-27 03:24:12.06-04</td><td>7.853000</td><td>-78.214000</td><td>4.300000</td><td>usp000jqve</td><td>2014-11-06 20:48:37.813-05</td><td>Panama</td><td>earthquake</td><td>0101000020AD10000004560E2DB28D53C0B6F3FDD478691F40</td><td>&nbsp;</td></tr><tr><th>2</th><td>2014-12-29 23:13:42-05</td><td>12.817000</td><td>-88.558000</td><td>4.300000</td><td>usc000tapp</td><td>2015-02-19 21:24:36.573-05</td><td>51km S of Puerto El Triunfo, El Salvador</td><td>earthquake</td><td>0101000020AD100000C0CAA145B62356C0FCA9F1D24DA22940</td><td>&nbsp;</td></tr><tr><th>3</th><td>2014-12-29 23:08:52.2-05</td><td>14.837000</td><td>-93.656000</td><td>3.700000</td><td>usc000te0p</td><td>2015-02-07 17:16:57.585-05</td><td>104km SW of Mapastepec, Mexico</td><td>earthquake</td><td>0101000020AD100000448B6CE7FB6957C0068195438BAC2D40</td><td>&nbsp;</td></tr><tr><th>4</th><td>2014-12-29 17:50:55-05</td><td>36.754500</td><td>-98.177800</td><td>3.100000</td><td>usc000takq</td><td>2014-12-29 20:53:36.056-05</td><td>15km E of Cherokee, Oklahoma</td><td>earthquake</td><td>0101000020AD100000A54E4013618B58C07F6ABC7493604240</td><td>Oklahoma</td></tr></tbody></table>"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "4": [
+      {
+        "data": {
+          "text/plain": [
+            "12100"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "5": [
+      {
+        "data": {
+          "text/html": [
+            "<table><thead><tr><th>&nbsp;</th><th>count</th></tr></thead><tbody><tr><th>Alaska</th><td>5371.000000</td></tr><tr><th>California</th><td>3373.000000</td></tr><tr><th>Oklahoma</th><td>865.000000</td></tr><tr><th>Nevada</th><td>618.000000</td></tr><tr><th>Washington</th><td>270.000000</td></tr></tbody></table>"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "6": [
+      {
+        "data": {
+          "text/html": [
+            "<table><thead><tr><th>&nbsp;</th><th>count</th></tr></thead><tbody><tr><th>2014-01-01</th><td>585.000000</td></tr><tr><th>2011-01-01</th><td>64.000000</td></tr><tr><th>2013-01-01</th><td>107.000000</td></tr><tr><th>2012-01-01</th><td>34.000000</td></tr><tr><th>2010-01-01</th><td>43.000000</td></tr></tbody></table>"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "7": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "8": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "9": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "10": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "11": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "12": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "13": [
+      {
+        "data": {
+          "text/html": [
+            "<table><thead><tr><th>&nbsp;</th><th>count</th><th>name</th><th>total_95-04</th><th>total_05-14</th><th>percentage_change</th></tr></thead><tbody><tr><th>Oklahoma</th><td>865.000000</td><td>Oklahoma</td><td>5.000000</td><td>860.000000</td><td>17100.000000</td></tr><tr><th>Arizona</th><td>71.000000</td><td>Arizona</td><td>7.000000</td><td>63.000000</td><td>800.000000</td></tr><tr><th>Hawaii</th><td>267.000000</td><td>Hawaii</td><td>27.000000</td><td>240.000000</td><td>788.890000</td></tr><tr><th>Colorado</th><td>78.000000</td><td>Colorado</td><td>9.000000</td><td>69.000000</td><td>666.670000</td></tr><tr><th>Nevada</th><td>618.000000</td><td>Nevada</td><td>88.000000</td><td>526.000000</td><td>497.730000</td></tr><tr><th>Montana</th><td>181.000000</td><td>Montana</td><td>31.000000</td><td>150.000000</td><td>383.870000</td></tr><tr><th>Idaho</th><td>115.000000</td><td>Idaho</td><td>24.000000</td><td>91.000000</td><td>279.170000</td></tr><tr><th>Wyoming</th><td>207.000000</td><td>Wyoming</td><td>42.000000</td><td>156.000000</td><td>271.430000</td></tr><tr><th>Utah</th><td>150.000000</td><td>Utah</td><td>33.000000</td><td>116.000000</td><td>251.520000</td></tr><tr><th>California</th><td>3373.000000</td><td>California</td><td>860.000000</td><td>2490.000000</td><td>189.530000</td></tr></tbody></table>"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ],
+    "14": [
+      {
+        "data": {
+          "text/plain": [
+            "None"
+          ]
+        },
+        "execution_count": 1,
+        "metadata": {},
+        "output_type": "execute_result"
+      }
+    ]
+  },
+  "editor": "me"
+}

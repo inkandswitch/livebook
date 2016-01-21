@@ -124,11 +124,16 @@ func forkDocument(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &request)
 	// SECURITY ISSUE - can read any file with ".."
+	ipynb := request["ipynb"]
 	csv, _ := ioutil.ReadFile("./public" + request["csv"])
-	ipynb, _ := ioutil.ReadFile("./public" + request["ipynb"])
+	doc, err := ioutil.ReadFile("./public" + ipynb[:len(ipynb)-5] + "json") // replace .ipynb with .json
+	if (err != nil) {
+		fmt.Printf("json file missing, falling back to ipynb")
+		doc,_ = ioutil.ReadFile("./public" + ipynb)
+	}
 	document := &Document{Name: "Hello", Uid: randomUID()}
 	DB.Create(&document)
-	notebook := &Notebook{DocumentId: document.ID, Name: "NotebookName", Body: string(ipynb)}
+	notebook := &Notebook{DocumentId: document.ID, Name: "NotebookName", Body: string(doc)}
 	DB.Create(&notebook)
 	datafile := &DataFile{DocumentId: document.ID, Name: "DataName", Body: string(csv)}
 	DB.Create(&datafile)
