@@ -7,7 +7,7 @@ const getTypeMetaData = () => {};
 const Text = () => ({
   parseDescription(local) {
     const { desc } = local;
-    if (!desc) return "";
+    if (!desc) return null;
 
     let result;
 
@@ -50,17 +50,35 @@ const Text = () => ({
     return null;
   },
 
+  docLink({ name, type }) {
+    if (name && type) {
+      return <a className="notebook-syntax-helper-docs">{ type } docs &rarr;</a>;
+    }
+    return "";
+  },
+
+  spacer() {
+    return (
+      <span className="notebook-syntax-helper-spacer">
+        &nbsp; &bull; &nbsp;
+      </span>
+    );
+  },
+
   render() {
     const { local } = this.props;
     let { name } = local;
     const type = this.parseDescription(local);
+    let inspect = "inspection";
+    if (type === null) inspect = "";
     if (type === null) name = "";
     return (
       <div style={this.props.style} className="notebook-syntax-helper">
-        <p><small><i>{ name ? "" : "Move your cursor over a variable to inspect it" }</i></small></p>
-        <b>{ name }</b>
-        &nbsp; &nbsp;
-        <i style={{ fontWeight: 300 }}>{ type }</i>
+        <span className="notebook-syntax-helper-code">{ name }</span>
+        <span className="notebook-syntax-helper-blue">{ type }</span>
+        { name && type ? this.spacer() : "" }
+        <span className="notebook-syntax-helper-orange"><i>{ inspect }</i></span>
+        {this.docLink({ name, type })}
       </div>
     );
   }
@@ -70,13 +88,13 @@ const SyntaxPopup = () => ({
 
   styles() {
     const style = {
-      background: "rgba(221,221,221,.98)",
-      border: "solid 1px rgba(162,162,162,1)",
-      borderRadius: 4,
-      boxShadow: "white 0 -1px 2px",
+      background: "rgba(225,225,225,.98)",
+      border: "solid 1px rgba(167,167,167,1)",
+      borderRadius: 5,
+      boxShadow: "white 0 -1px 1px",
       boxSizing: "border-box",
-      fontSize: "80%",
-      height: 78,
+      fontSize: "95%",
+      height: 50,
       left: "3%",
       padding: ".4em 1em .5em",
       position: "absolute",
@@ -91,7 +109,7 @@ const SyntaxPopup = () => ({
     const enter = {
       animation: {
         maxHeight: 1000,
-        translateY: -70,
+        translateY: -35,
       },
       duration: 300,
       visibility: "visible",

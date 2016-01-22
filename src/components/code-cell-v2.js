@@ -214,13 +214,8 @@ const CodeCell = React.createClass({
         if (local.desc) {
           this.setState({ local });
         }
-        else if (!local.name.trim()) {
-          local.name = "¯\\_(ツ)_/¯";
-          local.desc = "";
-          this.setState({ local });          
-        }
         else {
-          local.desc = "Mehhhhh";
+          local.desc = "";
           this.setState({ local });
         }
       };

@@ -3,6 +3,8 @@ $blue: #2A64C7;
 
 $bold: 600;
 
+$ace-font: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+
 body {
   font-family: 'Helvetica Neue', sans-serif;
   color: $black;
@@ -108,8 +110,38 @@ img[data-livebook-placeholder-cell] {
 }
 
 .notebook-syntax-helper {
-  
+  font-weight: 600;
+  position: relative;
 }
+
+.notebook-syntax-helper-code {
+  display: inline-block;
+  font-family: $ace-font;
+  margin-right: 1em;
+}
+
+.notebook-syntax-helper-docs {
+  color: #999;
+  cursor: pointer;
+  display: inline-block;
+  float: right;
+  font-size: 91%;
+  font-weight: 300;
+}
+
+.notebook-syntax-helper-blue {
+  color: rgb(95, 124, 206);
+}
+
+.notebook-syntax-helper-purple {
+  color: rgb(138, 9, 149);
+}
+
+.notebook-syntax-helper-orange {
+  color: rgb(215, 118, 22);
+}
+
+
 
 .notebook .codewrap {
   border: .1em solid #ddd;
@@ -619,6 +651,8 @@ div.ace-content {
   cursor: pointer;
   opacity: .6;
 }
+
+
 
 @media only screen and (min-width: 800px) {
   .app-container {
