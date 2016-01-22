@@ -40,7 +40,7 @@ const Text = () => ({
           return (
             <span>
               { spacer }
-              <span className={className}>{ v }</span>
+              <span className={className}>{ d }</span>
             </span>
           );
         })
