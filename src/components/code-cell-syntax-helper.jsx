@@ -24,7 +24,7 @@ const Text = () => ({
   value(v) {
     const spacer = this.spacer();
 
-    if (typeof v === "string") {
+    if (typeof v === "string" || typeof v === "number") {
       return (
         <span>
           { spacer }
