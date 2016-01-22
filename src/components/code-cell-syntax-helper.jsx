@@ -67,7 +67,7 @@ const Text = () => ({
       <div style={this.props.style} className="notebook-syntax-helper">
         <span className="notebook-syntax-helper-code">{ name }</span>
         <span className="notebook-syntax-helper-blue">{ type }</span>
-        { this.value() }
+        { this.value(value) }
         {this.docLink({ name, type, docs })}
       </div>
     );
