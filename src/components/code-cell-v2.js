@@ -205,20 +205,8 @@ const CodeCell = React.createClass({
         if (word === lastWord) return;
 
         lastWord = word;
-        let l = this.props.locals[word];
-        let local = { // backward compat
-          name: word,
-          type: l.desc,
-          desc: l.type,
-        };
-
-        if (local.desc) {
-          this.setState({ local });
-        }
-        else {
-          local.desc = "";
-          this.setState({ local });
-        }
+        let local = this.props.locals[word];
+        this.setState({ local });
       };
 
       const hidePanel = () => {

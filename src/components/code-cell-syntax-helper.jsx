@@ -5,54 +5,10 @@ const { VelocityTransitionGroup } = require('velocity-react');
 const getTypeMetaData = () => {};
 
 const Text = () => ({
-  parseDescription(local) {
-    const { desc } = local;
-    if (!desc) return null;
 
-    let result;
-
-    result = this.ifType(desc)
-    if (result) return result;
-
-    result = this.ifModule(desc)
-    if (result) return result;
-
-    result = this.ifClass(desc)
-    if (result) return result;
-
-    return null;
-  },
-
-  ifType(desc) {
-    const re = /type \'(\w*)\'/;
-    const match = desc.match(re);
-    if (match && match[1]) {
-      return match[1]
-    }
-    return null;
-  },
-
-  ifModule(desc) {
-    const re = /module \'(\w*)\'/;
-    const match = desc.match(re);
-    if (match && match[1]) {
-      return match[1]
-    }
-    return null;
-  },
-
-  ifClass(desc) {
-    const re = /class \'([\w|\.]*)\'/;
-    const match = desc.match(re);
-    if (match && match[1]) {
-      return match[1]
-    }
-    return null;
-  },
-
-  docLink({ name, type }) {
+  docLink({ name, type, docs }) {
     if (name && type) {
-      return <a className="notebook-syntax-helper-docs">{ type } docs &rarr;</a>;
+      return <a className="notebook-syntax-helper-docs" href={docs}>{ type } docs &rarr;</a>;
     }
     return "";
   },
@@ -65,20 +21,54 @@ const Text = () => ({
     );
   },
 
+  value(v) {
+    const spacer = this.spacer();
+
+    if (typeof v === "string") {
+      return (
+        <span>
+          { spacer }
+          <span className="notebook-syntax-helper-purple">{ v }</span>
+        </span>
+      );
+    }
+
+    if (typeof v === "object") { // array, that is
+      return (
+        v.map((d, i)=> {
+          const className = "notebook-syntax-helper-" + ( i === 0 ? "purple" : "orange");
+          return (
+            <span>
+              { spacer }
+              <span className={className}>{ v }</span>
+            </span>
+          );
+        })
+      );
+    }
+
+    return "";
+  },
+
   render() {
     const { local } = this.props;
+    const reflection = local && local.reflection;
+
+    if (!reflection) {
+      return <div style={this.props.style} />
+    }
+
     let { name } = local;
-    const type = this.parseDescription(local);
-    let inspect = "inspection";
+    const { type, value, docs } = reflection;
+
     if (type === null) inspect = "";
     if (type === null) name = "";
     return (
       <div style={this.props.style} className="notebook-syntax-helper">
         <span className="notebook-syntax-helper-code">{ name }</span>
         <span className="notebook-syntax-helper-blue">{ type }</span>
-        { name && type ? this.spacer() : "" }
-        <span className="notebook-syntax-helper-orange"><i>{ inspect }</i></span>
-        {this.docLink({ name, type })}
+        { this.value() }
+        {this.docLink({ name, type, docs })}
       </div>
     );
   }
