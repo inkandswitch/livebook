@@ -181,7 +181,7 @@ function generatePythonCTX(c,i) {
 
   let map
   c.split("\n").forEach((line,line_number) => {
-    if (!line.match(/^\s*$/) && !line.match(/^\s*%/)) {  // skip directive like "%matplotlib inline"
+    if (!line.match(/^\s*$/) && !line.match(/^\s*%/) && !line.match(/^\s*#/)) {  // skip directive like "%matplotlib inline"
       lineno += 1
       map = { cell: i, line: line_number, code: line }
       lineno_map[lineno] = map
