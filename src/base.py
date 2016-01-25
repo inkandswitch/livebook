@@ -1,5 +1,6 @@
 import js
 import copy
+import inspect
 import matplotlib.pyplot as pt
 
 LOCALS = {}
@@ -21,7 +22,52 @@ def inspect_int(x):
     return {
         "type": type_name(x),
         "value": x,
-        "docs": "http://readthedocs.com"
+        "docs": "https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex"
+    }
+
+
+def inspect_bool(x):
+    return {
+        "type": type_name(x),
+        "value": "True" if x else "False",
+        "docs": "https://docs.python.org/3/library/stdtypes.html#truth-value-testing"
+    }
+
+
+def inspect_str(x):
+    chars = '({} chars)'.format(len(x))
+    name = '"{}"'.format(x)
+    return {
+        "type": type_name(x),
+        "value": ' '.join([name, chars]),
+        "docs": "https://docs.python.org/3.1/library/stdtypes.html#string-methods"
+    }
+
+
+def inspect_list(x):
+    items = "{} items".format(len(x))
+    return {
+        "type": type_name(x),
+        "value": [items],
+        "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
+    }
+
+
+def inspect_dict(x):
+    items = "{} items".format(len(x))
+    return {
+        "type": type_name(x),
+        "value": [items],
+        "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#dictionaries"
+    }
+
+
+def inspect_function(x):
+    nr_args = "{} arguments".format(len(inspect.getargspec(x)[0]))
+    return {
+        "type": type_name(x),
+        "value": [nr_args],
+        "docs": "https://docs.python.org/3/reference/compound_stmts.html#function"
     }
 
 
@@ -34,10 +80,23 @@ def inspect_pandas_DataFrame(df):
         "docs": "http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html"
     }
 
+def inspect_pandas_Series(s):
+    records = "%d Records" % len(s)
+    return {
+        "type": type_name(df),
+        "value": [records],
+        "docs": "http://pandas.pydata.org/pandas-docs/version/0.17.1/generated/pandas.Series.html"
+    }
 
 TYPES_TO_INSPECT = {
     "int": inspect_int,
-    "pandas.DataFrame": inspect_pandas_DataFrame
+    "str": inspect_str,
+    "bool": inspect_bool,
+    "list": inspect_list,
+    "dict": inspect_dict,
+    "function": inspect_function,
+    "pandas.DataFrame": inspect_pandas_DataFrame,
+    "pandas.Series": inspect_pandas_Series
 }
 
 
