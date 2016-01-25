@@ -71,6 +71,19 @@ def inspect_function(x):
     }
 
 
+def inspect_module(x):
+    default_doc = "https://docs.python.org/3/library/stdtypes.html#modules"
+    dict_doc = {
+        "pandas": "http://pandas.pydata.org/pandas-docs/version/0.17.1/",
+        "matplotlib.pyplot": "http://matplotlib.org/api/pyplot_api.html"
+    }
+    return {
+        "type": type_name(x),
+        "value": x.__name__,
+        "docs": dict_doc.get(x.__name__, default_doc)
+    }
+
+
 def inspect_pandas_DataFrame(df):
     records = "%d Records" % len(df)
     columns = "%d Columns" % len(df.columns())
@@ -95,6 +108,7 @@ TYPES_TO_INSPECT = {
     "list": inspect_list,
     "dict": inspect_dict,
     "function": inspect_function,
+    "module": inspect_module,
     "pandas.DataFrame": inspect_pandas_DataFrame,
     "pandas.Series": inspect_pandas_Series
 }
