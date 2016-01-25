@@ -30,6 +30,8 @@ const {
 } = require("./line");
 
 const PLACEHOLDER_ID_BASE = "placeholder";
+const PURPLE_PIXEL_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==";
+const TRANS_PIXEL_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII";
 
 function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList }) {
     let codeindex;
@@ -74,6 +76,8 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
         editor = this.base;
 
         removeAllLineHighlights();
+
+        adjustPlaceholderImageColors(editor);
 
         addPlusButton({
           clickHandler: (_, { line }) => replaceLine(line),
@@ -163,11 +167,11 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       });
     }
 
-    // Implements a shitty 'strategy'-esque pattern
-    // (the strategy depends on whether there cursor is over prose or code)
+    // Implements a shitty strategy-like pattern
+    // (the strategy depends on whether the cursor is over prose or code)
     function addCodeCell(editor) {
       const index = (codeindex && codeindex++) || 1;
-      const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
+      const html = `<p>${createPlaceholderImgHTML(index)}</p>`;
 
       if (isCodeCellSelected()) {
         addHtmlBelowPlaceholder(html, getSelectedPlaceholder());
@@ -186,7 +190,7 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
 
     function replaceLine(line) {
       const index = (codeindex && codeindex++) || 1;
-      const html = `<p><img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg=="></p>`;
+      const html = `<p>${createPlaceholderImgHTML(index)}</p>`;
 
       editor.selectElement(line);
       editor.pasteHTML(html, { cleanAttrs: ["style","dir"] });
@@ -204,6 +208,7 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       validateHeading(editor);
       validateSegments(editor);
       removeNestedSpanStyles(editor);
+
 
       let codeDelta = {};
       let codeList = getCurrentCodeList();
@@ -299,6 +304,36 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       [].forEach.call(h2Spans, (span) => {
         span.setAttribute("style", "");
       })
+    }
+
+    function adjustPlaceholderImageColors(editor) {
+      if (!isProduction()) {
+        return;
+      }
+      const editorElement = editor.origElements;
+      const purpleImgs = editorElement.querySelectorAll("[data-livebook-placeholder-cell][src$='"+PURPLE_PIXEL_BASE64+"']");
+      [].forEach.call(purpleImgs, function(img) {
+        img.src = img.src.replace(PURPLE_PIXEL_BASE64, TRANS_PIXEL_BASE64);
+      });
+    }
+
+    function createPlaceholderImgHTML(index) {
+      const imgBase64 = getPlaceholderImgColor();
+      const html = `<img data-livebook-placeholder-cell id="${PLACEHOLDER_ID_BASE}${index}" width="100%" src="data:image/png;base64,${imgBase64}">`;
+      return html;
+    }
+
+    function getPlaceholderImgColor() {
+      if (!isProduction()) {
+        // Local and dev (purple pixel)
+        return PURPLE_PIXEL_BASE64;
+      }
+      // Production (transparent pixel)
+      return TRANS_PIXEL_BASE64;
+    }
+
+    function isProduction() {
+      return window.location.host.indexOf("inkandswitch") !== -1;
     }
 }
 
