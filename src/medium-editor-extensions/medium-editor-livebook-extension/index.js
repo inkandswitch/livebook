@@ -296,8 +296,8 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       // NB this will prob not play nicely with line-highlighting
       const editorElement = editor.origElements;
       const h2Spans = editorElement.querySelectorAll("h2 span[style]");
-      [].forEach.call(h2Spans, (h2) => {
-        h2.style.fontSize = "";
+      [].forEach.call(h2Spans, (span) => {
+        span.setAttribute("style", "");
       })
     }
 }
