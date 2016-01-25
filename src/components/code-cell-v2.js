@@ -111,7 +111,7 @@ const CodeCell = React.createClass({
     if (this.underConstruction())
       className = this.appendLoadingClass(className);
 
-    return (<div className={className}>{name}: {message}</div>);
+    return (<div onClick={stopTheBubbly} className={className}>{name}: {message}</div>);
   },
 
   getPlotContainers() {
