@@ -7,6 +7,7 @@ let Cradle = require('../cradle');
 let CURSOR;
 
 require("../medium-editor-extensions/heading-button/")(MediumEditor); // modify default h2 button prototype
+require("../medium-editor-extensions/anchor-preview/")(MediumEditor); // modify default anchor preview prototype
 
 const { areMapsEqual, eventFire } = require("../util");
 
@@ -61,6 +62,12 @@ module.exports = React.createClass({
     }
 
     this.medium.subscribe('editableInput', updateHTML)
+
+    this.medium.subscribe('editableClick', (e) => {
+      if (e.target.href) {
+        window.open(e.target.href);
+      }
+    })
 
     livebookExtension.forceUpdate()
     if (this.medium.origElements.innerHTML !== this.doc().html) { // if the document required changes - save it

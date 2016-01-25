@@ -109,6 +109,19 @@ img[data-livebook-placeholder-cell] {
   text-align: justify;
 }
 
+.notebook a {
+  cursor: pointer;
+}
+
+// yikes that is a a class name if i ever saw one
+.medium-editor-toolbar-anchor-preview-helper-copy {
+  display: block;
+  font-size: 75%;
+  opacity: .72;
+  padding-right: .5em;
+  padding-top: .4em;
+}
+
 .notebook-syntax-helper {
   font-weight: 600;
   position: relative;
