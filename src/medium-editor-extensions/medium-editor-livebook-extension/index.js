@@ -18,7 +18,8 @@ const {
   goToNextCodeCell,
   handleCodeCellKeyEvent,
   highlightSelectedCodeCell,
-  isCodeCellSelected, } = require("./code-cell");
+  isCodeCellSelected,
+  pasteBelowPlaceholder } = require("./code-cell");
 
 const {
   addPlusButton,

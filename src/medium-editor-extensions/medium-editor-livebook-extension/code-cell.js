@@ -15,6 +15,7 @@ module.exports = {
     handleCodeCellKeyEvent,
     highlightSelectedCodeCell,
     isCodeCellSelected,
+    pasteBelowPlaceholder
 };
 
 function goToNextCodeCell(editor) {
