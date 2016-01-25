@@ -176,10 +176,18 @@ const CodeCell = React.createClass({
     const topPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-top').replace("px","");
     // const bottomPadding = +getComputedStyle(containerParent, null).getPropertyValue('padding-bottom').replace("px","");
 
-    container.style.height = (height - topPadding) + "px";
+    container.style.height = "auto";
+    container.style.minHeight = (height - topPadding) + "px";
     container.style.width = (width - leftPadding - rightPadding) + "px";
     containerParent.firstChild.style.display = "none"; // hide the code block
     container.style.display = "block";
+  },
+
+  updateEditorSize(editor) {
+    let numRows = editor.getSession().getLength();
+    let minHeight = (numRows * 16) + "px"; // yargh...
+    editor.container.style.minHeight = minHeight;
+    editor.resize();
   },
 
   createAceEditor() {
@@ -228,10 +236,11 @@ const CodeCell = React.createClass({
       });
 
       editor.selection.on("changeCursor", (event, _) => {
-        global.ACEDITOR = editor;
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(() => showDef(), 60)
       });
+
+      editor.on("change", () => this.updateEditorSize(editor))
 
       this.setState({ editor });
     };
