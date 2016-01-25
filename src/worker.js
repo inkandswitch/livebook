@@ -191,7 +191,9 @@ function generatePythonCTX(c,i) {
    lineno_map[lineno+1] = map // somethimes the error is on the line after
    let line = lines.pop()
    if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-     lines.push(`checkpoint(${i},${line},locals())   ## line ${lineno}`)
+     lineno += 1
+     lines.push(`__return__ = ${line}`)
+     lines.push(`checkpoint(${i},__return__,locals())   ## line ${lineno}`)
    } else {
      lineno += 1
      lines.push(line)
