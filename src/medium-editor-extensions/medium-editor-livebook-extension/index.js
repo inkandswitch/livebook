@@ -73,7 +73,7 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
 
         editor = this.base;
 
-        removeAllLineHighlights();        
+        removeAllLineHighlights();
 
         addPlusButton({
           clickHandler: (_, { line }) => replaceLine(line),
@@ -201,8 +201,9 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
     }
 
     function validateContents(editor) {
-      validateHeading(editor)
-      validateSegments(editor)
+      validateHeading(editor);
+      validateSegments(editor);
+      removeNestedSpanStyles(editor);
 
       let codeDelta = {};
       let codeList = getCurrentCodeList();
@@ -289,6 +290,15 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       else {
         firstChild.classList.remove("notebook-title-show-placeholder");        
       }
+    }
+
+    function removeNestedSpanStyles(editor) {
+      // NB this will prob not play nicely with line-highlighting
+      const editorElement = editor.origElements;
+      const h2Spans = editorElement.querySelectorAll("h2 span[style]");
+      [].forEach.call(h2Spans, (h2) => {
+        h2.style.fontSize = "";
+      })
     }
 }
 
