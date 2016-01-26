@@ -316,7 +316,7 @@ function parseRawNotebook(raw_notebook,raw_csv) {
   }
   console.log("INIT DOCUMENT",state)
   livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: undefined })
-  WORKER.postMessage({ type: "data", data: raw_csv })
+  WORKER.postMessage({ type: "data", data: raw_csv, url: String(document.location) })
 }
 
 function postNotebookToServer(raw_notebook,raw_csv, callback) {

@@ -18,6 +18,7 @@ function assignmentTest(line) {
 self.READY    = false
 self.NEXT_JOB = undefined
 self.LOCALS   = {}
+self.URL      = undefined
 let RAW_DATA  = undefined
 
 onmessage = function(e) {
@@ -29,6 +30,7 @@ onmessage = function(e) {
       break;
     case "data":
       RAW_DATA = e.data.data
+      self.URL = e.data.url
       break
     default:
       console.log("unknown message for worker",e)

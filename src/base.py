@@ -2,6 +2,7 @@ import js
 import copy
 import inspect
 import matplotlib.pyplot as pt
+import random
 
 LOCALS = {}
 
@@ -140,4 +141,6 @@ def checkpoint(cell, val, local):
     print types
     js.globals['LOCALS'][cell] = js.convert(types)
     LOCALS[cell] = dict([[k, copy.deepcopy(local[k])] for k in local.keys()])
+
+random.seed(js.globals['URL'])
 
