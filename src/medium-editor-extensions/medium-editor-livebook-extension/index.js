@@ -112,6 +112,10 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
           if (isArrowKey(event) || isDelete(event) || isEnter(event)) {
             highlightLine(editor);
           }
+
+          if (isDelete(event) || isEnter(event)) {
+            validateContents(editor);
+          }
         });
 
         editor.subscribe("editableKeydown", (event) => {

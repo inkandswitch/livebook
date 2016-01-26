@@ -23,7 +23,7 @@ let editorOptions = {
         cleanPastedHTML: false,
         forcePlainText: false
     },
-    placeholder: "Write some Livebook!",
+    placeholder: " ",
     toolbar: {
       buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'quote'],
     },
@@ -54,6 +54,8 @@ module.exports = React.createClass({
     editorOptions.extensions.livebook = livebookExtension;
 
     this.medium = new MediumEditor(dom, editorOptions);
+
+    global.EDITOR = this.medium; // FOR DEBUG
 
     let updateHTML = (e) => {
       let html = dom.innerHTML;
