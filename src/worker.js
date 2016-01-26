@@ -170,23 +170,26 @@ function generateAndExecPythonStep(doc,i,started) {
 }
 
 function generatePythonCTX(c,i) {
-  let lineno = 1;
+  let lineno = 2;
   let lines = [`def code():  ## line ${lineno}`];
   let lineno_map = {}; // keeps track of line number on which to print error
   let pad = "  "
 
+  lineno += 1
+  lines.push(`import random as __rand__`) // dont know why i need to do this!
+
   if (self.LOCALS[i - 1]) { // import locals from the last code block
     for (let x in self.LOCALS[i - 1]) {
       lineno += 1
-      if (x === "__rand__") {
-        lines.push(`random.setstate(LOCALS[${i - 1}]['${x}'])  # line ${lineno}`)
+      if (x === "__seed__") {
+        lines.push(`__rand__.setstate(LOCALS[${i - 1}]['${x}'])  # line ${lineno}`)
       } else {
         lines.push(`${x} = LOCALS[${i - 1}]['${x}']  # line ${lineno}`)
       }
     }
   } else {
     lineno += 1
-    lines.push(`random.seed('${self.URL}')`)
+    lines.push(`__rand__.seed('${self.URL}')`)
   }
 
   let map
@@ -203,13 +206,13 @@ function generatePythonCTX(c,i) {
    if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
      lines.push(`__return__ = ${line}`)
      lineno += 1
-     lines.push(`__rand__ = random.getstate() # ${lineno}`)
+     lines.push(`__seed__ = __rand__.getstate() # ${lineno}`)
      lineno += 1
      lines.push(`checkpoint(${i},__return__,locals())   ## line ${lineno}`)
    } else {
      lines.push(line)
      lineno += 1
-     lines.push(`__rand__ = random.getstate() # ${lineno}`)
+     lines.push(`__seed__ = random.getstate() # ${lineno}`)
      lineno += 1
      lines.push(`checkpoint(${i},None,locals())    ## line ${lineno}`)
    }

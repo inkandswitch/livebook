@@ -2,7 +2,6 @@ import js
 import copy
 import inspect
 import matplotlib.pyplot as pt
-import random
 
 LOCALS = {}
 
@@ -137,6 +136,7 @@ def checkpoint(cell, val, local):
         js.globals['PLOTS'] = js.convert(plots)
     js.globals['RESULTS'] = js.convert(val2)
     local.pop("__return__",None)
+    local.pop("__random__",None)
     types = dict([[k, {"name": k, "reflection": livebook_inspect(local[k])}] for k in local.keys()])
     print types
     js.globals['LOCALS'][cell] = js.convert(types)
