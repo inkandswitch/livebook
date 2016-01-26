@@ -8,7 +8,7 @@ const Text = () => ({
 
   docLink({ name, type, docs }) {
     if (name && type) {
-      return <a className="notebook-syntax-helper-docs" href={docs}>{ type } docs &rarr;</a>;
+      return <a className="notebook-syntax-helper-docs" href={docs} target="_blank">{ type } docs &rarr;</a>;
     }
     return "";
   },
