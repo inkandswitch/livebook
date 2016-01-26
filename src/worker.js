@@ -177,8 +177,15 @@ function generatePythonCTX(c,i) {
   if (self.LOCALS[i - 1]) { // import locals from the last code block
     for (let x in self.LOCALS[i - 1]) {
       lineno += 1
-      lines.push(`${x} = LOCALS[${i - 1}]['${x}']  # line ${lineno}`)
+      if (x === "__rand__") {
+        lines.push(`random.setstate(LOCALS[${i - 1}]['${x}'])  # line ${lineno}`)
+      } else {
+        lines.push(`${x} = LOCALS[${i - 1}]['${x}']  # line ${lineno}`)
+      }
     }
+  } else {
+    lineno += 1
+    lines.push(`random.seed('${self.URL}')`)
   }
 
   let map
@@ -193,12 +200,16 @@ function generatePythonCTX(c,i) {
    lineno_map[lineno+1] = map // somethimes the error is on the line after
    let line = lines.pop()
    if (!keyword.test(line) && !assignmentTest(line) && !defre.test(line) && !importre.test(line) && !indent.test(line)) {
-     lineno += 1
      lines.push(`__return__ = ${line}`)
+     lineno += 1
+     lines.push(`__rand__ = random.getstate() # ${lineno}`)
+     lineno += 1
      lines.push(`checkpoint(${i},__return__,locals())   ## line ${lineno}`)
    } else {
-     lineno += 1
      lines.push(line)
+     lineno += 1
+     lines.push(`__rand__ = random.getstate() # ${lineno}`)
+     lineno += 1
      lines.push(`checkpoint(${i},None,locals())    ## line ${lineno}`)
    }
    let code = lines.join("\n  ") + "\ncode()"

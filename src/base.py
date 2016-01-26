@@ -142,5 +142,3 @@ def checkpoint(cell, val, local):
     js.globals['LOCALS'][cell] = js.convert(types)
     LOCALS[cell] = dict([[k, copy.deepcopy(local[k])] for k in local.keys()])
 
-random.seed(js.globals['URL'])
-
