@@ -122,6 +122,7 @@ function execPython(doc,index,ctx,next) {
 let BASE = false
 function basePY(next) {
   if (BASE === false) {
+    console.log(base)
     pypyjs.exec(base).then(() => {
       BASE = true
       next()
