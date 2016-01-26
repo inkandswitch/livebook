@@ -144,6 +144,7 @@ function generateAndExecPython(doc) {
 
 let CODE_CACHE = {}
 function generateAndExecPythonStep(doc,i,started) {
+  if (doc.length == 0) { completeWork(); return }
   let c = doc.shift()
   let ctx = generatePythonCTX(c,i)
   if (!started && CODE_CACHE[i] == ctx.code) {
@@ -157,8 +158,6 @@ function generateAndExecPythonStep(doc,i,started) {
     if (err) { // there was an error - stop execution
       completeWork()
     } else if (self.NEXT_JOB) { // new code has arrived - stop execution
-      completeWork()
-    } else if (doc.length == 0) { // we finished the last block of code - stop execution
       completeWork()
     } else {
       CODE_CACHE[i] = ctx.code
