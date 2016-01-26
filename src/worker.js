@@ -189,7 +189,7 @@ function generatePythonCTX(c,i) {
     }
   } else {
     lineno += 1
-    lines.push(`__rand__.seed('NOT_SO_RANDOM_AFRER_ALL')`) // documents needs to produce the same results on each run
+    lines.push(`__rand__.seed('NOT_SO_RANDOM_AFTER_ALL')`) // documents needs to produce the same results on each run
   }
 
   let map
