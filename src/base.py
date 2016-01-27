@@ -18,7 +18,7 @@ def inspect_default():
     return None
 
 
-def inspect_int(x):
+def inspect_int_float(x):
     return {
         "type": type_name(x),
         "value": x,
@@ -102,7 +102,8 @@ def inspect_pandas_Series(s):
     }
 
 TYPES_TO_INSPECT = {
-    "int": inspect_int,
+    "int": inspect_int_float,
+    "float": inspect_int_float,
     "str": inspect_str,
     "bool": inspect_bool,
     "list": inspect_list,
