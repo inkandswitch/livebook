@@ -211,7 +211,7 @@ function generatePythonCTX(c,i) {
    } else {
      lines.push(line)
      lineno += 1
-     lines.push(`__seed__ = random.getstate() # ${lineno}`)
+     lines.push(`__seed__ = __rand__.getstate() # ${lineno}`)
      lineno += 1
      lines.push(`checkpoint(${i},None,locals())    ## line ${lineno}`)
    }
