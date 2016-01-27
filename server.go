@@ -117,19 +117,16 @@ func connectToDatabase() (DB gorm.DB) {
 var DB gorm.DB
 
 func forkDocument(w http.ResponseWriter, r *http.Request) {
-	//{ipynb: "/forkable/mlex1.ipynb", csv: "/forkable/mlex1.csv"//}
-	//  var doc = JSON.stringify({name: "Hello", notebook: { name: "NotebookName", body: raw_notebook } , datafile: { name: "DataName", body: raw_csv }})
-	fmt.Printf("FORK\n")
+	vars := mux.Vars(r)
+	id := vars["id"]
 	var request = map[string]string{}
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &request)
-	// SECURITY ISSUE - can read any file with ".."
-	ipynb := request["ipynb"]
-	csv, _ := ioutil.ReadFile("./public" + request["csv"])
-	doc, err := ioutil.ReadFile("./public" + ipynb[:len(ipynb)-5] + "json") // replace .ipynb with .json
+	csv, _ := ioutil.ReadFile("./public/forkable/" + id + ".csv")
+	doc, err := ioutil.ReadFile("./public/forkable/" + id + ".json")
 	if (err != nil) {
 		fmt.Printf("json file missing, falling back to ipynb")
-		doc,_ = ioutil.ReadFile("./public" + ipynb)
+		doc,_ = ioutil.ReadFile("./public/forkable/" + id + ".ipynb")
 	}
 	document := &Document{Name: "Hello", Uid: randomUID()}
 	DB.Create(&document)
@@ -138,7 +135,8 @@ func forkDocument(w http.ResponseWriter, r *http.Request) {
 	datafile := &DataFile{DocumentId: document.ID, Name: "DataName", Body: string(csv)}
 	DB.Create(&datafile)
 	fmt.Printf("FORKED %s\n", document.Uid)
-	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
+    http.Redirect(w, r, fmt.Sprintf("/d/%s", document.Uid), 302)
+//	w.Write([]byte(fmt.Sprintf("/d/%s", document.Uid)))
 }
 
 func newDocument(w http.ResponseWriter, r *http.Request) {
@@ -150,20 +148,6 @@ func newDocument(w http.ResponseWriter, r *http.Request) {
 	DB.Create(&document)
 	fmt.Printf("Create %#v\n", document)
 	w.Write([]byte(fmt.Sprintf("/d/%s\n", document.Uid)))
-}
-
-// Incomplete action (BB)
-func newWelcomeDocument(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("new welcome document \n")
-	csv, _ := ioutil.ReadFile("./public/welcome.csv")
-	ipynb, _ := ioutil.ReadFile("./public/welcome.ipynb")
-	document := &Document{Name: "Welcome"}
-	DB.Create(&document)
-	notebook := &Notebook{DocumentId: document.ID, Name: "Welcome", Body: string(ipynb)}
-	DB.Create(&notebook)
-	datafile := &DataFile{DocumentId: document.ID, Name: "Welcome", Body: string(csv)}
-	DB.Create(&datafile)
-	// w.Write([]byte(fmt.Sprintf("/d/%d\n", document.ID)))
 }
 
 func updateDocument(user_id string, w http.ResponseWriter, r *http.Request) {
@@ -306,7 +290,7 @@ func main() {
 	compress := handlers.CompressHandler
 
 	mux := mux.NewRouter()
-	mux.HandleFunc("/fork/", forkDocument).Methods("POST")
+	mux.HandleFunc("/fork/{id}", forkDocument).Methods("GET")
 	mux.HandleFunc("/d/", newDocument).Methods("POST")
 	mux.HandleFunc("/d/{id}.rtc", auth(getCradle)).Methods("GET")
 	mux.HandleFunc("/d/{id}.rtc", auth(postMessageCradle)).Methods("POST")

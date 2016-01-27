@@ -80,7 +80,7 @@ function notebookRender() {
 }
 
 function navRender() {
-  ReactDOM.render(<Nav render={render} store={livebookStore} fork={forkNotebook} />, navMount);
+  ReactDOM.render(<Nav render={render} store={livebookStore} />, navMount);
 }
 
 global.STORE = livebookStore;
@@ -299,13 +299,6 @@ function renderUploader() {
   ReactDOM.render(<Uploader show={isUploadPage} startNewNotebook={startNewNotebook} />, uploaderMount);
 }
 
-function forkNotebook(urls) {
-  $.post("/fork/", JSON.stringify(urls), function(response) {
-    let newNotebookUrl = response.trimRight();
-    window.location = newNotebookUrl;
-  })
-}
-
 function parseRawNotebook(raw_notebook,raw_csv) {
   let notebook = JSON.parse(raw_notebook)
   let state
@@ -363,10 +356,7 @@ if (/[/]d[/]([-\.a-zA-Z0-9]+)$/.test(document.location)) {
   render();
 }
 else {
-  forkNotebook({
-   ipynb: "/forkable/welcome.ipynb",
-   csv: "/forkable/welcome.csv"
-  })
+  document.location = "/fork/welcome"
 }
 
 module.exports = exports;

@@ -3,20 +3,10 @@ const React = require("react");
 const {docToIPy} = require("../ipython-converter.jsx");
 
 const GalleryItem = React.createClass({
-  clickHandler(event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.props.fork({
-      ipynb: this.props.ipynbURL,
-      csv: this.props.csvURL,
-    });
-  },
-
   render() {
     return (
-      <article className="sample-notebook-forkable" onClick={this.clickHandler}>
-        <a>{this.props.children}</a>
+      <article className="sample-notebook-forkable">
+        <a href={"/fork/" + this.props.notebook}>{this.props.children}</a>
       </article>
     );
   },
@@ -26,9 +16,7 @@ const GalleryItem = React.createClass({
 const MonteCarlo = () => ({
   render() {
     return (
-      <GalleryItem csvURL="/forkable/montecarlo.csv" 
-          ipynbURL="/forkable/montecarlo.ipynb" 
-          fork={this.props.fork}>
+      <GalleryItem notebook="montecarlo">
         Monte Carlo simulation
       </GalleryItem>
     );
@@ -38,9 +26,7 @@ const MonteCarlo = () => ({
 const Quakes = () => ({
   render() {
     return (
-      <GalleryItem csvURL="/forkable/earthquake_states.csv" 
-          ipynbURL="/forkable/earthquakes.ipynb" 
-          fork={this.props.fork}>
+      <GalleryItem notebook="earthquakes">
         Earthquakes in the midwest
       </GalleryItem>
     );
@@ -50,9 +36,7 @@ const Quakes = () => ({
 const Welcome = () => ({
   render() {
     return (
-      <GalleryItem csvURL="/forkable/welcome.csv" 
-          ipynbURL="/forkable/welcome.ipynb" 
-          fork={this.props.fork}>
+      <GalleryItem notebook="welcome">
         Welcome notebook
       </GalleryItem>
     );
@@ -124,13 +108,13 @@ const Menu = React.createClass({
             Fork a sample notebook
             <ul className="sub-menu-content">
               <li className="sub-menu-content-item">
-                <Quakes fork={this.props.fork} />
+                <Quakes />
               </li>
               <li className="sub-menu-content-item">
-                <MonteCarlo fork={this.props.fork} />
+                <MonteCarlo />
               </li>
               <li className="sub-menu-content-item">
-                <Welcome fork={this.props.fork} />
+                <Welcome />
               </li>
             </ul>
           </li>
