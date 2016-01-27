@@ -1,32 +1,58 @@
-import json
-
-
 class Static:
+    CURRENT_PLOT = None
     PLOTS_V2 = []
     PLOTS = []
 
 
 class Plot:
-    def __init__(self, *args):
-        self.data = []
-        self.chart_type = "line"
+    def __init__(self, **kwargs):
+        self.layers = []
+        if "chart_type" in kwargs:
+            self.chart_type = kwargs["chart_type"]
+        else:
+            self.chart_type = "line"
 
+    def add_layer(self, *args, **kwargs):
         if (len(args) == 1):
             # TODO - how do we parse dims?
-            self.data.append(args[0])
+            data = args[0]
+            self.layers.append({"data": data})
         elif (len(args) == 2):
             x = args[0]
             y = args[1]
-            self.data.append({"x": x, "y": y})
+            data = {"x": x, "y": y}
+            self.layers.append({"data": data})
         elif (len(args) == 3):
             # We don't know format strings
             pass
 
 
+def get_current_plot():
+    if Static.CURRENT_PLOT is None:
+        Static.CURRENT_PLOT = Plot()
+    return Static.CURRENT_PLOT
+
+
+def close():
+    """ closes the current plot """
+    if Static.CURRENT_PLOT is not None:
+        Static.PLOTS_V2.append(Static.CURRENT_PLOT)
+    Static.CURRENT_PLOT = None
+
+
 def get_plots_v2():
+    close()
     old = map(lambda p: p.__dict__, Static.PLOTS_V2)
+    print "Getting plots v2. what follows is the old var"
+    print old
+    print "hyuuup"
     Static.PLOTS_V2 = []
     return old
+
+
+def plot_v2(*args, **kwargs):
+    current_plot = get_current_plot()
+    current_plot.add_layer(*args, **kwargs)
 
 
 def get_plots():
@@ -44,8 +70,6 @@ def __plot_js__(*args, **kwargs):
         arg2 = args[1]
         Static.PLOTS.append(["plot", arg1, arg2])
 
-    Static.PLOTS_V2.append(Plot(*args))
-
 
 def plot(*args, **kwargs):
     """
@@ -56,7 +80,7 @@ def plot(*args, **kwargs):
 
         if first argument (?) is 2-dim, those columns will be plotted
     """
-    global __plot_js__
+    plot_v2(*args, **kwargs)
     if (len(args) == 1):
         data = args[0]
         __plot_js__(data.to_plot_data())
@@ -70,10 +94,13 @@ def plot(*args, **kwargs):
 
 
 def scatter(x, y):
-    global __plot_js__
     try:
         xData = [x.column] + x.data[x.column]
         yData = [y.column] + y.data[y.column]
         __plot_js__(xData, yData)
+        plot_v2(xData, yData, chart_type="scatter")
     except:
-        __plot_js__(["x"] + x, ["y"] + y)
+        xData = ["x"] + x
+        yData = ["y"] + y
+        __plot_js__(xData, yData)
+        plot_v2(x, y, chart_type="scatter")
