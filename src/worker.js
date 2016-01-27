@@ -74,9 +74,13 @@ pypyjs.loadModuleData("pandas").then(function() {
   console.log("CATCH",e)
 })
 
-function handleResult(doc, index, raw_results, plots, locals, error) {
+function handleResult(doc, index, raw_results, plots_tuple, locals, error) {
   let results = python_render(raw_results)
-  postMessage({ plots, index, results, error, locals })
+  // plots_tuple
+  const plots = plots_tuple && plots_tuple[0];
+  const plots_v2 = plots_tuple && plots_tuple[1];
+
+  postMessage({ plots, plots_v2, index, results, error, locals })
 }
 
 function completeWork() {
@@ -88,11 +92,12 @@ function execPython(doc,index,ctx,next) {
   pypyjs.ready().then(function() {
     self.RESULTS = undefined
     self.PLOTS = undefined
+    self.PLOTS_V2 = undefined
     console.log("---")
     console.log(ctx.code)
     console.log("---")
     pypyjs.exec(ctx.code).then(() => {
-      handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index])
+      handleResult(doc, index, self.RESULTS, [self.PLOTS, self.PLOTS_V2], self.LOCALS[index])
       next()
     }).catch((e) => {
       console.log("ERR",e,ctx)
@@ -107,7 +112,7 @@ function execPython(doc,index,ctx,next) {
         } else {
           error  = { name: e.name, message: e.message, cell: ctx.map[match[1]].cell, line: ctx.map[match[1]].line }
         }
-        handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], error)
+        handleResult(doc, index, self.RESULTS, [self.PLOTS, self.PLOTS_V2], self.LOCALS[index], error)
       } else {
         console.log("Unknown ERROR",e)
       }

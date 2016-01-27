@@ -26,6 +26,7 @@
     "marked": "^0.3.5",
     "medium-editor": "^5.12.0",
     "node-sass": "^3.4.2",
+    "pypyjs": "^0.4.1",
     "raw-loader": "^0.5.1",
     "react": "^0.14.3",
     "react-ace": "^2.5.0",

@@ -5,6 +5,7 @@ const initialState = {
   html: "",
   title: "",
   plots: {},
+  plots_v2: {},
   locals: {},
   results: {},
 };
@@ -44,13 +45,14 @@ function CODE_DELTA (state, action) {
 }
 
 function NEW_RESULTS(state, action) {
-  let { index, results, plots, locals, error } = action
+  let { index, results, plots, plots_v2, locals, error } = action
 
   index = state.codeList[index]
 
   let next_results = {...state.results}
   let next_errors = {...state.errors}
   let next_plots  = {...state.plots}
+  let next_plots_v2 = {...state.plots_v2}
   let next_locals = {...state.locals}
 
   if (error) {
@@ -59,10 +61,12 @@ function NEW_RESULTS(state, action) {
     next_locals[index] = locals
     next_results[index] = results
     next_plots[index] = plots
+    next_plots_v2[index] = plots_v2
+
     delete next_errors[index]
   }
 
-  return {...state, results: next_results, plots: next_plots, errors: next_errors, locals: next_locals, editor: "me"}
+  return {...state, results: next_results, plots: next_plots, plots_v2: next_plots_v2, errors: next_errors, locals: next_locals, editor: "me"}
 }
 
 module.exports = documentReducer;

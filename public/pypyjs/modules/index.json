@@ -4891,8 +4891,7 @@
     "matplotlib.pyplot": {
       "file": "matplotlib/pyplot.py", 
       "imports": [
-        "pandas", 
-        "sys"
+        "json"
       ]
     }, 
     "matplotlib.sample": {
