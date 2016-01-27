@@ -107,6 +107,7 @@ TYPES_TO_INSPECT = {
     "str": inspect_str,
     "bool": inspect_bool,
     "list": inspect_list,
+    "tuple": inspect_list,
     "dict": inspect_dict,
     "function": inspect_function,
     "module": inspect_module,
