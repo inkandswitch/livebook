@@ -43,9 +43,6 @@ def close():
 def get_plots_v2():
     close()
     old = map(lambda p: p.__dict__, Static.PLOTS_V2)
-    print "Getting plots v2. what follows is the old var"
-    print old
-    print "hyuuup"
     Static.PLOTS_V2 = []
     return old
 

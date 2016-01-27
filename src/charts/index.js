@@ -1,18 +1,10 @@
-let {isArray, noop, zip} = require("../util");
+const {isArray, noop, zip} = require("../util");
 
-let createClickForTooltip = require("./c3-click-for-tooltip");
-
-// Fixme
-function isTimeSeries(data) {
-  let columns = data.columns;
-  let yearMonthDateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/; // matches YYYY-MM-DD, where MM and DD do not need leading zeroes
-
-  return columns.some(function(column) {
-    return column.some(function(datum) {
-      return yearMonthDateRegex.test(datum);
-    })
-  });
-}
+const plotLine = require("./line");
+const plotSpecialLine = require("./line-waldo"); // created for the waldo notebook
+const plotScatter = require("./scatter");
+const plotTimeSeries = require("./time-series");
+const isTimeSeries = plotTimeSeries.isTimeSeries;
 
 function nuLivebookPlot(selector, plotMessage) {
 
@@ -58,138 +50,6 @@ function nuLivebookPlot(selector, plotMessage) {
       },
     });
   }
-}
-
-function plotScatter(selector, data) {
-  let columns = data.columns;
-  let xName = columns[0][0];
-  let yName = columns[1][0];
-  let xs = {};
-  xs[yName] = xName;
-
-  let chart = c3.generate({
-      bindto: selector,
-
-      data: {
-          xs: xs,
-          columns: columns,
-          type: "scatter",
-          onclick: createClickForTooltip(),
-      },
-      axis: {
-          x: {
-              label: xName,
-              tick: {
-                  fit: false
-              }
-          },
-          y: {
-              label: yName,
-          }
-      },
-      tooltip: {
-        show: false,
-      },
-  });
-}
-
-function plotTimeSeries(selector, data) {
-  let {columns} = data;
-
-  let xName = columns[0][0];
-  let yName = columns[1][0];
-
-  let chart = c3.generate({
-      bindto: selector,
-      data: {
-        x: xName,
-        columns: columns,
-        onclick: createClickForTooltip(),
-      },
-      axis: {
-        x: {
-          type: "timeseries",
-          tick: {
-              format: '%Y'
-          }
-        }
-      },
-      tooltip: {
-        show: false,
-      },
-  });
-}
-
-function plotLine(selector, data) {
-  let columns = data.columns;
-  let xName = columns[0][0];
-  let yName = columns[1][0];
-  let xs = {};
-  xs[yName] = xName;
-  let chart = c3.generate({
-      bindto: selector,
-      data: {
-        x: xName,
-        columns: columns,
-        type: "line",
-        onclick: createClickForTooltip(),
-      },
-      axis: {
-        x: {
-            label: xName,
-            tick: {
-                fit: false
-            }
-        },
-        y: {
-            label: yName,
-        }
-      },
-      tooltip: {
-        show: false,
-      },
-  });
-}
-
-function plotSpecialLine(options) {
-  options = Object.assign({}, options);
-
-  let [svgHeight, svgWidth] = [options.height, options.width],
-      height = svgHeight - options.margin.top - options.margin.bottom,
-      width = svgWidth - options.margin.left - options.margin.right,
-      marginLeftTop = [options.margin.left, options.margin.top],
-      {x, y} = options,
-      selector = options.selector;
-
-  let xScale = d3.scale.linear().domain(d3.extent(x)).range([0, width])
-  let yScale = d3.scale.linear().domain(d3.extent(y)).range([0, height])
-
-  let linedata = zip(x.map(xScale), y.map(yScale));
-
-  let lineFunction = d3.svg.line()
-    .x((d) => d[0])
-    .y((d) => d[1])
-    .interpolate("linear");
-
-  // clear old charts
-  d3.select(selector)
-    .classed("c3", false) // to stop those silly c3 styles from overriding ours...
-    .select("*")
-    .remove();
-
-  let svgContainer = d3.select(selector)
-    .append("svg")
-    .attr("width", svgWidth)
-    .attr("height", svgHeight)
-    .append("g")
-    .attr("transform", "translate(" + marginLeftTop + ")")
-
-  let lineGraph = svgContainer.append("path")
-    .attr("d", lineFunction(linedata))
-    .attr("stroke", "blue")
-    .attr("stroke-width", 2)
-    .attr("fill", "none");
-
 }
 
 module.exports = { nuLivebookPlot }
