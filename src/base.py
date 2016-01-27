@@ -96,7 +96,7 @@ def inspect_pandas_DataFrame(df):
 def inspect_pandas_Series(s):
     records = "%d Records" % len(s)
     return {
-        "type": type_name(df),
+        "type": type_name(s),
         "value": [records],
         "docs": "http://pandas.pydata.org/pandas-docs/version/0.17.1/generated/pandas.Series.html"
     }
