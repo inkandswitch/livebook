@@ -56,32 +56,6 @@ function nuLivebookPlot(selector, plotMessage) {
     plotTimeSeries(selector, data);
     return;
   }
-
-  if (false) { // fixme ... when and how does this get called?
-    let chartContainerNode = d3.select(selector).node();
-    if (!chartContainerNode)
-      return console.log("%cCould not find the chart node... short circuiting!", "color: darkred;")
-  
-    let {width, height} = chartContainerNode.getBoundingClientRect();
-    let {columns} = plotMessage[1]; // fixme (?) ... guessing at the api here
-
-    let x = columns[0].slice(1);
-    let y = columns[1].slice(1);
-
-    plotSpecialLine({
-      x: x,
-      y: y,
-      height: height,
-      width: width,
-      selector: chartSelector,
-      margin: {
-        top: 20,
-        right: 30,
-        bottom: 25,
-        left: 30,
-      },
-    });
-  }
 }
 
 module.exports = { nuLivebookPlot, plotV2 }
