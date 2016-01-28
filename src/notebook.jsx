@@ -123,7 +123,6 @@ function handlePlots(plots) {
 */
 
 // Utils
-var noop          = require("./util").noop;
 var randomColor   = require("./util").randomColor;
 var randomName    = require("./util").randomName;
 var {iPyToHTML} = require("./ipython-converter.jsx");

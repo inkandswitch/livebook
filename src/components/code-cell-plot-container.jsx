@@ -1,12 +1,12 @@
 let React = require("react");
-let {nuLivebookPlot} = require("../charts/");
+let { nuLivebookPlot, plotV2 } = require("../charts/");
 
 let PlotContainer = React.createClass({
   componentDidMount() {
     let selector = "#" + this.getID();
     let plotData = this.getPlotMessage();
 
-    nuLivebookPlot(selector, plotData);
+    plotV2(selector, plotData);
   },
 
   componentDidUpdate(prevProps) {
@@ -16,7 +16,7 @@ let PlotContainer = React.createClass({
     if (prevPlotMessage !== plotData) {
       let selector = "#" + this.getID();
 
-      nuLivebookPlot(selector, plotData);
+      plotV2(selector, plotData);
 
     }
   },

@@ -4890,9 +4890,7 @@
     }, 
     "matplotlib.pyplot": {
       "file": "matplotlib/pyplot.py", 
-      "imports": [
-        "json"
-      ]
+      "imports": []
     }, 
     "matplotlib.sample": {
       "file": "matplotlib/sample.py", 

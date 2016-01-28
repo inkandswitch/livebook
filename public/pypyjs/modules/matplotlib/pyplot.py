@@ -6,6 +6,7 @@ class Static:
 
 class Plot:
     def __init__(self, **kwargs):
+        # TODO - fix how chart type is assuigned. the use of messy right now
         self.layers = []
         if "chart_type" in kwargs:
             self.chart_type = kwargs["chart_type"]
@@ -27,9 +28,9 @@ class Plot:
             pass
 
 
-def get_current_plot():
+def get_current_plot(**kwargs):
     if Static.CURRENT_PLOT is None:
-        Static.CURRENT_PLOT = Plot()
+        Static.CURRENT_PLOT = Plot(**kwargs)
     return Static.CURRENT_PLOT
 
 
@@ -48,7 +49,7 @@ def get_plots_v2():
 
 
 def plot_v2(*args, **kwargs):
-    current_plot = get_current_plot()
+    current_plot = get_current_plot(**kwargs)
     current_plot.add_layer(*args, **kwargs)
 
 
