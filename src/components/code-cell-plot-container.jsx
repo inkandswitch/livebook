@@ -1,5 +1,5 @@
 let React = require("react");
-let { nuLivebookPlot, plotV2 } = require("../charts/");
+let { plotV2 } = require("../charts/");
 
 let PlotContainer = React.createClass({
   componentDidMount() {
