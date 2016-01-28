@@ -94,6 +94,9 @@ class Series(object):
             [self.column] + [ self.data[self.column][i] for i in self.idx ]
         ], "original_type": "series", }
 
+    def to_plot_data_v2(self):
+        return {"x": self.sort, "column": self.column, "data": self.data, "list": self.tolist()}
+
     def describe(self):
         return self.to_frame().describe()
 

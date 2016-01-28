@@ -1,6 +1,6 @@
+const barV2 = require("./bar-v2");
 const scatterV2 = require("./scatter-v2");
-const plotTimeSeries = require("./time-series");
-const isTimeSeries = plotTimeSeries.isTimeSeries;
+const lineV2 = require("./line-v2");
 
 const createClickForTooltip = require("./c3-click-for-tooltip");
 
@@ -24,10 +24,15 @@ function plotV2(selector, plot, { maxWidth }) {
 
   if (chart_type === "line") {
     const data = layers[0].data;
-    const chart = plotTimeSeries(selector, data, { maxWidth }); // fixme - only plotting first layer
+    const chart = lineV2(selector, data, { maxWidth }); // fixme - only plotting first layer
     return chart;
   }
 
+  if (chart_type === "bar") {
+    const data = layers[0].data;
+    const chart = barV2(selector, data, { maxWidth }); // fixme - only plotting first layer
+    return chart;
+  }
 }
 
 module.exports = { plotV2 }

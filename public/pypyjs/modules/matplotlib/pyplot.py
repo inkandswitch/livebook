@@ -54,7 +54,12 @@ def plot_v2(*args, **kwargs):
         data = args[0].to_plot_data()
         current_plot.add_layer(data, **kwargs)
     elif (len(args) == 2):
-        current_plot.add_layer(*args, **kwargs)
+        try:
+            x = args[0].to_plot_data_v2()
+            y = args[1].to_plot_data_v2()
+            current_plot.add_layer(x, y, **kwargs)
+        except AttributeError:
+            current_plot.add_layer(*args, **kwargs)
 
 
 def get_plots():
@@ -83,19 +88,9 @@ def plot(*args, **kwargs):
         if first argument (?) is 2-dim, those columns will be plotted
     """
     plot_v2(*args, **kwargs)
-    if (len(args) == 1):
-        data = args[0]
-        __plot_js__(data.to_plot_data())
-    elif (len(args) == 2):
-        x = args[0]
-        y = args[1]
-        __plot_js__(["x"] + x, ["y"] + y)
-    elif (len(args) == 3):
-        # We don't know how to do format strings!
-        pass
 
 
-def scatter(x, y):
+def scatter(x, y, **kwargs):
     try:
         xData = [x.column] + x.data[x.column]
         yData = [y.column] + y.data[y.column]
@@ -106,3 +101,13 @@ def scatter(x, y):
         yData = ["y"] + y
         __plot_js__(xData, yData)
         plot_v2(x, y, chart_type="scatter")
+
+
+def bar(left, height, **kwargs):
+    # left = sequence of scalars
+    # height = sequence of scalars
+    plot_v2(left, height, chart_type="bar")
+
+
+def hist(*args, **kwargs):
+    pass
