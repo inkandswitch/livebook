@@ -5,7 +5,7 @@ let PlotContainer = React.createClass({
   componentDidMount() {
     let selector = "#" + this.getID();
     let plotData = this.getPlotMessage();
-    let width = this.getContainerWidth();
+    let width = this.clampWidth(this.getContainerWidth());
     plotV2(selector, plotData, { maxWidth: width });
   },
 
@@ -15,11 +15,15 @@ let PlotContainer = React.createClass({
 
     if (prevPlotMessage !== plotData) {
       let selector = "#" + this.getID();
-      let width = this.getContainerWidth();
+      let width = this.clampWidth(this.getContainerWidth());
 
       plotV2(selector, plotData, { maxWidth: width });
 
     }
+  },
+
+  clampWidth(width) {
+    return Math.min(600, width);
   },
 
   componentWillUnmount() {

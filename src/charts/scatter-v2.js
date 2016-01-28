@@ -1,6 +1,6 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 
-function scatterV2(selector, layer) {
+function scatterV2(selector, layer, { maxWidth }) {
     const { data } = layer;
 
     let xCol = data["x"];
@@ -28,8 +28,11 @@ function scatterV2(selector, layer) {
         label: yName,
       }
     };
-
     let chart = c3.generate({
+        size: {
+            width: maxWidth,
+            height: maxWidth / 1.7,            
+        },
         bindto: selector,
         data: {
             xs: xs,

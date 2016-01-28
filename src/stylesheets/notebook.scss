@@ -642,6 +642,7 @@ div.ace-content {
   background: white;
   margin: 0;
   margin-top: -1.05em; /* MAGICK NUMBER - used to obscure `null` return value */
+  text-align: center;
 }
 .notebook-plot:empty {
   display: none;

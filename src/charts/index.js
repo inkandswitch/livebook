@@ -9,7 +9,7 @@ const isTimeSeries = plotTimeSeries.isTimeSeries;
 
 const createClickForTooltip = require("./c3-click-for-tooltip");
 
-function plotV2(selector, plot) {
+function plotV2(selector, plot, { maxWidth }) {
   let { chart_type, layers } = plot;
 
   if (!layers || !layers.length) {
@@ -17,7 +17,7 @@ function plotV2(selector, plot) {
   }
 
   if (chart_type === "scatter") {
-    const chart = scatterV2(selector, layers[0]); // fixme - only plotting first layer
+    const chart = scatterV2(selector, layers[0], { maxWidth }); // fixme - only plotting first layer
 
     // This is what plotting multiple layers should look like:
     //    
@@ -29,7 +29,7 @@ function plotV2(selector, plot) {
 
   if (chart_type === "line") {
     const data = layers[0].data;
-    const chart = plotTimeSeries(selector, data); // fixme - only plotting first layer
+    const chart = plotTimeSeries(selector, data, { maxWidth }); // fixme - only plotting first layer
     return chart;
   }
 
