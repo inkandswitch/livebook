@@ -8,7 +8,8 @@ function plotV2(selector, plot, { maxWidth }) {
   let { chart_type, layers } = plot;
 
   if (!layers || !layers.length) {
-    throw new Error("plotV2 called with plot message that lacks layers");
+    console.log("%cplotV2 called with plot message that lacks layers", "color: darkred;");
+    return;
   }
 
   if (chart_type === "scatter") {

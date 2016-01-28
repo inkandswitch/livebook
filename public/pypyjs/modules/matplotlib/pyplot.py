@@ -1,6 +1,5 @@
 class Static:
     CURRENT_PLOT = None
-    PLOTS_V2 = []
     PLOTS = []
 
 
@@ -37,18 +36,26 @@ def get_current_plot(**kwargs):
 def close():
     """ closes the current plot """
     if Static.CURRENT_PLOT is not None:
-        Static.PLOTS_V2.append(Static.CURRENT_PLOT)
+        Static.PLOTS.append(Static.CURRENT_PLOT)
     Static.CURRENT_PLOT = None
 
 
-def get_plots_v2():
+def get_plots():
     close()
-    old = map(lambda p: p.__dict__, Static.PLOTS_V2)
-    Static.PLOTS_V2 = []
+    old = map(lambda p: p.__dict__, Static.PLOTS)
+    Static.PLOTS = []
     return old
 
 
-def plot_v2(*args, **kwargs):
+def plot(*args, **kwargs):
+    """
+        from: http://matplotlib.org/api/pyplot_api.html
+        plot(x, y)
+        plot(x, y, 'formatstring')
+        plot(y) # plot y using x as index array
+
+        if first argument (?) is 2-dim, those columns will be plotted
+    """
     current_plot = get_current_plot(**kwargs)
     if (len(args) == 1):
         data = args[0].to_plot_data()
@@ -62,51 +69,21 @@ def plot_v2(*args, **kwargs):
             current_plot.add_layer(*args, **kwargs)
 
 
-def get_plots():
-    old = Static.PLOTS
-    Static.PLOTS = []
-    return old
-
-
-def __plot_js__(*args, **kwargs):
-    if (len(args) == 1):
-        arg1 = args[0]
-        Static.PLOTS.append(["plot", arg1, None])
-    if (len(args) > 1):
-        arg1 = args[0]
-        arg2 = args[1]
-        Static.PLOTS.append(["plot", arg1, arg2])
-
-
-def plot(*args, **kwargs):
-    """
-        from: http://matplotlib.org/api/pyplot_api.html
-        plot(x, y)
-        plot(x, y, 'formatstring')
-        plot(y) # plot y using x as index array
-
-        if first argument (?) is 2-dim, those columns will be plotted
-    """
-    plot_v2(*args, **kwargs)
-
-
 def scatter(x, y, **kwargs):
     try:
         xData = [x.column] + x.data[x.column]
         yData = [y.column] + y.data[y.column]
-        __plot_js__(xData, yData)
-        plot_v2(xData, yData, chart_type="scatter")
+        plot(xData, yData, chart_type="scatter")
     except:
         xData = ["x"] + x
         yData = ["y"] + y
-        __plot_js__(xData, yData)
-        plot_v2(x, y, chart_type="scatter")
+        plot(x, y, chart_type="scatter")
 
 
 def bar(left, height, **kwargs):
     # left = sequence of scalars
     # height = sequence of scalars
-    plot_v2(left, height, chart_type="bar")
+    plot(left, height, chart_type="bar")
 
 
 def hist(*args, **kwargs):

@@ -136,9 +136,6 @@ def checkpoint(cell, val, local):
     plots = pt.get_plots()
     if (len(plots) > 0):
         js.globals['PLOTS'] = js.convert(plots)
-    plots_v2 = pt.get_plots_v2()
-    if (len(plots_v2) > 0):
-        js.globals['PLOTS_V2'] = js.convert(plots_v2)
     js.globals['RESULTS'] = js.convert(val2)
     local.pop("__return__", None)
     local.pop("__random__", None)

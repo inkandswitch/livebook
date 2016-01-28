@@ -99,9 +99,9 @@ var createCellPlotData = require("./cell-plots-adapter");
 var WORKER     = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
-  let {index, results, plots, plots_v2, error, locals} = data;
+  let {index, results, plots, error, locals} = data;
 
-  livebookStore.dispatch({ type: "NEW_RESULTS", index, results, plots, plots_v2, locals, error })
+  livebookStore.dispatch({ type: "NEW_RESULTS", index, results, plots, locals, error })
 
 /*
   if (error) handleError(error);

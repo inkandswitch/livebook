@@ -115,9 +115,9 @@ const CodeCell = React.createClass({
   },
 
   getPlotContainers() {
-    const { plots, plots_v2 } = this.props;
-    if (!plots_v2 || !plots_v2.length) return (<div/>);
-    return plots_v2.map( (p, i) => {
+    const { plots } = this.props;
+    if (!plots || !plots.length) return (<div/>);
+    return plots.map( (p, i) => {
       const cellIndex = this.props.index;
       const key = cellIndex + "-" + i;
       return (

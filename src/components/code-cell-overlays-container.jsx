@@ -34,7 +34,6 @@ const CodeOverlaysContainer = React.createClass({
     const code   = doc.codeMap[id];
     const result = doc.results[id];
     const plots  = doc.plots[id];
-    const plots_v2  = doc.plots_v2[id];
     const error  = doc.errors[id];
     const locals = doc.locals[id];
     return (
@@ -45,7 +44,6 @@ const CodeOverlaysContainer = React.createClass({
         code={code}
         error={error}
         plots={plots}
-        plots_v2={plots_v2}
         locals={locals}
         store={this.props.store}
         focusEditorOnPlaceholder={this.props.focusEditorOnPlaceholder} />
