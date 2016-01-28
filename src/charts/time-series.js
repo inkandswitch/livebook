@@ -29,10 +29,15 @@ function plotTimeSeries(selector, data, { maxWidth }) {
           }
         }
       },
+      point: {
+        r: 5,
+      },
       tooltip: {
         show: false,
       },
   });
+
+  d3.select(selector).selectAll(".c3-line").style("stroke-width", "3px");
 }
 
 // Fixme
