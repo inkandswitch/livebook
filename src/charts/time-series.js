@@ -4,13 +4,17 @@ plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
 
-function plotTimeSeries(selector, data) {
+function plotTimeSeries(selector, data, { maxWidth }) {
   let { columns } = data;
 
   let xName = columns[0][0];
   let yName = columns[1][0];
 
   let chart = c3.generate({
+      size: {
+        width: maxWidth,
+        height: maxWidth / 1.7,
+      },
       bindto: selector,
       data: {
         x: xName,
