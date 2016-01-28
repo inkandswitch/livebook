@@ -5,8 +5,8 @@ let PlotContainer = React.createClass({
   componentDidMount() {
     let selector = "#" + this.getID();
     let plotData = this.getPlotMessage();
-
-    plotV2(selector, plotData);
+    let width = this.getContainerWidth();
+    plotV2(selector, plotData, { maxWidth: width });
   },
 
   componentDidUpdate(prevProps) {
@@ -15,8 +15,9 @@ let PlotContainer = React.createClass({
 
     if (prevPlotMessage !== plotData) {
       let selector = "#" + this.getID();
+      let width = this.getContainerWidth();
 
-      plotV2(selector, plotData);
+      plotV2(selector, plotData, { maxWidth: width });
 
     }
   },
@@ -37,11 +38,18 @@ let PlotContainer = React.createClass({
     return "plot-" + cellIndex + "-" + cellPlotIndex; 
   },
 
+  getContainerWidth() {
+    const container = this.refs.container;
+    const parent = container.parentElement;
+    const { width } = parent.getBoundingClientRect(); 
+    return width;
+  },
+
   render() {
     let id = this.getID();
 
     return (
-      <div id={id} className="notebook-plot"/>
+      <div ref="container" id={id} className="notebook-plot"/>
     );
   },
 });

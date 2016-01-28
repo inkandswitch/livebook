@@ -50,7 +50,11 @@ def get_plots_v2():
 
 def plot_v2(*args, **kwargs):
     current_plot = get_current_plot(**kwargs)
-    current_plot.add_layer(*args, **kwargs)
+    if (len(args) == 1):
+        data = args[0].to_plot_data()
+        current_plot.add_layer(data, **kwargs)
+    elif (len(args) == 2):
+        current_plot.add_layer(*args, **kwargs)
 
 
 def get_plots():

@@ -3,6 +3,7 @@ const {isArray, noop, zip} = require("../util");
 const plotLine = require("./line");
 const plotSpecialLine = require("./line-waldo"); // created for the waldo notebook
 const plotScatter = require("./scatter");
+const scatterV2 = require("./scatter-v2");
 const plotTimeSeries = require("./time-series");
 const isTimeSeries = plotTimeSeries.isTimeSeries;
 
@@ -16,69 +17,25 @@ function plotV2(selector, plot) {
   }
 
   if (chart_type === "scatter") {
-    // todo - replace iife with function
-    const chart = scatterV2(selector)
-    layers.forEach(chart.addLayer)
+    const chart = scatterV2(selector, layers[0]); // fixme - only plotting first layer
+
+    // This is what plotting multiple layers should look like:
+    //    
+    // const chart = scatterV2.layered(selector)
+    // layers.forEach(chart.addLayer, chart) // todo - add data for each layer of plot
+
     return chart;
   }
 
-  // debugger;
-
-}
-
-function scatterV2(selector) {
-    const chart = c3.generate({
-        bindto: selector,
-        data: {
-            columns: [],
-            type: "scatter",
-            onclick: createClickForTooltip(),
-        },
-        x: { // fixme
-            label: "x",
-            tick: {
-                fit: false,
-            },
-        },
-        tooltip: {
-          show: false,
-        },
-    })
-
-    chart.addLayer = function(layer) {
-      const { data } = layer;
-
-      let xCol = data["x"];
-      let yCol = data["y"];
-
-      if ( xCol && xCol[0] !== "x") xCol = ["x", ...xCol];
-      if ( yCol && yCol[0] !== "y") yCol = ["y", ...yCol];
-
-      const xName = "x";
-      const yName = "y";
-      const xs = {};
-      xs[yName] = xName;
-
-      const columns = [xCol, yCol];
-
-      const axis = {
-        x: {
-            label: xName,
-            tick: {
-                fit: false,
-            },
-        },
-        y: {
-            label: yName,
-        }
-      };
-
-      chart.load({ columns, xs, axis })
-
-      debugger;
-    };
-
+  if (chart_type === "line") {
+    const data = layers[0].data;
+    const chart = plotTimeSeries(selector, data); // fixme - only plotting first layer
     return chart;
+  }
+
+
+  debugger;
+
 }
 
 function nuLivebookPlot(selector, plotMessage) {
