@@ -106,7 +106,10 @@ const CodeCell = React.createClass({
     let errorObject = this.props.error,
         message = errorObject.message,
         name = errorObject.name,
-        className = "pyresult pyresult-error";
+        className = "pyresult pyresult-error",
+        underConstruction = errorObject.under_construction;
+
+    if (underConstruction) return ""; // TODO - let this state affect other parts of the component!
 
     if (this.underConstruction())
       className = this.appendLoadingClass(className);
