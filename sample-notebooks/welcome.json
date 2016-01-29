@@ -7,44 +7,498 @@
   "codeMap": {
     "1": "import string\nstring.capwords(\"live coding is fun! \" * 3)",
     "2": "import pandas as pd\ndata = pd.read_csv('welcome.csv')\ndata.head()",
-    "3": "import matplotlib.pyplot as plt\n\nplt.scatter(data.x, data.y)"
+    "3": "import matplotlib.pyplot as plt\n\nplt.plot(data.year, data.pop_usa)\nplt.plot(data.year, data.pop_china)\nplt.plot(data.year, data.pop_russia)"
   },
   "errors": {},
-  "html": "<h1 id=\"welcome-to-livebook\" livebook-node-id=\"dvzfetjbl35o2yb9\">Welcome to Livebook</h1>\n<p livebook-node-id=\"jlq6jgkyczgxpqfr\">Livebook is an <a href=\"http://ipython.org/notebook.html\">IPython notebook</a>-compatible live coding experiment. Click this text to start editing!</p>\n<h2 id=\"live-coding\" livebook-node-id=\"3mpxjxpy7nyrdx6r\">Live coding</h2>\n\n<p livebook-node-id=\"q0gdyfkgwurkvs4i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder1\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<h2 id=\"prose-editor\" livebook-node-id=\"dqt82u888alwhfr\">Prose editor</h2>\n<p livebook-node-id=\"l9y1vbms6y3krzfr\">Navigate the editor like a regular word processor, select words to bold or create section headers. Click the + in the left margin or press ⌘-J to insert a new code cell.</p>\n<h2 id=\"csv-data-and-charts\" livebook-node-id=\"zjibetv1ntpujtt9\">CSV data and charts</h2>\n<p livebook-node-id=\"gbi582vx73tbj4i\">Load the embedded CSV:</p>\n\n<p livebook-node-id=\"99jqhfklxuwyiudi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder2\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 132px;\"></p>\n<p livebook-node-id=\"u0kvljh5fox8yqfr\">Plot the results:</p>\n\n<p livebook-node-id=\"ooku2x51aal9pb9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder3\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 132px;\"></p>\n<h2 id=\"realtime-collaboration\" livebook-node-id=\"72gkudaaabnpnwmi\">Realtime collaboration</h2>\n<p livebook-node-id=\"g2ihig4fyumobt9\">Send the URL of this notebook to your friends or colleagues they'll be able to edit collaboratively with you, similar to Google Docs. Click your avatar to change your name.</p>\n<h2 id=\"going-further\" livebook-node-id=\"669z4scbpu70hpvi\">Going further</h2>\n<p livebook-node-id=\"kmqs7cxpd4t5ipb9\">Once you're ready for something more sophisticated, open the menu in the upper left corner and try out the earthquake or Monte Carlo notebooks.</p>\n<p livebook-node-id=\"7v1bt6zqrkwhr529\"><a href=\"https://github.com/inkandswitch/livebook\">More information and full sourcecode available here.</a></p>\n<p livebook-node-id=\"zq4svjh0yb65hfr\">Have fun!</p>\n<p livebook-node-id=\"m8pa2esn9s8m2t9\">❤,</p>\n<p livebook-node-id=\"j82tvjn1zx8byb9\">Adam, Orion, Brett, Lucia (the Livebook team)</p>\n",
+  "html": "<h1 id=\"welcome-to-livebook\" livebook-node-id=\"dvzfetjbl35o2yb9\">Welcome to Livebook</h1>\n<p livebook-node-id=\"jlq6jgkyczgxpqfr\">Livebook is an <a href=\"http://ipython.org/notebook.html\">IPython notebook</a>-compatible live coding experiment. Click this text to start editing!</p>\n<h2 id=\"live-coding\" livebook-node-id=\"3mpxjxpy7nyrdx6r\">Live coding</h2>\n\n<p livebook-node-id=\"q0gdyfkgwurkvs4i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder1\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 116px;\"></p>\n<h2 id=\"prose-editor\" livebook-node-id=\"dqt82u888alwhfr\">Prose editor</h2>\n<p livebook-node-id=\"l9y1vbms6y3krzfr\">Navigate the editor like a regular word processor, select words to bold or create section headers. Click the + in the left margin or press ⌘-J to insert a new code cell.</p>\n<h2 id=\"csv-data-and-charts\" livebook-node-id=\"zjibetv1ntpujtt9\">CSV data and charts</h2>\n<p livebook-node-id=\"gbi582vx73tbj4i\">Load the embedded CSV:</p>\n\n<p livebook-node-id=\"99jqhfklxuwyiudi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder2\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 237px;\"></p>\n<p livebook-node-id=\"u0kvljh5fox8yqfr\">Plot the results:</p>\n\n<p livebook-node-id=\"ooku2x51aal9pb9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder3\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 132px;\"></p>\n<h2 id=\"realtime-collaboration\" livebook-node-id=\"72gkudaaabnpnwmi\">Realtime collaboration</h2>\n<p livebook-node-id=\"g2ihig4fyumobt9\">Send the URL of this notebook to your friends or colleagues they'll be able to edit collaboratively with you, similar to Google Docs. Click your avatar to change your name.</p>\n<h2 id=\"going-further\" livebook-node-id=\"669z4scbpu70hpvi\">Going further</h2>\n<p livebook-node-id=\"kmqs7cxpd4t5ipb9\">Once you're ready for something more sophisticated, open the menu in the upper left corner and try out the earthquake or Monte Carlo notebooks.</p>\n<p livebook-node-id=\"7v1bt6zqrkwhr529\"><a href=\"https://github.com/inkandswitch/livebook\">More information and full sourcecode available here.</a></p>\n<p livebook-node-id=\"zq4svjh0yb65hfr\">Have fun!</p>\n<p livebook-node-id=\"m8pa2esn9s8m2t9\">❤,</p>\n<p livebook-node-id=\"j82tvjn1zx8byb9\">Adam, Orion, Brett, Lucia (the Livebook team)</p>\n",
   "title": "Welcome to Livebook",
   "plots": {
     "3": [
-      [
-        "plot",
-        [
-          "x",
-          1,
-          7,
-          4
-        ],
-        [
-          "y",
-          3,
-          2,
-          3
+      {
+        "chart_type": "line",
+        "layers": [
+          {
+            "data": {
+              "x": {
+                "x": null,
+                "column": "year",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  1950,
+                  1960,
+                  1970,
+                  1980,
+                  1990,
+                  2000,
+                  2010,
+                  2020
+                ]
+              },
+              "y": {
+                "x": null,
+                "column": "pop_usa",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  157813040,
+                  186176524,
+                  209485807,
+                  229588208,
+                  252847810,
+                  282895741,
+                  309876170,
+                  333545530
+                ]
+              }
+            }
+          },
+          {
+            "data": {
+              "x": {
+                "x": null,
+                "column": "year",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  1950,
+                  1960,
+                  1970,
+                  1980,
+                  1990,
+                  2000,
+                  2010,
+                  2020
+                ]
+              },
+              "y": {
+                "x": null,
+                "column": "pop_china",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  544112923,
+                  644450173,
+                  808510713,
+                  977837433,
+                  1154605773,
+                  1269974572,
+                  1340968737,
+                  1402847838
+                ]
+              }
+            }
+          },
+          {
+            "data": {
+              "x": {
+                "x": null,
+                "column": "year",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  1950,
+                  1960,
+                  1970,
+                  1980,
+                  1990,
+                  2000,
+                  2010,
+                  2020
+                ]
+              },
+              "y": {
+                "x": null,
+                "column": "pop_russia",
+                "data": {
+                  "year": [
+                    1950,
+                    1960,
+                    1970,
+                    1980,
+                    1990,
+                    2000,
+                    2010,
+                    2020
+                  ],
+                  "pop_usa": [
+                    157813040,
+                    186176524,
+                    209485807,
+                    229588208,
+                    252847810,
+                    282895741,
+                    309876170,
+                    333545530
+                  ],
+                  "pop_china": [
+                    544112923,
+                    644450173,
+                    808510713,
+                    977837433,
+                    1154605773,
+                    1269974572,
+                    1340968737,
+                    1402847838
+                  ],
+                  "pop_russia": [
+                    102798657,
+                    119860289,
+                    130126383,
+                    138063062,
+                    147568552,
+                    146400951,
+                    143158099,
+                    142898124
+                  ]
+                },
+                "list": [
+                  102798657,
+                  119860289,
+                  130126383,
+                  138063062,
+                  147568552,
+                  146400951,
+                  143158099,
+                  142898124
+                ]
+              }
+            }
+          }
         ]
-      ]
+      }
     ]
   },
   "locals": {
     "1": {
-      "string": "<type 'module'>"
+      "__rand__": {
+        "name": "__rand__",
+        "reflection": {
+          "type": "module",
+          "value": "random",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "string": {
+        "name": "string",
+        "reflection": {
+          "type": "module",
+          "value": "string",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "__seed__": {
+        "name": "__seed__",
+        "reflection": {
+          "type": "tuple",
+          "value": [
+            "3 items"
+          ],
+          "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
+        }
+      }
     },
     "2": {
-      "string": "<type 'module'>",
-      "pd": "<type 'module'>",
-      "data": "<class 'pandas.DataFrame'>"
+      "__rand__": {
+        "name": "__rand__",
+        "reflection": {
+          "type": "module",
+          "value": "random",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "string": {
+        "name": "string",
+        "reflection": {
+          "type": "module",
+          "value": "string",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "pd": {
+        "name": "pd",
+        "reflection": {
+          "type": "module",
+          "value": "pandas",
+          "docs": "http://pandas.pydata.org/pandas-docs/version/0.17.1/"
+        }
+      },
+      "data": {
+        "name": "data",
+        "reflection": {
+          "type": "pandas.DataFrame",
+          "value": [
+            "8 Records",
+            "4 Columns"
+          ],
+          "docs": "http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html"
+        }
+      },
+      "__seed__": {
+        "name": "__seed__",
+        "reflection": {
+          "type": "tuple",
+          "value": [
+            "3 items"
+          ],
+          "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
+        }
+      }
     },
     "3": {
-      "string": "<type 'module'>",
-      "pd": "<type 'module'>",
-      "data": "<class 'pandas.DataFrame'>",
-      "plt": "<type 'module'>"
+      "__rand__": {
+        "name": "__rand__",
+        "reflection": {
+          "type": "module",
+          "value": "random",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "string": {
+        "name": "string",
+        "reflection": {
+          "type": "module",
+          "value": "string",
+          "docs": "https://docs.python.org/3/library/stdtypes.html#modules"
+        }
+      },
+      "pd": {
+        "name": "pd",
+        "reflection": {
+          "type": "module",
+          "value": "pandas",
+          "docs": "http://pandas.pydata.org/pandas-docs/version/0.17.1/"
+        }
+      },
+      "data": {
+        "name": "data",
+        "reflection": {
+          "type": "pandas.DataFrame",
+          "value": [
+            "8 Records",
+            "4 Columns"
+          ],
+          "docs": "http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html"
+        }
+      },
+      "plt": {
+        "name": "plt",
+        "reflection": {
+          "type": "module",
+          "value": "matplotlib.pyplot",
+          "docs": "http://matplotlib.org/api/pyplot_api.html"
+        }
+      },
+      "__seed__": {
+        "name": "__seed__",
+        "reflection": {
+          "type": "tuple",
+          "value": [
+            "3 items"
+          ],
+          "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
+        }
+      }
     }
   },
   "results": {
@@ -64,7 +518,7 @@
       {
         "data": {
           "text/html": [
-            "<table><thead><tr><th>&nbsp;</th><th>x</th><th>y</th><th>color</th></tr></thead><tbody><tr><th>0</th><td>1.000000</td><td>3.000000</td><td>red</td></tr><tr><th>1</th><td>7.000000</td><td>2.000000</td><td>blue</td></tr><tr><th>2</th><td>4.000000</td><td>3.000000</td><td>green</td></tr></tbody></table>"
+            "<table><thead><tr><th>&nbsp;</th><th>year</th><th>pop_usa</th><th>pop_china</th><th>pop_russia</th></tr></thead><tbody><tr><th>0</th><td>1950.000000</td><td>157813040.000000</td><td>544112923.000000</td><td>102798657.000000</td></tr><tr><th>1</th><td>1960.000000</td><td>186176524.000000</td><td>644450173.000000</td><td>119860289.000000</td></tr><tr><th>2</th><td>1970.000000</td><td>209485807.000000</td><td>808510713.000000</td><td>130126383.000000</td></tr><tr><th>3</th><td>1980.000000</td><td>229588208.000000</td><td>977837433.000000</td><td>138063062.000000</td></tr><tr><th>4</th><td>1990.000000</td><td>252847810.000000</td><td>1154605773.000000</td><td>147568552.000000</td></tr></tbody></table>"
           ]
         },
         "execution_count": 1,
