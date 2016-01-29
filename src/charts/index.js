@@ -14,7 +14,9 @@ function plotV2(selector, plot, { maxWidth }) {
 
   if (chart_type === "scatter") {
     const chart = scatterV2(selector, layers[0], { maxWidth }); // fixme - only plotting first layer
-
+    if (layers.length > 1) {
+      layers.slice(1).forEach(chart.addLayer, chart);
+    }
     // This is what plotting multiple layers could look like:
     //    
     // const chart = scatterV2.layered(selector)

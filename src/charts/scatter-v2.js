@@ -49,6 +49,27 @@ function scatterV2(selector, layer, { maxWidth }) {
         },
     });
 
+    chart.addLayer = function(layer) {
+      const { data } = layer;
+
+      let xCol = data["x"];
+      let yCol = data["y"];
+
+      if (typeof xCol[0] === "number") xCol[0] = "x";
+      if (typeof yCol[0] === "number") yCol[0] = "y";
+
+      const xName = xCol[0];
+      const yName = yCol[0];
+
+      const xs = {};
+      xs[yName] = xName;
+
+      const columns = [xCol, yCol];
+
+      chart.load({ columns, xs })
+
+    };
+
     return chart;
 }
 
