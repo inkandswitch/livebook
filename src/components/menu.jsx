@@ -37,7 +37,7 @@ const Plots = () => ({
   render() {
     return (
       <GalleryItem notebook="plots">
-        Plotting your data
+        Types of plots
       </GalleryItem>
     );
   },
