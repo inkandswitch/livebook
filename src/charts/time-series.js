@@ -37,7 +37,20 @@ function plotTimeSeries(selector, data, { maxWidth }) {
       },
   });
 
-  d3.select(selector).selectAll(".c3-line").style("stroke-width", "3px");
+  chart.addLayer = function(layer) {
+    let { data } = layer;
+    let { columns } = data;
+
+    let xName = columns[0][0];
+    let yName = columns[1][0];
+
+    let xs = {};
+    xs[yName] = xName;
+
+    chart.load({ columns, xs })
+  };
+
+  return chart;
 }
 
 // Fixme

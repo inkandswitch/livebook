@@ -18,7 +18,8 @@ function plotV2(selector, plot, { maxWidth }) {
       layers.slice(1).forEach(chart.addLayer, chart);
     }
 
-    consolidateCircleOpacity(chart.element)
+    if (chart)
+      consolidateCircleOpacity(chart.element)
 
     return chart;
   }
@@ -30,7 +31,8 @@ function plotV2(selector, plot, { maxWidth }) {
       layers.slice(1).forEach(chart.addLayer);
     }
 
-    consolidateCircleOpacity(chart.element)
+    if (chart)
+      consolidateCircleOpacity(chart.element)
 
     return chart;
   }
@@ -39,7 +41,8 @@ function plotV2(selector, plot, { maxWidth }) {
     const data = layers[0].data;
     const chart = barV2(selector, data, { maxWidth }); // fixme - only plotting first layer
 
-    consolidateCircleOpacity(chart.element)
+    if (chart)
+      consolidateCircleOpacity(chart.element)
 
     return chart;
   }
