@@ -163,9 +163,6 @@ def capture_error(tb, name, message):
         return capture_error(tb.tb_next, name, message)
 
 
-def partial_keyword(word):
-    return any([ word == k[0:len(word)] for k in keyword.kwlist ])
-
 #def tb_line(tr):
 #    if tr == None: return
 #    if (tr.tb_frame.f_code.co_filename == "livebook.py"):
@@ -194,8 +191,16 @@ def execute():
     else:
         js.globals['ERROR'] = js.convert(err)
     
+def partial_keyword(word):
+    return any([ word == k[0:len(word)] for k in keyword.kwlist ])
+
 def under_construction(t,e,tb,line):
-    return 0
+    if t == NameError:
+        search = re.search('global name .(.*). is not defined',e.message)
+        if search and partial_keyword(search.group(1)):
+            return line
+    #print "under_constr %s/%s/%s/%s" % (t,e,tb,line)
+    return None
 
 def do(code, cell):
     local = copy.deepcopy(LOCALS[cell - 1]) if (cell - 1) in LOCALS else copy.deepcopy(BASE_LOCALS)
@@ -220,6 +225,6 @@ def do(code, cell):
             (line,mtb) = (int(match.group(1)),tb)
         else:
             (line,mtb) = capture_error(tb,name,"ERROR")
-        error  = { "name": str(e), "message": e.message, "cell": cell, "line": line, "under_construction": under_construction(t,e,mtb,line) }
+        error  = { "name": type_name(e), "message": e.message, "cell": cell, "line": line, "under_construction": under_construction(t,e,mtb,line) }
         return (None, error, local)
 

@@ -171,7 +171,11 @@ class Test:
 
         (val,err,local) = livebook.do("impo",4)
         assert val == None
-        assert err["under_construction"] == 0
+        assert err["under_construction"] == 1
+
+        (val,err,local) = livebook.do("impox",4)
+        assert val == None
+        assert err["under_construction"] == None
 
 def do_test(t,name):
     try:
