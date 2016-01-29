@@ -1,9 +1,20 @@
-import js
+
+BASE_LOCALS = locals()
+BASE_GLOBALS = {'__name__': 'livebook', '__doc__': None, '__builtins__': __builtins__ }
+
+import sys
+import string
+import ast
 import copy
 import inspect
-import matplotlib.pyplot as pt
+import traceback
+import keyword
+import random
+import re
 
 LOCALS = {}
+SEEDS = {}
+ERROR = None
 
 
 def type_name(n):
@@ -126,7 +137,8 @@ def livebook_inspect(local_var):
 
 
 def checkpoint(cell, val, local):
-    print "CHECKPOINT %s" % cell
+    import js
+    import matplotlib.pyplot as pt
     if hasattr(val, 'to_js') and type(val) != type:
         val2 = ["html", val.to_js()]
     elif type(val) == list:
@@ -140,7 +152,74 @@ def checkpoint(cell, val, local):
     local.pop("__return__", None)
     local.pop("__random__", None)
     types = dict([[k, {"name": k, "reflection": livebook_inspect(local[k])}] for k in local.keys()])
-    print types
     js.globals['LOCALS'][cell] = js.convert(types)
-    LOCALS[cell] = dict([[k, copy.deepcopy(local[k])] for k in local.keys()])
+#    LOCALS[cell] = dict([[k, copy.deepcopy(local[k])] for k in local.keys()])
+
+def capture_error(tb, name, message):
+    if tb == None: return (None,None)
+    if tb.tb_frame.f_code.co_filename == name:
+        return (int(tb.tb_frame.f_lineno),tb)
+    else:
+        return capture_error(tb.tb_next, name, message)
+
+
+def partial_keyword(word):
+    return any([ word == k[0:len(word)] for k in keyword.kwlist ])
+
+#def tb_line(tr):
+#    if tr == None: return
+#    if (tr.tb_frame.f_code.co_filename == "livebook.py"):
+#        print "%s %d" % (tr.tb_frame.f_code.co_filename, tr.tb_frame.f_lineno)
+#    tb_line(tr.tb_next)
+
+
+def prep_code(code):
+    keyword = '^(assert|pass|del|print|return|yield|raise|break|continue|import|global|exec|class|from)'
+    assignment1 = '^((\s*\(\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\)\s*)|(\s*\s*(\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*,)*\s*((\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*)|(\s*\(\s*(\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*,)*\s*((\s*[_a-zA-Z]\w*\s*)|(\s*\(\s*(\s*[_a-zA-Z]\w*\s*,)*\s*[_a-zA-Z]\w*\s*\)\s*))\s*\)\s*))\s*\s*))='
+    assignment2 = '^[.a-zA-Z0-9_"\[\]]*\s*=\s*'
+    chunks = code.strip().split("\n")
+    if (chunks[-1][0] == " " or re.search(keyword,chunks[-1]) or re.search(assignment1,chunks[-1]) or re.search(assignment2,chunks[-1])):
+        return code
+    else:
+        chunks[-1] = "__return__ = " + chunks[-1]
+        return string.join(chunks,"\n")
+
+def execute():
+    import js
+    cell = int(js.globals['CELL'])
+    code = str(js.globals['CODE'])
+    (val,err,local) = do(code,cell)
+    if err == None:
+        checkpoint(cell,val,local)
+    else:
+        js.globals['ERROR'] = js.convert(err)
+    
+def under_construction(t,e,tb,line):
+    return 0
+
+def do(code, cell):
+    local = copy.deepcopy(LOCALS[cell - 1]) if (cell - 1) in LOCALS else copy.deepcopy(BASE_LOCALS)
+    name = "<cell %d>" %cell
+    try:
+        if (cell-1) in SEEDS:
+            random.setstate(SEEDS[cell-1])
+        else:
+            random.seed('NOT_SO_RANDOM_AFTER_ALL')
+        preped = prep_code(code)
+        parsed = ast.parse(preped)
+        compiled = compile(parsed,name,"exec")
+        eval(compiled,BASE_GLOBALS,local)
+        result = local.pop("__return__",None)
+        LOCALS[cell] = local
+        SEEDS[cell] = random.getstate()
+        return (result, None, local)
+    except:
+        (t,e,tb) = sys.exc_info()
+        match = re.search('invalid syntax .<unknown>, line (\d*)',str(e))
+        if match:
+            (line,mtb) = (int(match.group(1)),tb)
+        else:
+            (line,mtb) = capture_error(tb,name,"ERROR")
+        error  = { "name": str(e), "message": e.message, "cell": cell, "line": line, "under_construction": under_construction(t,e,mtb,line) }
+        return (None, error, local)
 

@@ -1,5 +1,6 @@
 
 import pandas as pd
+import livebook
 import copy
 
 class Test:
@@ -156,6 +157,22 @@ class Test:
         desc = data.describe()
         print "describe needs a test!"
 
+    def test_livebook_do(self):
+        (val,err,local) = livebook.do("import string\n"
+                                      "string.capwords('fun ' * 3)\n",1)
+        assert val == "Fun Fun Fun"
+
+        (val,err,local) = livebook.do("x = 1234",2)
+        assert val == None
+        assert local["x"] == 1234
+
+        (val,err,local) = livebook.do("x",3)
+        assert val == 1234
+
+        (val,err,local) = livebook.do("impo",4)
+        assert val == None
+        assert err["under_construction"] == 0
+
 def do_test(t,name):
     try:
         print "running: %s" % name
@@ -183,5 +200,6 @@ def run():
     do_test(t,"test_set_and")
     do_test(t,"test_describe")
     do_test(t,"test_deepcopy")
+    do_test(t,"test_livebook_do")
     print "done"
 

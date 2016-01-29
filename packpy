@@ -7,8 +7,11 @@ process.argv.forEach(function (val, index, array) {
 });
 
 function bundle_python() {
-  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/pandas.py")
-  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/matplotlib")
+  exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/pandas.py",() => {
+    exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/matplotlib", () => {
+      exec("python ./node_modules/pypyjs/tools/module_bundler.py add public/pypyjs/modules python/livebook.py")
+    })
+  })
 }
 
 bundle_python();
