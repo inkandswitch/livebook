@@ -17,10 +17,8 @@ function plotV2(selector, plot, { maxWidth }) {
     if (layers.length > 1) {
       layers.slice(1).forEach(chart.addLayer, chart);
     }
-    // This is what plotting multiple layers could look like:
-    //    
-    // const chart = scatterV2.layered(selector)
-    // layers.forEach(chart.addLayer, chart)
+
+    consolidateCircleOpacity(chart.element)
 
     return chart;
   }
@@ -31,14 +29,26 @@ function plotV2(selector, plot, { maxWidth }) {
     if (layers.length > 1) {
       layers.slice(1).forEach(chart.addLayer);
     }
+
+    consolidateCircleOpacity(chart.element)
+
     return chart;
   }
 
   if (chart_type === "bar") {
     const data = layers[0].data;
     const chart = barV2(selector, data, { maxWidth }); // fixme - only plotting first layer
+
+    consolidateCircleOpacity(chart.element)
+
     return chart;
   }
+}
+
+function consolidateCircleOpacity(element) {
+  d3.select(element)
+    .selectAll("circle")
+    .style("opacity", .7);
 }
 
 module.exports = { plotV2 }
