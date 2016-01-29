@@ -26,8 +26,12 @@ function scatterV2(selector, layer, { maxWidth }) {
       },
       y: {
         label: yName,
+        tick: {
+          format: d3.format("0,000")
+        },
       }
     };
+
     let chart = c3.generate({
         size: {
             width: maxWidth,

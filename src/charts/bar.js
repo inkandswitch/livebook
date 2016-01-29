@@ -27,6 +27,14 @@ function plotBar(selector, layer, { maxWidth }) {
         type: "bar",
         onclick: createClickForTooltip(),
       },
+      axis: {
+        y: {
+            label: yName,
+            tick: {
+              format: d3.format("0,000")
+            },
+        }
+      },
       tooltip: {
         show: false,
       },
