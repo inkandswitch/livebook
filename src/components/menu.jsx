@@ -33,6 +33,16 @@ const Quakes = () => ({
   },
 });
 
+const Plots = () => ({
+  render() {
+    return (
+      <GalleryItem notebook="plots">
+        Plotting your data
+      </GalleryItem>
+    );
+  },
+});
+
 const Welcome = () => ({
   render() {
     return (
@@ -112,6 +122,9 @@ const Menu = React.createClass({
               </li>
               <li className="sub-menu-content-item">
                 <MonteCarlo />
+              </li>
+              <li className="sub-menu-content-item">
+                <Plots />
               </li>
               <li className="sub-menu-content-item">
                 <Welcome />
