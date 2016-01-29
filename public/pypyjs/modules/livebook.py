@@ -149,8 +149,6 @@ def checkpoint(cell, val, local):
     if (len(plots) > 0):
         js.globals['PLOTS'] = js.convert(plots)
     js.globals['RESULTS'] = js.convert(val2)
-    local.pop("__return__", None)
-    local.pop("__random__", None)
     types = dict([[k, {"name": k, "reflection": livebook_inspect(local[k])}] for k in local.keys()])
     js.globals['LOCALS'][cell] = js.convert(types)
 #    LOCALS[cell] = dict([[k, copy.deepcopy(local[k])] for k in local.keys()])
