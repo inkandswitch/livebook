@@ -16,12 +16,12 @@ class Plot:
         if (len(args) == 1):
             # TODO - how do we parse dims?
             data = args[0]
-            self.layers.append({"data": data})
+            self.layers.append({"data": data, "options": kwargs})
         elif (len(args) == 2):
             x = args[0]
             y = args[1]
             data = {"x": x, "y": y}
-            self.layers.append({"data": data})
+            self.layers.append({"data": data, "options": kwargs})
         elif (len(args) == 3):
             # We don't know format strings
             pass
@@ -47,7 +47,7 @@ def get_plots():
     return old
 
 
-def plot(*args, **kwargs):
+def plot(*args, **kwargs):  # kwargs could include (linewidth, lw, color, marker, linestyle, ls)
     """
         from: http://matplotlib.org/api/pyplot_api.html
         plot(x, y)
@@ -73,11 +73,11 @@ def scatter(x, y, **kwargs):
     try:
         xData = [x.column] + x.data[x.column]
         yData = [y.column] + y.data[y.column]
-        plot(xData, yData, chart_type="scatter")
+        plot(xData, yData, chart_type="scatter", **kwargs)
     except:
         xData = ["x"] + x
         yData = ["y"] + y
-        plot(x, y, chart_type="scatter")
+        plot(x, y, chart_type="scatter", **kwargs)
 
 
 def bar(left, height, **kwargs):

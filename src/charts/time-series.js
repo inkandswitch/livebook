@@ -4,7 +4,8 @@ plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
 
-function plotTimeSeries(selector, data, { maxWidth }) {
+function plotTimeSeries(selector, layer, { maxWidth }) {
+  let { data } = layer;
   let { columns } = data;
 
   let xName = columns[0][0];

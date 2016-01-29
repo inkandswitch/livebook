@@ -1,6 +1,6 @@
-const barV2 = require("./bar-v2");
-const scatterV2 = require("./scatter-v2");
-const lineV2 = require("./line-v2");
+const bar = require("./bar");
+const scatter = require("./scatter");
+const line = require("./line");
 
 const createClickForTooltip = require("./c3-click-for-tooltip");
 
@@ -12,40 +12,43 @@ function plotV2(selector, plot, { maxWidth }) {
     return;
   }
 
-  if (chart_type === "scatter") {
-    const chart = scatterV2(selector, layers[0], { maxWidth }); // fixme - only plotting first layer
-    if (layers.length > 1) {
-      layers.slice(1).forEach(chart.addLayer, chart);
-    }
+  const firstLayer = layers[0];
 
-    if (chart)
-      consolidateCircleOpacity(chart.element)
+  if (chart_type === "scatter") {
+    const chart = scatter(selector, firstLayer, { maxWidth });
+
+    if (!chart) return; // only seen this triggered by old cached results
+
+    addExtraChartLayers(chart, layers);
+    consolidateCircleOpacity(chart.element);
 
     return chart;
   }
 
   if (chart_type === "line") {
-    const data = layers[0].data;
-    const chart = lineV2(selector, data, { maxWidth }); // fixme - only plotting first layer
-    if (layers.length > 1) {
-      layers.slice(1).forEach(chart.addLayer);
-    }
+    const chart = line(selector, firstLayer, { maxWidth });
 
-    if (chart)
-      consolidateCircleOpacity(chart.element)
+    if (!chart) return; // only seen this triggered by old cached results
+
+    addExtraChartLayers(chart, layers);
+    consolidateCircleOpacity(chart.element);
 
     return chart;
   }
 
   if (chart_type === "bar") {
-    const data = layers[0].data;
-    const chart = barV2(selector, data, { maxWidth }); // fixme - only plotting first layer
+    const chart = bar(selector, firstLayer, { maxWidth }); // fixme - only plotting first layer
 
-    if (chart)
-      consolidateCircleOpacity(chart.element)
+    addExtraChartLayers(chart, layers);
 
     return chart;
   }
+}
+
+function addExtraChartLayers(chart, layers) {
+  if (chart.addLayer && layers.length > 1)
+    layers.slice(1).forEach(chart.addLayer);
+
 }
 
 function consolidateCircleOpacity(element) {
