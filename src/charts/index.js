@@ -28,6 +28,9 @@ function plotV2(selector, plot, { maxWidth }) {
   if (chart_type === "line") {
     const data = layers[0].data;
     const chart = lineV2(selector, data, { maxWidth }); // fixme - only plotting first layer
+    if (layers.length > 1) {
+      layers.slice(1).forEach(chart.addLayer);
+    }
     return chart;
   }
 

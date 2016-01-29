@@ -65,5 +65,25 @@ function plainOldLine(selector, data, { maxWidth }) {
       },
   });
 
+  chart.addLayer = function(layer) {
+    let { data } = layer;
+    let { x, y } = data;
+    let xName = x.column;
+    let yName = y.column;
+    let xData = x.list;
+    let yData = y.list;
+
+    let columns = [
+      [xName, ...xData],
+      [yName, ...yData]
+    ];
+
+    let xs = {};
+    xs[yName] = xName;
+
+    chart.load({ columns, xs })
+
+  };
+
   return chart;
 }
