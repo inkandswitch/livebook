@@ -1,9 +1,6 @@
 
-print "pandas 1"
-
 import json
 from copy import copy
-print "pandas 2"
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -356,4 +353,3 @@ def read_csv(filename, header=None, names=None):
     print "read_csv3"
     return DataFrame.from_data(Cache.csv[key])
 
-print "pandas 3"

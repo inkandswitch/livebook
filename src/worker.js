@@ -102,10 +102,11 @@ function execPython(doc,index,code,next) {
     pypyjs.exec("import livebook\nlivebook.execute()\n").then(() => {
       let MARK3 = Date.now()
       console.log("MARK23:"+(MARK3-MARK2))
+      console.log("PyErr:",self.ERROR)
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], self.ERROR)
       next()
     }).catch((e) => {
-      console.log("ERR",e,ctx)
+      console.log("ERR",e)
       error  = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], error)
       next(e)
