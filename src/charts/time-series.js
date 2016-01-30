@@ -1,17 +1,24 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
+const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
 
 plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
 
 function plotTimeSeries(selector, layer, { maxWidth }) {
-  let { data } = layer;
-  let { columns } = data;
+  const color = { pattern: COLORS };
+  const { data, options } = layer;
+  const { columns } = data;
 
-  let xName = columns[0][0];
-  let yName = columns[1][0];
+  const xName = columns[0][0];
+  const yName = columns[1][0];
 
-  let chart = c3.generate({
+  if (options.color) {
+    color.pattern.unshift(options.color);
+    debugger;
+  }
+
+  const chart = c3.generate({
       size: {
         width: maxWidth,
         height: maxWidth / 1.7,
@@ -25,6 +32,7 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
       transition: {
         duration: 0,
       },
+      color,
       axis: {
         x: {
           type: "timeseries",

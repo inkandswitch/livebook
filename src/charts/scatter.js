@@ -1,7 +1,10 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
+const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
 
 function scatterV2(selector, layer, { maxWidth }) {
-    const { data } = layer;
+    const color = { pattern: COLORS };
+
+    const { data, options } = layer;
 
     let xCol = data["x"];
     let yCol = data["y"];
@@ -32,6 +35,11 @@ function scatterV2(selector, layer, { maxWidth }) {
       }
     };
 
+    if (options.color) {
+      color.pattern.unshift(options.color);
+      debugger;
+    }
+
     let chart = c3.generate({
         size: {
             width: maxWidth,
@@ -44,6 +52,7 @@ function scatterV2(selector, layer, { maxWidth }) {
             type: "scatter",
             onclick: createClickForTooltip(),
         },
+        color,
         transition: {
           duration: 0,
         },

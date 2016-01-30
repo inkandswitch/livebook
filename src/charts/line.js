@@ -1,4 +1,5 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
+const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
 
 const plotTimeSeries = require("./time-series");
 
@@ -21,13 +22,13 @@ function plotLine(selector, layer, { maxWidth }) {
 }
 
 function plainOldLine(selector, layer, { maxWidth }) {
-  let { data } = layer;
+  const { data, options } = layer;
   let { x, y } = data;
   let xName = x.column;
   let yName = y.column;
   let xData = x.list;
   let yData = y.list;
-
+  const color = { pattern: COLORS };
   let columns = [
     [xName, ...xData],
     [yName, ...yData]
@@ -35,6 +36,11 @@ function plainOldLine(selector, layer, { maxWidth }) {
 
   let xs = {};
   xs[yName] = xName;
+
+  if (options.color) {
+    color.pattern.unshift(options.color);
+    debugger;
+  }
 
   let chart = c3.generate({
       bindto: selector,
@@ -51,6 +57,7 @@ function plainOldLine(selector, layer, { maxWidth }) {
       transition: {
         duration: 0,
       },
+      color,
       axis: {
         x: {
             label: xName,
