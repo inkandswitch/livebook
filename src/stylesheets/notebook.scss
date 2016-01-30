@@ -1,5 +1,7 @@
 $black: #363636;
-$blue: #2A64C7;
+$_blue: #2A64C7;
+
+
 
 $bold: 600;
 
@@ -14,7 +16,7 @@ body {
 }
 
 a {
-  color: $blue;
+  color: $_blue;
   text-decoration: none;
 
   &:hover {
@@ -393,7 +395,7 @@ div.ace_error-marker {
 
   &:hover,
   &:hover a {
-    background: $blue;
+    background: $_blue;
     border-radius: .25em;
     color: #fff;
 

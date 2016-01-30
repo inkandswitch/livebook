@@ -13,9 +13,8 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
   const xName = columns[0][0];
   const yName = columns[1][0];
 
-  if (options.color) {
+  if (options && options.color) {
     color.pattern.unshift(options.color);
-    debugger;
   }
 
   const chart = c3.generate({

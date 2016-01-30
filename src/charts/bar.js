@@ -16,9 +16,8 @@ function bar(selector, layer, { maxWidth }) {
     [yName, ...yData]
   ];
 
-  if (options.color) {
+  if (options && options.color) {
     color.pattern.unshift(options.color);
-    debugger;
   }
 
   const chart = c3.generate({

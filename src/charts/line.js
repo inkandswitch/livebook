@@ -37,9 +37,8 @@ function plainOldLine(selector, layer, { maxWidth }) {
   let xs = {};
   xs[yName] = xName;
 
-  if (options.color) {
+  if (options && options.color) {
     color.pattern.unshift(options.color);
-    debugger;
   }
 
   let chart = c3.generate({

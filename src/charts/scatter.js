@@ -35,9 +35,8 @@ function scatterV2(selector, layer, { maxWidth }) {
       }
     };
 
-    if (options.color) {
+    if (options && options.color) {
       color.pattern.unshift(options.color);
-      debugger;
     }
 
     let chart = c3.generate({
