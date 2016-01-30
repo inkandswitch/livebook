@@ -2,13 +2,20 @@ $black: #363636;
 $_blue: #2A64C7;
 
 
+// Typography
+$serif: 'Lusitana', serif;
+$sans-serif_notebook: Lato, sans-serif;
+$sans-serif_interface: "HelveticaNeue-CondensedBlack", "Helvetica Neue", Helvetica, Arial, sans-serif; // http://codepen.io/remino/pen/bkGDy
+$monospace: Hack, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
 
-$bold: 600;
+$light: 300;
+$normal: 400;
+$semi: 600;
+$bold: 700;
 
-$ace-font: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
 
 body {
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: $sans-serif_interface;
   color: $black;
   background: #fff;
   margin: 0;
@@ -35,6 +42,8 @@ img[data-livebook-placeholder-cell] {
 .livebook-nav {
   background: #fdfdfd;
   box-shadow: 0 1px 2px #ccc;
+  font-family: $sans-serif_interface;
+  font-weight: $bold;
   height: 70px;
   position: fixed;
   top: 0;
@@ -51,6 +60,7 @@ img[data-livebook-placeholder-cell] {
 }
 
 .notebook {
+  font-family: $sans-serif_notebook;
   margin: 0 auto;
   padding: 0;
   max-width: 1000px;
@@ -78,34 +88,37 @@ img[data-livebook-placeholder-cell] {
 .notebook h1,
 .notebook h2,
 .notebook h3 {
-  font-weight: 700;
+  font-family: $serif;
+  font-weight: $bold;
   margin: 0;
   padding: 0;
 }
 
 .notebook h1 {
   border-bottom: .1em solid rgba(0,0,0,0.125);
-  font-size: 2.4em;
+  font-size: 2.5em;
   margin-bottom: .4em;
+  letter-spacing: -.06rem;
   padding-bottom: .1em;
 }
 
 .notebook h2 {
   border-bottom: .07em solid rgba(0,0,0,0.125);
-  font-size: 1.9em;
+  font-size: 2em;
+  letter-spacing: -.01rem;
   margin-bottom: .4em;
   padding-bottom: .1em;
 }
 
 .notebook h3 {
-  font-size: 1.4em;
+  font-size: 1.5em;
   margin-bottom: .5em;
   padding-bottom: .15em;
 }
 
 .notebook p {
-  font-size: 1em;
-  line-height: 1.55;
+  font-size: 1.08em;
+  line-height: 1.5;
   margin: 0;
   margin-bottom: 1em;
   text-align: justify;
@@ -131,7 +144,7 @@ img[data-livebook-placeholder-cell] {
 
 .notebook-syntax-helper-code {
   display: inline-block;
-  font-family: $ace-font;
+  font-family: $monospace;
   margin-right: 1em;
 }
 
@@ -184,7 +197,7 @@ img[data-livebook-placeholder-cell] {
 }
 
 .notebook .code {
-  font-family: Menlo, monospace;
+  font-family: $monospace;
   overflow: hidden;
   white-space: pre;
 }
@@ -244,7 +257,7 @@ img[data-livebook-placeholder-cell] {
   border: 1px solid #ccc;
   border-bottom-left-radius: .15em;
   border-bottom-right-radius: .15em;
-  font-family: Menlo, monospace;
+  font-family: $monospace;
   font-size: .85em;
   overflow: hidden;
   padding: .8em .85em 1em .85em;
@@ -296,14 +309,12 @@ img[data-livebook-placeholder-cell] {
 
 div.editor { /* !!! this is necessary specificity */
   display: none;
-  // top: 0;
-  // position: absolute;
   z-index: 2;
 }
 
 div.ace_editor {
   box-sizing: border-box;
-  // font-size: .82em; /* slightly reduced font size relative to codecell becuase of font differences */
+  font-family: $monospace !important;
   margin: 0;
 }
 
@@ -312,13 +323,10 @@ div.ace_editor {
 }
 
 div.ace_scroller {
-  // border: .1em solid #ddd;
   border-radius: .15em;
-  /*padding: .8em .85em 1em .8em;*/ /* overflow gets in the way if we include padding D: */ ;
 }
 
 div.ace_content {
-  /*padding: .8em .85em 1em .8em*/
   margin-top: 0 !important;
 }
 
@@ -398,8 +406,6 @@ div.ace_error-marker {
     background: $_blue;
     border-radius: .25em;
     color: #fff;
-
-    // transition: background .15s ease-in-out;
   }
 
   a {
@@ -460,6 +466,8 @@ div.ace_error-marker {
 }
 
 .collaborators {
+  font-family: $sans-serif_interface;
+  font-weight: $bold;
   right: .5em;
   top: 0;
   position: fixed;
