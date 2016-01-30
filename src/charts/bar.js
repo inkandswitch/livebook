@@ -3,17 +3,25 @@ const createClickForTooltip = require("./c3-click-for-tooltip");
 module.exports = bar;
 
 function bar(selector, layer, { maxWidth }) {
-  const { data } = layer;
+  const { data, options } = layer;
   const { x, y } = data;
   const xName = x.column;
   const yName = y.column;
   const xData = x.list;
   const yData = y.list;
-
+  const color = {};
   const columns = [
     [xName, ...xData],
     [yName, ...yData]
   ];
+
+  if (options.color) {
+    color.pattern = [options.color];
+  }
+
+  // if (color[yName]) {
+  //   debugger;
+  // }
 
   const chart = c3.generate({
       size: {
@@ -27,6 +35,7 @@ function bar(selector, layer, { maxWidth }) {
         type: "bar",
         onclick: createClickForTooltip(),
       },
+      color,
       transition: {
         duration: 0,
       },

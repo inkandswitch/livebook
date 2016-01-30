@@ -6,8 +6,7 @@ function plot(selector, plot, { maxWidth }) {
   let { chart_type, layers } = plot;
 
   if (!layers || !layers.length) {
-    console.log("%cplot called with plot message that lacks layers", "color: darkred;");
-    return;
+    return noLayersErrorMessage();
   }
 
   const firstLayer = layers[0];
@@ -41,3 +40,7 @@ function standardizeChartCircleOpacity(chart) {
 }
 
 module.exports = { plot }
+
+function noLayersErrorMessage() {
+  console.log("%cplot was called without any layers to plot :'(", "color: darkred;");
+}

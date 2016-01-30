@@ -83,7 +83,7 @@ def scatter(x, y, **kwargs):
 def bar(left, height, **kwargs):
     # left = sequence of scalars
     # height = sequence of scalars
-    plot(left, height, chart_type="bar")
+    plot(left, height, chart_type="bar", **kwargs)
 
 
 def hist(*args, **kwargs):
