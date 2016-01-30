@@ -1,12 +1,12 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
+const { getColors } = require("./defaults");
 
 plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
 
 function plotTimeSeries(selector, layer, { maxWidth }) {
-  const color = { pattern: COLORS };
+  const color = { pattern: getColors() };
   const { data, options } = layer;
   const { columns } = data;
 

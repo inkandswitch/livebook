@@ -1,8 +1,8 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
+const { getColors } = require("./defaults");
 
 function scatterV2(selector, layer, { maxWidth }) {
-    const color = { pattern: COLORS };
+  const color = { pattern: getColors() };
 
     const { data, options } = layer;
 

@@ -1,5 +1,5 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
+const { getColors } = require("./defaults");
 
 module.exports = bar;
 
@@ -10,7 +10,7 @@ function bar(selector, layer, { maxWidth }) {
   const yName = y.column;
   const xData = x.list;
   const yData = y.list;
-  const color = { pattern: COLORS };
+  const color = { pattern: getColors() };
   const columns = [
     [xName, ...xData],
     [yName, ...yData]

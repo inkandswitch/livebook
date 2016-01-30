@@ -1,5 +1,5 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const COLORS = d3.shuffle([...require("./defaults").COLORS]);  // copy the colors array
+const { getColors } = require("./defaults");
 
 const plotTimeSeries = require("./time-series");
 
@@ -28,7 +28,7 @@ function plainOldLine(selector, layer, { maxWidth }) {
   let yName = y.column;
   let xData = x.list;
   let yData = y.list;
-  const color = { pattern: COLORS };
+  const color = { pattern: getColors() };
   let columns = [
     [xName, ...xData],
     [yName, ...yData]

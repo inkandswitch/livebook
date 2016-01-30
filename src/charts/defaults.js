@@ -9,7 +9,9 @@ const COLORS = [
     GREEN,
     BROWN,
 ];
+const getColors = () => d3.shuffle([...COLORS]);
+
 
 module.exports = {
-    COLORS,
+    getColors
 };
