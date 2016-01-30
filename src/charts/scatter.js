@@ -44,6 +44,9 @@ function scatterV2(selector, layer, { maxWidth }) {
             type: "scatter",
             onclick: createClickForTooltip(),
         },
+        transition: {
+          duration: 0,
+        },
         axis,
         point: {
             r: 5,

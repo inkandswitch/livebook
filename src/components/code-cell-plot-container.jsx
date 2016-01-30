@@ -1,12 +1,12 @@
 let React = require("react");
-let { plotV2 } = require("../charts/");
+let { plot } = require("../charts/");
 
 let PlotContainer = React.createClass({
   componentDidMount() {
     let selector = "#" + this.getID();
     let plotData = this.getPlotMessage();
     let width = this.clampWidth(this.getContainerWidth());
-    plotV2(selector, plotData, { maxWidth: width });
+    plot(selector, plotData, { maxWidth: width });
   },
 
   componentDidUpdate(prevProps) {
@@ -17,7 +17,7 @@ let PlotContainer = React.createClass({
       let selector = "#" + this.getID();
       let width = this.clampWidth(this.getContainerWidth());
 
-      plotV2(selector, plotData, { maxWidth: width });
+      plot(selector, plotData, { maxWidth: width });
 
     }
   },

@@ -48,6 +48,9 @@ function plainOldLine(selector, layer, { maxWidth }) {
         type: "line",
         onclick: createClickForTooltip(),
       },
+      transition: {
+        duration: 0,
+      },
       axis: {
         x: {
             label: xName,

@@ -22,6 +22,9 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
         columns: columns,
         onclick: createClickForTooltip(),
       },
+      transition: {
+        duration: 0,
+      },
       axis: {
         x: {
           type: "timeseries",

@@ -1,8 +1,8 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 
-module.exports = plotBar;
+module.exports = bar;
 
-function plotBar(selector, layer, { maxWidth }) {
+function bar(selector, layer, { maxWidth }) {
   const { data } = layer;
   const { x, y } = data;
   const xName = x.column;
@@ -26,6 +26,9 @@ function plotBar(selector, layer, { maxWidth }) {
         columns: columns,
         type: "bar",
         onclick: createClickForTooltip(),
+      },
+      transition: {
+        duration: 0,
       },
       axis: {
         y: {
