@@ -178,7 +178,6 @@ cradle.onupdate = function() {
 
   ifChanged("cursors",peers,() => {
     peers.filter((p) => p.session && p.cursor).map((p) => {
-      console.log("PEER",p)
       let nodes = [].slice.call(document.querySelectorAll("[data-livebook-sessions*='"+p.session+"']"))
       nodes.forEach((domNode) => {
         domNode.dataset.livebookSessions = domNode.dataset.livebookSessions.replace(p.session, "");
@@ -203,7 +202,6 @@ cradle.onusergram = function(from,message) {
 function set_avatar_colors() {
   let peers = cradle.peers()
   if (colorChange === false && getSeniorPeerColors().indexOf(cradle.state.color) !== -1) {
-    console.log("changing color once b/c someone else has seniority")
     cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
     colorChange = true
   }
@@ -247,7 +245,6 @@ function handleSaveNotebook(state) {
     // Stops 404 that results from posting to `/.json` on the starter page
     return;
   }
-  console.log("Saving notebook...",state.title);
   var raw_notebook = JSON.stringify(state)
   var data = {
     name: state.title,
@@ -261,7 +258,7 @@ function handleSaveNotebook(state) {
     url: document.location + ".json",
     data: JSON.stringify(data),
     complete: function(response, status) {
-      console.log("save response", response);
+      // console.log("save response", response);
     },
     error: function(jqXHR, textStatus, errorThrown) {
       // TODO handle errors
@@ -306,7 +303,6 @@ function parseRawNotebook(raw_notebook,raw_csv) {
   } else {
     state = iPyToHTML(notebook);
   }
-  console.log("INIT DOCUMENT",state)
   livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: undefined })
   WORKER.postMessage({ type: "data", data: raw_csv, url: String(document.location) })
 }

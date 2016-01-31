@@ -332,7 +332,6 @@ class Cache:
     csv = {}
 
 def read_csv(filename, header=None, names=None):
-    print "read_csv1"
     import js
     # pandas defaults `header` to 0 (row to be treated as a header)
     # if `names` is specified, however, we use that
@@ -342,7 +341,6 @@ def read_csv(filename, header=None, names=None):
     if header is None and names is not None:
         header = names
 
-    print "read_csv2"
     key = str([filename,header,names])
 
     if key in Cache.csv:
@@ -350,6 +348,5 @@ def read_csv(filename, header=None, names=None):
 
     Cache.csv[key] = json.loads(str(js.globals.parse_raw_data(filename,header,names)))
 
-    print "read_csv3"
     return DataFrame.from_data(Cache.csv[key])
 

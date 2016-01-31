@@ -122,7 +122,6 @@ function update_state() {
 function send(obj) {
   let self = this
   try {
-    console.log("Sending",obj)
     if (self.data_channel)
       self.data_channel.send(JSON.stringify(obj))
     else
@@ -394,7 +393,6 @@ function delSessionVar(key) {
 
 function setSessionVar(key,val) {
   if (Exports.state[key] !== val) {
-    console.log("SET SESSION",key,val)
     Exports.state[key] = val
     Exports.onupdate()
     put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
@@ -403,7 +401,6 @@ function setSessionVar(key,val) {
 
 function setUserVar(key,val) {
   if (Exports.user[key] !== val) {
-    console.log("SET USER",key,val)
     Exports.user[key] = val
     Exports.onupdate()
     put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
