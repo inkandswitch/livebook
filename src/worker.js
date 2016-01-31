@@ -24,7 +24,6 @@ let RAW_DATA  = undefined
 onmessage = function(e) {
   switch(e.data.type) {
     case "exec":
-      console.log("NEW EXEC")
       self.NEXT_JOB = e.data
       maybeDoWork()
       break;
@@ -90,19 +89,14 @@ function completeWork() {
 }
 
 function execPython(doc,index,code,next) {
-  let MARK1 = Date.now()
   pypyjs.ready().then(function() {
-    let MARK2 = Date.now()
-    console.log("MARK12:"+(MARK2-MARK1))
     self.RESULTS = undefined
     self.PLOTS = undefined
     self.ERROR = undefined
     self.CODE = code
     self.CELL = index
     pypyjs.exec("import livebook\nlivebook.execute()\n").then(() => {
-      let MARK3 = Date.now()
-      console.log("MARK23:"+(MARK3-MARK2))
-      console.log("PyErr:",self.ERROR)
+      if (self.ERROR) { console.log("PyErr:",self.ERROR) }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], self.ERROR)
       next()
     }).catch((e) => {
@@ -133,7 +127,6 @@ function generateAndExecPythonStep(doc,i,started) {
     generateAndExecPythonStep(doc,i+1,started)
     return
   }
-  console.log("NEW CODE - RUNNING",i)
   delete CODE_CACHE[i]
   execPython(doc,i,code, (err) => {
     if (err) { // there was an error - stop execution
@@ -150,7 +143,6 @@ function generateAndExecPythonStep(doc,i,started) {
 }
 
 self.parse_raw_data = function(filename,headerRow,names) {
-  console.log("PARSE",filename,headerRow,names)
   var head = undefined
   var body = {}
   var length = 0
