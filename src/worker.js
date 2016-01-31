@@ -15,6 +15,12 @@ function assignmentTest(line) {
   return a || b
 }
 
+let START = Date.now()
+
+function mark(id,str) {
+  console.log("MARK " + (Date.now() - START)/1000.0 + ": " + id + " :: " + str)
+}
+
 self.READY    = false
 self.NEXT_JOB = undefined
 self.LOCALS   = {}
@@ -25,11 +31,13 @@ onmessage = function(e) {
   switch(e.data.type) {
     case "exec":
       self.NEXT_JOB = e.data
+      mark(e.data.editID, "MAYBE_DO_WORK")
       maybeDoWork()
       break;
     case "data":
       RAW_DATA = e.data.data
       self.URL = e.data.url
+      START    = e.data.start
       break
     default:
       console.log("unknown message for worker",e)
@@ -41,7 +49,7 @@ function maybeDoWork() {
   if (self.NEXT_JOB) {
     let work = self.NEXT_JOB
     self.NEXT_JOB = undefined
-    generateAndExecPython(work.doc);
+    generateAndExecPython(work.doc, work.editID);
   }
 }
 
@@ -55,18 +63,25 @@ function nextTick(func) {
 self.importScripts("/pypyjs/FunctionPromise.js", "/pypyjs/pypyjs.js", "/d3/d3.js")
 
 pypyjs.stdout = function(data) {
-  console.log("STDOUT::" , data)
+  mark(undefined,data)
+//  console.log("STDOUT::" , data)
 }
 
 pypyjs.stderr = function(data) {
   console.log("STDERR::" , data)
 }
 
+
 pypyjs.loadModuleData("pandas").then(function() {
   pypyjs.loadModuleData("matplotlib").then(function() {
     pypyjs.loadModuleData("livebook").then(function() {
-      self.READY = true
-      maybeDoWork()
+      pypyjs.exec("import livebook\n").then(function() {
+        self.READY = true
+        mark(undefined,"pypy.js is ready")
+        maybeDoWork()
+      }).catch((e) => {
+        console.log("CATCH",e)
+      })
     }).catch((e) => {
       console.log("CATCH",e)
     })
@@ -95,13 +110,13 @@ function execPython(doc,index,code,next) {
     self.ERROR = undefined
     self.CODE = code
     self.CELL = index
-    pypyjs.exec("import livebook\nlivebook.execute()\n").then(() => {
+    pypyjs.exec("print 'A1'\nlivebook.execute()\nprint 'A2'\n").then(() => {
       if (self.ERROR) { console.log("PyErr:",self.ERROR) }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], self.ERROR)
       next()
     }).catch((e) => {
       console.log("ERR",e)
-      error  = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
+      error = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], error)
       next(e)
     })
@@ -112,19 +127,20 @@ function execPython(doc,index,code,next) {
 }
 
 var re = /File .<string>., line (\d*)/
-function generateAndExecPython(doc) {
+function generateAndExecPython(doc, editID) {
   self.READY = false
-  generateAndExecPythonStep(doc,0,false)
+  generateAndExecPythonStep(doc,0,false, editID)
 }
 
 let CODE_CACHE = {}
 
-function generateAndExecPythonStep(doc,i,started) {
-  if (doc.length == 0) { completeWork(); return }
+function generateAndExecPythonStep(doc,i,started,editID) {
+  if (doc.length == 0) { mark(editID,"EXEC DONE"); completeWork(); return }
+  mark(editID,"EXEC " + i)
   let code = doc.shift()
   if (!started && CODE_CACHE[i] == code) {
     console.log("REPEAT - SKIPPING",i)
-    generateAndExecPythonStep(doc,i+1,started)
+    generateAndExecPythonStep(doc,i+1,started,editID)
     return
   }
   delete CODE_CACHE[i]
@@ -137,7 +153,7 @@ function generateAndExecPythonStep(doc,i,started) {
       CODE_CACHE[i] = code
       // next tick prevents the stack from blowing up
       // also allows new messages to be processed before the next block of code is executed
-      nextTick(() => generateAndExecPythonStep(doc,i+1,true))
+      nextTick(() => generateAndExecPythonStep(doc,i+1,true, editID))
     }
   })
 }

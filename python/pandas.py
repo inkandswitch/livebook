@@ -33,7 +33,8 @@ class Record(object):
 
 class Series(object):
     def __deepcopy__(self,memo):
-        return Series(self.data, sort=self.sort, column=self.column, idx=copy(self.idx))
+        return self
+        #return Series(self.data, sort=self.sort, column=self.column, idx=copy(self.idx))
 
     def __init__(self, data, column=None, sort=None, idx=None):
         if type(data) == Series:
@@ -155,7 +156,11 @@ class Series(object):
 
 class DataFrame(object):
     def __deepcopy__(self,memo):
-        return DataFrame(data=self._data, columns=copy(self._columns), sort=copy(self._sort), idx=copy(self._idx))
+        # newone = type(self)()
+        # newone.__dict__.update(self.__dict__)
+        # return newone
+        return self
+        # return DataFrame(data=self._data, columns=copy(self._columns), sort=copy(self._sort), idx=copy(self._idx))
 
     def __init__(self, base=None, data=None, columns=None, sort=None, idx=None):
         self.iloc = IlocIndexer(self)
