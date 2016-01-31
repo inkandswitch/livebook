@@ -10,6 +10,10 @@ const { stopTheBubbly } = require("../util");
 const PlotContainer = require("./code-cell-plot-container");
 const SyntaxPopup = require("./code-cell-syntax-helper");
 
+function uid() {
+  return Math.round(Math.random()*2000000000)
+}
+
 const CodeCellOutput = React.createClass({
   componentDidUpdate() {
     // TODO - truncate table after update?
@@ -166,7 +170,8 @@ const CodeCell = React.createClass({
     const codeDelta = {}; 
     codeDelta[id] = code;
     const data = { codeList, codeDelta };
-    this.props.store.dispatch({ type: "CODE_DELTA", data })
+    const editID = uid()
+    this.props.store.dispatch({ type: "CODE_DELTA", data, editID })
   },
 
   sizeEditor(editor) {

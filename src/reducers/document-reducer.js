@@ -7,6 +7,8 @@ const initialState = {
   plots: {},
   locals: {},
   results: {},
+  editID: null,
+  runID: undefined,
 };
 
 const documentReducer = (state = initialState, action) => {
@@ -40,7 +42,7 @@ function UPDATE_HTML (state, action) {
 
 function CODE_DELTA (state, action) {
   let nextCodeMap = {...state.codeMap, ...action.data.codeDelta};
-  return {...state, codeList: action.data.codeList, codeMap: nextCodeMap, editor: "me" }
+  return {...state, codeList: action.data.codeList, codeMap: nextCodeMap, editID: action.editID, editor: "me" }
 }
 
 function NEW_RESULTS(state, action) {

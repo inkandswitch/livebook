@@ -13,7 +13,12 @@ livebookStore.subscribe(notebookRender)
 livebookStore.subscribe(runNotebook)
 livebookStore.subscribe(saveNotebook)
 
+let START = Date.now()
 let EDITOR = {}
+
+function mark(id,str) {
+  console.log("MARK " + (Date.now() - START)/1000.0 + ": " + id + " :: " + str)
+}
 
 let LAST_CODE = []// changes in results dont bug me - nested reducers maybe?
 function runNotebook() {
@@ -22,7 +27,8 @@ function runNotebook() {
   let codeBlocks = doc.codeList.map((id) => doc.codeMap[id])
   if (LAST_CODE.join() != codeBlocks.join()) {
     REMOVE_MARKERS()
-    WORKER.postMessage({ type: "exec", doc: codeBlocks})
+    mark(doc.editID, "SEND_TO_WORKER")
+    WORKER.postMessage({ type: "exec", doc: codeBlocks, editID: doc.editID })
     LAST_CODE = codeBlocks
   }
 }
@@ -96,31 +102,16 @@ var colorChange = false
 var {getCellPlots, setCellPlots} = require("./cell-plots-accessors");
 var createCellPlotData = require("./cell-plots-adapter");
 
-var WORKER     = new Worker("/js/worker.js");
+var WORKER = new Worker("/js/worker.js");
 WORKER.onmessage = function(e) {
   let data = e.data;
   let {index, results, plots, error, locals} = data;
 
   livebookStore.dispatch({ type: "NEW_RESULTS", index, results, plots, locals, error })
 
-/*
-  if (error) handleError(error);
-  if (!empty(plots)) handlePlots(plots)
-  if (!empty(results)) handleResults(results,locals)
-*/
   let { forceUpdateEditor } = uglyAntiFunctions;
   forceUpdateEditor && forceUpdateEditor();
 }
-
-/*
-function handleResults(results, locals) {
-  livebookStore.dispatch({ type: "NEW_RESULT", results, locals})
-}
-
-function handlePlots(plots) {
-  livebookStore.dispatch({ type: "NEW_PLOTS", data: plots })
-}
-*/
 
 // Utils
 var randomColor   = require("./util").randomColor;
@@ -304,7 +295,7 @@ function parseRawNotebook(raw_notebook,raw_csv) {
     state = iPyToHTML(notebook);
   }
   livebookStore.dispatch({ type: "INITIALIZE_DOCUMENT", documentProps: state, editor: undefined })
-  WORKER.postMessage({ type: "data", data: raw_csv, url: String(document.location) })
+  WORKER.postMessage({ type: "data", data: raw_csv, url: String(document.location), start: START })
 }
 
 function postNotebookToServer(raw_notebook,raw_csv, callback) {
