@@ -105,16 +105,15 @@ img[data-livebook-placeholder-cell] {
 .notebook h1 {
   border-bottom: .08em solid rgba(0,0,0,0.125);
   font-size: 2.5em;
-  line-height: .95;
-  margin-bottom: .6rem;
-  padding-bottom: -.2em;
+  line-height: 1.2;
+  margin-bottom: .8rem;
   letter-spacing: -.06rem;
 }
 
 .notebook h2 {
   font-size: 2em;
   letter-spacing: -.01rem;
-  margin-bottom: .5rem;
+  margin-bottom: .6rem;
 }
 
 .notebook h3 {
