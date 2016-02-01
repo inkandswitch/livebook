@@ -272,8 +272,19 @@
 }
 
 
+.notebook .collaborators {
+  display: none;
+}
 
 @media only screen and (min-width: 520px) {
+
+  .notebook .collaborators {
+    display: inherit;
+  }
+
+  .livebook-nav .collaborators {
+    display: none;
+  }
 
   .collaborators {
     position: absolute;
@@ -301,18 +312,8 @@
   }
 
   .app-container {
-    display: flex;
     padding: 0;
     padding-top: 1.8em;
-  }
-
-  .flex-gutter {
-    width: 62px;
-  }
-
-  .flex-notebook {
-    flex-grow: 1;
-    position: relative;
   }
 
   #nav {
@@ -322,9 +323,6 @@
 
 
 @media only screen and (min-width: 840px) {
-  .app-container {
-    padding-top: 1.8em;
-  }
 
   .livebook-nav {
     box-shadow: none;
