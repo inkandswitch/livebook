@@ -15,10 +15,6 @@ function uid() {
 }
 
 const CodeCellOutput = React.createClass({
-  componentDidUpdate() {
-    // TODO - truncate table after update?
-  },
-
   parseOutput(output, key) {
     let {data} = output;
 
@@ -191,6 +187,7 @@ const CodeCell = React.createClass({
   },
 
   updateEditorSize(editor) {
+    this.sizeEditor(editor);
     let numRows = editor.getSession().getLength();
     let minHeight = (numRows * 16) + "px"; // yargh...
     editor.container.style.minHeight = minHeight;
@@ -206,6 +203,7 @@ const CodeCell = React.createClass({
       let lastTimeout;
       let lastWord;
 
+      this.editor = editor;
       this.sizeEditor(editor);
 
       const showDef = () => {

@@ -272,13 +272,30 @@
 }
 
 @media only screen and (min-width: 520px) and (max-width: 840px) {
-  
+  .app-container {
+    display: flex;
+    padding: 0;
+    padding-top: 1.8em;
+  }
+
+  .flex-gutter {
+    width: 62px;
+  }
+
+  .flex-notebook {
+    flex-grow: 1;
+    position: relative;
+  }
+
+  #nav {
+    opacity: .1;
+  }
 }
 
 
 @media only screen and (min-width: 840px) {
   .app-container {
-    padding-top: 2em;
+    padding-top: 1.8em;
   }
 
   .livebook-nav {
@@ -321,3 +338,5 @@
     width: 15px;
   }
 }
+
+
