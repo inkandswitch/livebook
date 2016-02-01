@@ -1,7 +1,4 @@
 
-BASE_LOCALS  = {'__name__': 'livebook', '__doc__': None, '__builtins__': __builtins__ }
-BASE_GLOBALS = {'__name__': 'livebook', '__doc__': None, '__builtins__': __builtins__ }
-
 import sys
 import string
 import ast
@@ -203,7 +200,7 @@ def under_construction(t,e,tb,line):
     return None
 
 def do(code, cell):
-    data_to_copy = LOCALS[cell - 1] if (cell - 1) in LOCALS else BASE_LOCALS
+    data_to_copy = LOCALS[cell - 1] if (cell - 1) in LOCALS else {'__name__': 'livebook', '__doc__': None, '__builtins__': __builtins__ }
     local = copy.deepcopy(data_to_copy)
     name = "<cell %d>" %cell
     try:
@@ -211,12 +208,10 @@ def do(code, cell):
             random.setstate(SEEDS[cell-1])
         else:
             random.seed('NOT_SO_RANDOM_AFTER_ALL')
-        print name
-        print code
         preped = prep_code(code)
         parsed = ast.parse(preped)
         compiled = compile(parsed,name,"exec")
-        eval(compiled,BASE_GLOBALS,local)
+        eval(compiled,local,local)
         result = local.pop("__return__",None)
         LOCALS[cell] = local
         SEEDS[cell] = random.getstate()
