@@ -1,3 +1,8 @@
+// `interface`? What does that even mean??
+//
+// Essentially, all non-notebook styles 
+// (e.g., the container, the nav, the avatars)
+
 .app-container {
   margin: 0 auto;
   max-width: 45em;
@@ -16,11 +21,6 @@
   width: 100%;
   transition: all .2s ease-in;
   z-index: 100;
-}
-
-.sample-notebook-forkable {
-  display: inline-block;
-  margin-left: .4em;
 }
 
 .menu {
@@ -147,6 +147,11 @@
       color: #fff;
     }
   }
+}
+
+.sample-notebook-forkable {
+  display: inline-block;
+  margin-left: .4em;
 }
 
 .collaborators {
@@ -316,14 +321,6 @@
     padding-top: 1.8em;
   }
 
-  #nav {
-    opacity: .1;
-  }
-}
-
-
-@media only screen and (min-width: 840px) {
-
   .livebook-nav {
     box-shadow: none;
     height: 0;
@@ -334,9 +331,15 @@
   }
 
   .menu {
-    left: -56px;
+    left: 1rem;
     top: 0;
   }
+
+}
+
+
+@media only screen and (min-width: 840px) {
+
 }
 
 
