@@ -4906,7 +4906,9 @@
     }, 
     "matplotlib.pyplot": {
       "file": "matplotlib/pyplot.py", 
-      "imports": []
+      "imports": [
+        "pandas"
+      ]
     }, 
     "matplotlib.sample": {
       "file": "matplotlib/sample.py", 

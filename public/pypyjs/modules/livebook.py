@@ -197,7 +197,6 @@ def under_construction(t,e,tb,line):
         search = re.search('global name .(.*). is not defined',e.message)
         if search and partial_keyword(search.group(1)):
             return line
-    #print "under_constr %s/%s/%s/%s" % (t,e,tb,line)
     return None
 
 def do(code, cell):

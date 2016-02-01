@@ -1,3 +1,5 @@
+import pandas
+
 class Static:
     CURRENT_PLOT = None
     PLOTS = []
@@ -15,11 +17,11 @@ class Plot:
     def add_layer(self, *args, **kwargs):
         if (len(args) == 1):
             # TODO - how do we parse dims?
-            data = args[0]
+            data = pandas.Series(args[0]).to_plot_data_v2()
             self.layers.append({"data": data, "options": kwargs})
         elif (len(args) == 2):
-            x = args[0]
-            y = args[1]
+            x = pandas.Series(args[0],name="x").to_plot_data_v2()
+            y = pandas.Series(args[1],name="y").to_plot_data_v2()
             data = {"x": x, "y": y}
             self.layers.append({"data": data, "options": kwargs})
         elif (len(args) == 3):
@@ -57,32 +59,14 @@ def plot(*args, **kwargs):  # kwargs could include (linewidth, lw, color, marker
         if first argument (?) is 2-dim, those columns will be plotted
     """
     current_plot = get_current_plot(**kwargs)
-    if (len(args) == 1):
-        data = args[0].to_plot_data()
-        current_plot.add_layer(data, **kwargs)
-    elif (len(args) == 2):
-        try:
-            x = args[0].to_plot_data_v2()
-            y = args[1].to_plot_data_v2()
-            current_plot.add_layer(x, y, **kwargs)
-        except AttributeError:
-            current_plot.add_layer(*args, **kwargs)
+    current_plot.add_layer(*args, **kwargs)
 
 
 def scatter(x, y, **kwargs):
-    try:
-        xData = [x.column] + x.data[x.column]
-        yData = [y.column] + y.data[y.column]
-        plot(xData, yData, chart_type="scatter", **kwargs)
-    except:
-        xData = ["x"] + x
-        yData = ["y"] + y
-        plot(x, y, chart_type="scatter", **kwargs)
+    plot(x, y, chart_type="scatter", **kwargs)
 
 
 def bar(left, height, **kwargs):
-    # left = sequence of scalars
-    # height = sequence of scalars
     plot(left, height, chart_type="bar", **kwargs)
 
 

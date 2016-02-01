@@ -33,19 +33,24 @@ class Record(object):
 
 class Series(object):
     def __deepcopy__(self,memo):
-        return self
-        #return Series(self.data, sort=self.sort, column=self.column, idx=copy(self.idx))
+        return Series(self.data, sort=self.sort, column=self.column, idx=copy(self.idx))
 
-    def __init__(self, data, column=None, sort=None, idx=None):
+    def __init__(self, data, column=None, sort=None, idx=None, name=None):
         if type(data) == Series:
             self.data = data.data
             self.column = column or data.column
             self.sort = sort or data.sort
             self.idx = idx or data.idx
-        elif (column == None):
-            self.data = { "series":data }
-            self.column = "series"
-            self.sort = "series"
+        elif type(data) == DataFrame:
+            if (data._sort == None): raise IndexError("Cannot coerce DataFrame to a Series without an index")
+            self.data = data._data
+            self.column = data._sort
+            self.sort = None
+            self.idx = idx or data._idx
+        elif idx == None:
+            self.column = column or name or "series"
+            self.data = { self.column: list(data) }
+            self.sort = None
             self.idx = range(0,len(data))
         else:
             self.data = data
@@ -156,11 +161,7 @@ class Series(object):
 
 class DataFrame(object):
     def __deepcopy__(self,memo):
-        # newone = type(self)()
-        # newone.__dict__.update(self.__dict__)
-        # return newone
-        return self
-        # return DataFrame(data=self._data, columns=copy(self._columns), sort=copy(self._sort), idx=copy(self._idx))
+         return DataFrame(data=self._data, columns=copy(self._columns), sort=copy(self._sort), idx=copy(self._idx))
 
     def __init__(self, base=None, data=None, columns=None, sort=None, idx=None):
         self.iloc = IlocIndexer(self)
