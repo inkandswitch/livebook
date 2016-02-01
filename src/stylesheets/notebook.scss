@@ -105,8 +105,8 @@ img[data-livebook-placeholder-cell] {
 .notebook h1 {
   border-bottom: .08em solid rgba(0,0,0,0.125);
   font-size: 2.5em;
-  line-height: 1.1;
-  margin-bottom: .8rem;
+  line-height: .95;
+  margin-bottom: .6rem;
   padding-bottom: -.2em;
   letter-spacing: -.06rem;
 }
@@ -114,7 +114,7 @@ img[data-livebook-placeholder-cell] {
 .notebook h2 {
   font-size: 2em;
   letter-spacing: -.01rem;
-  margin-bottom: .6rem;
+  margin-bottom: .5rem;
 }
 
 .notebook h3 {
