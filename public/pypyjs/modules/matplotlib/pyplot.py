@@ -17,7 +17,11 @@ class Plot:
     def add_layer(self, *args, **kwargs):
         if (len(args) == 1):
             # TODO - how do we parse dims?
-            data = pandas.Series(args[0]).to_plot_data_v2()
+            data_temp = pandas.Series(args[0])
+
+            x = data_temp.get_index().to_plot_data_v2();
+            y = data_temp.to_plot_data_v2();
+            data = { "x": x, "y": y };
             self.layers.append({"data": data, "options": kwargs})
         elif (len(args) == 2):
             x = pandas.Series(args[0],name="x").to_plot_data_v2()

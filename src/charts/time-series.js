@@ -6,12 +6,20 @@ plotTimeSeries.isTimeSeries = isTimeSeries;
 module.exports = plotTimeSeries;
 
 function plotTimeSeries(selector, layer, { maxWidth }) {
-  const color = { pattern: getColors() };
   const { data, options } = layer;
-  const { columns } = data;
+  let { x, y } = data;
+  let xName = x.column;
+  let yName = y.column;
+  let xData = x.list;
+  let yData = y.list;
+  const color = { pattern: getColors() };
+  let columns = [
+    [xName, ...xData],
+    [yName, ...yData]
+  ];
 
-  const xName = columns[0][0];
-  const yName = columns[1][0];
+  let xs = {};
+  xs[yName] = xName;
 
   if (options && options.color) {
     color.pattern.unshift(options.color);
@@ -65,13 +73,10 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
 }
 
 // Fixme
-function isTimeSeries(data) {
-  let columns = data.columns;
+function isTimeSeries(list) {
   let yearMonthDateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/; // matches YYYY-MM-DD, where MM and DD do not need leading zeroes
 
-  return columns.some(function(column) {
-    return column.some(function(datum) {
-      return yearMonthDateRegex.test(datum);
-    })
+  return list.some(function(datum) {
+    return yearMonthDateRegex.test(datum);
   });
 }

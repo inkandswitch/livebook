@@ -7,9 +7,16 @@ module.exports = plotLine;
 
 function plotLine(selector, layer, { maxWidth }) {
   const { data } = layer;
+
+
   let result;
 
-  if (data.columns) {
+  if (data.x === "id") {
+    // short circuit bad + cached data
+    return;
+  }
+
+  if (data.x && plotTimeSeries.isTimeSeries(data.x.list)) {
     result = plotTimeSeries(...arguments);
   }
   else {
