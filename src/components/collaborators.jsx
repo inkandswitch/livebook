@@ -203,7 +203,7 @@ const Collaborator = React.createClass({
   },
 
   addOverlapOffset(position) {
-    const avatarDim = 40;
+    const avatarDim = 33;
     const overlaps = this.props.position.overlaps;
     const right = (-avatarDim * overlaps) + "px"
     return { ...position, right };
