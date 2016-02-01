@@ -271,7 +271,35 @@
   opacity: .82;
 }
 
-@media only screen and (min-width: 520px) and (max-width: 840px) {
+
+
+@media only screen and (min-width: 520px) {
+
+  .collaborators {
+    position: absolute;
+    right: -46px; /* needs to be (width of avatar + gutter) */
+    top: 0;
+    width: 30px;
+  }
+
+  .collaborators li {
+    float: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .collaborators li:first-of-type {
+    /*margin-top: .75em;*/
+  }
+
+  .collaborators-name-change-form::after {
+    height: 15px;
+    right: 1.08em;
+    top: 0;
+    transform: rotate(45deg) translateY(-10.8px);
+    width: 15px;
+  }
+
   .app-container {
     display: flex;
     padding: 0;
@@ -310,32 +338,6 @@
   .menu {
     left: -56px;
     top: 0;
-  }
-
-  .collaborators {
-    position: absolute;
-    right: -46px; /* needs to be width of avatar */
-    top: 0;
-    width: 30px;
-  }
-
-  .collaborators li {
-    float: none;
-    margin: 0;
-    /*margin-top: 1em;*/
-    padding: 0;
-  }
-
-  .collaborators li:first-of-type {
-    /*margin-top: .75em;*/
-  }
-
-  .collaborators-name-change-form::after {
-    height: 15px;
-    right: 1.08em;
-    top: 0;
-    transform: rotate(45deg) translateY(-10.8px);
-    width: 15px;
   }
 }
 
