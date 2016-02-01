@@ -110,7 +110,7 @@ function execPython(doc,index,code,next) {
     self.ERROR = undefined
     self.CODE = code
     self.CELL = index
-    pypyjs.exec("print 'A1'\nlivebook.execute()\nprint 'A2'\n").then(() => {
+    pypyjs.exec("livebook.execute()\n").then(() => {
       if (self.ERROR) { console.log("PyErr:",self.ERROR) }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], self.ERROR)
       next()
