@@ -68,86 +68,23 @@ function scatterV2(selector, layer, { maxWidth }) {
     chart.addLayer = function(layer) {
       const { data } = layer;
 
-      let xCol = data["x"];
-      let yCol = data["y"];
+      let { x, y } = data;
+      let xName = x.column;
+      let yName = y.column;
 
-      if (typeof xCol[0] === "number") xCol[0] = "x";
-      if (typeof yCol[0] === "number") yCol[0] = "y";
-
-      const xName = xCol[0];
-      const yName = yCol[0];
+      let xData = x.list;
+      let yData = y.list;
 
       const xs = {};
       xs[yName] = xName;
 
-      const columns = [xCol, yCol];
+      let columns = [
+        [xName, ...xData],
+        [yName, ...yData]
+      ];
 
       chart.load({ columns, xs })
 
-    };
-
-    return chart;
-}
-
-// This is the layered approach to a scatterplot
-scatterV2.layered = function(selector) {
-    const chart = c3.generate({
-        bindto: selector,
-        data: {
-            columns: [],
-            type: "scatter",
-            onclick: createClickForTooltip(),
-        },
-        x: { // fixme
-            label: "x",
-            tick: {
-                fit: false,
-            },
-        },
-        tooltip: {
-          show: false,
-        },
-    })
-
-    chart.addLayer = function(layer, index) {
-      const { data } = layer;
-
-      const xName = "x"+index;
-      const yName = "y"+index;
-
-      let xCol = data["x"];
-      let yCol = data["y"];
-
-      if ( xCol && typeof xCol[0] !== "string") {
-        xCol = [xName, ...xCol]
-      } else {
-        xCol = [xName, ...xCol.slice(1)]        
-      }
-      if ( yCol && typeof yCol[0] !== "string") {
-        yCol = [yName, ...yCol]
-      }
-      else {
-        yCol = [yName, ...yCol.slice(1)]
-      }
-
-      const xs = {};
-      xs[yName] = xName;
-
-      const columns = [xCol, yCol];
-
-      const axis = {
-        x: {
-            label: xName,
-            tick: {
-                fit: false,
-            },
-        },
-        y: {
-            label: yName,
-        }
-      };
-
-      chart.load({ columns, xs, axis })
     };
 
     return chart;
