@@ -204,7 +204,7 @@ const CodeCell = React.createClass({
       let lastWord;
 
       this.editor = editor;
-      this.sizeEditor(editor);
+      this.updateEditorSize(editor);
 
       const showDef = () => {
         if (!this.props.locals) {
