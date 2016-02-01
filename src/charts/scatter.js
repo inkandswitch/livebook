@@ -2,23 +2,24 @@ const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
 function scatterV2(selector, layer, { maxWidth }) {
-  const color = { pattern: getColors() };
 
+    const color = { pattern: getColors() };
     const { data, options } = layer;
 
-    let xCol = data["x"];
-    let yCol = data["y"];
+    let { x, y } = data;
+    let xName = x.column;
+    let yName = y.column;
 
-    if (typeof xCol[0] === "number") xCol[0] = "x";
-    if (typeof yCol[0] === "number") yCol[0] = "y";
-
-    const xName = xCol[0];
-    const yName = yCol[0];
+    let xData = x.list;
+    let yData = y.list;
 
     const xs = {};
     xs[yName] = xName;
 
-    const columns = [xCol, yCol];
+    let columns = [
+      [xName, ...xData],
+      [yName, ...yData]
+    ];
 
     const axis = {
       x: {
