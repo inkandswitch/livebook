@@ -3,10 +3,10 @@ $_blue: #2A64C7;
 
 
 // Typography
-$serif: 'Lusitana', serif;
+$serif: 'Lusitana', 'Palatino', 'Palatino Linotype', serif;
 $sans-serif_notebook: Lato, sans-serif;
-$sans-serif_interface: "HelveticaNeue-CondensedBlack", "Helvetica Neue", Helvetica, Arial, sans-serif; // http://codepen.io/remino/pen/bkGDy
-$monospace: Hack, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+$sans-serif_interface: "HelveticaNeue-CondensedBlack", "Helvetica Neue", Impact, sans-serif; // http://codepen.io/remino/pen/bkGDy
+$monospace: Hack, Monaco, 'Lucida Console', monospace;
 
 $light: 300;
 $normal: 400;
@@ -99,7 +99,6 @@ img[data-livebook-placeholder-cell] {
   font-size: 2.5em;
   margin-bottom: .4em;
   letter-spacing: -.06rem;
-  padding-bottom: .1em;
 }
 
 .notebook h2 {
@@ -107,7 +106,6 @@ img[data-livebook-placeholder-cell] {
   font-size: 2em;
   letter-spacing: -.01rem;
   margin-bottom: .4em;
-  padding-bottom: .1em;
 }
 
 .notebook h3 {
