@@ -86,7 +86,7 @@ function notebookRender() {
 }
 
 function navRender() {
-  ReactDOM.render(<Nav render={render} store={livebookStore} />, navMount);
+  ReactDOM.render(<Nav render={render} store={livebookStore} getPeers={() => cradle.peers() } />, navMount);
 }
 
 global.STORE = livebookStore;

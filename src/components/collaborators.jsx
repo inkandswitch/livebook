@@ -288,7 +288,10 @@ const Collaborators = React.createClass({
     const positions = this.getAvatarPositions();
     const avatars = this.props.peers.map((peer, index) => {
       const peerId = peer.session;
-      const position = positions[index];
+
+      let position = positions[index];
+      if (window.innerWidth < 520) position = {};
+      
       return (
         <Collaborator 
           key={index}

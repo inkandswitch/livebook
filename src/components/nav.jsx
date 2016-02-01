@@ -1,5 +1,7 @@
 const React = require("react");
 
+const Collaborators = require("./collaborators");
+
 const Menu = require("./menu");
 
 const Nav = () => ({
@@ -15,6 +17,7 @@ const Nav = () => ({
         return (
             <div style={styles} className="livebook-nav">
                 <Menu store={this.props.store} render={this.props.render} />
+                <Collaborators peers={this.props.getPeers()}/>
             </div>
         );
     },
