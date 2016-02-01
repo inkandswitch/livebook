@@ -109,6 +109,9 @@ class Series(object):
     def head(self,n=5):
         return Series(self, idx=self.idx[0:n])
 
+    def get_index(self):
+        return Series(self,column=self.sort,idx=self.idx)
+
     def value_counts(self):
         values = [self.data[self.column][i] for i in self.idx]
         uniques = list(set(values))

@@ -38,6 +38,8 @@ class Test:
         df = pd.DataFrame.from_dict({"h1":[1,2,1,1],"h2":[10,30,25,25],"h3":["monkey","cow","dog","pig"]})
         s1 = df.set_index("h1").sort_values("h1")["h2"]
         s2 = df.set_index("h2").sort_values("h2")["h1"]
+        s1i = s1.get_index()
+        assert s1i.tolist() == [1,1,1,2]
         r1 = s1.resample("Q")
         assert r1[0] == 20
         assert r1[1] == 30
