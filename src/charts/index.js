@@ -20,7 +20,6 @@ function plot(selector, plot, { maxWidth }) {
   })();
 
   addExtraChartLayers(chart, layers);
-  standardizeChartCircleOpacity(chart);
 
   return chart;
 }
@@ -29,14 +28,6 @@ function addExtraChartLayers(chart, layers) {
   if (chart.addLayer)
     if (layers.length > 1)
       layers.slice(1).forEach(chart.addLayer);
-}
-
-function standardizeChartCircleOpacity(chart) {
-  const { element } = chart;
-  if (!element) return;
-  d3.select(element)
-    .selectAll("circle")
-    .style("opacity", .7);
 }
 
 module.exports = { plot }
