@@ -69,6 +69,9 @@ class Test:
         df3 = df2.dropna()
         assert len(df1) == 5
         assert len(df3) == 2
+        assert len(df2) == 5
+        df2.dropna(inplace=True)
+        assert len(df2) == 2
 
     def test_dataframe(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,20,30,40]})

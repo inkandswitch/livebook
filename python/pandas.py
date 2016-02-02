@@ -292,8 +292,12 @@ class DataFrame(object):
     def set_index(self,index):
         return DataFrame(self, sort=index)
 
-    def dropna(self):
+    def dropna(self,**kwargs):
         new_idx = [i for i in self._idx if all([self._data[c][i] != None for c in self.columns])]
+        if kwargs is not None:
+            if "inplace" in kwargs and kwargs["inplace"] == True:
+                self._idx = new_idx
+                return self
         return DataFrame(self, idx=new_idx)
 
     def sort_values(self,by,ascending=True):
