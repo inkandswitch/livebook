@@ -88,7 +88,11 @@ class Series(object):
     def isnumeric(self):
         return type(self[0]) in [int,float,long]
 
-    def isnull(self): return self.apply(lambda x: x == None)
+    def isnull(self):
+        return self.apply(lambda x: x == None)
+
+    def dropna(self):
+        return Series(self,idx=[ i for i in self.idx if self[i] != None ])
 
     def unique(self):
         memo = set()
@@ -316,7 +320,7 @@ class DataFrame(object):
         sort = "_id"
         idx = range(0,len(funcs))
         for c in columns:
-            d    = sorted(self[c].tolist())
+            d    = sorted(self[c].dropna().tolist())
             l    = len(d)
             mean = sum(d)/l
             std  = sqrt(sum([ pow(mean - val, 2) for val in d ])/(l-1))

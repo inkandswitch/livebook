@@ -169,12 +169,12 @@ class Test:
         assert len(data[(data["people"] < 5) & (data["profit"] <= 300)]) == 2
 
     def test_describe(self):
-        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100], "name":['Carl', 'Sofia', 'Ana', 'John', 'Jim']})
+        data = pd.DataFrame.from_dict({"ones":[1,1,1,1,None],"people":[1,2,3,4,5],"profit":[500,400,300,200,100], "name":['Carl', 'Sofia', 'Ana', 'John', 'Jim']})
         desc = data.describe()
         # describe computes 8 values: count, mean, std, min, 25, 50, 75, max
         assert len(desc) == 8
         assert len(desc.columns) == 4
-        assert desc['ones'].tolist() == [5, 1, 0.0, 1, 1, 1, 1, 1]
+        assert desc['ones'].tolist() == [4, 1, 0.0, 1, 1, 1, 1, 1]
         assert desc['people'].tolist() == [5, 3, 1.5811388300841898, 1, 2, 3, 4, 5]
 
     def test_livebook_do(self):

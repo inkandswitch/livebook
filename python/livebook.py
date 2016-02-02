@@ -94,7 +94,7 @@ def inspect_module(x):
 
 def inspect_pandas_DataFrame(df):
     records = "%d Records" % len(df)
-    columns = "%d Columns" % len(df.columns())
+    columns = "%d Columns" % len(df.columns)
     return {
         "type": type_name(df),
         "value": [records, columns],
