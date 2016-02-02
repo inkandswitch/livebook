@@ -114,7 +114,8 @@ class Series(object):
         return self.apply(lambda x: x == None)
 
     def dropna(self):
-        return Series(self,idx=[ i for i in self.idx if self[i] != None ])
+        new_idx=[ i for i in self.idx if self.data[self.column][i] != None ]
+        return Series(self,idx=new_idx)
 
     def unique(self):
         memo = set()
