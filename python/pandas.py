@@ -119,6 +119,9 @@ class Series(object):
     def head(self,n=5):
         return Series(self, idx=self.idx[0:n])
 
+    def tail(self,n=5):
+        return Series(self, idx=self.idx[-n:])
+
     def get_index(self):
         return Series(self,column=self.sort,idx=self.idx)
 

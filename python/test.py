@@ -91,6 +91,8 @@ class Test:
         assert df.head()["h2"].tolist() == [10,20,30,40,50]
         assert df.tail()["h1"].tolist() == [4,5,6,7,8]
         assert df.tail(2)["h2"].tolist() == [70,80]
+        assert df["h1"].tail().tolist() == [4,5,6,7,8]
+        assert df["h2"].tail(2).tolist() == [70,80]
         assert df.head().columns() == df.columns()
 
     def test_value_counts(self):
