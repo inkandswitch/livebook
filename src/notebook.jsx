@@ -155,14 +155,7 @@ function ifChanged(key,val,func) {
 
 cradle.onupdate = function() {
 
-  var colorMap = {  // ## DRY - i know - i know
-      '#1E52AA': 'rgba(30,82,170,0.05)',
-      '#9E11A8': 'rgba(158,17,168,0.05)',
-      '#FF8018': 'rgba(255,128,24,0.05)',
-      '#D6F717': 'rgba(214,247,23,0.05)'
-  };
-
-  colorMap = COLOR_MAP.lines;
+  var colorMap = COLOR_MAP.lines;
 
   let peers = cradle.peers().map((p) => ({session: p.session, color: p.state.color, cursor: p.state.cursor, name: p.user.name }))
   let style = peers.filter((p) => p.session && p.color).map((p) => "[data-livebook-sessions*='"+p.session+"'] { background: "+ colorMap[p.color]+"; }\n").join('')

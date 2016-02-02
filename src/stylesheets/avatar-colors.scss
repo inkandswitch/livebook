@@ -1,0 +1,23 @@
+$avatar-blue: #678FB5;
+$avatar-violet: #944770;
+$avatar-green: #88A555;
+$avatar-brown: #CCA978;
+
+$LINE-ALPHA: .1;
+$CODE-ALPHA: .25;
+
+$highlight-blue: hsla(209.2, 52.9%, 27.5%, 1);
+$line-highlight-blue: transparentize($highlight-blue, 1 - $LINE-ALPHA);
+$code-highlight-blue: transparentize($highlight-blue, 1 - $CODE-ALPHA);
+
+$highlight-violet: hsla(327.9, 46.8%, 24.3%, 1);
+$line-highlight-violet: transparentize($highlight-violet, 1 - $LINE-ALPHA);
+$code-highlight-violet: transparentize($highlight-violet, 1 - $CODE-ALPHA);
+
+$highlight-green: hsla(81.8, 46.5%, 27.8%, 1);
+$line-highlight-green: transparentize($highlight-green, 1 - $LINE-ALPHA);
+$code-highlight-green: transparentize($highlight-green, 1 - $CODE-ALPHA);
+
+$highlight-brown: hsla(35.5, 46.4%, 30%, 1);
+$line-highlight-brown: transparentize($highlight-brown, 1 - $LINE-ALPHA);
+$code-highlight-brown: transparentize($highlight-brown, 1 - $CODE-ALPHA);
