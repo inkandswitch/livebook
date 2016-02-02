@@ -83,6 +83,10 @@ class Test:
         assert df["h1"][1] == 2
         assert df["h2"][1] == 20
 
+    def test_isnull(self):
+        s1 = pd.Series([1,2,3,None,4])
+        assert s1.isnull().tolist() == [False,False,False,True,False]
+
     def test_head_tail(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]})
         assert len(df.head()) == 5
@@ -202,6 +206,7 @@ def run():
     print "begin testing"
     do_test(t,"test_dataframe")
     do_test(t,"test_head_tail")
+    do_test(t,"test_isnull")
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
     do_test(t,"test_unique")

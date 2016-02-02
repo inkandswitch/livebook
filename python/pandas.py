@@ -84,6 +84,8 @@ class Series(object):
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
 
+    def isnull(self): return self.apply(lambda x: x == None)
+
     def unique(self):
         memo = set()
         new_idx = []
