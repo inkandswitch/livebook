@@ -319,6 +319,9 @@ class DataFrame(object):
     def head(self, n=5):
         return DataFrame(self, idx=self._idx[0:n])
 
+    def tail(self, n=5):
+        return DataFrame(self, idx=self._idx[-n:])
+
     def record(self, i):
         return Record(self,i)
 

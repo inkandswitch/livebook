@@ -83,10 +83,14 @@ class Test:
         assert df["h1"][1] == 2
         assert df["h2"][1] == 20
 
-    def test_head(self):
+    def test_head_tail(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":[10,20,30,40,50,60,70,80]})
         assert len(df.head()) == 5
         assert len(df.head(7)) == 7
+        assert df.head()["h1"].tolist() == [1,2,3,4,5]
+        assert df.head()["h2"].tolist() == [10,20,30,40,50]
+        assert df.tail()["h1"].tolist() == [4,5,6,7,8]
+        assert df.tail(2)["h2"].tolist() == [70,80]
         assert df.head().columns() == df.columns()
 
     def test_value_counts(self):
@@ -191,7 +195,7 @@ def run():
     t = Test()
     print "begin testing"
     do_test(t,"test_dataframe")
-    do_test(t,"test_head")
+    do_test(t,"test_head_tail")
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
     do_test(t,"test_resample")
