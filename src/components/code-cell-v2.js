@@ -259,9 +259,10 @@ const CodeCell = React.createClass({
     return (
       <AceEditor className="editor" name={"editor" + this.props.index}
         key={this.props.index}
-        mode={lang} value={this.props.code}
+        value={this.props.code}
         theme="github" onChange={change}
         showGutter={false}
+        wrapEnabled={false}
         editorProps={{$blockScrolling: true,}}
         onBeforeLoad={onBeforeLoad} onLoad = {onLoad} />
     );

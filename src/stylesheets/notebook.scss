@@ -81,7 +81,7 @@ img[data-livebook-placeholder-cell] {
   border-bottom: .08em solid rgba(0,0,0,0.125);
   font-size: 2.5em;
   line-height: 1.2;
-  margin-bottom: .8rem;
+  margin-bottom: .5rem;
   letter-spacing: -.06rem;
 }
 
@@ -91,17 +91,10 @@ img[data-livebook-placeholder-cell] {
   margin-bottom: .6rem;
 }
 
-.notebook h3 {
-  font-size: 1.5em;
-  margin-bottom: .5em;
-  padding-bottom: .15em;
-}
-
 .notebook p {
   font-size: 1.08em;
-  line-height: 1.5;
-  margin: 0;
-  margin-bottom: 1em;
+  line-height: 1.55;
+  margin: .6rem 0;
   text-align: justify;
 }
 
@@ -315,7 +308,9 @@ div.ace-content {
   background: #eee;
 }
 
-
+.ace_bracket {
+  display: none;
+}
 
 .text-green {
   color: #B1CD14;

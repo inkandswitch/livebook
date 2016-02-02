@@ -23,6 +23,7 @@ let editorOptions = {
         cleanPastedHTML: false,
         forcePlainText: false
     },
+    spellcheck: false,
     placeholder: " ",
     toolbar: {
       buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'quote'],
