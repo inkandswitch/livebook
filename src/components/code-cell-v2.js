@@ -189,17 +189,10 @@ const CodeCell = React.createClass({
   updateEditorSize(editor) {
     this.sizeEditor(editor);
     let session = editor.getSession();
-    let minHeight;
-    let numRows = editor.getSession().getLength();
-    let numRows_wrapped = 0;
+    let numRows = editor.getSession().getScreenLength();
+    let lineHeight = editor.renderer.lineHeight || 16;
+    let minHeight = (numRows * lineHeight) + "px";
 
-    nTimes(numRows, (i) => {
-      let rowNumber = i + 1;
-      numRows_wrapped += session.getRowLength(rowNumber);
-    })
-
-
-    minHeight = (numRows_wrapped * 16) + "px"; // yargh...
     editor.container.style.minHeight = minHeight;
     editor.resize();
   },
@@ -214,6 +207,10 @@ const CodeCell = React.createClass({
       let lastWord;
 
       this.editor = editor;
+      // editor.setOptions({
+      //   fontFamily: "Hack",
+      //   // fontSize: "11pt",
+      // });
       this.updateEditorSize(editor);
 
       const showDef = () => {
@@ -243,11 +240,13 @@ const CodeCell = React.createClass({
 
       editor.on("mousedown", (event) => {
         this.handleCodeCellFocus(event, true);
+        global._ACEEDITOR = editor;
       })
 
       editor.on("blur", () => {
         clearTimeout(lastTimeout);
-        lastTimeout = setTimeout(hidePanel, 100)
+        lastTimeout = setTimeout(hidePanel, 100);
+        // editor.selection.setRange(null);
       });
 
       editor.selection.on("changeCursor", (event, _) => {
