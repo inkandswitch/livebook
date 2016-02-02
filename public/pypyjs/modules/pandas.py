@@ -292,12 +292,8 @@ class DataFrame(object):
     def set_index(self,index):
         return DataFrame(self, sort=index)
 
-    def dropna(self,**kargs):
-        new_idx = self._idx
-        for key in kargs:
-            cols = kargs[key]
-            if key == "subset":
-                new_idx = [x for x in new_idx if all([self._data[c][x] != None for c in cols])]
+    def dropna(self):
+        new_idx = [i for i in self._idx if all([self._data[c][i] != None for c in self.columns])]
         return DataFrame(self, idx=new_idx)
 
     def sort_values(self,by,ascending=True):

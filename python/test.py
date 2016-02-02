@@ -64,13 +64,11 @@ class Test:
         assert df3.h2[0] == 10
 
     def test_dropna(self):
-        df = pd.DataFrame.from_dict({"h1":[1,2,None,None],"h2":[10,None,30,40]})
-        df2 = df.dropna(subset=["h1"])
-        df3 = df.dropna(subset=["h2"])
-        df4 = df.dropna(subset=["h2","h1"])
-        assert len(df2) == 2
-        assert len(df3) == 3
-        assert len(df4) == 1
+        df1 = pd.DataFrame.from_dict({"h1":[2,1,None,None,0],"h2":[10,20,30,40,None]})
+        df2 = df1.sort_values("h1")
+        df3 = df2.dropna()
+        assert len(df1) == 5
+        assert len(df3) == 2
 
     def test_dataframe(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4],"h2":[10,20,30,40]})
