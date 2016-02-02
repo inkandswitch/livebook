@@ -10,6 +10,8 @@ const COLORS = [
     BROWN,
 ];
 
+const COLOR_MAP = createColorMap();
+
 let $ = require("jquery");
 let marked = require("marked");
 let randomColor = randomColorGenerator();
@@ -18,6 +20,7 @@ let randomColor = randomColorGenerator();
 module.exports = {
   areMapsEqual,
   asyncRunParallel,
+  COLOR_MAP,
   COLORS,
   createAsyncDataFetcher,
   deepClone,
@@ -40,6 +43,25 @@ function areMapsEqual(m1, m2) {
   let k2 = Object.keys(m2);
   if (k1.length !== k2.length) return false;
   return k1.every( k => m1[k] === m2[k]);
+}
+
+function createColorMap() {
+  const ACCENT_BLUE = "hsla(209.2, 52.9%, 27.5%, 1)";
+  const COLOR_MAP = { lines: {}, cells: {} };
+
+  COLOR_MAP.lines[BLUE] =  "hsla(209.2, 52.9%, 27.5%, .1)";
+  COLOR_MAP.cells[BLUE] = "hsla(209.2, 52.9%, 27.5%, .25)";
+
+  COLOR_MAP.lines[VIOLET] = "hsla(327.9, 46.8%, 24.3%, .1)";
+  COLOR_MAP.cells[VIOLET] = "hsla(327.9, 46.8%, 24.3%, .25)";
+
+  COLOR_MAP.lines[GREEN] = "hsla(81.8, 46.5%, 27.8%, .1)";
+  COLOR_MAP.cells[GREEN] = "hsla(81.8, 46.5%, 27.8%, .25)";
+
+  COLOR_MAP.lines[BROWN] = "hsla(35.5, 46.4%, 30%, .1)";
+  COLOR_MAP.cells[BROWN] = "hsla(35.5, 46.4%, 30%, .25)";
+
+  return COLOR_MAP
 }
 
 function deepClone(o) {
