@@ -84,6 +84,16 @@ class Series(object):
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
 
+    def unique(self):
+        memo = set()
+        new_idx = []
+        c = self.data[self.column]
+        for i in self.idx:
+            if c[i] not in memo:
+                new_idx.append(i)
+                memo.add(c[i])
+        return Series(self, idx=new_idx)
+
     def sum(self):
         return sum(self.tolist())
 

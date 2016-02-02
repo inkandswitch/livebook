@@ -154,6 +154,10 @@ class Test:
         assert d2.new.tolist() == [500,400,300,200,100]
         assert d2.people.tolist() == [1,2,3,4,5]
 
+    def test_unique(self):
+        s1 = pd.Series([1,1,2,3,3,3,3,3,3,4,99])
+        assert s1.unique().tolist() == [1,2,3,4,99]
+
     def test_set_and(self):
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
         assert len(data[(data["people"] < 5) & (data["profit"] <= 300)]) == 2
@@ -198,6 +202,7 @@ def run():
     do_test(t,"test_head_tail")
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
+    do_test(t,"test_unique")
     do_test(t,"test_resample")
     do_test(t,"test_getitem")
     do_test(t,"test_record")
