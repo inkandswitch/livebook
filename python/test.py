@@ -175,8 +175,8 @@ class Test:
         assert len(desc) == 8
         # applies only to numeric data
         assert len(desc.colums) == 3
-        assert desc['ones'].loc[0:].tolist() == [5.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        assert desc['people'].loc[0:].tolist() == [5.0, 3.0, 1.5811388300841898, 1.0, 2.0, 3.0, 4.0, 5.0]
+        assert desc['ones'][0:].tolist() == [5.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        assert desc['people'][0:].tolist() == [5.0, 3.0, 1.5811388300841898, 1.0, 2.0, 3.0, 4.0, 5.0]
 
     def test_livebook_do(self):
         (val,err,local) = livebook.do("import string\n"
