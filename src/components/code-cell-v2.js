@@ -213,6 +213,8 @@ const CodeCell = React.createClass({
       // });
       this.updateEditorSize(editor);
 
+      hideEditorCursor(editor);
+
       const showDef = () => {
         if (!this.props.locals) {
           // Probably means we haven't gotten response from worker yet
@@ -236,6 +238,7 @@ const CodeCell = React.createClass({
       editor.on("focus", (event) => {
         clearTimeout(lastTimeout);
         this.setState({ showPopUp: true });
+        showEditorCursor(editor);        
       });
 
       editor.on("mousedown", (event) => {
@@ -246,7 +249,7 @@ const CodeCell = React.createClass({
       editor.on("blur", () => {
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(hidePanel, 100);
-        // editor.selection.setRange(null);
+        hideEditorCursor(editor);        
       });
 
       editor.selection.on("changeCursor", (event, _) => {
@@ -313,3 +316,21 @@ const CodeCell = React.createClass({
 });
 
 module.exports = CodeCell;
+
+function showEditorCursor(editor) {
+  let { container } = editor;
+  [].forEach.call(container.querySelectorAll(".ace_cursor"), _showCursorHelper);
+}
+
+function _showCursorHelper(cursor) {
+  cursor.style.display = "inherit";
+}
+
+function hideEditorCursor(editor) {
+  let { container } = editor;
+  [].forEach.call(container.querySelectorAll(".ace_cursor"), _hideCursorHelper);
+}
+
+function _hideCursorHelper(cursor) {
+  cursor.style.display = "none";
+}
