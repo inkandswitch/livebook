@@ -5,7 +5,7 @@ const ace       = require("brace");
 const Range      = ace.acequire('ace/range').Range;
 const AceEditor  = require("react-ace");
 
-const { stopTheBubbly } = require("../util");
+const { nTimes, stopTheBubbly } = require("../util");
 
 const PlotContainer = require("./code-cell-plot-container");
 const SyntaxPopup = require("./code-cell-syntax-helper");
@@ -188,8 +188,18 @@ const CodeCell = React.createClass({
 
   updateEditorSize(editor) {
     this.sizeEditor(editor);
+    let session = editor.getSession();
+    let minHeight;
     let numRows = editor.getSession().getLength();
-    let minHeight = (numRows * 16) + "px"; // yargh...
+    let numRows_wrapped = 0;
+
+    nTimes(numRows, (i) => {
+      let rowNumber = i + 1;
+      numRows_wrapped += session.getRowLength(rowNumber);
+    })
+
+
+    minHeight = (numRows_wrapped * 16) + "px"; // yargh...
     editor.container.style.minHeight = minHeight;
     editor.resize();
   },
@@ -262,7 +272,7 @@ const CodeCell = React.createClass({
         value={this.props.code}
         theme="github" onChange={change}
         showGutter={false}
-        wrapEnabled={false}
+        wrapEnabled={true}
         editorProps={{$blockScrolling: true,}}
         onBeforeLoad={onBeforeLoad} onLoad = {onLoad} />
     );

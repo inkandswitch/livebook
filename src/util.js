@@ -22,6 +22,7 @@ module.exports = {
   htmlDecode,
   isArray,
   noop: () => {},
+  nTimes,
   randomColor,
   randomName,
   rawMarkup,
@@ -30,6 +31,10 @@ module.exports = {
   stopTheBubbly,
   zip,
 };
+
+function nTimes(n, f) {
+  for (let i = 0; i < n; i++) f(i);
+}
 
 function areMapsEqual(m1, m2) {
   let k1 = Object.keys(m1);
