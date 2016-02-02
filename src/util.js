@@ -1,10 +1,24 @@
-var $ = require("jquery");
-var marked = require("marked");
-var randomColor = randomColorGenerator();
+const BLUE   = "#678FB5";
+const VIOLET = "#944770";
+const GREEN  = "#88A555";
+const BROWN  = "#CCA978";
+
+const COLORS = [
+    BLUE,
+    VIOLET,
+    GREEN,
+    BROWN,
+];
+
+let $ = require("jquery");
+let marked = require("marked");
+let randomColor = randomColorGenerator();
+
 
 module.exports = {
   areMapsEqual,
   asyncRunParallel,
+  COLORS,
   createAsyncDataFetcher,
   deepClone,
   eventFire,
@@ -196,20 +210,18 @@ function randomName() {
 }
 
 function randomColorGenerator() {
-  var lastIndex = 0;
-  var colors = ['#1E52AA', '#9E11A8', '#FF8018', '#D6F717'];
+  let colors = [...COLORS];
 
   return function(options) {
+    options = { not: [], ...options };
 
-    options = Object.assign({}, options);
-    var not = options.not || [];
+    let { not } = options;
+    let filteredColors = colors.filter(c1 => not.every(c2 => c1 !== c2));
 
-    var filteredColors = colors.filter(c1 => not.every(c2 => c1 !== c2));
-
-    if (filteredColors.length) {
-      return randomPick(filteredColors);
-    }
-    return randomPick(colors);
+    if (not.length === 0 || filteredColors.length === 0)
+      return randomPick(colors);
+    
+    return randomPick(filteredColors);
 
   };
 }

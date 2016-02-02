@@ -1,4 +1,5 @@
 require("./stylesheets/notebook.scss");
+
 const Redux = require("redux");
 const { createStore, combineReducers } = Redux;
 
@@ -193,7 +194,13 @@ cradle.onusergram = function(from,message) {
 function set_avatar_colors() {
   let peers = cradle.peers()
   if (colorChange === false && getSeniorPeerColors().indexOf(cradle.state.color) !== -1) {
-    cradle.setSessionVar("color", randomColor({ not: getPeerColors() }))
+    let color = randomColor({ not: getPeerColors() });
+    console.log("=====")
+    console.log("%cHEY THIS IS THE RANDOM AVATAR COLOR", "color:%color%;".replace("%color%", color));
+    console.log(color);
+    console.log("=====");
+
+    cradle.setSessionVar("color", color)
     colorChange = true
   }
 }
@@ -309,7 +316,7 @@ function postNotebookToServer(raw_notebook,raw_csv, callback) {
 
 function startCradle() {
   cradle.join(document.location + ".rtc", function() {
-    cradle.setSessionVar("color", '#1E52AA')
+    cradle.setSessionVar("color", randomColor())
     if (cradle.user.name == undefined) {
       cradle.setUserVar("name", randomName())
     } // else use old name
@@ -329,8 +336,6 @@ var exports =  {
   getCurrentPage : () => CurrentPage,
   getEditor      : () => EDITOR,
 };
-
-global.MEH = exports;
 
 if (/[/]d[/]([-\.a-zA-Z0-9]+)$/.test(document.location)) {
   $.get(document.location + ".json",function(data) {
