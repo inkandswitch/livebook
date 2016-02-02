@@ -95,7 +95,7 @@ class Series(object):
         _min = l[0]
         _max = l[-1]
         step = (_max - _min) / float(n)
-        buckets = [ step * i for i in range(0,n+1) ]
+        buckets = [ _min + step * i for i in range(0,n+1) ]
         hist = [0] * n
         last_b = 0
         for val in l:
