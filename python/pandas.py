@@ -48,6 +48,11 @@ class Series(object):
             self.column = data._sort
             self.sort = None
             self.idx = idx or data._idx
+        elif type(data) == dict:
+            self.data = data
+            self.sort = sort
+            self.column = column
+            self.idx = idx or range(0,len(data[column]))
         elif idx == None:
             self.column = column or name or "series"
             self.data = { self.column: list(data) }
@@ -84,6 +89,23 @@ class Series(object):
     def __lt__(self,arg): return self.apply(lambda x: x < arg)
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
+
+    def hist(self,n=10):
+        l = sorted(self.tolist())
+        _min = l[0]
+        _max = l[-1]
+        step = (_max - _min) / float(n)
+        buckets = [ step * i for i in range(0,n+1) ]
+        hist = [0] * n
+        last_b = 0
+        for val in l:
+            for b in range(last_b,n):
+                if val <= buckets[b+1]:
+                    hist[b] += 1
+                    last_b = b
+                    break
+        data = { "hist": hist, "buckets": buckets[0:-1] }
+        return Series(data,column="hist",sort="buckets")
 
     def isnumeric(self):
         return type(self[0]) in [int,float,long]

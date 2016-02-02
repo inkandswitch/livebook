@@ -24,6 +24,15 @@ class Test:
         assert df2[0] == ("aaron",40)
         assert df2.index.tolist() == ["aaron","zak"] ## FIXME - sort and index are different operations
 
+    def test_hist(self):
+        s = pd.Series([0,0,0,0,1,1,1,2,2,2,2,2,2,3,3,3,3,7,7,7,8,9,10])
+        d1 = s.hist()
+        d2 = s.hist(5)
+        assert d1.tolist() == [7, 6, 4, 0, 0, 0, 3, 1, 1, 1]
+        assert d1.get_index().tolist() == [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
+        assert d2.tolist() == [13, 4, 0, 4, 2]
+        assert d2.get_index().tolist() == [0.0, 2.0, 4.0, 6.0, 8.0]
+
     def test_record(self):
         df = pd.DataFrame.from_dict({"h1":[1,2],"h2":[25,35]})
         for i,r in df.iterrows():
@@ -211,6 +220,7 @@ def run():
     print "begin testing"
     do_test(t,"test_dataframe")
     do_test(t,"test_head_tail")
+    do_test(t,"test_hist")
     do_test(t,"test_isnull")
     do_test(t,"test_dropna")
     do_test(t,"test_set_index")
