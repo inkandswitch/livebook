@@ -7954,7 +7954,9 @@
       "imports": [
         "copy", 
         "js", 
-        "json"
+        "json", 
+        "math.pow", 
+        "math.sqrt"
       ]
     }, 
     "pdb": {

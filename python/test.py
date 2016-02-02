@@ -97,7 +97,7 @@ class Test:
         assert df.tail(2)["h2"].tolist() == [70,80]
         assert df["h1"].tail().tolist() == [4,5,6,7,8]
         assert df["h2"].tail(2).tolist() == [70,80]
-        assert df.head().columns() == df.columns()
+        assert df.head().columns == df.columns
 
     def test_value_counts(self):
         df = pd.DataFrame.from_dict({"h1":[1,2,3,4,5,6,7,8],"h2":['A','A','B','B','B','C','B','B']})
@@ -117,8 +117,8 @@ class Test:
         assert s2.tolist() == [3,2,1]
         df3 = pd.DataFrame(s1)
         df4 = pd.DataFrame(s2)
-        assert df3.columns() == ["h1"]
-        assert df4.columns() == ["h3","h1"]
+        assert df3.columns == ["h1"]
+        assert df4.columns == ["h3","h1"]
 
     def test_apply(self):
         df1 = pd.DataFrame.from_dict({"h1":[1,2,3],"h2":['A','A','B']})
@@ -144,8 +144,8 @@ class Test:
         len(data.iloc[1:]) == len(data) - 1
         len(data.iloc[:2]) == 3
         len(data.iloc[:,0:cols-1]) == len(data)
-        data.iloc[:,0:cols-1].columns() == ["ones","people"]
-        data.iloc[:,cols-1:cols].columns() == ["profit"]
+        data.iloc[:,0:cols-1].columns == ["ones","people"]
+        data.iloc[:,cols-1:cols].columns == ["profit"]
 
     def test_setitem(self):
         data = pd.DataFrame.from_dict({"ones":[1,1,1,1,1],"people":[1,2,3,4,5],"profit":[500,400,300,200,100]})
@@ -173,10 +173,9 @@ class Test:
         desc = data.describe()
         # describe computes 8 values: count, mean, std, min, 25, 50, 75, max
         assert len(desc) == 8
-        # applies only to numeric data
-        assert len(desc.colums) == 3
-        assert desc['ones'][0:].tolist() == [5.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        assert desc['people'][0:].tolist() == [5.0, 3.0, 1.5811388300841898, 1.0, 2.0, 3.0, 4.0, 5.0]
+        assert len(desc.columns) == 4
+        assert desc['ones'].tolist() == [5, 1, 0.0, 1, 1, 1, 1, 1]
+        assert desc['people'].tolist() == [5, 3, 1.5811388300841898, 1, 2, 3, 4, 5]
 
     def test_livebook_do(self):
         (val,err,local) = livebook.do("import string\n"

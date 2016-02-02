@@ -1,6 +1,7 @@
 
 import json
 from copy import copy
+from math import pow,sqrt
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -83,6 +84,9 @@ class Series(object):
     def __lt__(self,arg): return self.apply(lambda x: x < arg)
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
+
+    def isnumeric(self):
+        return type(self[0]) in [int,float,long]
 
     def isnull(self): return self.apply(lambda x: x == None)
 
@@ -223,6 +227,7 @@ class DataFrame(object):
 
     def __postinit__(self):
         self.shape = (len(self),len(self._columns))
+        self.columns = self._columns
         if (self._sort):
             self.index = self[self._sort]
         else:
@@ -266,7 +271,7 @@ class DataFrame(object):
 
     def __blank_body__(self): ## TODO - need a simpler one here
         body = {}
-        for h in self.columns(): body[h] = []
+        for h in self.columns: body[h] = []
         return body
 
     def insert(self,loc,column,val): ## FIXME - this is the only function we have that mutates - could effect older objects
@@ -304,32 +309,24 @@ class DataFrame(object):
             body[c] = [self._data[c][i] for i in self._idx]
         return { "head":self._columns, "body":body, "length":len(self._idx), "sort": self._sort }
 
-    def columns(self):
-        return self._columns
-
     def describe(self):
-        math = {
-            "count": lambda d,l,n: l,
-            "mean":  lambda d,l,n: sum(d)/l if n else None,
-            "std":   lambda d,l,n: 1,
-            "min":   lambda d,l,n: d[0],
-            "25":    lambda d,l,n: d[l / 4],
-            "50":    lambda d,l,n: d[l / 2],
-            "75":    lambda d,l,n: d[l * 3 / 4],
-            "max":   lambda d,l,n: d[l - 1]
-        }
-        #summary = { "rows": ["count","mean","std","min","25","50","75","max"], "cols": self.columns(), "data": {} }
         funcs = ["count","mean","std","min","25","50","75","max"]
         data = { "_id": funcs }
-        columns = ["_id"] + self.columns()
+        columns = [ c for c in self.columns if self[c].isnumeric() ]
         sort = "_id"
         idx = range(0,len(funcs))
-        for c in self.columns():
-            d = sorted(self[c].tolist())
-            l = len(d)
-            n = (l > 0 and (type(d[0]) == int or type(d[0]) == float))
-            data[c] = [ math[f](d,l,n) for f in funcs ]
-        return DataFrame(data, columns=columns, sort=sort, idx=idx)
+        for c in columns:
+            d    = sorted(self[c].tolist())
+            l    = len(d)
+            mean = sum(d)/l
+            std  = sqrt(sum([ pow(mean - val, 2) for val in d ])/(l-1))
+            _min = d[0]
+            _25  = d[l/4]
+            _50  = d[l/2]
+            _75  = d[l*3/4]
+            _max = d[l-1]
+            data[c] = [ l, mean, std, _min, _25, _50, _75, _max ]
+        return DataFrame(data, columns=["_id"] + columns, sort=sort, idx=idx)
 
     def head(self, n=5):
         return DataFrame(self, idx=self._idx[0:n])
