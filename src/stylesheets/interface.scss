@@ -33,9 +33,9 @@
   top: 12px;
 
   img { // i.e., hamburger
-    height: 30px;
+    height: 28px;
     opacity: 0.5;
-    width: 30px;
+    width: 28px;
   }
 }
 
@@ -181,10 +181,10 @@
 }
 
 .collaborators li span {
-  color: #565656;
+  color: $black;
   display: block;
   font-size: .5em;
-  font-weight: 700;
+  font-weight: $bold;
   text-align: center;
   width: 100%;
 }
@@ -195,15 +195,6 @@
 
 .collaborators li.here {
   opacity: 1;
-}
-
-.collaborators li.arriving,
-.collaborators li.departing {
-  opacity: 0.3;
-  animation-duration: 0.7s;
-  animation-name: pulse;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
 }
 
 .collaborators-name-change-form-wrap {
@@ -273,20 +264,33 @@
 }
 
 .observer:not(:first-of-type) {
-  opacity: .82;
+  opacity: .91;
 }
 
+// show the nav bar avatars
+.livebook-nav .collaborators {
+  display: inherit;
+  top: 12px;
+}
 
+.livebook-nav .collaborators li {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+// hide the cursor-following avatars
 .notebook .collaborators {
   display: none;
 }
 
 @media only screen and (min-width: 520px) {
 
+  // show the cursor-following avatars
   .notebook .collaborators {
     display: inherit;
   }
 
+  // hide the nav bar collaborators
   .livebook-nav .collaborators {
     display: none;
   }
@@ -341,5 +345,3 @@
 @media only screen and (min-width: 840px) {
 
 }
-
-
