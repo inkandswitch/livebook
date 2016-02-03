@@ -236,7 +236,7 @@ img[data-livebook-placeholder-cell] {
 }
 
 .pyresult-error {
-  background-color: #FC212C; // hsl(355,75%,55%)
+  background-color: hsl(355,75%,55%);  /* old value: #FC212C */
   background-image: url('/bang.png');
   background-repeat: no-repeat;
   background-position: .75em .5em;
