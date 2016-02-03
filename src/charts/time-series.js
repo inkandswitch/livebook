@@ -1,31 +1,12 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const { getColors } = require("./defaults");
-
-const { hasLayerYNameConflict, transformConflictingName } = require("./util");
+const { parseLayer } = require("./util");
 
 plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
 
 function plotTimeSeries(selector, layer, { maxWidth }) {
-  const { data, options } = layer;
-  let { x, y } = data;
-  let xName = x.column;
-  let yName = y.column;
-  let xData = x.list;
-  let yData = y.list;
-  const color = { pattern: getColors() };
-  let columns = [
-    [xName, ...xData],
-    [yName, ...yData]
-  ];
-
-  let xs = {};
-  xs[yName] = xName;
-
-  if (options && options.color) {
-    color.pattern.unshift(options.color);
-  }
+  const { xName, yName, color, xs, columns } = parseLayer(layer);
 
   const chart = c3.generate({
       size: {
@@ -59,28 +40,8 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
   });
 
   chart.addLayer = function(layer, index, layers) {
-
-
-    const { data, options } = layer;
-    let { x, y } = data;
-    let xName = x.column;
-    let yName = y.column;
-
-    if (hasLayerYNameConflict(layer, index, layers)) {
-      yName = transformConflictingName(yName, index);
-    }
-
-    let xData = x.list;
-    let yData = y.list;
-    let columns = [
-      [xName, ...xData],
-      [yName, ...yData]
-    ];
-    let xs = {};
-    xs[yName] = xName;
-
+    const { xs, columns } = parseLayer(layer, index, layers);
     chart.load({ columns, xs });
-
   };
 
   return chart;

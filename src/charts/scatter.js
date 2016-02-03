@@ -1,26 +1,9 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
-const { getColors } = require("./defaults");
-const { hasLayerYNameConflict, transformConflictingName } = require("./util");
+const { parseLayer } = require("./util");
 
 function scatterV2(selector, layer, { maxWidth }) {
 
-    const color = { pattern: getColors() };
-    const { data, options } = layer;
-
-    let { x, y } = data;
-    let xName = x.column;
-    let yName = y.column;
-
-    let xData = x.list;
-    let yData = y.list;
-
-    const xs = {};
-    xs[yName] = xName;
-
-    let columns = [
-      [xName, ...xData],
-      [yName, ...yData]
-    ];
+    const { xName, yName, color, xs, columns } = parseLayer(layer);
 
     const axis = {
       x: {
@@ -37,10 +20,6 @@ function scatterV2(selector, layer, { maxWidth }) {
         },
       }
     };
-
-    if (options && options.color) {
-      color.pattern.unshift(options.color);
-    }
 
     let chart = c3.generate({
         size: {
@@ -68,29 +47,8 @@ function scatterV2(selector, layer, { maxWidth }) {
     });
 
     chart.addLayer = function(layer, index, layers) {
-      const { data } = layer;
-
-      let { x, y } = data;
-      let xName = x.column;
-      let yName = y.column;
-
-      if (hasLayerYNameConflict(layer, index, layers)) {
-        yName = transformConflictingName(yName, index);
-      }
-
-      let xData = x.list;
-      let yData = y.list;
-
-      const xs = {};
-      xs[yName] = xName;
-
-      let columns = [
-        [xName, ...xData],
-        [yName, ...yData]
-      ];
-
+      const { xs, columns } = parseLayer(layer, index, layers);
       chart.load({ columns, xs })
-
     };
 
     return chart;
