@@ -37,6 +37,11 @@ function bar(selector, layer, { maxWidth }) {
         duration: 0,
       },
       axis: {
+        x: {
+          tick: {
+            format: (n) => d3.round(n, 2),
+          },
+        },
         y: {
             label: yName,
             tick: {

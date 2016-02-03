@@ -68,8 +68,9 @@ function plainOldLine(selector, layer, { maxWidth }) {
         x: {
             label: xName,
             tick: {
-                fit: false
-            }
+                fit: false,
+                format: (n) => d3.round(n, 2),
+            },
         },
         y: {
             label: yName,

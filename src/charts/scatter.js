@@ -26,6 +26,7 @@ function scatterV2(selector, layer, { maxWidth }) {
           label: xName,
           tick: {
               fit: false,
+              format: (n) => d3.round(n, 2),
           },
       },
       y: {
