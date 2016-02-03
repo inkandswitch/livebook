@@ -1,7 +1,7 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
-const { hasLayerXNameConflict, transformConflictingName } = require("./util");
+const { hasLayerYNameConflict, transformConflictingName } = require("./util");
 
 const plotTimeSeries = require("./time-series");
 
@@ -10,22 +10,19 @@ module.exports = plotLine;
 function plotLine(selector, layer, { maxWidth }) {
   const { data } = layer;
 
-
   let result;
 
-  if (data.x === "id") {
-    // short circuit bad + cached data
-    return;
-  }
+  if (data.x === "id")
+    return; // short circuit bad + cached data
 
-  if (data.x && plotTimeSeries.isTimeSeries(data.x.list)) {
+  if (data.x && plotTimeSeries.isTimeSeries(data.x.list))
     result = plotTimeSeries(...arguments);
-  }
-  else {
-    result = plainOldLine(...arguments)
-  }
+  else
+    result = plainOldLine(...arguments);
 
-  d3.select(selector).selectAll(".c3-line").style("stroke-width", "2px");
+  d3.select(selector)
+    .selectAll(".c3-line")
+    .style("stroke-width", "2px");
 
   return result;
 }
@@ -98,8 +95,8 @@ function plainOldLine(selector, layer, { maxWidth }) {
     let xData = x.list;
     let yData = y.list;
 
-    if (hasLayerXNameConflict(layer, index, layers)) {
-      xName = transformConflictingName(xName, index);
+    if (hasLayerYNameConflict(layer, index, layers)) {
+      yName = transformConflictingName(yName, index);
     }
 
     let columns = [

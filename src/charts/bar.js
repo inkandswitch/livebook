@@ -1,7 +1,7 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
-const { hasLayerXNameConflict, transformConflictingName } = require("./util");
+const { hasLayerYNameConflict, transformConflictingName } = require("./util");
 
 module.exports = bar;
 
@@ -22,6 +22,9 @@ function bar(selector, layer, { maxWidth }) {
     color.pattern.unshift(options.color);
   }
 
+  const xs = {};
+  xs[yName] = xName;
+
   const chart = c3.generate({
       size: {
         width: maxWidth,
@@ -29,7 +32,8 @@ function bar(selector, layer, { maxWidth }) {
       },
       bindto: selector,
       data: {
-        x: xName,
+        // x: xName,
+        xs,
         columns: columns,
         type: "bar",
         onclick: createClickForTooltip(),
@@ -63,12 +67,12 @@ function bar(selector, layer, { maxWidth }) {
     const { x, y } = data;
 
     let xName = x.column;
+    let yName = y.column;
 
-    if (hasLayerXNameConflict(layer, index, layers)) {
-      xName = transformConflictingName(xName, index);
+    if (hasLayerYNameConflict(layer, index, layers)) {
+      yName = transformConflictingName(yName, index);
     }
 
-    const yName = y.column;
     const xData = x.list;
     const yData = y.list;
 
@@ -77,7 +81,10 @@ function bar(selector, layer, { maxWidth }) {
       [yName, ...yData]
     ];
 
-    chart.load({ columns })
+    const xs = {};
+    xs[yName] = xName;
+
+    chart.load({ columns, xs })
   };
 
   return chart;
