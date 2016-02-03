@@ -7956,7 +7956,8 @@
         "js", 
         "json", 
         "math.pow", 
-        "math.sqrt"
+        "math.sqrt", 
+        "matplotlib.pyplot"
       ]
     }, 
     "pdb": {

@@ -2,6 +2,7 @@
 import json
 from copy import copy
 from math import pow,sqrt
+from matplotlib import pyplot
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -90,22 +91,22 @@ class Series(object):
     def __ge__(self,arg): return self.apply(lambda x: x >= arg)
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
 
-    def hist(self,n=10):
+    def hist(self,bins=10):
         l = sorted(self.tolist())
         _min = l[0]
         _max = l[-1]
-        step = (_max - _min) / float(n)
-        buckets = [ _min + step * i for i in range(0,n+1) ]
-        hist = [0] * n
+        step = (_max - _min) / float(bins)
+        buckets = [ _min + step * i for i in range(0,bins+1) ]
+        hist = [0] * bins
         last_b = 0
         for val in l:
-            for b in range(last_b,n):
+            for b in range(last_b,bins):
                 if val <= buckets[b+1]:
                     hist[b] += 1
                     last_b = b
                     break
         data = { "hist": hist, "buckets": buckets[0:-1] }
-        return Series(data,column="hist",sort="buckets")
+        pyplot.bar(buckets, hist)
 
     def isnumeric(self):
         return type(self[0]) in [int,float,long]
