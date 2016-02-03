@@ -2,7 +2,6 @@
 import json
 from copy import copy
 from math import pow,sqrt
-from matplotlib import pyplot
 
 def do_math(func,data):
     if len(data) > 0 and (type(data[0]) == int or type(data[0]) == float):
@@ -92,6 +91,7 @@ class Series(object):
     def __gt__(self,arg): return self.apply(lambda x: x > arg)
 
     def hist(self,bins=10):
+        from matplotlib import pyplot
         l = sorted(self.tolist())
         _min = l[0]
         _max = l[-1]
