@@ -116,7 +116,7 @@ function execPython(doc,index,code,next) {
       next()
     }).catch((e) => {
       console.log("ERR",e)
-      error = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
+      var error = { name: "Unknown Error", message: "see logs", cell: index, line: 0 }
       handleResult(doc, index, self.RESULTS, self.PLOTS, self.LOCALS[index], error)
       next(e)
     })
