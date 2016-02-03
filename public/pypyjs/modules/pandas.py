@@ -97,8 +97,6 @@ class Series(object):
         _max = l[-1]
         step = (_max - _min) / float(bins)
         buckets = [ _min + step * i for i in range(0,bins+1) ]
-        # Format buckets to 2 decimal places
-        buckets = [float("{0:.2f}".format(b)) for b in buckets]
         hist = [0] * bins
         last_b = 0
         for val in l:
