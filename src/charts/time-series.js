@@ -57,16 +57,21 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
   });
 
   chart.addLayer = function(layer) {
-    let { data } = layer;
-    let { columns } = data;
-
-    let xName = columns[0][0];
-    let yName = columns[1][0];
-
+    const { data, options } = layer;
+    let { x, y } = data;
+    let xName = x.column;
+    let yName = y.column;
+    let xData = x.list;
+    let yData = y.list;
+    let columns = [
+      [xName, ...xData],
+      [yName, ...yData]
+    ];
     let xs = {};
     xs[yName] = xName;
 
-    chart.load({ columns, xs })
+    chart.load({ columns, xs });
+
   };
 
   return chart;
