@@ -40,19 +40,19 @@
 }
 
 .menu.active {
-  border: solid 2px #A8A8A8;
-  border-bottom: solid 2px #fff;
+  border: solid 1px #A8A8A8;
+  border-bottom: solid 3px #fff;
 }
 
 .menu-content {
   background: #fdfdfd;
-  border: solid 2px #A8A8A8;
+  border: solid 1px #A8A8A8;
   font-weight: $bold;
   list-style-type: none;
-  left: -2px;
+  left: -.5px;
   min-width: 18em;
   opacity: 0;
-  margin-top: 2.13em;
+  margin-top: 1.75em;
   padding: 1em 1.3em 1.1em;
   position: absolute;
   visibility: hidden;
@@ -69,7 +69,7 @@
     position: absolute;
     top: -2px;
     height: 3px;
-    width: 2.95em;
+    width: 2.25em;
   }
 }
 
