@@ -45,7 +45,11 @@ let PlotContainer = React.createClass({
   getContainerWidth() {
     const container = this.refs.container;
     const parent = container.parentElement;
-    const { width } = parent.getBoundingClientRect(); 
+    const leftPadding = +getComputedStyle(parent, null).getPropertyValue('padding-left').replace("px","");
+    const rightPadding = +getComputedStyle(parent, null).getPropertyValue('padding-right').replace("px","");
+
+    const { width } = parent.getBoundingClientRect() - leftPadding - rightPadding;
+
     return width;
   },
 
