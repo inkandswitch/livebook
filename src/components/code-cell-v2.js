@@ -199,7 +199,6 @@ const CodeCell = React.createClass({
 
   createAceEditor() {
     let change, onBeforeLoad, onLoad;
-    const lang = "python";
 
     onLoad = (editor) => {
 
@@ -207,10 +206,7 @@ const CodeCell = React.createClass({
       let lastWord;
 
       this.editor = editor;
-      // editor.setOptions({
-      //   fontFamily: "Hack",
-      //   // fontSize: "11pt",
-      // });
+
       this.updateEditorSize(editor);
 
       hideEditorCursor(editor);

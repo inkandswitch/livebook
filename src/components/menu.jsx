@@ -146,7 +146,7 @@ const Menu = React.createClass({
             </a>
           </li>
         </ul>
-        <img src="/menu.png" alt="menu" onClick={this.handleClick} />
+        <img className="livebook-hamburger" src="/menu.png" alt="menu" onClick={this.handleClick} />
       </div>
     )
   },

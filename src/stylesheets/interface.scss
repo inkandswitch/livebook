@@ -32,10 +32,10 @@
   position: absolute;
   top: 12px;
 
-  img { // i.e., hamburger
-    height: 28px;
+  .livebook-hamburger {
+    height: 20px;
     opacity: 0.5;
-    width: 28px;
+    width: 26px;
   }
 }
 
@@ -285,6 +285,13 @@
 
 @media only screen and (min-width: 520px) {
 
+  .menu {
+    margin-left: -.8rem;
+    left: 1.9rem;
+    position: fixed;
+    top: 1.8rem;
+  }
+
   // show the cursor-following avatars
   .notebook .collaborators {
     display: inherit;
@@ -328,17 +335,8 @@
   .livebook-nav {
     box-shadow: none;
     height: 0;
-    left: 50%;
-    top: 1.8em;
     max-width: 45em;
-    transform: translateX(-50%);
   }
-
-  .menu {
-    left: 1rem;
-    top: 0;
-  }
-
 }
 
 
