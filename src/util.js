@@ -174,10 +174,10 @@ function createTableBody(data) {
       let content = body[h][rowNumber];
 
       if (typeof content === "number") {
+        content = roundN(content, 2)          
         if (content.toString().length > 5) {
           content = formatNumber(content);          
         }
-        content = roundN(content, 2)
       }
 
       tCells += cell.replace("%content%", content || "&nbsp;");
