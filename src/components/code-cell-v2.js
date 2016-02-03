@@ -209,6 +209,8 @@ const CodeCell = React.createClass({
 
       this.updateEditorSize(editor);
 
+      editor.getSession().setUseWorker(false);
+
       hideEditorCursor(editor);
 
       const showDef = () => {
@@ -265,7 +267,9 @@ const CodeCell = React.createClass({
     onBeforeLoad = () => {};
 
     return (
-      <AceEditor className="editor" name={"editor" + this.props.index}
+      <AceEditor className="editor" 
+        name={"editor" + this.props.index}
+        mode={"text"}
         key={this.props.index}
         value={this.props.code}
         theme="github" onChange={change}
