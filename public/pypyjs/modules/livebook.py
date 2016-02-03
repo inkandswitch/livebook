@@ -138,8 +138,6 @@ def checkpoint(cell, val, local):
     import matplotlib.pyplot as pt
     if hasattr(val, 'to_js') and type(val) != type:
         val2 = ["html", val.to_js()]
-    elif type(val) == list:
-        val2 = ["list", val]
     else:
         val2 = ["text", str(val)]
     plots = pt.get_plots()
