@@ -275,7 +275,7 @@ func noStore(h http.Handler) http.Handler {
 	    if (os.Getenv("ENV") != "PROD") {
 			w.Header().Add("Cache-Control", "no-store")
 		} else {
-			w.Header().Set("Cache-Control", "max-age=43200") // 12 hrs
+			w.Header().Set("Cache-Control", "max-age=43200, public") // 12 hrs
 			w.Header().Del("Set-Cookie")
 		}
 		h.ServeHTTP(w, r)
