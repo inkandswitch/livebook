@@ -1,6 +1,8 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
+const { hasLayerXNameConflict } = require("./util");
+
 plotTimeSeries.isTimeSeries = isTimeSeries;
 
 module.exports = plotTimeSeries;
@@ -56,10 +58,15 @@ function plotTimeSeries(selector, layer, { maxWidth }) {
       },
   });
 
-  chart.addLayer = function(layer) {
+  chart.addLayer = function(layer, index, layers) {
     const { data, options } = layer;
     let { x, y } = data;
     let xName = x.column;
+
+    if (hasLayerXNameConflict(layer, index, layers)) {
+      xName = xName + "_" + index;
+    }
+
     let yName = y.column;
     let xData = x.list;
     let yData = y.list;

@@ -1,6 +1,8 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
+const { hasLayerXNameConflict } = require("./util");
+
 const plotTimeSeries = require("./time-series");
 
 module.exports = plotLine;
@@ -35,6 +37,7 @@ function plainOldLine(selector, layer, { maxWidth }) {
   let yName = y.column;
   let xData = x.list;
   let yData = y.list;
+
   const color = { pattern: getColors() };
   let columns = [
     [xName, ...xData],
@@ -87,13 +90,17 @@ function plainOldLine(selector, layer, { maxWidth }) {
       },
   });
 
-  chart.addLayer = function(layer) {
+  chart.addLayer = function(layer, index, layers) {
     let { data } = layer;
     let { x, y } = data;
     let xName = x.column;
     let yName = y.column;
     let xData = x.list;
     let yData = y.list;
+
+    if (hasLayerXNameConflict(layer, index, layers)) {
+      xName = xName + "_" + index;
+    }
 
     let columns = [
       [xName, ...xData],

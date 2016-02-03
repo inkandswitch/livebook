@@ -1,6 +1,8 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
+const { hasLayerXNameConflict } = require("./util");
+
 module.exports = bar;
 
 function bar(selector, layer, { maxWidth }) {
@@ -54,10 +56,16 @@ function bar(selector, layer, { maxWidth }) {
       },
   });
 
-  chart.addLayer = (layer) => {
+  chart.addLayer = (layer, index, layers) => {
     const { data } = layer;
     const { x, y } = data;
-    const xName = x.column;
+
+    let xName = x.column;
+
+    if (hasLayerXNameConflict(layer, index, layers)) {
+      xName = xName + "_" + index;
+    }
+
     const yName = y.column;
     const xData = x.list;
     const yData = y.list;

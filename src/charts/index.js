@@ -25,9 +25,13 @@ function plot(selector, plot, { maxWidth }) {
 }
 
 function addExtraChartLayers(chart, layers) {
-  if (chart.addLayer)
-    if (layers.length > 1)
-      layers.slice(1).forEach(chart.addLayer);
+  if (!chart.addLayer) return;
+  if (layers.length < 2) return;
+
+  layers.forEach((layer, index, layers) => {
+    if (index === 0) return;
+    chart.addLayer(layer, index, layers);
+  });      
 }
 
 module.exports = { plot }

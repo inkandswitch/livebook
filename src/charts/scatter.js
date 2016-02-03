@@ -1,5 +1,6 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
+const { hasLayerXNameConflict } = require("./util");
 
 function scatterV2(selector, layer, { maxWidth }) {
 
@@ -66,12 +67,16 @@ function scatterV2(selector, layer, { maxWidth }) {
         },
     });
 
-    chart.addLayer = function(layer) {
+    chart.addLayer = function(layer, index, layers) {
       const { data } = layer;
 
       let { x, y } = data;
       let xName = x.column;
       let yName = y.column;
+
+      if (hasLayerXNameConflict(layer, index, layers)) {
+        xName = xName + "_" + index;
+      }
 
       let xData = x.list;
       let yData = y.list;
