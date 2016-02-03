@@ -1,6 +1,6 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
-const { hasLayerXNameConflict } = require("./util");
+const { hasLayerXNameConflict, transformConflictingName } = require("./util");
 
 function scatterV2(selector, layer, { maxWidth }) {
 
@@ -75,7 +75,7 @@ function scatterV2(selector, layer, { maxWidth }) {
       let yName = y.column;
 
       if (hasLayerXNameConflict(layer, index, layers)) {
-        xName = xName + "_" + index;
+        xName = transformConflictingName(xName, index);
       }
 
       let xData = x.list;

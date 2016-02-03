@@ -1,7 +1,7 @@
 const createClickForTooltip = require("./c3-click-for-tooltip");
 const { getColors } = require("./defaults");
 
-const { hasLayerXNameConflict } = require("./util");
+const { hasLayerXNameConflict, transformConflictingName } = require("./util");
 
 const plotTimeSeries = require("./time-series");
 
@@ -99,7 +99,7 @@ function plainOldLine(selector, layer, { maxWidth }) {
     let yData = y.list;
 
     if (hasLayerXNameConflict(layer, index, layers)) {
-      xName = xName + "_" + index;
+      xName = transformConflictingName(xName, index);
     }
 
     let columns = [

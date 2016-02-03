@@ -1,6 +1,11 @@
 module.exports = {
     hasLayerXNameConflict,
+    transformConflictingName
 };
+
+function transformConflictingName(name, index) {
+    return name + " (" + index + ")";
+}
 
 function hasLayerXNameConflict(layer, index, layers) {
     if (index < 1) return false;
