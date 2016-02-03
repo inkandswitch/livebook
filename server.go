@@ -272,7 +272,9 @@ func getIndex(user_id string, w http.ResponseWriter, r *http.Request) {
 
 func noStore(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", "no-store")
+	    if (os.Getenv("ENV") != "PROD") {
+			w.Header().Add("Cache-Control", "no-store")
+		}
 		h.ServeHTTP(w, r)
 	})
 }
