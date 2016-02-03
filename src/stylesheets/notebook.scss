@@ -144,8 +144,6 @@ img[data-livebook-placeholder-cell] {
   color: rgb(215, 118, 22);
 }
 
-
-
 .notebook .codewrap {
   border: .1em solid #ddd;
   border-radius: .15em;
@@ -266,6 +264,21 @@ img[data-livebook-placeholder-cell] {
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
+}
+
+.pyresult-under-construction {
+  position: relative;
+}
+
+// These properties form an overlay that sits on top of the results box when the cell is "under construction"
+.pyresult-under-construction::after {
+  // background: #fff;
+  // content: "";
+  // height: 100%;
+  // opacity: .65;
+  // position: absolute;
+  // top: 0; left: 0;
+  // width: 100%;
 }
 
 .active-code-cell {

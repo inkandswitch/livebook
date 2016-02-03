@@ -89,11 +89,11 @@ const CodeCell = React.createClass({
   },
 
   underConstruction() {
-    return (this.props.typing && this.props.index >= this.props.cursor);
+    return this.props.error && this.props.error.under_construction;
   },
 
   appendLoadingClass(className) {
-    return className + " pyresult-loading";
+    return className + " pyresult-under-construction";
   },
 
   hasError() {
@@ -106,13 +106,12 @@ const CodeCell = React.createClass({
     let errorObject = this.props.error,
         message = errorObject.message,
         name = errorObject.name,
-        className = "pyresult pyresult-error",
-        underConstruction = errorObject.under_construction;
+        className = "pyresult pyresult-error";
 
-    if (underConstruction) return ""; // TODO - let this state affect other parts of the component!
-
-    if (this.underConstruction())
-      className = this.appendLoadingClass(className);
+    if (this.underConstruction()) {
+      className = this.appendLoadingClass("pyresult");
+      return (<div onClick={stopTheBubbly} className={""}></div>)            
+    }
 
     return (<div onClick={stopTheBubbly} className={className}>{name}: {message}</div>);
   },
@@ -144,8 +143,10 @@ const CodeCell = React.createClass({
     }
 
     let className = "pyresult";
+
     if (this.underConstruction())
       className = this.appendLoadingClass(className);
+
     return (
         <CodeCellOutput 
           outputs={outputs} 
