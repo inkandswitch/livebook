@@ -9,11 +9,18 @@ let $ = require("jquery");
 let marked = require("marked");
 let randomColor = randomColorGenerator();
 
-let formatNumber = function numberWithCommas(x) {
+function formatNumber(x) {
+    // - adds commas
+    // - rounds to nearest hundreth
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
-};
+}
+
+function roundN(x, n) {
+  let k = Math.pow(10, n);
+  return Math.round(x * k) / k;
+}
 
 module.exports = {
   areMapsEqual,
@@ -167,8 +174,10 @@ function createTableBody(data) {
       let content = body[h][rowNumber];
 
       if (typeof content === "number") {
-        if (content.toString().length > 5)
-          content = formatNumber(content);
+        if (content.toString().length > 5) {
+          content = formatNumber(content);          
+        }
+        content = roundN(content, 2)
       }
 
       tCells += cell.replace("%content%", content || "&nbsp;");
