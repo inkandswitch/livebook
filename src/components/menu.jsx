@@ -55,6 +55,64 @@ const Welcome = () => ({
 
 const Menu = React.createClass({
 
+  componentWillMount() {
+    this.addMenuColorStyle();
+  },
+
+  componentDidUpdate() {
+    this.updateMenuColorStyle();
+  },
+
+  componentWillUnmount() {
+    this.removeMenuColorStyle();
+  },
+
+  addMenuColorStyle() {
+    const head = document.head;
+    const style = document.createElement("style");
+    style.id = this.getStyleId();
+    style.innerHTML = this.getStyleRule();
+    head.appendChild(style);
+  },
+
+  updateMenuColorStyle() {
+    const style = this.getStyle();
+    if (style) debugger;
+    style.innerHTML = this.getStyleRule();
+  },
+
+  removeMenuColorStyle() {
+    const style = this.getStyle();
+    style && style.remove();
+  },
+
+  getStyle() {
+    return document.querySelector("#" + this.getStyleId());
+  },
+
+  getStyleId() {
+    return "livebook-nav-menu-colors";
+  },
+
+  getStyleRule() {
+    const color = this.props.getColor && this.props.getColor();
+    const rules = `
+      .menu-content-item:hover,
+      .menu-content-item:hover a {
+          background: ${color};
+      }
+    `;
+    return rules;
+  },
+
+  componentWillUnmount() {
+
+  },
+
+  componentDidUpdate() {
+
+  },
+
   mixins: [
     require('react-onclickoutside')
   ],

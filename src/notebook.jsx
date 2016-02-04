@@ -100,7 +100,7 @@ function getColor() {
 }
 
 function navRender() {
-  ReactDOM.render(<Nav render={render} store={livebookStore} getPeers={() => cradle.peers() } />, navMount);
+  ReactDOM.render(<Nav render={render} store={livebookStore} getPeers={() => cradle.peers() } getColor={getColor} />, navMount);
 }
 
 global.STORE = livebookStore;

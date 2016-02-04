@@ -16,7 +16,7 @@ const Nav = () => ({
         const styles = this.isHidden() ? { display: "none" } : {};
         return (
             <div style={styles} className="livebook-nav">
-                <Menu store={this.props.store} render={this.props.render} />
+                <Menu store={this.props.store} render={this.props.render} getColor={this.props.getColor} />
                 <Collaborators peers={this.props.getPeers()}/>
             </div>
         );
