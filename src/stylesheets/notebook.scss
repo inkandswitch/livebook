@@ -134,15 +134,15 @@ img[data-livebook-placeholder-cell] {
 }
 
 .notebook-syntax-helper-blue {
-  color: rgb(95, 124, 206);
+  color: $avatar-blue;
 }
 
 .notebook-syntax-helper-purple {
-  color: rgb(138, 9, 149);
+  color: $avatar-violet;
 }
 
 .notebook-syntax-helper-orange {
-  color: rgb(215, 118, 22);
+  color: $avatar-brown;
 }
 
 .notebook .codewrap {
@@ -154,7 +154,6 @@ img[data-livebook-placeholder-cell] {
   padding: .8em .85em 1em .8em;
   position: relative;
   margin: 0;
-  /*margin-bottom: -.1em;*/
 }
 
 .notebook .codewrap::after {
