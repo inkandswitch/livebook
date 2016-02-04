@@ -46,7 +46,7 @@ img[data-livebook-placeholder-cell] {
   font-family: $sans-serif_notebook;
   margin: 0 auto;
   padding: 0;
-  max-width: 45em;
+  max-width: 46em;
   width: 100%;
 }
 
@@ -316,7 +316,7 @@ div.ace_scroller {
   border-radius: .15em;
 }
 
-div.ace_content {
+div.ace_content { // fixes weird bouncing line bug on new code cells
   margin-top: 0 !important;
 }
 
@@ -334,12 +334,8 @@ div.ace-content {
   background: #eee;
 }
 
-.ace_bracket {
+.ace_bracket { // hide paren matching
   display: none;
-}
-
-.text-green {
-  color: #B1CD14;
 }
 
 /* C3 STYLES - move to separate file */
@@ -386,11 +382,10 @@ div.ace-content {
 
 
 @media only screen and (min-width: 520px) {
-  .notebook:not([id^='overlay']) {
+  .notebook:not([id^='overlay']) { // style for the parent notebook
     margin: 0 64px;
-    width: calc(100% - 124px);
+    width: calc(100% - 128px);
   }
-
 }
 
 
