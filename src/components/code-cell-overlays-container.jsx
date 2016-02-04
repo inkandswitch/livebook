@@ -38,6 +38,7 @@ const CodeOverlaysContainer = React.createClass({
     const locals = doc.locals[id];
     return (
       <CodeCellV2
+        getColor={this.props.getColor}
         key={id}
         index={id}
         result={result}

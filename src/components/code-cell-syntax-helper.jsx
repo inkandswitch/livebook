@@ -77,11 +77,12 @@ const Text = () => ({
 const SyntaxPopup = () => ({
 
   styles() {
+    let color = this.props.getColor && this.props.getColor();
+    color = color || "rgba(167,167,167,1)";
     const style = {
       background: "rgba(225,225,225,.98)",
-      border: "solid 1px rgba(167,167,167,1)",
+      border: `solid 2px ${color}`,
       borderRadius: 5,
-      boxShadow: "white 0 -1px 1px",
       boxSizing: "border-box",
       fontSize: "95%",
       height: 50,

@@ -41,6 +41,7 @@ const NotebookV2 = React.createClass({
       <div className="editor-wrapper" data-livebook-editor-wrapper="true">
         <Helmet title={title} />
         <CodeOverlaysContainer
+          getColor={this.props.getColor}
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}

@@ -77,6 +77,7 @@ function notebookRender() {
 
   ReactDOM.render(
     <Notebook 
+      getColor={getColor}
       doc={doc}
       startNewNotebook={startNewNotebook}
       store={livebookStore}
@@ -87,6 +88,15 @@ function notebookRender() {
       focusEditorOnPlaceholder={ (i) => uglyAntiFunctions.focusEditorOnPlaceholder && uglyAntiFunctions.focusEditorOnPlaceholder(i) } 
       focusOnSelectedOverlay={ () => uglyAntiFunctions.focusOnSelectedOverlay && uglyAntiFunctions.focusOnSelectedOverlay() } />, 
     notebookMount);
+}
+
+function getColor() {
+  let peers = cradle.peers();
+  let color = peers[0] && peers[0].state.color;
+  if (color) {
+    return color;
+  }
+  return ""; // default?
 }
 
 function navRender() {
