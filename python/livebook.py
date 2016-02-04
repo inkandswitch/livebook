@@ -205,7 +205,7 @@ def do(code, cell):
         if (cell-1) in SEEDS:
             random.setstate(SEEDS[cell-1])
         else:
-            random.seed('NOT_SO_RANDOM_AFTER_ALL')
+            random.seed('_NOT_SO_RANDOM_AFTER_ALL_')
         preped = prep_code(code)
         parsed = ast.parse(preped)
         compiled = compile(parsed,name,"exec")
