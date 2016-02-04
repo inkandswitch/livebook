@@ -188,10 +188,12 @@ const Collaborator = React.createClass({
   },
 
   getCellHighlightRule() {
-    const color = cellHighlightColorMap[this.props.color];
+    // const color = cellHighlightColorMap[this.props.color];
+    const color = this.props.color
     return `
       .active-code-cell {
-        box-shadow: 0 0 .5em ${color};
+        border-radius: 1px;
+        box-shadow: 0 0 0 2px ${color};
       }
     `;
   },

@@ -1,7 +1,7 @@
 // Colors
 @import "./avatar-colors";
 $black: #333333;
-$_blue: darken(saturate($avatar-blue, 35%), 12%); //#2A64C7;
+$_blue: $avatar-blue; //#2A64C7;
 
 // Typography
 $serif: 'Lusitana', 'Palatino', 'Palatino Linotype', serif;
@@ -283,7 +283,7 @@ img[data-livebook-placeholder-cell] {
 }
 
 .active-code-cell {
-  box-shadow: 0 0 .5em hsla(218, 70%, 39%, 0.86);
+  box-shadow: 0 0 .5em hsla(218, 70%, 39%, 0.86); // default. overridden by react
 }
 
 div.editor { /* !!! this is necessary specificity */
