@@ -312,6 +312,11 @@ div.ace_editor {
   color: saturate($avatar-violet, 15%);
 }
 
+.notebook .ace-github .ace_function,
+.notebook .ace-github .ace_support.ace_function {
+  color: darken(saturate($avatar-blue, 20%), 15%);
+}
+
 div.ace_scroller {
   border-radius: .15em;
 }
