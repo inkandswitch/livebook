@@ -42,6 +42,7 @@ const NotebookV2 = React.createClass({
         <Helmet title={title} />
         <CodeOverlaysContainer
           getColor={this.props.getColor}
+          peers={this.props.getPeers()}
           store={this.props.store}
           handleOverlayMount={this.handleOverlayMount}
           focusOnSelectedOverlay={this.props.focusOnSelectedOverlay}

@@ -193,7 +193,7 @@ const Collaborator = React.createClass({
     return `
       .active-code-cell {
         border-radius: 1px;
-        box-shadow: 0 0 0 2px ${color};
+        box-shadow: 0 0 0 2px ${color} !important;
       }
     `;
   },
@@ -331,7 +331,6 @@ const Collaborators = React.createClass({
     const result = positions.map((position) => {
 
       const { top } = position;
-//      if (!top) debugger;
 
       if (overlaps[top] === undefined) 
         overlaps[top] = -1;

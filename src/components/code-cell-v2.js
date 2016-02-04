@@ -290,10 +290,13 @@ const CodeCell = React.createClass({
 
   render() {
     const id = "overlay" + this.props.index;
-
+    let styles = {}; 
+    if (this.props.peerHighlights) {
+      styles["boxShadow"] = "0 0 0 2px " + this.props.peerHighlights.color;
+    };
     return (
       <div>
-        <div ref="codeCellContainer" className="notebook" id={id} onClick={(e) => this.handleCodeCellFocus(e) }>
+        <div style={styles} ref="codeCellContainer" className="notebook" id={id} onClick={(e) => this.handleCodeCellFocus(e) }>
           <div className="cell-wrap">
             <div className="cell" data-cell-index={this.props.index}>
               <SyntaxPopup getColor={this.props.getColor} show={this.state.showPopUp} local={this.state.local} store={this.props.store} />
