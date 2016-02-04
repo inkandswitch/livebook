@@ -33,11 +33,11 @@ const Quakes = () => ({
   },
 });
 
-const Plots = () => ({
+const Iris = () => ({
   render() {
     return (
-      <GalleryItem notebook="plots">
-        Types of plots
+      <GalleryItem notebook="iris_data">
+        Computer, Meet Flowers
       </GalleryItem>
     );
   },
@@ -124,7 +124,7 @@ const Menu = React.createClass({
                 <MonteCarlo />
               </li>
               <li className="sub-menu-content-item">
-                <Plots />
+                <Iris />
               </li>
               <li className="sub-menu-content-item">
                 <Welcome />
