@@ -2,7 +2,8 @@ const $      = require("jquery");
 const React  = require("react");
 const { VelocityComponent } = require('velocity-react');
 
-const extend = $.extend;
+const cellHighlightColorMap = { ...require("../util").COLOR_MAP.cells };
+
 const cradle = require("../cradle");
 
 const Avatar = React.createClass({
@@ -101,7 +102,7 @@ const CollaboratorNameForm = React.createClass({
   },
 
   getStyles() {
-    return extend({}, this.getDisplay());
+    return { ...this.getDisplay() };
   },
 
   onSubmit(evt) {
@@ -156,6 +157,70 @@ const CollaboratorNameForm = React.createClass({
 });
 
 const Collaborator = React.createClass({
+
+  componentWillMount() {
+    // inject code cell highlight style
+    if (this.props.index === 0) {
+      this.addCellHighlightStyle();    
+    }
+  },
+
+  componentDidUpdate() {
+    if (this.props.index === 0) {
+      // remove code cell highlight style 
+      this.updateCellHighlightStyle();     
+    }
+  },
+
+  componentWillUnmount() {
+    // remove code cell highlight style
+    if (this.props.index === 0) {
+      this.removeCellHighlightStyle();    
+    }
+  },
+
+  getCellHighlightStyleID() {
+    return "cell-highlight-style-" + this.props.index;
+  },
+
+  getCellHighlightStyle() {
+    return document.querySelector("#"+this.getCellHighlightStyleID());
+  },
+
+  getCellHighlightRule() {
+    const color = cellHighlightColorMap[this.props.color];
+    return `
+      .active-code-cell {
+        box-shadow: 0 0 .5em ${color};
+      }
+    `;
+  },
+
+  doesCellHighlightStyleExist() {
+    return !!this.getCellHighlightStyle();
+  },
+
+  addCellHighlightStyle() {
+    if (this.doesCellHighlightStyleExist()) {
+      // update instead?
+      return;
+    }
+
+    const head = document.head;
+    const style = document.createElement("style");
+    style.id = this.getCellHighlightStyleID();
+    style.innerHTML = this.getCellHighlightRule();
+    head.appendChild(style);
+  },
+
+  updateCellHighlightStyle() {
+    const style = this.getCellHighlightStyle();
+    style.innerHTML = this.getCellHighlightRule();
+  },
+
+  removeCellHighlightStyle() {
+    this.getCellHighlightStyle().remove();
+  },
 
   exitModal(event) {
     this.setState({
@@ -295,6 +360,7 @@ const Collaborators = React.createClass({
       return (
         <Collaborator 
           key={index}
+          index={index}
           peer={peer}
           color={peer.state.color}
           position={position}
