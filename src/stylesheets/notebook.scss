@@ -1,6 +1,7 @@
 // Colors
+@import "./avatar-colors";
 $black: #333333;
-$_blue: #2A64C7;
+$_blue: darken(saturate($avatar-blue, 35%), 12%); //#2A64C7;
 
 // Typography
 $serif: 'Lusitana', 'Palatino', 'Palatino Linotype', serif;
@@ -13,7 +14,6 @@ $normal: 400;
 $semi: 600;
 $bold: 700;
 
-@import "./avatar-colors";
 @import "./interface";
 @import "./uploader";
 
