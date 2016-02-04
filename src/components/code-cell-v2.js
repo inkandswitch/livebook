@@ -270,7 +270,7 @@ const CodeCell = React.createClass({
     return (
       <AceEditor className="editor" 
         name={"editor" + this.props.index}
-        mode={"text"}
+        mode={"python"}
         key={this.props.index}
         value={this.props.code}
         theme="github" onChange={change}

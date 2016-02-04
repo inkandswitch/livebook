@@ -90,6 +90,7 @@ img[data-livebook-placeholder-cell] {
   letter-spacing: -.01rem;
   line-height: 1.25;
   margin-bottom: .6rem;
+  margin-top: 1.2rem;
 }
 
 .notebook p {
@@ -298,6 +299,17 @@ div.ace_editor {
 
 .ace-github .ace_gutter {
   background: #D6F717 !important;
+}
+
+// custom syntax highlighting 
+// .notebook adds just enough specificty to override github styles
+//
+.notebook .ace-github .ace_constant.ace_numeric {
+  color: darken(saturate($avatar-green, 30%), 12%);
+}
+
+.notebook .ace-github .ace_string {
+  color: saturate($avatar-violet, 15%);
 }
 
 div.ace_scroller {
