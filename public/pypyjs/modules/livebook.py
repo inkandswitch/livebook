@@ -83,8 +83,7 @@ def inspect_module(x):
     default_doc = "https://docs.python.org/3/library/stdtypes.html#modules"
     dict_doc = {
         "pandas": "http://pandas.pydata.org/pandas-docs/version/0.17.1/",
-        "matplotlib.pyplot": "http://matplotlib.org/api/pyplot_api.html",
-        "string": "https://docs.python.org/2/library/string.html"
+        "matplotlib.pyplot": "http://matplotlib.org/api/pyplot_api.html"
     }
     attrs_doc = {
         "pandas": {
@@ -92,16 +91,6 @@ def inspect_module(x):
                 "type": "method",
                 "value": "DataFrame",
                 "docs": "http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html"
-            }, 
-        "string": {
-            "capwords": {
-                "type": "method",
-                "docs": "https://docs.python.org/2/library/string.html#string-functions"
-            }, 
-        "matplotlib.pyplot": {
-            "plot": {
-                "type": "method",
-                "docs": "http://matplotlib.org/api/pyplot_api.html?highlight=matplotlib.pyplot.plot#matplotlib.pyplot.plot"
             }
          }
     }
