@@ -80,12 +80,18 @@ const CodeCell = React.createClass({
   componentDidMount() {
     const editor = document.querySelector("#editor" + this.props.index);
     if (editor) editor.addEventListener("click", stopTheBubbly);
+    window.addEventListener("resize", this.windowResize)
   },
 
   componentWillUnmount() {
     const editor = document.querySelector("#editor" + this.props.index);
     if (editor) editor.removeEventListener("click", stopTheBubbly);
     this.state.editor.destroy();
+    window.removeEventListener("resize", this.windowResize)
+  },
+
+  windowResize(event) {
+    this.updateEditorSize(this.editor);
   },
 
   underConstruction() {
