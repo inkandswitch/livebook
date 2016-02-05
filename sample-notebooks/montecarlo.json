@@ -12,13 +12,13 @@
     "1": "import math, random\nimport matplotlib.pyplot as plt",
     "2": "wall_width = 20\nwall_height = 10\n\nwin_low_left = (5, 2.5)\nwin_up_right = (15, 7.5)\n\nnr_marbles = 1000",
     "3": "sample_widths = [random.random() * wall_width for i in range(nr_marbles)]\nsample_heights = [random.random() * wall_height for i in range(nr_marbles)]\n\nrandom_marbles_thrown = zip(sample_widths, sample_heights)",
-    "4": "marbles_hit_wall = filter(lambda x: (x[0] < win_low_left[0] \n                                     or x[0] > win_up_right[0]) \n                                     or\n                                    (x[1] < win_low_left[1] \n                                     or x[1] > win_up_right[1]), \n                                     random_marbles_thrown)\n\nplt.scatter(x=map(lambda x: x[0], marbles_hit_wall), \n            y=map(lambda x: x[1], marbles_hit_wall))",
+    "4": "def coord_on_wall(point):\n    x, y = point\n    x_on_wall = (x < win_low_left[0] or x > win_up_right[0])\n    y_on_wall = (y < win_low_left[1] or y > win_up_right[1])\n    return x_on_wall or y_on_wall\n\nmarbles_hit_wall = filter(lambda p: coord_on_wall(p), \n                                    random_marbles_thrown)\n\nplt.scatter(x = map(lambda p: p[0], marbles_hit_wall), \n            y = map(lambda p: p[1], marbles_hit_wall))",
     "5": "len(marbles_hit_wall) / (1.0*nr_marbles)",
     "6": "1 - len(marbles_hit_wall) / (1.0*nr_marbles)",
     "7": "window_height = win_up_right[1] - win_low_left[1]\nwindow_width = win_up_right[0] - win_low_left[0]\n\n(window_height * window_width) / (1.0 * wall_height * wall_width)"
   },
   "errors": {},
-  "html": "<h1 id=\"statistics-made-simple-through-simulation\" livebook-node-id=\"mc6io1e8kmuc8fr\">Statistics made simple through simulation</h1>\n<p livebook-node-id=\"lqmf248cqasb57b9\"><em>adapted from <a href=\"https://github.com/jcbozonier/PyData2015/blob/master/PyData%20Workshop.ipynb\">this notebook</a> by <a href=\"https://twitter.com/databozo\">Justin Bozonier</a></em></p>\n<h2 id=\"the-5-step-modelling-approach\" livebook-node-id=\"vv2mlrx1kp8hbyb9\">The 5 Step Modelling Approach</h2>\n<ol livebook-node-id=\"9n219855pbg4aemi\">\n<li><p>Ask the question</p>\n</li>\n<li><p>Select the modelling approach</p>\n</li>\n<li><p>Formulate the model</p>\n</li>\n<li><p>Solve the model</p>\n</li>\n<li><p>Answer the question</p>\n</li>\n</ol>\n<h2 id=\"monte-carlo-simulation\" livebook-node-id=\"94o7gj06u3lbx1or\">Monte Carlo Simulation</h2>\n<p livebook-node-id=\"i1csjl3h5qy6i529\">Pros</p>\n<ul livebook-node-id=\"rzu3unsonfusor\">\n<li><p>General method that can give approximate solutions to any probability modelling problem. (Mathematical Modelling, Meerschaert)</p>\n</li>\n<li><p>Intuitive models that are fairly straight-forward to grasp without much mathematical formalism.</p>\n</li>\n</ul>\n<p livebook-node-id=\"5bs0b5hrz3gwg66r\">Cons</p>\n<ul livebook-node-id=\"0hgmvxi4yn94quxr\">\n<li><p>Solves via brute force and that can get very time intensive.</p>\n</li>\n<li><p>The simulation itself introduces extra variation into your solution</p>\n</li>\n</ul>\n<p livebook-node-id=\"yuo8qiq0n8bk2o6r\">To the last point while this is true, Meerschaert says:</p>\n<p livebook-node-id=\"0eot7egu7bpdgqfr\">\"As a practical matter, there are many sources of error and variation in a modelling problem, and the additional variation produced by Monte Carlo simulation is not typically the most serious of these.\"</p>\n<p livebook-node-id=\"ehi2v4wuvbfn7b9\">He goes on to say that sensitivity analysis is your friend.</p>\n<p livebook-node-id=\"33tdb698w1smj9k9\">We'll be using this term to be synonymous with Analytical Simulation. The core difference is a pure Monte Carlo simulation works in simplest terms with no higher level mathematical concepts. An analytical simulation may use probability distributions or other mathematical tooling as a shortcut.</p>\n<h2 id=\"enough-theory\" livebook-node-id=\"m6ud5m0ke47h9f6r\">Enough theory</h2>\n<p livebook-node-id=\"bzup5c6cwrejyvi\">Easiest to explain with a simple example. Suppose you're in a room facing a large wall and large open window with a bowl full of marbles on a table behind you. </p>\n<p livebook-node-id=\"vkigjvrhr2qyf1or\">How might you answer the question: \"What percentage of that wall is the window taking up?\"</p>\n<p livebook-node-id=\"a4otemsj874lsor\">Process</p>\n<ol livebook-node-id=\"nkmif9r1oqgs0pb9\">\n<li><p>Count how many marbles are in the bowl.</p>\n</li>\n<li><p>Close your eyes and throw marbles at the wall in a purely random way.</p>\n</li>\n<li><p>Find the percentage of marbles that went through the window.</p>\n</li>\n</ol>\n<p livebook-node-id=\"4n1rk1q7dbr19k9\">The answer you get from step 3 will approximate how much of the wall the window takes up.</p>\n<p livebook-node-id=\"31t6rkkl2j8rrudi\">Let's simulate this and see how it works.</p>\n\n<p livebook-node-id=\"h96pwx1ligv9ggb9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder1\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 102px;\"></p>\n<p livebook-node-id=\"ys0ansxe3fjbrzfr\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder2\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 182px;\"></p>\n<p livebook-node-id=\"zyhvh9mogcmu0udi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder3\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 134px;\"></p>\n<p livebook-node-id=\"2y2gjrxnut0529\">We pick an X and a Y to form a coordinate that we throw a marble at. We throw all of our marbles this way. Then we gather all of the marbles that hit the wall and didn't go through the window.</p>\n\n<p livebook-node-id=\"pzcvfexqv8lu9pb9\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder4\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 520px;\"></p>\n<p livebook-node-id=\"qdhi09v9xbeasjor\">Next we find the percentage of marbles that went through the window to find what percentage of the wall the window takes up.</p>\n\n<p livebook-node-id=\"cajtd0ly2vokcsor\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder5\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 86px;\"></p>\n<p livebook-node-id=\"qvocv151ut0uow29\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder6\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 86px;\"></p>\n<p livebook-node-id=\"cd89wiisvvtmlsor\">It's pretty straightforward to do this manually with math:</p>\n\n<p livebook-node-id=\"5zihq0azto6r\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder7\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 134px;\"></p>",
+  "html": "<h1 id=\"statistics-made-simple-through-simulation\" livebook-node-id=\"lzlzz06gxuw8w7b9\">Statistics made simple through simulation</h1>\n<p livebook-node-id=\"yqfstd67zzfcrf6r\"><em>adapted from <a href=\"https://github.com/jcbozonier/PyData2015/blob/master/PyData%20Workshop.ipynb\">this notebook</a> by <a href=\"https://twitter.com/databozo\">Justin Bozonier</a></em></p>\n<h2 id=\"the-5-step-modelling-approach\" livebook-node-id=\"atw8d5uo1jes714i\">The 5 Step Modelling Approach</h2>\n<ol livebook-node-id=\"g9l82ky2rge6d2t9\">\n<li><p>Ask the question</p>\n</li>\n<li><p>Select the modelling approach</p>\n</li>\n<li><p>Formulate the model</p>\n</li>\n<li><p>Solve the model</p>\n</li>\n<li><p>Answer the question</p>\n</li>\n</ol>\n<h2 id=\"monte-carlo-simulation\" livebook-node-id=\"tejet1bkvjrcz0k9\">Monte Carlo Simulation</h2>\n<p livebook-node-id=\"j56cf5iahg4iy66r\">Pros</p>\n<ul livebook-node-id=\"0kxhbrl2rlwstt9\">\n<li><p>General method that can give approximate solutions to any probability modelling problem. (Mathematical Modelling, Meerschaert)</p>\n</li>\n<li><p>Intuitive models that are fairly straight-forward to grasp without much mathematical formalism.</p>\n</li>\n</ul>\n<p livebook-node-id=\"7vtgndmi4kzhyqfr\">Cons</p>\n<ul livebook-node-id=\"gvko8a3t8ztlc8fr\">\n<li><p>Solves via brute force and that can get very time intensive.</p>\n</li>\n<li><p>The simulation itself introduces extra variation into your solution</p>\n</li>\n</ul>\n<p livebook-node-id=\"g4q8oivobwgbvs4i\">To the last point while this is true, Meerschaert says:</p>\n<p livebook-node-id=\"6n1n433vtxzuxr\">\"As a practical matter, there are many sources of error and variation in a modelling problem, and the additional variation produced by Monte Carlo simulation is not typically the most serious of these.\"</p>\n<p livebook-node-id=\"q3q0kgaf5l6av2t9\">He goes on to say that sensitivity analysis is your friend.</p>\n<p livebook-node-id=\"ab4xfk5gaex6flxr\">We'll be using this term to be synonymous with Analytical Simulation. The core difference is a pure Monte Carlo simulation works in simplest terms with no higher level mathematical concepts. An analytical simulation may use probability distributions or other mathematical tooling as a shortcut.</p>\n<h2 id=\"enough-theory\" livebook-node-id=\"atvofhlsrn486w29\">Enough theory</h2>\n<p livebook-node-id=\"zn4ma4e8g3gi7ldi\">Easiest to explain with a simple example. Suppose you're in a room facing a large wall and large open window with a bowl full of marbles on a table behind you. </p>\n<p livebook-node-id=\"zd0imr88l8qfflxr\">How might you answer the question: \"What percentage of that wall is the window taking up?\"</p>\n<p livebook-node-id=\"b908yyhkrnc23xr\">Process</p>\n<ol livebook-node-id=\"n88mgkw9wf6layvi\">\n<li><p>Count how many marbles are in the bowl.</p>\n</li>\n<li><p>Close your eyes and throw marbles at the wall in a purely random way.</p>\n</li>\n<li><p>Find the percentage of marbles that went through the window.</p>\n</li>\n</ol>\n<p livebook-node-id=\"n13z9h9vumk21emi\">The answer you get from step 3 will approximate how much of the wall the window takes up.</p>\n<p livebook-node-id=\"otmp9xbm3wrejyvi\">Let's simulate this and see how it works.</p>\n\n<p livebook-node-id=\"e3ai0d5c0oogvi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder1\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 102px;\"></p>\n<p livebook-node-id=\"gpzbh4n15r7fogvi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder2\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 182px;\"></p>\n<p livebook-node-id=\"myhlv65ha567ds4i\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder3\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 134px;\"></p>\n<p livebook-node-id=\"1s076m3mfs9k9\">We pick an X and a Y to form a coordinate that we throw a marble at. We throw all of our marbles this way. Then we gather all of the marbles that hit the wall and didn't go through the window.</p>\n\n<p livebook-node-id=\"g84nhlbunl95dn29\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder4\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 246px;\"></p>\n<p livebook-node-id=\"e06438wlzg1oflxr\">Next we find the percentage of marbles that went through the window to find what percentage of the wall the window takes up.</p>\n\n<p livebook-node-id=\"xhvi4yx51739dx6r\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder5\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 86px;\"></p>\n<p livebook-node-id=\"4mgf7euv9tz9f6r\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder6\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 86px;\"></p>\n<p livebook-node-id=\"wnkyjggy3izwu3di\">It's pretty straightforward to do this manually with math:</p>\n\n<p livebook-node-id=\"kuic72ijtyl7syvi\"><img data-livebook-placeholder-cell=\"\" id=\"placeholder7\" width=\"100%\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYPhfDwACggF/yWU3jgAAAABJRU5ErkJggg==\" style=\"height: 134px;\"></p>",
   "title": "Statistics made simple through simulation",
   "plots": {
     "4": [
@@ -3420,6 +3420,16 @@
           "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
         }
       },
+      "coord_on_wall": {
+        "name": "coord_on_wall",
+        "reflection": {
+          "type": "function",
+          "value": [
+            "1 arguments"
+          ],
+          "docs": "https://docs.python.org/3/reference/compound_stmts.html#function"
+        }
+      },
       "marbles_hit_wall": {
         "name": "marbles_hit_wall",
         "reflection": {
@@ -3560,6 +3570,16 @@
             "1000 items"
           ],
           "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
+        }
+      },
+      "coord_on_wall": {
+        "name": "coord_on_wall",
+        "reflection": {
+          "type": "function",
+          "value": [
+            "1 arguments"
+          ],
+          "docs": "https://docs.python.org/3/reference/compound_stmts.html#function"
         }
       },
       "marbles_hit_wall": {
@@ -3704,6 +3724,16 @@
           "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
         }
       },
+      "coord_on_wall": {
+        "name": "coord_on_wall",
+        "reflection": {
+          "type": "function",
+          "value": [
+            "1 arguments"
+          ],
+          "docs": "https://docs.python.org/3/reference/compound_stmts.html#function"
+        }
+      },
       "marbles_hit_wall": {
         "name": "marbles_hit_wall",
         "reflection": {
@@ -3846,6 +3876,16 @@
           "docs": "https://docs.python.org/3.1/tutorial/datastructures.html#more-on-lists"
         }
       },
+      "coord_on_wall": {
+        "name": "coord_on_wall",
+        "reflection": {
+          "type": "function",
+          "value": [
+            "1 arguments"
+          ],
+          "docs": "https://docs.python.org/3/reference/compound_stmts.html#function"
+        }
+      },
       "marbles_hit_wall": {
         "name": "marbles_hit_wall",
         "reflection": {
@@ -3960,6 +4000,6 @@
       }
     ]
   },
-  "editID": 1858456478,
+  "editID": null,
   "editor": "me"
 }
