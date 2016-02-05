@@ -49,7 +49,7 @@
   border: solid 1px #A8A8A8;
   font-weight: $bold;
   list-style-type: none;
-  left: -.5px;
+  left: -1px;
   min-width: 18em;
   opacity: 0;
   margin-top: 1.75em;
@@ -191,6 +191,13 @@
 
 .collaborators li.observer {
   text-align: center;
+
+  &.is-editing-name {
+    box-shadow: inset 0 0 0 1px #A8A8A8;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    padding: .3em .5em .4em;
+  }
 }
 
 .collaborators li.here {
@@ -204,53 +211,52 @@
   max-height: 40em;
   opacity: 1;
   overflow: inherit; 
-  top: 55px; /* magic number */
-
-  transition: all .5s ease-out;
 }
 
 .collaborators-name-change-form-wrap-hidden {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: all .5s ease-in;
 }
 
 .collaborators-name-change-form {
   background: $white;
-  border: solid .1em #ccc;
-  box-shadow: 0 2px 2px 0 #bbb;
+  border: solid 1px #A8A8A8;
+  box-shadow: 0 2px 1px -1px #ccc;
   border-radius: .25em;
+  border-top-right-radius: 0;
   min-width: 12em;
   padding: .4em .8em .8em;
   position: relative;
   z-index: 2;
 
   .collaboarators-name-change-prompt {
-    color: #666;
+    color: #777;
     font-size: 91%;
     margin: .25em;  
   }
 }
 
-// .collaborators-name-change-form::after {
-//   background: $white;
-//   content: '';
-
-//   height: 12px;
-
-//   position: absolute;
-
-//   right: 1.83em;
-//   top: .1em;
-//   width: 12px;
-// }
+.collaborators-name-change-form::after {
+  background: $white;
+  content: '';
+  height: 4px;
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 44px;
+}
 
 .collaborators-name-change-form input {
   width: 72%;
 }
 
 .collaborators-name-change-form button {
+  background: #fcfcfc;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px 0 #ddd;
+  cursor: pointer;
   display: inline-block;
   margin-left: .5em;
   padding-left: .4em;
@@ -268,12 +274,12 @@
 // show the nav bar avatars
 .livebook-nav .collaborators {
   display: inherit;
-  top: 12px;
+  top: 8px;
 }
 
 .livebook-nav .collaborators li {
   margin-top: 0;
-  padding-top: 0;
+  padding-top: 4px;
 }
 
 // hide the cursor-following avatars
@@ -313,16 +319,8 @@
     padding: 0;
   }
 
-  .collaborators li:first-of-type {
-    /*margin-top: .75em;*/
-  }
-
   .collaborators-name-change-form::after {
-    height: 15px;
-    right: 1.08em;
-    top: 0;
-    transform: rotate(45deg) translateY(-10.8px);
-    width: 15px;
+    width: 44px;
   }
 
   .app-container {
