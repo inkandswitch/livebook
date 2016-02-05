@@ -89,7 +89,7 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
         });
 
         validateContents(editor);
-        
+
         init.resizeHandler = () => validateContents(editor)
         window.addEventListener("resize",  init.resizeHandler);
 
@@ -125,6 +125,8 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
         editor.subscribe("editableKeydown", (event) => {
 
           highlightSelectedCodeCell(editor);
+
+          hidePlusButton();
 
           if (isCommandJ(event)) 
             addCodeCell(editor);
