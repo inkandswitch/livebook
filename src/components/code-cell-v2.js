@@ -38,7 +38,7 @@ const CodeCellOutput = React.createClass({
     let styles = { overflowX: "hidden", };
     let htmlString = data.join("");
     return (
-      <div style={styles} 
+      <div style={styles}
           key={key}
           dangerouslySetInnerHTML={{__html: htmlString }}></div>
     );
@@ -73,7 +73,7 @@ const CodeCell = React.createClass({
     return {
       editor: null,
       showPopUp: false,
-      local: {}, 
+      local: {},
     };
   },
 
@@ -110,7 +110,7 @@ const CodeCell = React.createClass({
 
     if (this.underConstruction()) {
       className = this.appendLoadingClass("pyresult");
-      return (<div onClick={stopTheBubbly} className={""}></div>)            
+      return (<div onClick={stopTheBubbly} className={""}></div>)
     }
 
     return (<div onClick={stopTheBubbly} className={className}>{name}: {message}</div>);
@@ -123,10 +123,10 @@ const CodeCell = React.createClass({
       const cellIndex = this.props.index;
       const key = cellIndex + "-" + i;
       return (
-        <PlotContainer 
-          cellIndex={cellIndex} 
-          cellPlotIndex={i} 
-          key={key} 
+        <PlotContainer
+          cellIndex={cellIndex}
+          cellPlotIndex={i}
+          key={key}
           plotMessage={p}/>
       );
     });
@@ -137,9 +137,9 @@ const CodeCell = React.createClass({
 
     if (outputs.length === 0) {
       if (this.props.code) {
-        return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);        
+        return (<div className="pyresult pyresult-loading pyresult-loading-with-message"></div>);
       }
-      return (<div className="pyresult"></div>);        
+      return (<div className="pyresult"></div>);
     }
 
     let className = "pyresult";
@@ -148,9 +148,9 @@ const CodeCell = React.createClass({
       className = this.appendLoadingClass(className);
 
     return (
-        <CodeCellOutput 
-          outputs={outputs} 
-          className={className} 
+        <CodeCellOutput
+          outputs={outputs}
+          className={className}
           getPlotContainers={this.getPlotContainers} />
       );
   },
@@ -164,7 +164,7 @@ const CodeCell = React.createClass({
   handleEditorChange(code) {
     const codeList = this.props.store.getState().doc.codeList;
     const id = this.props.index;
-    const codeDelta = {}; 
+    const codeDelta = {};
     codeDelta[id] = code;
     const data = { codeList, codeDelta };
     const editID = uid()
@@ -226,8 +226,25 @@ const CodeCell = React.createClass({
         if (word === lastWord) return;
 
         lastWord = word;
-        let local = this.props.locals[word];
-        this.setState({ local });
+
+        let match = editor.session.getLine(wordRange.start.row).match('(\\w+)[.]' + word)
+        if (match) {
+          let local = this.props.locals[match[1]];
+          let attribute = undefined
+          if (local && local.reflection && local.reflection.attrs) {
+            attribute = local.reflection.attrs[word]
+            if (attribute) {
+              attribute.name = word
+            }
+            this.setState({ local, attribute });
+          } else {
+            this.setState({ local: undefined , attribute: undefined });
+          }
+        } else {
+          let local = this.props.locals[word];
+          let attribute = undefined
+          this.setState({ local, attribute });
+        }
       };
 
       const hidePanel = () => {
@@ -237,7 +254,7 @@ const CodeCell = React.createClass({
       editor.on("focus", (event) => {
         clearTimeout(lastTimeout);
         this.setState({ showPopUp: true });
-        showEditorCursor(editor);        
+        showEditorCursor(editor);
       });
 
       editor.on("mousedown", (event) => {
@@ -248,7 +265,7 @@ const CodeCell = React.createClass({
       editor.on("blur", () => {
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(hidePanel, 100);
-        hideEditorCursor(editor);        
+        hideEditorCursor(editor);
       });
 
       editor.selection.on("changeCursor", (event, _) => {
@@ -268,7 +285,7 @@ const CodeCell = React.createClass({
     onBeforeLoad = () => {};
 
     return (
-      <AceEditor className="editor" 
+      <AceEditor className="editor"
         name={"editor" + this.props.index}
         mode={"python"}
         key={this.props.index}
@@ -284,7 +301,7 @@ const CodeCell = React.createClass({
   handleCodeCellFocus(event, returnFocusToEditor=false) {
     const placeholder = this.props.focusEditorOnPlaceholder(this.props.index);
     if (returnFocusToEditor && !this.state.editor.isFocused()) {
-      this.state.editor.focus();      
+      this.state.editor.focus();
     }
   },
 

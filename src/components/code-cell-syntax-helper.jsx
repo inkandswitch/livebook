@@ -51,7 +51,7 @@ const Text = () => ({
   },
 
   render() {
-    const { local } = this.props;
+    const { local, attribute } = this.props;
     const reflection = local && local.reflection;
 
     if (!reflection) {
@@ -59,7 +59,15 @@ const Text = () => ({
     }
 
     let { name } = local;
-    const { type, value, docs } = reflection;
+    let { type, value, docs } = reflection;
+
+    if (attribute) {
+      console.log("----------------",local.reflection.attrs)
+      name  = name + "." + attribute.name
+      type  = attribute.type
+      value = attribute.value
+      docs  = attribute.docs
+    }
 
     if (type === null) inspect = "";
     if (type === null) name = "";
@@ -116,7 +124,7 @@ const SyntaxPopup = () => ({
 
     return (
       <VelocityTransitionGroup enter={enter} leave={leave}>
-        { this.props.show ? <Text style={this.styles()} local={this.props.local} /> : undefined }
+        { this.props.show ? <Text style={this.styles()} local={this.props.local} attribute={this.props.attribute}/> : undefined }
       </VelocityTransitionGroup>
     );
   }

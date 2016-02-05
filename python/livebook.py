@@ -85,9 +85,19 @@ def inspect_module(x):
         "pandas": "http://pandas.pydata.org/pandas-docs/version/0.17.1/",
         "matplotlib.pyplot": "http://matplotlib.org/api/pyplot_api.html"
     }
+    attrs_doc = {
+        "pandas": {
+            "read_csv": {
+                "type": "method",
+                "value": "DataFrame",
+                "docs": "http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html"
+            }
+         }
+    }
     return {
         "type": type_name(x),
         "value": x.__name__,
+        "attrs": attrs_doc.get(x.__name__, {}),
         "docs": dict_doc.get(x.__name__, default_doc)
     }
 
@@ -123,6 +133,9 @@ TYPES_TO_INSPECT = {
     "pandas.Series": inspect_pandas_Series
 }
 
+ATTRS_TO_INSPECT = {
+    "pandas.DataFrame": inspect_pandas_DataFrame,
+}
 
 def livebook_inspect(local_var):
     local_var_type = type_name(local_var)
@@ -186,7 +199,7 @@ def execute():
         checkpoint(cell,val,local)
     else:
         js.globals['ERROR'] = js.convert(err)
-    
+
 def partial_keyword(word):
     return any([ word == k[0:len(word)] for k in keyword.kwlist ])
 
