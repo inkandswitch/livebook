@@ -269,7 +269,9 @@ const Collaborator = React.createClass({
   },
 
   addOverlapOffset(position) {
-    const avatarDim = 33;
+    let avatarDim = 33;
+    const horizontalPadding = 8; // MAGIC NUMBER
+    avatarDim += horizontalPadding;
     const overlaps = this.props.position.overlaps;
     const right = (-avatarDim * overlaps) + "px"
     return { ...position, right };
