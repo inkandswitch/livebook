@@ -6,7 +6,8 @@ let PlotContainer = React.createClass({
     let selector = "#" + this.getID();
     let plotData = this.getPlotMessage();
     let width = this.clampWidth(this.getContainerWidth());
-    plot(selector, plotData, { maxWidth: width });
+    this.__plot = plot(selector, plotData, { maxWidth: width });
+    this.removeFlyingLegend();
   },
 
   componentDidUpdate(prevProps) {
@@ -17,13 +18,17 @@ let PlotContainer = React.createClass({
       let selector = "#" + this.getID();
       let width = this.clampWidth(this.getContainerWidth());
 
-      plot(selector, plotData, { maxWidth: width });
-
+      this.__plot = plot(selector, plotData, { maxWidth: width });
+      this.removeFlyingLegend();
     }
   },
 
   clampWidth(width) {
     return Math.min(600, width);
+  },
+
+  removeFlyingLegend() {
+    // NYI :(
   },
 
   componentWillUnmount() {
@@ -57,7 +62,7 @@ let PlotContainer = React.createClass({
     let id = this.getID();
 
     return (
-      <div ref="container" id={id} className="notebook-plot"/>
+      <div ref="container" id={id} className="notebook-plot" onClick={ () => global.__PLOT = this.__plot } />
     );
   },
 });
