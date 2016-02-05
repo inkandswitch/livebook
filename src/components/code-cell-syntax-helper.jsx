@@ -62,7 +62,6 @@ const Text = () => ({
     let { type, value, docs } = reflection;
 
     if (attribute) {
-      console.log("----------------",local.reflection.attrs)
       name  = name + "." + attribute.name
       type  = attribute.type
       value = attribute.value

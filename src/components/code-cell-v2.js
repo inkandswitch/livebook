@@ -322,7 +322,7 @@ const CodeCell = React.createClass({
         <div style={styles} ref="codeCellContainer" className="notebook" id={id} onClick={(e) => this.handleCodeCellFocus(e) }>
           <div className="cell-wrap">
             <div className="cell" data-cell-index={this.props.index}>
-              <SyntaxPopup getColor={this.props.getColor} show={this.state.showPopUp} local={this.state.local} store={this.props.store} />
+              <SyntaxPopup getColor={this.props.getColor} show={this.state.showPopUp} local={this.state.local} store={this.props.store} attribute={this.state.attribute} />
               <div className="switch">
                 <div className="codewrap">
                   <div>
