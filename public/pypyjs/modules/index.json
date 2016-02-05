@@ -4758,19 +4758,7 @@
     }, 
     "livebook": {
       "file": "livebook.py", 
-      "imports": [
-        "ast", 
-        "copy", 
-        "inspect", 
-        "js", 
-        "keyword", 
-        "matplotlib.pyplot", 
-        "random", 
-        "re", 
-        "string", 
-        "sys", 
-        "traceback"
-      ]
+      "imports": []
     }, 
     "locale": {
       "file": "locale.py", 
