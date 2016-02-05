@@ -1,6 +1,5 @@
 const $      = require("jquery");
 const React  = require("react");
-const { VelocityTransitionGroup } = require('velocity-react');
 
 const cellHighlightColorMap = { ...require("../util").COLOR_MAP.cells };
 
@@ -285,22 +284,6 @@ const Collaborator = React.createClass({
     let cursor = peer.state.cursor;
     let styles = { ...this.getPosition() };
 
-
-    const enter = {
-      animation: {
-        opacity: [1, 0],
-      },
-      duration: 200,
-      display: "inherit",
-    };
-    const leave = {
-      animation: {
-        opacity: [0, 1],
-      },
-      duration: 200,
-      display: "none",
-    };
-
     return (
       <li className={"observer " + (this.state.isEditingName ? "is-editing-name" : "") }
           data-user-color={this.props.color}
@@ -308,9 +291,8 @@ const Collaborator = React.createClass({
           style={styles}>
 
         <Avatar color={this.props.color} isEditingName={this.state.isEditingName} />
-        <VelocityTransitionGroup enter={enter} leave={leave}>
-          { !this.state.isEditingName ? <span className="avatar-name">{name}</span> : undefined }
-        </VelocityTransitionGroup>
+
+        { !this.state.isEditingName ? <span className="avatar-name">{name}</span> : undefined }
 
         <CollaboratorNameForm 
           username={this.state.name}
