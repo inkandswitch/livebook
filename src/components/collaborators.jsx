@@ -32,7 +32,7 @@ const Avatar = React.createClass({
 const ModalBackground = React.createClass({
   getStyles() {
     let result = {
-      background: "hsla(0, 0%, 100%, .25)",
+      background: "hsla(0, 0%, 100%, 0)", // not in use right now
       position: "fixed",
       height: "100%",
       left: 0,
@@ -141,8 +141,8 @@ const CollaboratorNameForm = React.createClass({
           style={styles}>
           <form className="collaborators-name-change-form"
             onSubmit={this.onSubmit}>
-            <p>
-              What's your name?
+            <p className="collaboarators-name-change-prompt">
+              What&rsquo;s your name?
             </p>
             <input className="js-user-name-input" type="text" ref="nameInput" value={inputValue} 
                 onChange={this.handleTextChange} />
