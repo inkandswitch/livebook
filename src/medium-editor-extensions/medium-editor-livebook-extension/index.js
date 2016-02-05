@@ -71,6 +71,10 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
       removePlusButton();
     }
 
+    function destroy() {
+      window.removeEventListener("resize", init.resizeHandler);
+    }
+
     function init() {
 
         editor = this.base;
@@ -85,9 +89,9 @@ function createLivebookExtension({ onChange, getCurrentCode, getCurrentCodeList 
         });
 
         validateContents(editor);
-        window.onresize = function() {
-          validateContents(editor);
-        }
+        
+        init.resizeHandler = () => validateContents(editor)
+        window.addEventListener("resize",  init.resizeHandler);
 
         editor.subscribe("editableClick", (_) => {
           if (isCodeCellSelected()) {
