@@ -10,6 +10,8 @@ const { nTimes, stopTheBubbly } = require("../util");
 const PlotContainer = require("./code-cell-plot-container");
 const SyntaxPopup = require("./code-cell-syntax-helper");
 
+let focused = false
+
 function uid() {
   return Math.round(Math.random()*2000000000)
 }
@@ -38,7 +40,7 @@ const CodeCellOutput = React.createClass({
     let styles = { overflowX: "hidden", };
     let htmlString = data.join("");
     return (
-      <div style={styles}
+      <div style={styles} className={this.props.underConstruction}
           key={key}
           dangerouslySetInnerHTML={{__html: htmlString }}></div>
     );
@@ -49,7 +51,7 @@ const CodeCellOutput = React.createClass({
   },
 
   text(data, key) {
-    let className = this.props.className;
+    let className = this.props.className + " " + this.props.underConstruction;
     let getPlotContainers = this.props.getPlotContainers;
     return (
       <div className={className} key={key} >
@@ -95,12 +97,16 @@ const CodeCell = React.createClass({
   },
 
   underConstruction() {
-    return this.props.error && this.props.error.under_construction;
+    console.log("error", this.props.error)
+    return this.props.error && focused // this.props.error.under_construction;
   },
 
+
+/*
   appendLoadingClass(className) {
     return className + " pyresult-under-construction";
   },
+*/
 
   hasError() {
     return !!this.props.error;
@@ -115,7 +121,7 @@ const CodeCell = React.createClass({
         className = "pyresult pyresult-error";
 
     if (this.underConstruction()) {
-      className = this.appendLoadingClass("pyresult");
+//      className = this.appendLoadingClass("pyresult");
       return (<div onClick={stopTheBubbly} className={""}></div>)
     }
 
@@ -150,13 +156,15 @@ const CodeCell = React.createClass({
 
     let className = "pyresult";
 
-    if (this.underConstruction())
-      className = this.appendLoadingClass(className);
+//    if (this.underConstruction())
+//      className = this.appendLoadingClass(className);
+    let underConstruction = this.underConstruction() ? "pyresult-under-construction" : ""
 
     return (
         <CodeCellOutput
           outputs={outputs}
           className={className}
+          underConstruction={underConstruction}
           getPlotContainers={this.getPlotContainers} />
       );
   },
@@ -258,6 +266,7 @@ const CodeCell = React.createClass({
       }
 
       editor.on("focus", (event) => {
+        focused = true
         clearTimeout(lastTimeout);
         this.setState({ showPopUp: true });
         showEditorCursor(editor);
@@ -269,6 +278,7 @@ const CodeCell = React.createClass({
       })
 
       editor.on("blur", () => {
+        focused = false
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(hidePanel, 100);
         hideEditorCursor(editor);
