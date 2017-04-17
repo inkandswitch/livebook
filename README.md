@@ -1,4 +1,4 @@
-#Livebook
+# Livebook
 
 Livebook is an [IPython notebook](http://ipython.org/notebook.html)-compatible experiment to share your data stories on the web. It features live coding, realtime collaboration, a WYSIWYG prose editor, and runs 100% in the browser.
 
@@ -14,7 +14,7 @@ Livebook is an [IPython notebook](http://ipython.org/notebook.html)-compatible e
 - [Technologies](#technologies)
 - [Meta](#meta)
 
-##Motivation and audience
+## Motivation and audience
 
 We data scientists tell stories with data. This is why the notebook format is so powerful: a mix of explanatory prose, data, and executable code that produces charts and tables.
 
@@ -24,30 +24,30 @@ By uploading a notebook to Livebook, you can share it in a format that allows th
 
 _Livebook is an experiment, not for production use. We hope it will demonstrate some ideas and perhaps inform future possibilities for the Jupyter project._ 
 
-##Features
+## Features
 
-###Live coding
+### Live coding
 
 Play around with your code and plots, and get instant results as you type. No need to rerun cells or track cell dependencies.
 
-###Realtime collaboration
+### Realtime collaboration
 
 Work on your notebooks simultaneously and see your collaborators' edits on the fly.
 
-###WYSIWYG prose editor
+### WYSIWYG prose editor
 Structure and document your notebooks as if you were writing a regular text file, including easy formatting and highlighting. Your colleagues don't need to know Markdown to contribute to the notebook.
 
-##Setup
+## Setup
 
-###Try it
+### Try it
 
 [http://livebook.inkandswitch.com/](http://livebook.inkandswitch.com/)
 
-###Install or develop it
+### Install or develop it
 
 Livebook is open source and can be run locally, run on a server, or deployed to Heroku. Instructions are in [`doc/INSTALL.md`](https://github.com/inkandswitch/livebook/blob/master/doc/INSTALL.md).
 
-##Caveats
+## Caveats
 
 - developed on Chrome; functionality may be incomplete on other browsers
 - currently not supporting full pandas, but a stand-in “fauxpandas” library
@@ -57,7 +57,7 @@ Livebook is open source and can be run locally, run on a server, or deployed to 
 - CSV file cannot be changed after initial upload
 - size of embedded CSV file limited to a few thousand records
 
-##Technologies
+## Technologies
 
 - Web front-end: [React](http://reactjs.net/), [Webpack](https://webpack.github.io/)
 - Runtime: [Pypyjs](http://pypyjs.org/)
@@ -65,7 +65,7 @@ Livebook is open source and can be run locally, run on a server, or deployed to 
 - Charts: [C3](http://c3js.org/)/[D3](http://d3js.org/)
 - P2P networking: [WebRTC](https://webrtc.org/)
 
-##Meta
+## Meta
 
 Released under the [MIT license](https://opensource.org/licenses/MIT).
 

@@ -149,3 +149,4 @@ sepal_length_cm,sepal_width_cm,petal_length_cm,petal_width_cm,class
 6.5,3.0,5.2,2.0,Iris-virginica
 6.2,3.4,5.4,2.3,Iris-virginica
 5.9,3.0,5.1,1.8,Iris-virginica
+6.0,1.0,1.0,2.0,Iris-virginica
